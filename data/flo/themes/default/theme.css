@@ -1,0 +1,79 @@
+QGroupBox 
+{
+    border: 1px solid #d3d3d3;
+    border-color: #797979;
+    margin-top: 0px;
+    border-radius: 5px;
+    background-color: #484848;
+    font-size: 18pt;
+}
+
+.Window
+{
+    background-color: #323232;
+}
+
+.Page
+{
+    border: 1px solid gray;
+    border-color: #6b6b6b;
+    margin-top: 0px;
+    padding-top: 0px;
+    border-radius: 5px;
+    background-color: #484848;
+}
+
+.Page > QLabel
+{
+    background-color: transparent;
+}
+
+.Page > .Title
+{
+    font-size: 12pt;
+}
+
+QGroupBox > QGroupBox
+{
+    background-color: #2e2e2e;
+    border-radius: 5px;
+    font-size: 12pt;
+}
+
+QToolButton
+{
+    border:1px solid #5c5c5c;
+  border-radius:2px;
+  background-color: #292929;
+  background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 white, stop: 0 #484848,stop: 1 #292929);
+}
+
+.Connected
+{
+    color: green;
+}
+
+.Disconnected
+{
+    color: red;
+}
+
+QChartView
+{
+    padding: 0px;
+    background-color: pink;
+}
+
+QChart
+{
+    padding: 0px;
+    border-radius: 0px;
+}
+
+QToolButton::checked
+{
+    border:1px solid #424242;
+    border-radius:2px;
+    background-color: #2a2736;
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 white, stop: 0 #2a2736,stop: 1 #252233);
+}

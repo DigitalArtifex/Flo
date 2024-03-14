@@ -1,0 +1,15 @@
+{
+    "name": "Client Identifier",
+    "type": "system",
+    "preset":
+    {
+        "method": "server.connection.identify",
+        "params":
+        {
+            "client_name": "FLO Beta",
+            "version": "0.0.1",
+            "type":"other",
+            "url":"n/a"
+        }
+    }
+}

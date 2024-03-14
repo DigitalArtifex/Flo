@@ -1,0 +1,8 @@
+{
+    "name": "Server Information",
+    "type": "preset",
+    "preset":
+    {
+        "method": "server.info"
+    }
+}

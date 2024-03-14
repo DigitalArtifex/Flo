@@ -1,0 +1,8 @@
+{
+    "name": "Server Config",
+    "type": "preset",
+    "preset":
+    {
+        "method": "server.config"
+    }
+}
