@@ -1,0 +1,86 @@
+import qbs.FileInfo
+
+QtApplication {
+    Depends { name: "Qt.widgets" }
+    Depends { name: "Qt.network" }
+    Depends { name: "Qt.charts" }
+    Depends { name: "Qt.multimedia" }
+
+    cpp.defines: [
+        // You can make your code fail to compile if it uses deprecated APIs.
+        // In order to do so, uncomment the following line.
+        //"QT_DISABLE_DEPRECATED_BEFORE=0x060000" // disables all the APIs deprecated before Qt 6.0.0
+    ]
+
+    files: [
+        "QSourceHighlite/LICENSE",
+        "QSourceHighlite/languagedata.cpp",
+        "QSourceHighlite/languagedata.h",
+        "QSourceHighlite/qsourcehighliter.cpp",
+        "QSourceHighlite/qsourcehighliter.h",
+        "QSourceHighlite/qsourcehighliterthemes.cpp",
+        "QSourceHighlite/qsourcehighliterthemes.h",
+        "QVariableSytleSheet/qvariablestylesheet.cpp",
+        "QVariableSytleSheet/qvariablestylesheet.h",
+        "Resources.qrc",
+        "circularprogressbar.cpp",
+        "circularprogressbar.h",
+        "klipperconsole.cpp",
+        "klipperconsole.h",
+        "main.cpp",
+        "mainwindow.cpp",
+        "mainwindow.h",
+        "mainwindow.ui",
+        "pages/extruderwidget.cpp",
+        "pages/extruderwidget.h",
+        "pages/extruderwidget.ui",
+        "pages/filebrowseritem.cpp",
+        "pages/filebrowseritem.h",
+        "pages/filebrowseritem.ui",
+        "pages/filebrowserpage.cpp",
+        "pages/filebrowserpage.h",
+        "pages/filebrowserpage.ui",
+        "pages/filebrowserwidget.cpp",
+        "pages/filebrowserwidget.h",
+        "pages/printerpage.cpp",
+        "pages/printerpage.h",
+        "pages/printerpage.ui",
+        "pages/settingspage.cpp",
+        "pages/settingspage.h",
+        "pages/settingspage.ui",
+        "settings.cpp",
+        "settings.h",
+        "temperaturegraph.cpp",
+        "temperaturegraph.h",
+        "temperaturegraph.ui",
+        "types/bed.cpp",
+        "types/bed.h",
+        "types/extruder.cpp",
+        "types/extruder.h",
+        "types/fan.cpp",
+        "types/fan.h",
+        "types/klipperfile.cpp",
+        "types/klipperfile.h",
+        "types/klippermessage.cpp",
+        "types/klippermessage.h",
+        "types/klipperresponse.cpp",
+        "types/klipperresponse.h",
+        "types/position.cpp",
+        "types/position.h",
+        "types/printer.cpp",
+        "types/printer.h",
+        "types/toolhead.cpp",
+        "types/toolhead.h",
+        "ui/dashboardanimation.cpp",
+        "ui/dashboardanimation.h",
+        "ui/menubutton.cpp",
+        "ui/menubutton.h",
+        "ui/menubutton.ui",
+        "ui/popup.cpp",
+        "ui/popup.h",
+        "ui/popup.ui",
+    ]
+
+    install: true
+    installDir: qbs.targetOS.contains("qnx") ? FileInfo.joinPaths("/tmp", name, "bin") : base
+}

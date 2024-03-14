@@ -1,0 +1,270 @@
+#include "settings.h"
+#include "QVariableSytleSheet/qvariablestylesheet.h"
+
+QMap<QString,QVariant> Settings::settings;
+QMap<QString,QVariant> Settings::themeSettings;
+QMap<QString,QString> Settings::themeMap;
+QMap<QString,QIcon> Settings::iconMap;
+
+void Settings::loadThemes()
+{
+    qDebug() << "Themes";
+    QDir presetDir(QString(Settings::get("system.theme_location").toString()));
+
+    if(!themeMap.isEmpty())
+        themeMap.empty();
+
+    if(presetDir.exists())
+    {
+        QDirIterator directoryIterator(presetDir.absolutePath(), QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+
+        while(directoryIterator.hasNext())
+        {
+            directoryIterator.next();
+
+            QDir subdirectory(presetDir.absolutePath() + QDir::separator() + directoryIterator.fileName());
+            QStringList subdirectoryFiles = subdirectory.entryList(QStringList() << "theme.json",QDir::Files);
+
+            if(subdirectoryFiles.isEmpty())
+                continue;
+
+            foreach(QString subdirectoryFile, subdirectoryFiles)
+            {
+                //Load the JSON information
+                QFile documentFile(subdirectory.absolutePath() + QDir::separator() + subdirectoryFile);
+
+                qDebug() << ">> " + subdirectory.absolutePath() + QDir::separator() + subdirectoryFile;
+                //Missing or corrupt files are just skipped for now
+                if(!documentFile.open(QFile::ReadOnly))
+                    continue;
+
+                QJsonParseError documentError;
+                QJsonDocument document = QJsonDocument::fromJson(documentFile.readAll(), &documentError);
+
+                documentFile.close();
+
+                //TODO: Error log
+                if(documentError.error != QJsonParseError::NoError)
+                    continue;
+
+                QJsonObject documentObject = document.object();
+
+                QString themeFileLocation = subdirectory.absolutePath() + QDir::separator() + "theme.css";
+                themeMap[documentObject["name"].toString()] = themeFileLocation;
+            }
+        }
+    }
+}
+
+void Settings::load()
+{
+    qDebug() << "Settings File";
+    QString settingsFileLocation = QDir::homePath() + QDir::separator() + QString(".local") +
+                                   QDir::separator() + QString("share") + QDir::separator() +
+                                   QString("flo") + QDir::separator();
+
+    QDir settingsDirectory(settingsFileLocation);
+    QFile settingsFile(settingsFileLocation + QString("config.json"));
+
+    if(!settingsDirectory.exists())
+    {
+        settingsDirectory.mkpath(".");
+        settingsDirectory.mkdir("presets");
+    }
+
+    if(!settingsFile.exists())
+        reset();
+
+    if(settingsFile.open(QFile::ReadOnly))
+    {
+        QByteArray settingsData = settingsFile.readAll();
+
+        settingsFile.close();
+
+        QJsonParseError settingsDataError;
+        QJsonObject settingsObject = QJsonDocument::fromJson(settingsData, &settingsDataError).object();
+        QJsonObject::Iterator settingsIterator;
+
+        if(settingsDataError.error != QJsonParseError::NoError)
+        {
+            reset();
+            loadThemes();
+            return;
+        }
+
+        for(settingsIterator = settingsObject.begin(); settingsIterator != settingsObject.end(); settingsIterator++)
+            set(settingsIterator.key(), settingsIterator.value().toVariant());
+    }
+
+    loadThemes();
+}
+
+void Settings::save()
+{
+    QString settingsFileLocation = QDir::homePath() + QDir::separator() + QString(".local") +
+                                   QDir::separator() + QString("share") + QDir::separator() +
+                                   QString("flo") + QDir::separator() + QString("config.json");
+    QJsonObject rootObject;
+    QMap<QString,QVariant>::Iterator mapIterator = settings.begin();
+
+    for(mapIterator = settings.begin(); mapIterator != settings.end(); mapIterator++)
+        rootObject[mapIterator.key()] = QJsonValue::fromVariant(mapIterator.value());
+
+    //Currently experiencing a bug that writes over a files to the length of the current data,
+    //but leaves the previously written data. Quite obviously a bug I'm creating as its been a while,
+    //but this fixes it for now.
+    if(QFile(settingsFileLocation).exists())
+    {
+        QFile(settingsFileLocation).moveToTrash();
+    }
+
+    QJsonDocument document(rootObject);
+    QFile settingsFile(settingsFileLocation);
+
+    if(settingsFile.open(QFile::ReadWrite))
+    {
+        QByteArray data = document.toJson();
+        qint64 written = settingsFile.write(data, data.length());
+        settingsFile.flush();
+        settingsFile.close();
+    }
+}
+
+void Settings::reset()
+{
+    QString settingsFileLocation = QDir::homePath() + QDir::separator() + QString(".local") +
+                                   QDir::separator() + QString("share") + QDir::separator() +
+                                   QString("flo") + QDir::separator();
+
+    QString klipperBaseLocation = QDir::homePath() + QDir::separator() + QString("printer_data") +
+                                  QDir::separator();
+
+    QString comLocation = klipperBaseLocation  + "comms" + QDir::separator();
+    QString gcodeLocation = klipperBaseLocation + "gcodes" + QDir::separator();
+    QString presetLocation = settingsFileLocation + QString("presets") + QDir::separator();
+    QString themeLocation = settingsFileLocation + QString("themes") + QDir::separator();
+
+    set("system.base_location", settingsFileLocation);
+    set("system.preset_location", presetLocation);
+    set("system.klipper.com_location", comLocation);
+    set("system.klipper.gcode_location", gcodeLocation);
+    set("system.klipper.protocol","moonraker");
+    set("system.theme", "System Default");
+    set("system.theme_location", themeLocation);
+
+    save();
+}
+
+QVariant Settings::get(QString key)
+{
+    return settings[key];
+}
+
+void Settings::set(QString key, QVariant value)
+{
+    settings[key] = value;
+}
+
+QString Settings::getTheme(QString key)
+{
+    qDebug() << "Theme Load (" + key + ")";
+
+    QFile themeFile(themeMap[key]);
+
+    //Missing or corrupt files are just skipped for now
+    if(!themeFile.open(QFile::ReadOnly))
+        return QString();
+
+    QString theme = themeFile.readAll();
+    themeFile.close();
+
+    QVariableStyleSheet sheet(theme);
+    theme = sheet.process();
+
+    //For Debug
+
+    QFile alteredFile(themeMap[key] + QString("2"));
+    if(alteredFile.open(QFile::WriteOnly))
+    {
+        alteredFile.write(theme.toUtf8());
+        alteredFile.close();
+    }
+
+    QString themeLocation = QString(themeMap[key]).remove("theme.css");
+    QString themeIconLocation = themeLocation + QDir::separator() + "icons" + QDir::separator();
+    QFile themeConfig(themeLocation + "theme.json");
+
+    //Missing or corrupt files are just skipped for now
+    if(!themeConfig.open(QFile::ReadOnly))
+        return QString();
+
+    QJsonParseError themeError;
+    QJsonObject themeObject = QJsonDocument::fromJson(themeConfig.readAll(), &themeError).object();
+
+    themeConfig.close();
+
+    if(themeError.error != QJsonParseError::NoError)
+    {
+        qDebug() << "Theme document parsing error";
+        return QString();
+    }
+
+    if(themeObject.contains(QString("color_CodeBlock")))
+        settings[QString("color_CodeBlock")] = themeObject[QString("color_CodeBlock")].toString();
+
+    if(themeObject.contains(QString("color_CodeKeyWord")))
+        settings[QString("color_CodeKeyWord")] = themeObject[QString("color_CodeKeyWord")].toString();
+
+    if(themeObject.contains(QString("color_CodeString")))
+        settings[QString("color_CodeString")] = themeObject[QString("color_CodeString")].toString();
+
+    if(themeObject.contains(QString("color_CodeComment")))
+        settings[QString("color_CodeComment")] = themeObject[QString("color_CodeComment")].toString();
+
+    if(themeObject.contains(QString("color_CodeType")))
+        settings[QString("color_CodeType")] = themeObject[QString("color_CodeType")].toString();
+
+    if(themeObject.contains(QString("color_CodeOther")))
+        settings[QString("color_CodeOther")] = themeObject[QString("color_CodeOther")].toString();
+    if(themeObject.contains(QString("color_CodeNumLiteral")))
+        settings[QString("color_CodeNumLiteral")] = themeObject[QString("color_CodeNumLiteral")].toString();
+
+    if(themeObject.contains(QString("color_CodeBuiltIn")))
+        settings[QString("color_CodeBuiltIn")] = themeObject[QString("color_CodeBuiltIn")].toString();
+
+    if(themeObject.contains(QString("color_Graph")))
+        settings[QString("color_Graph")] = themeObject[QString("color_Graph")].toString();
+
+
+    QJsonArray themeIcons = themeObject["icons"].toArray();
+    iconMap.empty();
+
+    for(int i = 0; i < themeIcons.count(); i++)
+    {
+        QJsonObject themeIcon = themeIcons[i].toObject();
+
+        if(themeIcon.contains("name") && themeIcon.contains("icon"))
+        {
+            QIcon loadedIcon(themeIconLocation + themeIcon["icon"].toString());
+            iconMap[themeIcon["name"].toString()] = loadedIcon;
+        }
+    }
+
+    return theme;
+}
+
+QIcon Settings::getThemeIcon(QString key)
+{
+    return iconMap[key];
+}
+
+QStringList Settings::getThemeList()
+{
+    QStringList themes = themeMap.keys();
+    return themes;
+}
+
+void Settings::setTheme(QString key)
+{
+    set("system.theme", key);
+}
