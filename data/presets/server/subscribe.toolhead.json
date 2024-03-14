@@ -1,0 +1,21 @@
+{
+    "name": "sub.toolhead",
+    "type": "system",
+    "icon": "server-info",
+    "preset":
+    {
+        "method": "printer.objects.subscribe",
+		"params": {
+			"objects": {
+            	"toolhead": null,
+            	"extruder": null,
+            	"bed_mesh": null,
+            	"heater_bed": null,
+            	"fan": null,
+				"gcode_move":null,
+				"heater_fan heatbreak_cooling_fan": null,
+				"motion_report": null
+			}
+		}
+    }
+}

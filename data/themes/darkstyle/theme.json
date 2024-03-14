@@ -1,0 +1,78 @@
+{
+	"name": "Darkstyle",
+	"icons":
+	[
+		{
+			"name": "printer-info",
+			"icon": "solid/print.svg" 
+		},
+		{
+			"name": "server-info",
+			"icon": "solid/server.svg" 
+		},
+		{
+			"name": "dashboard",
+			"icon": "solid/desktop.svg" 
+		},
+		{
+			"name": "console",
+			"icon": "solid/terminal.svg" 
+		},
+		{
+			"name": "moonraker",
+			"icon": "solid/moon.svg" 
+		},
+		{
+			"name": "files",
+			"icon": "solid/file.svg" 
+		},
+		{
+			"name": "settings",
+			"icon": "solid/cogs.svg" 
+		},
+		{
+			"name": "printer",
+			"icon": "solid/print.svg" 
+		},
+		{
+			"name": "search-icon",
+			"icon": "solid/print.svg" 
+		},
+		{
+			"name": "print-icon",
+			"icon": "solid/print.svg" 
+		},
+		{
+			"name": "file-upload-icon",
+			"icon": "solid/cloud-upload.svg" 
+		},
+		{
+			"name": "file-delete-icon",
+			"icon": "solid/print.svg" 
+		},
+		{
+			"name": "file-icon",
+			"icon": "solid/file-alt.svg" 
+		},
+		{
+			"name": "folder-icon",
+			"icon": "solid/folder.svg" 
+		},
+		{
+			"name": "power-icon",
+			"icon": "solid/power-off.svg" 
+		},
+		{
+			"name": "fan-icon",
+			"icon": "solid/tachometer-fast.svg" 
+		},
+		{
+			"name": "temperature-icon",
+			"icon": "solid/temperature-high.svg" 
+		},
+		{
+			"name": "refresh-icon",
+			"icon": "solid/redo.svg" 
+		}
+	]
+}

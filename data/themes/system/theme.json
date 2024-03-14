@@ -1,0 +1,161 @@
+{
+    "name": "System Theme",
+	"color": "#006699",
+	"color_CodeBlock": "#9B8C1D",
+	"color_CodeKeyWord": "#006699",
+	"color_CodeString": "#446699",
+	"color_CodeComment": "#006699",
+	"color_CodeType": "#006699",
+	"color_CodeOther": "#006699",
+	"color_CodeNumLiteral": "#D433FF",
+	"color_CodeBuiltIn": "#006699",
+	"color_Graph": "#292929",
+	"color_Primary": "#006699",
+	"color_Secondary": "#590099",
+	"color_Ready": "#00994c",
+	"color_Warning": "#292929",
+	"color_Danger": "#292929",
+    "icons":
+	[
+		{
+			"name": "printer-info",
+			"icon": "icons8-printer-maintenance-80.png" 
+		},
+		{
+			"name": "server-info",
+			"icon": "solid/server.svg" 
+		},
+		{
+			"name": "dashboard",
+			"icon": "icons8-dashboard-64-alt.png" 
+		},
+		{
+			"name": "console",
+			"icon": "icons8-code-64.png" 
+		},
+		{
+			"name": "moonraker",
+			"icon": "icons8-code-64.png" 
+		},
+		{
+			"name": "files",
+			"icon": "icons8-error-folder-64.png" 
+		},
+		{
+			"name": "settings",
+			"icon": "icons8-browser-settings-64.png" 
+		},
+		{
+			"name": "printer",
+			"icon": "icons8-3d-printer-64.png" 
+		},
+		{
+			"name": "printer-error-icon",
+			"icon": "icons8-3d-printer-64-error.png" 
+		},
+		{
+			"name": "printer-ready-icon",
+			"icon": "icons8-3d-printer-64-ready.png" 
+		},
+		{
+			"name": "search-icon",
+			"icon": "icons8-search-64.png" 
+		},
+		{
+			"name": "print-icon",
+			"icon": "icons8-print-file-64.png" 
+		},
+		{
+			"name": "file-upload-icon",
+			"icon": "icons8-upload-64.png" 
+		},
+		{
+			"name": "file-delete-icon",
+			"icon": "icons8-delete-file-64.png" 
+		},
+		{
+			"name": "file-icon",
+			"icon": "icons8-code-file-64.png" 
+		},
+		{
+			"name": "folder-icon",
+			"icon": "icons8-error-folder-64.png" 
+		},
+		{
+			"name": "folder-create-icon",
+			"icon": "icons8-add-folder-64.png" 
+		},
+		{
+			"name": "power-icon",
+			"icon": "icons8-power-64.png" 
+		},
+		{
+			"name": "fan-icon",
+			"icon": "icons8-fan-64.png" 
+		},
+		{
+			"name": "fan-on-icon",
+			"icon": "icons8-fan-64-alt.png" 
+		},
+		{
+			"name": "temperature-icon",
+			"icon": "icons8-temperature-64.png" 
+		},
+		{
+			"name": "refresh-icon",
+			"icon": "icons8-refresh-64.png" 
+		},
+		{
+			"name": "webcam-icon",
+			"icon": "icons8-film-reel-64.png" 
+		},
+		{
+			"name": "no-video-icon",
+			"icon": "icons8-no-video-64.png" 
+		},
+		{
+			"name": "up-directory-icon",
+			"icon": "icons8-go-back-64.png" 
+		},
+		{
+			"name": "accept-icon",
+			"icon": "icons8-accept-64.png" 
+		},
+		{
+			"name": "cancel-icon",
+			"icon": "icons8-cancel-64.png" 
+		},
+		{
+			"name": "close-icon",
+			"icon": "icons8-cancel-64.png" 
+		},
+		{
+			"name": "application-icon",
+			"icon": "flo logo.png" 
+		},
+		{
+			"name": "system-icon",
+			"icon": "icons8-system-information-64.png" 
+		},
+		{
+			"name": "expand-icon",
+			"icon": "icons8-expand-64.png" 
+		},
+		{
+			"name": "collapse-icon",
+			"icon": "icons8-collapse-50.png" 
+		},
+		{
+			"name": "loading-printer-icon",
+			"icon": "icons8-print-file-64.png" 
+		},
+		{
+			"name": "loading-moonraker-icon",
+			"icon": "icons8-print-file-64.png" 
+		},
+		{
+			"name": "loading-klipper-icon",
+			"icon": "icons8-print-file-64.png" 
+		}
+	]
+}

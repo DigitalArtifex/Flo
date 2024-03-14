@@ -1,0 +1,14 @@
+{
+    "name": "sub.extruder",
+    "type": "system",
+    "icon": "server-info",
+    "preset":
+    {
+        "method": "printer.objects.subscribe",
+		"params": {
+			"objects": {
+            	"extruder": null
+			}
+		}
+    }
+}

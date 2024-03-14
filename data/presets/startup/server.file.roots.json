@@ -1,0 +1,8 @@
+{
+    "name": "File Roots",
+    "type": "system",
+    "preset":
+    {
+        "method": "server.files.roots"
+    }
+}

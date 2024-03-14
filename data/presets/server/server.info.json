@@ -1,0 +1,9 @@
+{
+    "name": "Server Information",
+    "type": "preset",
+    "icon": "server-info",
+    "preset":
+    {
+        "method": "server.info"
+    }
+}

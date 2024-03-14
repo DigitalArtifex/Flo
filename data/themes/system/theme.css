@@ -1,0 +1,511 @@
+/* Flo Required Edits------------------------------------------------------
+
+--------------------------------------------------------------------------- */
+
+:root
+{
+  --widget-font-size: 10pt;
+  --window-backgound-color: #141414;
+  --widget-background-color: #242424;
+  --widget-border-size: 2;
+  --widget-border-color-1: #4b4b4b;
+  --widget-border-color-2: #141414;
+  --widget-title-background-color: transparent;
+  --widget-title-font-size: 12pt;
+
+  /* Sub Widget */
+  --subwidget-border-color-1: #141414;
+  --subwidget-border-color-2: #4b4b4b;
+  --subwidget-background-color: #141414;
+
+  --page-background-color: #111111; 
+	--primary-highlight: #006699;
+	--secondary-highlight: #590099;
+	--ready-highlight: #00994c;
+	--warning-highlight: #292929;
+	--color_Danger: #292929;
+  --default-font-color: #F4F1DE;
+}
+
+.FileBrowser QWidget
+{
+  background-color: transparent;
+}
+
+QMainWindow
+{
+  background-color: var(--window-backgound-color);
+  border-radius: 0px;
+  font-color: var(--default-font-color);
+}
+
+QScrollArea
+{
+  border: none;
+  background-color: transparent;
+}
+
+.DashboardContents
+{
+  background-color: #141414;
+}
+
+.DashboardWidget
+{
+  font-size: var(--widget-font-size);
+  background-color: var(--widget-background-color);
+  border-left: var(--widget-border-size) solid black;
+  border-top: var(--widget-border-size) solid black;
+  border-right: var(--widget-border-size) solid black;
+  border-bottom: var(--widget-border-size) solid black;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--widget-border-color-1), stop: 1 var(--widget-border-color-2));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--widget-border-color-1), stop: 1 var(--widget-border-color-2));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--widget-border-color-1), stop: 1 var(--widget-border-color-2));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--widget-border-color-1), stop: 1 var(--widget-border-color-2));
+}
+
+.DashboardWidget:hover
+{
+  font-size: var(--widget-font-size);
+  background-color: var(--widget-background-color);
+  border-left: var(--widget-border-size) solid black;
+  border-top: var(--widget-border-size) solid black;
+  border-right: var(--widget-border-size) solid black;
+  border-bottom: var(--widget-border-size) solid black;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-2));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-2));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-2));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-2));
+}
+
+.DashboardSubWidget
+{
+  background-color: var(--subwidget-background-color);
+  border-left: var(--widget-border-size) solid black;
+  border-top: var(--widget-border-size) solid black;
+  border-right: var(--widget-border-size) solid black;
+  border-bottom: var(--widget-border-size) solid black;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
+}
+
+.DashboardWidgetTitle
+{
+  font-size: var(--widget-title-font-size);
+  background-color: var(--widget-title-background-color);
+}
+
+.DashboardWidgetIcon
+{
+  background-color: transparent;
+}
+
+.TemperatureChart
+{
+  background-color: var(--subwidget-background-color);
+}
+
+.TemperatureView
+{
+  background-color: var(--subwidget-background-color);
+}
+
+.PopupContents
+{
+  background-color: var(--page-background-color);
+}
+
+.ApplicationIcon
+{
+
+  width: 32px;
+  min-width: 32px;
+  max-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+}
+
+.EmergencyStopButton
+{
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--color_Danger_1), stop: 1 var(--color_Danger_2));
+  border-left: var(--widget-border-size) solid black;
+  border-top: var(--widget-border-size) solid black;
+  border-right: var(--widget-border-size) solid black;
+  border-bottom: var(--widget-border-size) solid black;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--widget-border-color-1), stop: 1 var(--widget-border-color-2));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--widget-border-color-1), stop: 1 var(--widget-border-color-2));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--widget-border-color-1), stop: 1 var(--widget-border-color-2));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--widget-border-color-1), stop: 1 var(--widget-border-color-2));
+}
+
+.ErrorFrame
+{
+
+  border-top:2px solid white;
+  background-color: #5e592a;
+  background-color: #44401f;
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #5e592a, stop: 1 #44401f);
+  border-top: 2px solid white;
+
+  border-left: 2px solid black;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+}
+
+.MenuTitleBar
+{
+  background-color: #141414;
+  border-bottom: 2px solid white;
+  border-top: none;
+  border-right: none;
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #232323);
+  height: 85px;
+  min-height: 85px;
+  max-height: 85px;
+}
+
+.MenuBar
+{
+  background-color: #141414;
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #232323);
+  border: 2px solid white;
+  border-right-color: none;
+  border-left: none;
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+}
+
+.MenuButton
+{
+  width: 218px;
+  min-width: 218px;
+  max-width: 218px;
+  height: 54px;
+  min-height: 54px;
+  max-height: 54px;
+  border: none;
+  border-radius: 0px;
+}
+
+.MenuButton[checked=true]
+{
+  height: 50px;
+  min-height: 50px;
+  max-height: 50px;
+  border-bottom: 2px solid white;
+  border-top: 2px solid white;
+  border-right: 2px solid white;
+  background-color: #292929;
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #292929, stop: 1 #141414);
+  border-top-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #232323);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #141414);
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+}
+
+.MenuButton:hover
+{
+  background-color: #4b4b4b;
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #232323, stop: 1 #141414);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #232323);
+}
+
+.DashboardMenuButton
+{
+  border-top: none;
+}
+
+.DashboardMenuButton[checked=true]
+{
+  border-top: none;
+  height: 54px;
+  min-height: 54px;
+  max-height: 54px;
+}
+
+.MenuButton QIcon
+{
+  padding: 10px;
+  size: 32px;
+}
+
+.Menu
+{
+  border: 2px solid white;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-left: none;
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  background-color: #141414;
+}
+
+.PageContainer
+{
+  border: 2px solid white;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-left: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);;
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  background-color: #141414;
+}
+
+.PageTitle
+{
+  font-size: 12pt;
+}
+
+.PageTitleBar
+{
+  padding: 4px;
+
+  min-height: 0px;
+  max-height: 0px;
+  height: 0px;
+  qproperty-visible: true;
+  border: none;
+  border-bottom: 2px solid black;
+  background-color: #141414;
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #353535);
+}
+
+.PageActionBar
+{
+  border: none;
+  border-bottom: 2px solid #1b1b1b;
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #1b1b1b, stop: 1 #1f1f1f);
+}
+
+.Page
+{
+  background-color: #353535;
+  border-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+
+  border-left: 2px solid black;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  top: -2px;
+}
+
+.PageContents
+{
+  margin: 0px;
+  background-color: #141414;
+}
+
+.PageContents QScrollArea
+{
+  border: none;
+  margin: 0px;
+  background-color: #222222;
+}
+
+.PopupAcceptButton
+{
+  background-color: #47883e;
+  background-color: #34612e;
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #47883e, stop: 1 #34612e);
+}
+
+.PopupDeleteButton
+{
+  background-color: #883e3e;
+  background-color: #612e2e;
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #883e3e, stop: 1 #612e2e);
+}
+
+.PopupCloseButton
+{
+  border: none;
+  border-left: 2px solid white;
+  border-top: 2px solid white;
+  border-right: 2px solid white;
+  background-color: #883e3e;
+  background-color: #612e2e;
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #883e3e, stop: 1 #612e2e);
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  width:50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.PopupCloseButton:hover
+{
+  border: none;
+  border-left: 2px solid white;
+  border-top: 2px solid white;
+  border-right: 2px solid white;
+  background-color: #964343;
+  background-color: #6e3434;
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #964343, stop: 1 #6e3434);
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  width:50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.PopupCloseButton:clicked
+{
+  border: none;
+  border-left: 2px solid white;
+  border-top: 2px solid white;
+  border-right: 2px solid white;
+  background-color: #773636;
+  background-color: #612e2e;
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #773636, stop: 1 #612e2e);
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  width:50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.PopupButton
+{
+  max-height:50px;
+  min-height:50px;
+  height:50px;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+}
+
+.PopupOverlay
+{
+  background-color: rgba(255, 255, 255, 0);
+}
+
+.Popup
+{
+  background-color: #292929;
+  border: 2px solid white;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+}
+
+.PopupTitleBar
+{
+  padding: 4px;
+
+  min-height: 35px;
+  max-height: 35px;
+  height: 35px;
+  border: none;
+  border-bottom: 2px solid black;
+  background-color: #141414;
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #353535);
+}
+
+.FileBrowserItem > QIcon
+{
+  color: white;
+}
+
+.FileBrowserItemTitle
+{
+  font-size: 12pt;
+  font-weight: bold;
+}
+
+.FileBrowserItem > QPushButton
+{
+  width: 50px;
+  height: 35px;
+  max-width: 50px;
+  max-height: 35px;
+  min-width: 0px;
+  min-height: 0px;
+}
+.FileBrowserItem:hover > QPushButton
+{
+  width: 50px;
+  height: 35px;
+  max-width: 50px;
+  max-height: 35px;
+  min-width: 0px;
+  min-height: 0px;
+}
+
+.FileBrowser
+{
+  padding: 0px;
+
+  background-color: #242424;
+}
+
+.FileBrowserItem:hover
+{
+  background-color: #3e6088;
+}
+
+.FileBrowserItem[pressed="true"]
+{
+  background-color: #425f81;
+}
+
+.FileBrowserItem > QLabel
+{
+  background-color: transparent;
+}
+
+.FileBrowserItem
+{
+  /*border-top: 1px solid #455364;
+  border-bottom: 1px solid #455364;*/
+  background-color: #242424;
+}
+
+/* Printer Page */
+.PrinterWidget
+{
+  background-color: #242424;
+  /*color: #998f00;*/
+}
+
+.PrinterWidget QLabel
+{
+  color: #998f00;
+}
+
+.PrinterWidget QLineEdit
+{
+  background-color: #353535;
+}
+
+.PrinterSubWidget
+{
+  background-color: #444444;
+  border-left: 2px solid black;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+}

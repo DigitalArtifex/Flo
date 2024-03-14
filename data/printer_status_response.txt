@@ -1,0 +1,1273 @@
+{
+    "error": null,
+    "id": 9,
+    "jsonrpc": "2.0",
+    "method": "printer.objects.query",
+    "result": {
+        "eventtime": 1113.08514195,
+        "status": {
+            "bed_mesh": {
+                "mesh_matrix": [
+                    [
+                    ]
+                ],
+                "mesh_max": [
+                    0,
+                    0
+                ],
+                "mesh_min": [
+                    0,
+                    0
+                ],
+                "probed_matrix": [
+                    [
+                    ]
+                ],
+                "profile_name": "",
+                "profiles": {
+                }
+            },
+            "configfile": {
+                "config": {
+                    "bed_mesh": {
+                        "algorithm": "bicubic",
+                        "fade_end": "10",
+                        "fade_start": "1",
+                        "fade_target": "0",
+                        "horizontal_move_z": "5",
+                        "mesh_max": "205, 205",
+                        "mesh_min": "15, 15",
+                        "probe_count": "5,3",
+                        "speed": "120"
+                    },
+                    "bltouch": {
+                        "control_pin": "PA1",
+                        "sensor_pin": "^PC14",
+                        "x_offset": "-42",
+                        "y_offset": "-10",
+                        "z_offset": "0"
+                    },
+                    "board_pins": {
+                        "aliases": "\n\nEXP1_1=PB5,  EXP1_3=PA9,   EXP1_5=PA10, EXP1_7=PB8, EXP1_9=<GND>,\nEXP1_2=PA15, EXP1_4=<RST>, EXP1_6=PB9,  EXP1_8=PD6, EXP1_10=<5V>"
+                    },
+                    "display_status": {
+                    },
+                    "extruder": {
+                        "control": "pid",
+                        "dir_pin": "PB4",
+                        "enable_pin": "!PD1",
+                        "filament_diameter": "1.750",
+                        "gear_ratio": "50:17",
+                        "heater_pin": "PC8",
+                        "max_temp": "250",
+                        "microsteps": "16",
+                        "min_temp": "0",
+                        "nozzle_diameter": "0.600",
+                        "pid_kd": "119.065",
+                        "pid_ki": "0.768",
+                        "pid_kp": "19.127",
+                        "rotation_distance": "7.7",
+                        "sensor_pin": "PA0",
+                        "sensor_type": "EPCOS 100K B57560G104F",
+                        "step_pin": "PB3"
+                    },
+                    "fan": {
+                        "pin": "PC6"
+                    },
+                    "force_move": {
+                        "enable_force_move": "True"
+                    },
+                    "gcode_macro CANCEL_PRINT": {
+                        "description": "Cancel the actual running print",
+                        "gcode": "\n\n{% set client = printer['gcode_macro _CLIENT_VARIABLE']|default({}) %}\n{% set allow_park = client.park_at_cancel|default(false)|lower == 'true' %}\n{% set retract = client.cancel_retract|default(5.0)|abs %}\n\n{% set park_x = \"\" if (client.park_at_cancel_x|default(none) is none)\nelse \"X=\" ~ client.park_at_cancel_x %}\n{% set park_y = \"\" if (client.park_at_cancel_y|default(none) is none)\nelse \"Y=\" ~ client.park_at_cancel_y %}\n{% set custom_park = park_x|length > 0 or park_y|length > 0 %}\n\n\n{% if printer['gcode_macro RESUME'].restore_idle_timeout > 0 %}\nSET_IDLE_TIMEOUT TIMEOUT={printer['gcode_macro RESUME'].restore_idle_timeout}\n{% endif %}\n{% if (custom_park or not printer.pause_resume.is_paused) and allow_park %} _TOOLHEAD_PARK_PAUSE_CANCEL {park_x} {park_y} {% endif %}\n_CLIENT_RETRACT LENGTH={retract}\nTURN_OFF_HEATERS\nM106 S0\n{client.user_cancel_macro|default(\"\")}\nSET_GCODE_VARIABLE MACRO=RESUME VARIABLE=idle_state VALUE=False\n\nSET_PAUSE_NEXT_LAYER ENABLE=0\nSET_PAUSE_AT_LAYER ENABLE=0 LAYER=0\nCANCEL_PRINT_BASE",
+                        "rename_existing": "CANCEL_PRINT_BASE"
+                    },
+                    "gcode_macro PAUSE": {
+                        "description": "Pause the actual running print",
+                        "gcode": "\n\n{% set client = printer['gcode_macro _CLIENT_VARIABLE']|default({}) %}\n{% set idle_timeout = client.idle_timeout|default(0) %}\n{% set temp = printer[printer.toolhead.extruder].target if printer.toolhead.extruder != '' else 0 %}\n{% set restore = False if printer.toolhead.extruder == ''\nelse True  if params.RESTORE|default(1)|int == 1 else False %}\n\nSET_GCODE_VARIABLE MACRO=RESUME VARIABLE=last_extruder_temp VALUE=\"{{'restore': restore, 'temp': temp}}\"\n\n{% if idle_timeout > 0 %}\nSET_GCODE_VARIABLE MACRO=RESUME VARIABLE=restore_idle_timeout VALUE={printer.configfile.settings.idle_timeout.timeout}\nSET_IDLE_TIMEOUT TIMEOUT={idle_timeout}\n{% endif %}\nPAUSE_BASE\n{client.user_pause_macro|default(\"\")}\n_TOOLHEAD_PARK_PAUSE_CANCEL {rawparams}",
+                        "rename_existing": "PAUSE_BASE"
+                    },
+                    "gcode_macro RESUME": {
+                        "description": "Resume the actual running print",
+                        "gcode": "\n\n{% set client = printer['gcode_macro _CLIENT_VARIABLE']|default({}) %}\n{% set velocity = printer.configfile.settings.pause_resume.recover_velocity %}\n{% set sp_move = client.speed_move|default(velocity) %}\n{% set runout_resume = True if client.runout_sensor|default(\"\") == \"\"\nelse True if not printer[client.runout_sensor].enabled\nelse printer[client.runout_sensor].filament_detected %}\n{% set can_extrude = True if printer.toolhead.extruder == ''\nelse printer[printer.toolhead.extruder].can_extrude %}\n{% set do_resume = False %}\n{% set prompt_txt = [] %}\n\n\n{% if printer.idle_timeout.state|upper == \"IDLE\" or idle_state %}\nSET_GCODE_VARIABLE MACRO=RESUME VARIABLE=idle_state VALUE=False\n{% if last_extruder_temp.restore %}\n\nRESPOND TYPE=echo MSG='{\"Restoring \\\"%s\\\" temperature to %3.1f\\u00B0C, this may take some time\" % (printer.toolhead.extruder, last_extruder_temp.temp) }'\nM109 S{last_extruder_temp.temp}\n{% set do_resume = True %}\n{% elif can_extrude %}\n{% set do_resume = True %}\n{% else %}\nRESPOND TYPE=error MSG='{\"Resume aborted !!! \\\"%s\\\" not hot enough, please heat up again and press RESUME\" % printer.toolhead.extruder}'\n{% set _d = prompt_txt.append(\"\\\"%s\\\" not hot enough, please heat up again and press RESUME\" % printer.toolhead.extruder) %}\n{% endif %}\n\n{% elif can_extrude %}\n{% set do_resume = True %}\n{% else %}\nRESPOND TYPE=error MSG='{\"Resume aborted !!! \\\"%s\\\" not hot enough, please heat up again and press RESUME\" % printer.toolhead.extruder}'\n{% set _d = prompt_txt.append(\"\\\"%s\\\" not hot enough, please heat up again and press RESUME\" % printer.toolhead.extruder) %}\n{% endif %}\n{% if runout_resume %}\n{% if do_resume %}\n{% if restore_idle_timeout > 0 %} SET_IDLE_TIMEOUT TIMEOUT={restore_idle_timeout} {% endif %}\n{client.user_resume_macro|default(\"\")}\n_CLIENT_EXTRUDE\nRESUME_BASE VELOCITY={params.VELOCITY|default(sp_move)}\n{% endif %}\n{% else %}\nRESPOND TYPE=error MSG='{\"Resume aborted !!! \\\"%s\\\" detects no filament, please load filament and press RESUME\" % (client.runout_sensor.split(\" \"))[1]}'\n{% set _d = prompt_txt.append(\"\\\"%s\\\" detects no filament, please load filament and press RESUME\" % (client.runout_sensor.split(\" \"))[1]) %}\n{% endif %}\n\n{% if not (runout_resume and do_resume) %}\nRESPOND TYPE=command MSG=\"action:prompt_begin RESUME aborted !!!\"\n{% for element in prompt_txt %}\nRESPOND TYPE=command MSG='{\"action:prompt_text %s\" % element}'\n{% endfor %}\nRESPOND TYPE=command MSG=\"action:prompt_footer_button Ok|RESPOND TYPE=command MSG=action:prompt_end|info\"\nRESPOND TYPE=command MSG=\"action:prompt_show\"\n{% endif %}",
+                        "rename_existing": "RESUME_BASE",
+                        "variable_idle_state": "False",
+                        "variable_last_extruder_temp": "{'restore': False, 'temp': 0}",
+                        "variable_restore_idle_timeout": "0"
+                    },
+                    "gcode_macro SET_PAUSE_AT_LAYER": {
+                        "description": "Enable/disable a pause if a given layer number is reached",
+                        "gcode": "\n{% set pause_at_layer = printer['gcode_macro SET_PRINT_STATS_INFO'].pause_at_layer %}\n{% set ENABLE = params.ENABLE|int != 0 if params.ENABLE is defined\nelse params.LAYER is defined %}\n{% set LAYER = params.LAYER|default(pause_at_layer.layer)|int %}\n{% set MACRO = params.MACRO|default(pause_at_layer.call, True) %}\nSET_GCODE_VARIABLE MACRO=SET_PRINT_STATS_INFO VARIABLE=pause_at_layer VALUE=\"{{ 'enable': ENABLE, 'layer': LAYER, 'call': MACRO }}\""
+                    },
+                    "gcode_macro SET_PAUSE_NEXT_LAYER": {
+                        "description": "Enable a pause if the next layer is reached",
+                        "gcode": "\n{% set pause_next_layer = printer['gcode_macro SET_PRINT_STATS_INFO'].pause_next_layer %}\n{% set ENABLE = params.ENABLE|default(1)|int != 0 %}\n{% set MACRO = params.MACRO|default(pause_next_layer.call, True) %}\nSET_GCODE_VARIABLE MACRO=SET_PRINT_STATS_INFO VARIABLE=pause_next_layer VALUE=\"{{ 'enable': ENABLE, 'call': MACRO }}\""
+                    },
+                    "gcode_macro SET_PRINT_STATS_INFO": {
+                        "description": "Overwrite, to get pause_next_layer and pause_at_layer feature",
+                        "gcode": "\n{% if pause_next_layer.enable %}\nRESPOND TYPE=echo MSG='{\"%s, forced by pause_next_layer\" % pause_next_layer.call}'\n{pause_next_layer.call}\nSET_PAUSE_NEXT_LAYER ENABLE=0\n{% elif pause_at_layer.enable and params.CURRENT_LAYER is defined and params.CURRENT_LAYER|int == pause_at_layer.layer %}\nRESPOND TYPE=echo MSG='{\"%s, forced by pause_at_layer [%d]\" % (pause_at_layer.call, pause_at_layer.layer)}'\n{pause_at_layer.call}\nSET_PAUSE_AT_LAYER ENABLE=0\n{% endif %}\nSET_PRINT_STATS_INFO_BASE {rawparams}",
+                        "rename_existing": "SET_PRINT_STATS_INFO_BASE",
+                        "variable_pause_at_layer": "{ 'enable': False, 'layer': 0, 'call': \"PAUSE\" }",
+                        "variable_pause_next_layer": "{ 'enable': False, 'call': \"PAUSE\" }"
+                    },
+                    "gcode_macro _CLIENT_EXTRUDE": {
+                        "description": "Extrudes, if the extruder is hot enough",
+                        "gcode": "\n\n{% set client = printer['gcode_macro _CLIENT_VARIABLE']|default({}) %}\n{% set use_fw_retract = (client.use_fw_retract|default(false)|lower == 'true') and (printer.firmware_retraction is defined) %}\n{% set length = params.LENGTH|default(client.unretract)|default(1.0)|float %}\n{% set speed = params.SPEED|default(client.speed_unretract)|default(35) %}\n{% set absolute_extrude = printer.gcode_move.absolute_extrude %}\n\n{% if printer.toolhead.extruder != '' %}\n{% if printer[printer.toolhead.extruder].can_extrude %}\n{% if use_fw_retract %}\n{% if length < 0 %}\nG10\n{% else %}\nG11\n{% endif %}\n{% else %}\nM83\nG1 E{length} F{(speed|float|abs) * 60}\n{% if absolute_extrude %}\nM82\n{% endif %}\n{% endif %}\n{% else %}\nRESPOND TYPE=echo MSG='{\"\\\"%s\\\" not hot enough\" % printer.toolhead.extruder}'\n{% endif %}\n{% endif %}"
+                    },
+                    "gcode_macro _CLIENT_RETRACT": {
+                        "description": "Retracts, if the extruder is hot enough",
+                        "gcode": "\n{% set client = printer['gcode_macro _CLIENT_VARIABLE']|default({}) %}\n{% set length = params.LENGTH|default(client.retract)|default(1.0)|float %}\n{% set speed = params.SPEED|default(client.speed_retract)|default(35) %}\n\n_CLIENT_EXTRUDE LENGTH=-{length|float|abs} SPEED={speed|float|abs}"
+                    },
+                    "gcode_macro _TOOLHEAD_PARK_PAUSE_CANCEL": {
+                        "description": "Helper: park toolhead used in PAUSE and CANCEL_PRINT",
+                        "gcode": "\n\n{% set client = printer['gcode_macro _CLIENT_VARIABLE']|default({}) %}\n{% set velocity = printer.configfile.settings.pause_resume.recover_velocity %}\n{% set use_custom     = client.use_custom_pos|default(false)|lower == 'true' %}\n{% set custom_park_x  = client.custom_park_x|default(0.0) %}\n{% set custom_park_y  = client.custom_park_y|default(0.0) %}\n{% set park_dz        = client.custom_park_dz|default(2.0)|abs %}\n{% set sp_hop         = client.speed_hop|default(15) * 60 %}\n{% set sp_move        = client.speed_move|default(velocity) * 60 %}\n\n{% set origin    = printer.gcode_move.homing_origin %}\n{% set act       = printer.gcode_move.gcode_position %}\n{% set max       = printer.toolhead.axis_maximum %}\n{% set cone      = printer.toolhead.cone_start_z|default(max.z) %}\n{% set round_bed = True if printer.configfile.settings.printer.kinematics is in ['delta','polar','rotary_delta','winch']\nelse False %}\n\n{% set z_min = params.Z_MIN|default(0)|float %}\n{% set z_park = [[(act.z + park_dz), z_min]|max, (max.z - origin.z)]|min %}\n{% set x_park = params.X       if params.X is defined\nelse custom_park_x  if use_custom\nelse 0.0            if round_bed\nelse (max.x - 5.0) %}\n{% set y_park = params.Y       if params.Y is defined\nelse custom_park_y  if use_custom\nelse (max.y - 5.0)  if round_bed and z_park < cone\nelse 0.0            if round_bed\nelse (max.y - 5.0) %}\n\n_CLIENT_RETRACT\n{% if \"xyz\" in printer.toolhead.homed_axes %}\nG90\nG1 Z{z_park} F{sp_hop}\nG1 X{x_park} Y{y_park} F{sp_move}\n{% if not printer.gcode_move.absolute_coordinates %} G91 {% endif %}\n{% else %}\nRESPOND TYPE=echo MSG='Printer not homed'\n{% endif %}"
+                    },
+                    "heater_bed": {
+                        "control": "pid",
+                        "heater_pin": "PC9",
+                        "max_temp": "130",
+                        "min_temp": "0",
+                        "pid_kd": "1103.607",
+                        "pid_ki": "1.145",
+                        "pid_kp": "71.086",
+                        "sensor_pin": "PC4",
+                        "sensor_type": "ATC Semitec 104GT-2"
+                    },
+                    "heater_fan controller_fan": {
+                        "pin": "PB15"
+                    },
+                    "heater_fan heatbreak_cooling_fan": {
+                        "pin": "PC7"
+                    },
+                    "mcu": {
+                        "serial": "/dev/serial/by-id/usb-Klipper_stm32g0b1xx_290014000550415339373620-if00"
+                    },
+                    "pause_resume": {
+                    },
+                    "printer": {
+                        "kinematics": "cartesian",
+                        "max_accel": "3000",
+                        "max_velocity": "300",
+                        "max_z_accel": "100",
+                        "max_z_velocity": "5"
+                    },
+                    "respond": {
+                    },
+                    "safe_z_home": {
+                        "home_xy_position": "117.5,117.5",
+                        "z_hop": "10",
+                        "z_hop_speed": "5"
+                    },
+                    "screws_tilt_adjust": {
+                        "horizontal_move_z": "10",
+                        "screw1": "70.5,37.5",
+                        "screw1_name": "front left screw",
+                        "screw2": "240,37.5",
+                        "screw2_name": "front right screw",
+                        "screw3": "240,207.5",
+                        "screw3_name": "rear right screw",
+                        "screw4": "70.5,207.5",
+                        "screw4_name": "rear left screw",
+                        "screw_thread": "CW-M4",
+                        "speed": "50"
+                    },
+                    "stepper_x": {
+                        "dir_pin": "!PB12",
+                        "enable_pin": "!PB14",
+                        "endstop_pin": "^PC0",
+                        "homing_speed": "50",
+                        "microsteps": "16",
+                        "position_endstop": "0",
+                        "position_max": "235",
+                        "rotation_distance": "40",
+                        "step_pin": "PB13"
+                    },
+                    "stepper_y": {
+                        "dir_pin": "PB2",
+                        "enable_pin": "!PB11",
+                        "endstop_pin": "^PC1",
+                        "homing_speed": "50",
+                        "microsteps": "16",
+                        "position_endstop": "0",
+                        "position_max": "235",
+                        "rotation_distance": "40",
+                        "step_pin": "PB10"
+                    },
+                    "stepper_z": {
+                        "dir_pin": "PC5",
+                        "enable_pin": "!PB1",
+                        "endstop_pin": "probe:z_virtual_endstop",
+                        "microsteps": "16",
+                        "position_max": "250",
+                        "position_min": "-5",
+                        "rotation_distance": "8",
+                        "step_pin": "PB0"
+                    },
+                    "tmc2209 extruder": {
+                        "run_current": "0.650",
+                        "stealthchop_threshold": "999999",
+                        "tx_pin": "PC10",
+                        "uart_address": "3",
+                        "uart_pin": "PC11"
+                    },
+                    "tmc2209 stepper_x": {
+                        "run_current": "0.580",
+                        "stealthchop_threshold": "999999",
+                        "tx_pin": "PC10",
+                        "uart_address": "0",
+                        "uart_pin": "PC11"
+                    },
+                    "tmc2209 stepper_y": {
+                        "run_current": "0.580",
+                        "stealthchop_threshold": "999999",
+                        "tx_pin": "PC10",
+                        "uart_address": "2",
+                        "uart_pin": "PC11"
+                    },
+                    "tmc2209 stepper_z": {
+                        "run_current": "0.650",
+                        "stealthchop_threshold": "999999",
+                        "tx_pin": "PC10",
+                        "uart_address": "1",
+                        "uart_pin": "PC11"
+                    },
+                    "virtual_sdcard": {
+                        "on_error_gcode": "CANCEL_PRINT",
+                        "path": "~/printer_data/gcodes"
+                    }
+                },
+                "save_config_pending": false,
+                "save_config_pending_items": {
+                },
+                "settings": {
+                    "bed_mesh": {
+                        "adaptive_margin": 0,
+                        "algorithm": "bicubic",
+                        "bicubic_tension": 0.2,
+                        "fade_end": 10,
+                        "fade_start": 1,
+                        "fade_target": 0,
+                        "horizontal_move_z": 5,
+                        "mesh_max": [
+                            205,
+                            205
+                        ],
+                        "mesh_min": [
+                            15,
+                            15
+                        ],
+                        "mesh_pps": [
+                            2,
+                            2
+                        ],
+                        "move_check_distance": 5,
+                        "probe_count": [
+                            5,
+                            3
+                        ],
+                        "speed": 120,
+                        "split_delta_z": 0.025
+                    },
+                    "bltouch": {
+                        "control_pin": "PA1",
+                        "lift_speed": 5,
+                        "pin_move_time": 0.68,
+                        "pin_up_reports_not_triggered": true,
+                        "pin_up_touch_mode_reports_triggered": true,
+                        "probe_with_touch_mode": false,
+                        "sample_retract_dist": 2,
+                        "samples": 1,
+                        "samples_result": "average",
+                        "samples_tolerance": 0.1,
+                        "samples_tolerance_retries": 0,
+                        "sensor_pin": "^PC14",
+                        "speed": 5,
+                        "stow_on_each_sample": true,
+                        "x_offset": -42,
+                        "y_offset": -10,
+                        "z_offset": 0
+                    },
+                    "board_pins": {
+                        "aliases": [
+                            [
+                                "EXP1_1",
+                                "PB5"
+                            ],
+                            [
+                                "EXP1_3",
+                                "PA9"
+                            ],
+                            [
+                                "EXP1_5",
+                                "PA10"
+                            ],
+                            [
+                                "EXP1_7",
+                                "PB8"
+                            ],
+                            [
+                                "EXP1_9",
+                                "<GND>"
+                            ],
+                            [
+                                "EXP1_2",
+                                "PA15"
+                            ],
+                            [
+                                "EXP1_4",
+                                "<RST>"
+                            ],
+                            [
+                                "EXP1_6",
+                                "PB9"
+                            ],
+                            [
+                                "EXP1_8",
+                                "PD6"
+                            ],
+                            [
+                                "EXP1_10",
+                                "<5V>"
+                            ]
+                        ],
+                        "mcu": [
+                            "mcu"
+                        ]
+                    },
+                    "extruder": {
+                        "control": "pid",
+                        "dir_pin": "PB4",
+                        "enable_pin": "!PD1",
+                        "filament_diameter": 1.75,
+                        "full_steps_per_rotation": 200,
+                        "gear_ratio": [
+                            [
+                                50,
+                                17
+                            ]
+                        ],
+                        "heater_pin": "PC8",
+                        "inline_resistor": 0,
+                        "instantaneous_corner_velocity": 1,
+                        "max_extrude_cross_section": 1.44,
+                        "max_extrude_only_accel": 1796.0472924917235,
+                        "max_extrude_only_distance": 50,
+                        "max_extrude_only_velocity": 179.60472924917235,
+                        "max_power": 1,
+                        "max_temp": 250,
+                        "microsteps": 16,
+                        "min_extrude_temp": 170,
+                        "min_temp": 0,
+                        "nozzle_diameter": 0.6,
+                        "pid_kd": 119.065,
+                        "pid_ki": 0.768,
+                        "pid_kp": 19.127,
+                        "pressure_advance": 0,
+                        "pressure_advance_smooth_time": 0.04,
+                        "pullup_resistor": 4700,
+                        "pwm_cycle_time": 0.1,
+                        "rotation_distance": 7.7,
+                        "sensor_pin": "PA0",
+                        "sensor_type": "EPCOS 100K B57560G104F",
+                        "smooth_time": 1,
+                        "step_pin": "PB3"
+                    },
+                    "fan": {
+                        "cycle_time": 0.01,
+                        "hardware_pwm": false,
+                        "kick_start_time": 0.1,
+                        "max_power": 1,
+                        "off_below": 0,
+                        "pin": "PC6",
+                        "shutdown_speed": 0
+                    },
+                    "force_move": {
+                        "enable_force_move": true
+                    },
+                    "gcode_macro _client_extrude": {
+                        "description": "Extrudes, if the extruder is hot enough",
+                        "gcode": "\n\n{% set client = printer['gcode_macro _CLIENT_VARIABLE']|default({}) %}\n{% set use_fw_retract = (client.use_fw_retract|default(false)|lower == 'true') and (printer.firmware_retraction is defined) %}\n{% set length = params.LENGTH|default(client.unretract)|default(1.0)|float %}\n{% set speed = params.SPEED|default(client.speed_unretract)|default(35) %}\n{% set absolute_extrude = printer.gcode_move.absolute_extrude %}\n\n{% if printer.toolhead.extruder != '' %}\n{% if printer[printer.toolhead.extruder].can_extrude %}\n{% if use_fw_retract %}\n{% if length < 0 %}\nG10\n{% else %}\nG11\n{% endif %}\n{% else %}\nM83\nG1 E{length} F{(speed|float|abs) * 60}\n{% if absolute_extrude %}\nM82\n{% endif %}\n{% endif %}\n{% else %}\nRESPOND TYPE=echo MSG='{\"\\\"%s\\\" not hot enough\" % printer.toolhead.extruder}'\n{% endif %}\n{% endif %}"
+                    },
+                    "gcode_macro _client_retract": {
+                        "description": "Retracts, if the extruder is hot enough",
+                        "gcode": "\n{% set client = printer['gcode_macro _CLIENT_VARIABLE']|default({}) %}\n{% set length = params.LENGTH|default(client.retract)|default(1.0)|float %}\n{% set speed = params.SPEED|default(client.speed_retract)|default(35) %}\n\n_CLIENT_EXTRUDE LENGTH=-{length|float|abs} SPEED={speed|float|abs}"
+                    },
+                    "gcode_macro _toolhead_park_pause_cancel": {
+                        "description": "Helper: park toolhead used in PAUSE and CANCEL_PRINT",
+                        "gcode": "\n\n{% set client = printer['gcode_macro _CLIENT_VARIABLE']|default({}) %}\n{% set velocity = printer.configfile.settings.pause_resume.recover_velocity %}\n{% set use_custom     = client.use_custom_pos|default(false)|lower == 'true' %}\n{% set custom_park_x  = client.custom_park_x|default(0.0) %}\n{% set custom_park_y  = client.custom_park_y|default(0.0) %}\n{% set park_dz        = client.custom_park_dz|default(2.0)|abs %}\n{% set sp_hop         = client.speed_hop|default(15) * 60 %}\n{% set sp_move        = client.speed_move|default(velocity) * 60 %}\n\n{% set origin    = printer.gcode_move.homing_origin %}\n{% set act       = printer.gcode_move.gcode_position %}\n{% set max       = printer.toolhead.axis_maximum %}\n{% set cone      = printer.toolhead.cone_start_z|default(max.z) %}\n{% set round_bed = True if printer.configfile.settings.printer.kinematics is in ['delta','polar','rotary_delta','winch']\nelse False %}\n\n{% set z_min = params.Z_MIN|default(0)|float %}\n{% set z_park = [[(act.z + park_dz), z_min]|max, (max.z - origin.z)]|min %}\n{% set x_park = params.X       if params.X is defined\nelse custom_park_x  if use_custom\nelse 0.0            if round_bed\nelse (max.x - 5.0) %}\n{% set y_park = params.Y       if params.Y is defined\nelse custom_park_y  if use_custom\nelse (max.y - 5.0)  if round_bed and z_park < cone\nelse 0.0            if round_bed\nelse (max.y - 5.0) %}\n\n_CLIENT_RETRACT\n{% if \"xyz\" in printer.toolhead.homed_axes %}\nG90\nG1 Z{z_park} F{sp_hop}\nG1 X{x_park} Y{y_park} F{sp_move}\n{% if not printer.gcode_move.absolute_coordinates %} G91 {% endif %}\n{% else %}\nRESPOND TYPE=echo MSG='Printer not homed'\n{% endif %}"
+                    },
+                    "gcode_macro cancel_print": {
+                        "description": "Cancel the actual running print",
+                        "gcode": "\n\n{% set client = printer['gcode_macro _CLIENT_VARIABLE']|default({}) %}\n{% set allow_park = client.park_at_cancel|default(false)|lower == 'true' %}\n{% set retract = client.cancel_retract|default(5.0)|abs %}\n\n{% set park_x = \"\" if (client.park_at_cancel_x|default(none) is none)\nelse \"X=\" ~ client.park_at_cancel_x %}\n{% set park_y = \"\" if (client.park_at_cancel_y|default(none) is none)\nelse \"Y=\" ~ client.park_at_cancel_y %}\n{% set custom_park = park_x|length > 0 or park_y|length > 0 %}\n\n\n{% if printer['gcode_macro RESUME'].restore_idle_timeout > 0 %}\nSET_IDLE_TIMEOUT TIMEOUT={printer['gcode_macro RESUME'].restore_idle_timeout}\n{% endif %}\n{% if (custom_park or not printer.pause_resume.is_paused) and allow_park %} _TOOLHEAD_PARK_PAUSE_CANCEL {park_x} {park_y} {% endif %}\n_CLIENT_RETRACT LENGTH={retract}\nTURN_OFF_HEATERS\nM106 S0\n{client.user_cancel_macro|default(\"\")}\nSET_GCODE_VARIABLE MACRO=RESUME VARIABLE=idle_state VALUE=False\n\nSET_PAUSE_NEXT_LAYER ENABLE=0\nSET_PAUSE_AT_LAYER ENABLE=0 LAYER=0\nCANCEL_PRINT_BASE",
+                        "rename_existing": "CANCEL_PRINT_BASE"
+                    },
+                    "gcode_macro pause": {
+                        "description": "Pause the actual running print",
+                        "gcode": "\n\n{% set client = printer['gcode_macro _CLIENT_VARIABLE']|default({}) %}\n{% set idle_timeout = client.idle_timeout|default(0) %}\n{% set temp = printer[printer.toolhead.extruder].target if printer.toolhead.extruder != '' else 0 %}\n{% set restore = False if printer.toolhead.extruder == ''\nelse True  if params.RESTORE|default(1)|int == 1 else False %}\n\nSET_GCODE_VARIABLE MACRO=RESUME VARIABLE=last_extruder_temp VALUE=\"{{'restore': restore, 'temp': temp}}\"\n\n{% if idle_timeout > 0 %}\nSET_GCODE_VARIABLE MACRO=RESUME VARIABLE=restore_idle_timeout VALUE={printer.configfile.settings.idle_timeout.timeout}\nSET_IDLE_TIMEOUT TIMEOUT={idle_timeout}\n{% endif %}\nPAUSE_BASE\n{client.user_pause_macro|default(\"\")}\n_TOOLHEAD_PARK_PAUSE_CANCEL {rawparams}",
+                        "rename_existing": "PAUSE_BASE"
+                    },
+                    "gcode_macro resume": {
+                        "description": "Resume the actual running print",
+                        "gcode": "\n\n{% set client = printer['gcode_macro _CLIENT_VARIABLE']|default({}) %}\n{% set velocity = printer.configfile.settings.pause_resume.recover_velocity %}\n{% set sp_move = client.speed_move|default(velocity) %}\n{% set runout_resume = True if client.runout_sensor|default(\"\") == \"\"\nelse True if not printer[client.runout_sensor].enabled\nelse printer[client.runout_sensor].filament_detected %}\n{% set can_extrude = True if printer.toolhead.extruder == ''\nelse printer[printer.toolhead.extruder].can_extrude %}\n{% set do_resume = False %}\n{% set prompt_txt = [] %}\n\n\n{% if printer.idle_timeout.state|upper == \"IDLE\" or idle_state %}\nSET_GCODE_VARIABLE MACRO=RESUME VARIABLE=idle_state VALUE=False\n{% if last_extruder_temp.restore %}\n\nRESPOND TYPE=echo MSG='{\"Restoring \\\"%s\\\" temperature to %3.1f\\u00B0C, this may take some time\" % (printer.toolhead.extruder, last_extruder_temp.temp) }'\nM109 S{last_extruder_temp.temp}\n{% set do_resume = True %}\n{% elif can_extrude %}\n{% set do_resume = True %}\n{% else %}\nRESPOND TYPE=error MSG='{\"Resume aborted !!! \\\"%s\\\" not hot enough, please heat up again and press RESUME\" % printer.toolhead.extruder}'\n{% set _d = prompt_txt.append(\"\\\"%s\\\" not hot enough, please heat up again and press RESUME\" % printer.toolhead.extruder) %}\n{% endif %}\n\n{% elif can_extrude %}\n{% set do_resume = True %}\n{% else %}\nRESPOND TYPE=error MSG='{\"Resume aborted !!! \\\"%s\\\" not hot enough, please heat up again and press RESUME\" % printer.toolhead.extruder}'\n{% set _d = prompt_txt.append(\"\\\"%s\\\" not hot enough, please heat up again and press RESUME\" % printer.toolhead.extruder) %}\n{% endif %}\n{% if runout_resume %}\n{% if do_resume %}\n{% if restore_idle_timeout > 0 %} SET_IDLE_TIMEOUT TIMEOUT={restore_idle_timeout} {% endif %}\n{client.user_resume_macro|default(\"\")}\n_CLIENT_EXTRUDE\nRESUME_BASE VELOCITY={params.VELOCITY|default(sp_move)}\n{% endif %}\n{% else %}\nRESPOND TYPE=error MSG='{\"Resume aborted !!! \\\"%s\\\" detects no filament, please load filament and press RESUME\" % (client.runout_sensor.split(\" \"))[1]}'\n{% set _d = prompt_txt.append(\"\\\"%s\\\" detects no filament, please load filament and press RESUME\" % (client.runout_sensor.split(\" \"))[1]) %}\n{% endif %}\n\n{% if not (runout_resume and do_resume) %}\nRESPOND TYPE=command MSG=\"action:prompt_begin RESUME aborted !!!\"\n{% for element in prompt_txt %}\nRESPOND TYPE=command MSG='{\"action:prompt_text %s\" % element}'\n{% endfor %}\nRESPOND TYPE=command MSG=\"action:prompt_footer_button Ok|RESPOND TYPE=command MSG=action:prompt_end|info\"\nRESPOND TYPE=command MSG=\"action:prompt_show\"\n{% endif %}",
+                        "rename_existing": "RESUME_BASE",
+                        "variable_idle_state": "False",
+                        "variable_last_extruder_temp": "{'restore': False, 'temp': 0}",
+                        "variable_restore_idle_timeout": "0"
+                    },
+                    "gcode_macro set_pause_at_layer": {
+                        "description": "Enable/disable a pause if a given layer number is reached",
+                        "gcode": "\n{% set pause_at_layer = printer['gcode_macro SET_PRINT_STATS_INFO'].pause_at_layer %}\n{% set ENABLE = params.ENABLE|int != 0 if params.ENABLE is defined\nelse params.LAYER is defined %}\n{% set LAYER = params.LAYER|default(pause_at_layer.layer)|int %}\n{% set MACRO = params.MACRO|default(pause_at_layer.call, True) %}\nSET_GCODE_VARIABLE MACRO=SET_PRINT_STATS_INFO VARIABLE=pause_at_layer VALUE=\"{{ 'enable': ENABLE, 'layer': LAYER, 'call': MACRO }}\""
+                    },
+                    "gcode_macro set_pause_next_layer": {
+                        "description": "Enable a pause if the next layer is reached",
+                        "gcode": "\n{% set pause_next_layer = printer['gcode_macro SET_PRINT_STATS_INFO'].pause_next_layer %}\n{% set ENABLE = params.ENABLE|default(1)|int != 0 %}\n{% set MACRO = params.MACRO|default(pause_next_layer.call, True) %}\nSET_GCODE_VARIABLE MACRO=SET_PRINT_STATS_INFO VARIABLE=pause_next_layer VALUE=\"{{ 'enable': ENABLE, 'call': MACRO }}\""
+                    },
+                    "gcode_macro set_print_stats_info": {
+                        "description": "Overwrite, to get pause_next_layer and pause_at_layer feature",
+                        "gcode": "\n{% if pause_next_layer.enable %}\nRESPOND TYPE=echo MSG='{\"%s, forced by pause_next_layer\" % pause_next_layer.call}'\n{pause_next_layer.call}\nSET_PAUSE_NEXT_LAYER ENABLE=0\n{% elif pause_at_layer.enable and params.CURRENT_LAYER is defined and params.CURRENT_LAYER|int == pause_at_layer.layer %}\nRESPOND TYPE=echo MSG='{\"%s, forced by pause_at_layer [%d]\" % (pause_at_layer.call, pause_at_layer.layer)}'\n{pause_at_layer.call}\nSET_PAUSE_AT_LAYER ENABLE=0\n{% endif %}\nSET_PRINT_STATS_INFO_BASE {rawparams}",
+                        "rename_existing": "SET_PRINT_STATS_INFO_BASE",
+                        "variable_pause_at_layer": "{ 'enable': False, 'layer': 0, 'call': \"PAUSE\" }",
+                        "variable_pause_next_layer": "{ 'enable': False, 'call': \"PAUSE\" }"
+                    },
+                    "heater_bed": {
+                        "control": "pid",
+                        "heater_pin": "PC9",
+                        "inline_resistor": 0,
+                        "max_power": 1,
+                        "max_temp": 130,
+                        "min_extrude_temp": 170,
+                        "min_temp": 0,
+                        "pid_kd": 1103.607,
+                        "pid_ki": 1.145,
+                        "pid_kp": 71.086,
+                        "pullup_resistor": 4700,
+                        "pwm_cycle_time": 0.1,
+                        "sensor_pin": "PC4",
+                        "sensor_type": "ATC Semitec 104GT-2",
+                        "smooth_time": 1
+                    },
+                    "heater_fan controller_fan": {
+                        "cycle_time": 0.01,
+                        "fan_speed": 1,
+                        "hardware_pwm": false,
+                        "heater": [
+                            "extruder"
+                        ],
+                        "heater_temp": 50,
+                        "kick_start_time": 0.1,
+                        "max_power": 1,
+                        "off_below": 0,
+                        "pin": "PB15",
+                        "shutdown_speed": 1
+                    },
+                    "heater_fan heatbreak_cooling_fan": {
+                        "cycle_time": 0.01,
+                        "fan_speed": 1,
+                        "hardware_pwm": false,
+                        "heater": [
+                            "extruder"
+                        ],
+                        "heater_temp": 50,
+                        "kick_start_time": 0.1,
+                        "max_power": 1,
+                        "off_below": 0,
+                        "pin": "PC7",
+                        "shutdown_speed": 1
+                    },
+                    "idle_timeout": {
+                        "gcode": "\n{% if 'heaters' in printer %}\n   TURN_OFF_HEATERS\n{% endif %}\nM84\n",
+                        "timeout": 600
+                    },
+                    "mcu": {
+                        "baud": 250000,
+                        "max_stepper_error": 2.5e-05,
+                        "serial": "/dev/serial/by-id/usb-Klipper_stm32g0b1xx_290014000550415339373620-if00"
+                    },
+                    "pause_resume": {
+                        "recover_velocity": 50
+                    },
+                    "printer": {
+                        "kinematics": "cartesian",
+                        "max_accel": 3000,
+                        "max_accel_to_decel": 1500,
+                        "max_velocity": 300,
+                        "max_z_accel": 100,
+                        "max_z_velocity": 5,
+                        "square_corner_velocity": 5
+                    },
+                    "respond": {
+                        "default_prefix": "echo:",
+                        "default_type": "echo"
+                    },
+                    "safe_z_home": {
+                        "home_xy_position": [
+                            117.5,
+                            117.5
+                        ],
+                        "move_to_previous": false,
+                        "speed": 50,
+                        "z_hop": 10,
+                        "z_hop_speed": 5
+                    },
+                    "screws_tilt_adjust": {
+                        "horizontal_move_z": 10,
+                        "screw1": [
+                            70.5,
+                            37.5
+                        ],
+                        "screw1_name": "front left screw",
+                        "screw2": [
+                            240,
+                            37.5
+                        ],
+                        "screw2_name": "front right screw",
+                        "screw3": [
+                            240,
+                            207.5
+                        ],
+                        "screw3_name": "rear right screw",
+                        "screw4": [
+                            70.5,
+                            207.5
+                        ],
+                        "screw4_name": "rear left screw",
+                        "screw_thread": "CW-M4",
+                        "speed": 50
+                    },
+                    "stepper_x": {
+                        "dir_pin": "!PB12",
+                        "enable_pin": "!PB14",
+                        "endstop_pin": "^PC0",
+                        "full_steps_per_rotation": 200,
+                        "gear_ratio": [
+                        ],
+                        "homing_positive_dir": false,
+                        "homing_retract_dist": 5,
+                        "homing_retract_speed": 50,
+                        "homing_speed": 50,
+                        "microsteps": 16,
+                        "position_endstop": 0,
+                        "position_max": 235,
+                        "position_min": 0,
+                        "rotation_distance": 40,
+                        "second_homing_speed": 25,
+                        "step_pin": "PB13"
+                    },
+                    "stepper_y": {
+                        "dir_pin": "PB2",
+                        "enable_pin": "!PB11",
+                        "endstop_pin": "^PC1",
+                        "full_steps_per_rotation": 200,
+                        "gear_ratio": [
+                        ],
+                        "homing_positive_dir": false,
+                        "homing_retract_dist": 5,
+                        "homing_retract_speed": 50,
+                        "homing_speed": 50,
+                        "microsteps": 16,
+                        "position_endstop": 0,
+                        "position_max": 235,
+                        "position_min": 0,
+                        "rotation_distance": 40,
+                        "second_homing_speed": 25,
+                        "step_pin": "PB10"
+                    },
+                    "stepper_z": {
+                        "dir_pin": "PC5",
+                        "enable_pin": "!PB1",
+                        "endstop_pin": "probe:z_virtual_endstop",
+                        "full_steps_per_rotation": 200,
+                        "gear_ratio": [
+                        ],
+                        "homing_positive_dir": false,
+                        "homing_retract_dist": 5,
+                        "homing_retract_speed": 5,
+                        "homing_speed": 5,
+                        "microsteps": 16,
+                        "position_max": 250,
+                        "position_min": -5,
+                        "rotation_distance": 8,
+                        "second_homing_speed": 2.5,
+                        "step_pin": "PB0"
+                    },
+                    "tmc2209 extruder": {
+                        "driver_hend": 0,
+                        "driver_hstrt": 5,
+                        "driver_iholddelay": 8,
+                        "driver_multistep_filt": true,
+                        "driver_pwm_autograd": true,
+                        "driver_pwm_autoscale": true,
+                        "driver_pwm_freq": 1,
+                        "driver_pwm_grad": 14,
+                        "driver_pwm_lim": 12,
+                        "driver_pwm_ofs": 36,
+                        "driver_pwm_reg": 8,
+                        "driver_sgthrs": 0,
+                        "driver_tbl": 2,
+                        "driver_toff": 3,
+                        "driver_tpowerdown": 20,
+                        "hold_current": 2,
+                        "interpolate": true,
+                        "run_current": 0.65,
+                        "sense_resistor": 0.11,
+                        "stealthchop_threshold": 999999,
+                        "tx_pin": "PC10",
+                        "uart_address": 3,
+                        "uart_pin": "PC11"
+                    },
+                    "tmc2209 stepper_x": {
+                        "driver_hend": 0,
+                        "driver_hstrt": 5,
+                        "driver_iholddelay": 8,
+                        "driver_multistep_filt": true,
+                        "driver_pwm_autograd": true,
+                        "driver_pwm_autoscale": true,
+                        "driver_pwm_freq": 1,
+                        "driver_pwm_grad": 14,
+                        "driver_pwm_lim": 12,
+                        "driver_pwm_ofs": 36,
+                        "driver_pwm_reg": 8,
+                        "driver_sgthrs": 0,
+                        "driver_tbl": 2,
+                        "driver_toff": 3,
+                        "driver_tpowerdown": 20,
+                        "hold_current": 2,
+                        "interpolate": true,
+                        "run_current": 0.58,
+                        "sense_resistor": 0.11,
+                        "stealthchop_threshold": 999999,
+                        "tx_pin": "PC10",
+                        "uart_address": 0,
+                        "uart_pin": "PC11"
+                    },
+                    "tmc2209 stepper_y": {
+                        "driver_hend": 0,
+                        "driver_hstrt": 5,
+                        "driver_iholddelay": 8,
+                        "driver_multistep_filt": true,
+                        "driver_pwm_autograd": true,
+                        "driver_pwm_autoscale": true,
+                        "driver_pwm_freq": 1,
+                        "driver_pwm_grad": 14,
+                        "driver_pwm_lim": 12,
+                        "driver_pwm_ofs": 36,
+                        "driver_pwm_reg": 8,
+                        "driver_sgthrs": 0,
+                        "driver_tbl": 2,
+                        "driver_toff": 3,
+                        "driver_tpowerdown": 20,
+                        "hold_current": 2,
+                        "interpolate": true,
+                        "run_current": 0.58,
+                        "sense_resistor": 0.11,
+                        "stealthchop_threshold": 999999,
+                        "tx_pin": "PC10",
+                        "uart_address": 2,
+                        "uart_pin": "PC11"
+                    },
+                    "tmc2209 stepper_z": {
+                        "driver_hend": 0,
+                        "driver_hstrt": 5,
+                        "driver_iholddelay": 8,
+                        "driver_multistep_filt": true,
+                        "driver_pwm_autograd": true,
+                        "driver_pwm_autoscale": true,
+                        "driver_pwm_freq": 1,
+                        "driver_pwm_grad": 14,
+                        "driver_pwm_lim": 12,
+                        "driver_pwm_ofs": 36,
+                        "driver_pwm_reg": 8,
+                        "driver_sgthrs": 0,
+                        "driver_tbl": 2,
+                        "driver_toff": 3,
+                        "driver_tpowerdown": 20,
+                        "hold_current": 2,
+                        "interpolate": true,
+                        "run_current": 0.65,
+                        "sense_resistor": 0.11,
+                        "stealthchop_threshold": 999999,
+                        "tx_pin": "PC10",
+                        "uart_address": 1,
+                        "uart_pin": "PC11"
+                    },
+                    "verify_heater extruder": {
+                        "check_gain_time": 20,
+                        "heating_gain": 2,
+                        "hysteresis": 5,
+                        "max_error": 120
+                    },
+                    "verify_heater heater_bed": {
+                        "check_gain_time": 60,
+                        "heating_gain": 2,
+                        "hysteresis": 5,
+                        "max_error": 120
+                    },
+                    "virtual_sdcard": {
+                        "on_error_gcode": "CANCEL_PRINT",
+                        "path": "~/printer_data/gcodes"
+                    }
+                },
+                "warnings": [
+                ]
+            },
+            "display_status": {
+                "message": null,
+                "progress": 0
+            },
+            "gcode": {
+                "commands": {
+                    "ACTIVATE_EXTRUDER": {
+                        "help": "Change the active extruder"
+                    },
+                    "BED_MESH_CALIBRATE": {
+                        "help": "Perform Mesh Bed Leveling"
+                    },
+                    "BED_MESH_CLEAR": {
+                        "help": "Clear the Mesh so no z-adjustment is made"
+                    },
+                    "BED_MESH_MAP": {
+                        "help": "Serialize mesh and output to terminal"
+                    },
+                    "BED_MESH_OFFSET": {
+                        "help": "Add X/Y offsets to the mesh lookup"
+                    },
+                    "BED_MESH_OUTPUT": {
+                        "help": "Retrieve interpolated grid of probed z-points"
+                    },
+                    "BED_MESH_PROFILE": {
+                        "help": "Bed Mesh Persistent Storage management"
+                    },
+                    "BLTOUCH_DEBUG": {
+                        "help": "Send a command to the bltouch for debugging"
+                    },
+                    "BLTOUCH_STORE": {
+                        "help": "Store an output mode in the BLTouch EEPROM"
+                    },
+                    "CANCEL_PRINT": {
+                        "help": "Cancel the actual running print"
+                    },
+                    "CANCEL_PRINT_BASE": {
+                        "help": "Renamed builtin of 'CANCEL_PRINT'"
+                    },
+                    "CLEAR_PAUSE": {
+                        "help": "Clears the current paused state without resuming the print"
+                    },
+                    "DUMP_TMC": {
+                        "help": "Read and display TMC stepper driver registers"
+                    },
+                    "ECHO": {
+                    },
+                    "FIRMWARE_RESTART": {
+                        "help": "Restart firmware, host, and reload config"
+                    },
+                    "FORCE_MOVE": {
+                        "help": "Manually move a stepper; invalidates kinematics"
+                    },
+                    "G0": {
+                    },
+                    "G1": {
+                    },
+                    "G20": {
+                    },
+                    "G21": {
+                    },
+                    "G28": {
+                    },
+                    "G4": {
+                    },
+                    "G90": {
+                    },
+                    "G91": {
+                    },
+                    "G92": {
+                    },
+                    "GET_POSITION": {
+                        "help": "Return information on the current location of the toolhead"
+                    },
+                    "HELP": {
+                        "help": "Report the list of available extended G-Code commands"
+                    },
+                    "INIT_TMC": {
+                        "help": "Initialize TMC stepper driver registers"
+                    },
+                    "M104": {
+                    },
+                    "M105": {
+                    },
+                    "M106": {
+                    },
+                    "M107": {
+                    },
+                    "M109": {
+                    },
+                    "M110": {
+                    },
+                    "M112": {
+                    },
+                    "M114": {
+                    },
+                    "M115": {
+                    },
+                    "M117": {
+                    },
+                    "M118": {
+                    },
+                    "M119": {
+                    },
+                    "M140": {
+                    },
+                    "M18": {
+                    },
+                    "M190": {
+                    },
+                    "M20": {
+                    },
+                    "M204": {
+                    },
+                    "M21": {
+                    },
+                    "M220": {
+                    },
+                    "M221": {
+                    },
+                    "M23": {
+                    },
+                    "M24": {
+                    },
+                    "M25": {
+                    },
+                    "M26": {
+                    },
+                    "M27": {
+                    },
+                    "M28": {
+                    },
+                    "M29": {
+                    },
+                    "M30": {
+                    },
+                    "M400": {
+                    },
+                    "M73": {
+                    },
+                    "M82": {
+                    },
+                    "M83": {
+                    },
+                    "M84": {
+                    },
+                    "MANUAL_PROBE": {
+                        "help": "Start manual probe helper script"
+                    },
+                    "PAUSE": {
+                        "help": "Pause the actual running print"
+                    },
+                    "PAUSE_BASE": {
+                        "help": "Renamed builtin of 'PAUSE'"
+                    },
+                    "PID_CALIBRATE": {
+                        "help": "Run PID calibration test"
+                    },
+                    "PROBE": {
+                        "help": "Probe Z-height at current XY position"
+                    },
+                    "PROBE_ACCURACY": {
+                        "help": "Probe Z-height accuracy at current XY position"
+                    },
+                    "PROBE_CALIBRATE": {
+                        "help": "Calibrate the probe's z_offset"
+                    },
+                    "QUERY_ADC": {
+                        "help": "Report the last value of an analog pin"
+                    },
+                    "QUERY_ENDSTOPS": {
+                        "help": "Report on the status of each endstop"
+                    },
+                    "QUERY_PROBE": {
+                        "help": "Return the status of the z-probe"
+                    },
+                    "RESPOND": {
+                        "help": "Echo the message prepended with a prefix"
+                    },
+                    "RESTART": {
+                        "help": "Reload config file and restart host software"
+                    },
+                    "RESTORE_GCODE_STATE": {
+                        "help": "Restore a previously saved G-Code state"
+                    },
+                    "RESUME": {
+                        "help": "Resume the actual running print"
+                    },
+                    "RESUME_BASE": {
+                        "help": "Renamed builtin of 'RESUME'"
+                    },
+                    "SAVE_CONFIG": {
+                        "help": "Overwrite config file and restart"
+                    },
+                    "SAVE_GCODE_STATE": {
+                        "help": "Save G-Code coordinate state"
+                    },
+                    "SCREWS_TILT_CALCULATE": {
+                        "help": "Tool to help adjust bed leveling screws by calculating the number of turns to level it."
+                    },
+                    "SDCARD_PRINT_FILE": {
+                        "help": "Loads a SD file and starts the print.  May include files in subdirectories."
+                    },
+                    "SDCARD_RESET_FILE": {
+                        "help": "Clears a loaded SD File. Stops the print if necessary"
+                    },
+                    "SET_DISPLAY_TEXT": {
+                        "help": "Set or clear the display message"
+                    },
+                    "SET_EXTRUDER_ROTATION_DISTANCE": {
+                        "help": "Set extruder rotation distance"
+                    },
+                    "SET_EXTRUDER_STEP_DISTANCE": {
+                        "help": "Set extruder step distance"
+                    },
+                    "SET_GCODE_OFFSET": {
+                        "help": "Set a virtual offset to g-code positions"
+                    },
+                    "SET_GCODE_VARIABLE": {
+                        "help": "Set the value of a G-Code macro variable"
+                    },
+                    "SET_HEATER_TEMPERATURE": {
+                        "help": "Sets a heater temperature"
+                    },
+                    "SET_IDLE_TIMEOUT": {
+                        "help": "Set the idle timeout in seconds"
+                    },
+                    "SET_KINEMATIC_POSITION": {
+                        "help": "Force a low-level kinematic position"
+                    },
+                    "SET_PAUSE_AT_LAYER": {
+                        "help": "Enable/disable a pause if a given layer number is reached"
+                    },
+                    "SET_PAUSE_NEXT_LAYER": {
+                        "help": "Enable a pause if the next layer is reached"
+                    },
+                    "SET_PRESSURE_ADVANCE": {
+                        "help": "Set pressure advance parameters"
+                    },
+                    "SET_PRINT_STATS_INFO": {
+                        "help": "Overwrite, to get pause_next_layer and pause_at_layer feature"
+                    },
+                    "SET_PRINT_STATS_INFO_BASE": {
+                        "help": "Renamed builtin of 'SET_PRINT_STATS_INFO'"
+                    },
+                    "SET_STEPPER_ENABLE": {
+                        "help": "Enable/disable individual stepper by name"
+                    },
+                    "SET_TMC_CURRENT": {
+                        "help": "Set the current of a TMC driver"
+                    },
+                    "SET_TMC_FIELD": {
+                        "help": "Set a register field of a TMC driver"
+                    },
+                    "SET_VELOCITY_LIMIT": {
+                        "help": "Set printer velocity limits"
+                    },
+                    "STATUS": {
+                        "help": "Report the printer status"
+                    },
+                    "STEPPER_BUZZ": {
+                        "help": "Oscillate a given stepper to help id it"
+                    },
+                    "SYNC_EXTRUDER_MOTION": {
+                        "help": "Set extruder stepper motion queue"
+                    },
+                    "SYNC_STEPPER_TO_EXTRUDER": {
+                        "help": "Set extruder stepper"
+                    },
+                    "TEMPERATURE_WAIT": {
+                        "help": "Wait for a temperature on a sensor"
+                    },
+                    "TUNING_TOWER": {
+                        "help": "Tool to adjust a parameter at each Z height"
+                    },
+                    "TURN_OFF_HEATERS": {
+                        "help": "Turn off all heaters"
+                    },
+                    "Z_OFFSET_APPLY_PROBE": {
+                        "help": "Adjust the probe's z_offset"
+                    },
+                    "_CLIENT_EXTRUDE": {
+                        "help": "Extrudes, if the extruder is hot enough"
+                    },
+                    "_CLIENT_RETRACT": {
+                        "help": "Retracts, if the extruder is hot enough"
+                    },
+                    "_TOOLHEAD_PARK_PAUSE_CANCEL": {
+                        "help": "Helper: park toolhead used in PAUSE and CANCEL_PRINT"
+                    }
+                }
+            },
+            "gcode_macro CANCEL_PRINT": {
+            },
+            "gcode_macro PAUSE": {
+            },
+            "gcode_macro RESUME": {
+                "idle_state": false,
+                "last_extruder_temp": {
+                    "restore": false,
+                    "temp": 0
+                },
+                "restore_idle_timeout": 0
+            },
+            "gcode_macro SET_PAUSE_AT_LAYER": {
+            },
+            "gcode_macro SET_PAUSE_NEXT_LAYER": {
+            },
+            "gcode_macro SET_PRINT_STATS_INFO": {
+                "pause_at_layer": {
+                    "call": "PAUSE",
+                    "enable": false,
+                    "layer": 0
+                },
+                "pause_next_layer": {
+                    "call": "PAUSE",
+                    "enable": false
+                }
+            },
+            "gcode_macro _CLIENT_EXTRUDE": {
+            },
+            "gcode_macro _CLIENT_RETRACT": {
+            },
+            "gcode_macro _TOOLHEAD_PARK_PAUSE_CANCEL": {
+            },
+            "gcode_move": {
+                "absolute_coordinates": true,
+                "absolute_extrude": true,
+                "extrude_factor": 1,
+                "gcode_position": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "homing_origin": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "position": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "speed": 1500,
+                "speed_factor": 1
+            },
+            "heater_fan controller_fan": {
+                "rpm": null,
+                "speed": 0
+            },
+            "heater_fan heatbreak_cooling_fan": {
+                "rpm": null,
+                "speed": 0
+            },
+            "heaters": {
+                "available_heaters": [
+                    "heater_bed",
+                    "extruder"
+                ],
+                "available_monitors": [
+                ],
+                "available_sensors": [
+                    "heater_bed",
+                    "extruder"
+                ]
+            },
+            "idle_timeout": {
+                "printing_time": 0,
+                "state": "Idle"
+            },
+            "manual_probe": {
+                "is_active": false,
+                "z_position": null,
+                "z_position_lower": null,
+                "z_position_upper": null
+            },
+            "mcu": {
+                "last_stats": {
+                    "bytes_invalid": 0,
+                    "bytes_read": 135559,
+                    "bytes_retransmit": 9,
+                    "bytes_write": 9085,
+                    "freq": 63999709,
+                    "mcu_awake": 0.002,
+                    "mcu_task_avg": 1.4e-05,
+                    "mcu_task_stddev": 1e-05,
+                    "ready_bytes": 0,
+                    "receive_seq": 1318,
+                    "retransmit_seq": 2,
+                    "rto": 0.025,
+                    "rttvar": 0,
+                    "send_seq": 1318,
+                    "srtt": 0,
+                    "upcoming_bytes": 0
+                },
+                "mcu_build_versions": "gcc: (15:8-2019-q3-1+b1) 8.3.1 20190703 (release) [gcc-8-branch revision 273027] binutils: (2.35.2-2+14+b2) 2.35.2",
+                "mcu_constants": {
+                    "ADC_MAX": 4095,
+                    "BUS_PINS_i2c1_PA9_PA10": "PA9,PA10",
+                    "BUS_PINS_i2c1_PB6_PB7": "PB6,PB7",
+                    "BUS_PINS_i2c1_PB8_PB9": "PB8,PB9",
+                    "BUS_PINS_i2c2_PB10_PB11": "PB10,PB11",
+                    "BUS_PINS_i2c2_PB13_PB14": "PB13,PB14",
+                    "BUS_PINS_i2c3_PB3_PB4": "PB3,PB4",
+                    "BUS_PINS_spi1": "PA6,PA7,PA5",
+                    "BUS_PINS_spi1a": "PB4,PB5,PB3",
+                    "BUS_PINS_spi2": "PB14,PB15,PB13",
+                    "BUS_PINS_spi2a": "PC2,PC3,PB10",
+                    "BUS_PINS_spi3": "PB4,PB5,PB3",
+                    "CLOCK_FREQ": 64000000,
+                    "MCU": "stm32g0b1xx",
+                    "PWM_MAX": 255,
+                    "RESERVE_PINS_USB": "PA11,PA12",
+                    "RESERVE_PINS_crystal": "PF0,PF1",
+                    "STATS_SUMSQ_BASE": 256,
+                    "STEPPER_BOTH_EDGE": 1
+                },
+                "mcu_version": "v0.12.0-98-g5e433fff"
+            },
+            "motion_report": {
+                "live_extruder_velocity": 0,
+                "live_position": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "live_velocity": 0,
+                "steppers": [
+                    "extruder",
+                    "stepper_x",
+                    "stepper_y",
+                    "stepper_z"
+                ],
+                "trapq": [
+                    "extruder",
+                    "toolhead"
+                ]
+            },
+            "pause_resume": {
+                "is_paused": false
+            },
+            "print_stats": {
+                "filament_used": 0,
+                "filename": "",
+                "info": {
+                    "current_layer": null,
+                    "total_layer": null
+                },
+                "message": "",
+                "print_duration": 0,
+                "state": "standby",
+                "total_duration": 0
+            },
+            "probe": {
+                "last_query": false,
+                "last_z_result": 0,
+                "name": "bltouch"
+            },
+            "query_endstops": {
+                "last_query": {
+                }
+            },
+            "screws_tilt_adjust": {
+                "error": false,
+                "max_deviation": null,
+                "results": [
+                ]
+            },
+            "stepper_enable": {
+                "steppers": {
+                    "extruder": false,
+                    "stepper_x": false,
+                    "stepper_y": false,
+                    "stepper_z": false
+                }
+            },
+            "system_stats": {
+                "cputime": 2.745661338,
+                "memavail": 12763852,
+                "sysload": 0.5625
+            },
+            "tmc2209 extruder": {
+                "drv_status": null,
+                "hold_current": 0.6425152963666224,
+                "mcu_phase_offset": 63,
+                "phase_offset_position": 0.051541874999999994,
+                "run_current": 0.6425152963666224,
+                "temperature": null
+            },
+            "tmc2209 stepper_x": {
+                "drv_status": null,
+                "hold_current": 0.5813233633793251,
+                "mcu_phase_offset": 1,
+                "phase_offset_position": 0.0125,
+                "run_current": 0.5813233633793251,
+                "temperature": null
+            },
+            "tmc2209 stepper_y": {
+                "drv_status": null,
+                "hold_current": 0.5813233633793251,
+                "mcu_phase_offset": 63,
+                "phase_offset_position": 0.7875000000000001,
+                "run_current": 0.5813233633793251,
+                "temperature": null
+            },
+            "tmc2209 stepper_z": {
+                "drv_status": null,
+                "hold_current": 0.6425152963666224,
+                "mcu_phase_offset": 63,
+                "phase_offset_position": 0.1575,
+                "run_current": 0.6425152963666224,
+                "temperature": null
+            },
+            "toolhead": {
+                "axis_maximum": [
+                    235,
+                    235,
+                    250,
+                    0
+                ],
+                "axis_minimum": [
+                    0,
+                    0,
+                    -5,
+                    0
+                ],
+                "estimated_print_time": 5595.905315109375,
+                "extruder": "extruder",
+                "homed_axes": "",
+                "max_accel": 3000,
+                "max_accel_to_decel": 1500,
+                "max_velocity": 300,
+                "position": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "print_time": 0,
+                "square_corner_velocity": 5,
+                "stalls": 0
+            },
+            "virtual_sdcard": {
+                "file_path": null,
+                "file_position": 0,
+                "file_size": 0,
+                "is_active": false,
+                "progress": 0
+            },
+            "webhooks": {
+                "state": "ready",
+                "state_message": "Printer is ready"
+            }
+        }
+    }
+}
