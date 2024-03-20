@@ -9,7 +9,7 @@
 #include <QLayout>
 #include <QSpacerItem>
 
-#include "../settings.h"
+#include "../../settings.h"
 #include "filebrowseritem.h"
 
 class FileBrowserWidget : public QScrollArea

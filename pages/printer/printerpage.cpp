@@ -1,6 +1,6 @@
 #include "printerpage.h"
 #include "ui_printerpage.h"
-#include "../settings.h"
+#include "../../settings.h"
 
 PrinterPage::PrinterPage(QWidget *parent) :
     QFrame(parent),
@@ -69,6 +69,8 @@ void PrinterPage::update(Printer *printer)
     ui->xDestinationLabel->setText(QString("X: ") + QString::number(printer->toolhead()->destination().x()));
     ui->yDestinationLabel->setText(QString("Y: ") + QString::number(printer->toolhead()->destination().y()));
     ui->zDestination->setText(QString("Z: ") + QString::number(printer->toolhead()->destination().z()));
+
+    ui->etaLabel->setText(QString("ETA: ") + printer->printEndTime().toString());
 
     if(printer->toolhead()->homedAxes().isEmpty())
         ui->homedLabel->setText(QString("none"));

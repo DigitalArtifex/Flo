@@ -5,7 +5,7 @@
 #include <QMap>
 
 #include "extruderwidget.h"
-#include "../types/printer.h"
+#include "../../types/printer.h"
 
 namespace Ui {
 class PrinterPage;

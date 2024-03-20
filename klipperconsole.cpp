@@ -1,15 +1,12 @@
 #include "klipperconsole.h"
+#include "types/printer.h"
+#include "settings.h"
 
-KlipperConsole::KlipperConsole()
+KlipperConsole::KlipperConsole(Printer *parent)
 {
-
-    if(this->klipperLocation.isEmpty())
-        this->klipperLocation = QDir::homePath() + "/printer_data/comms/moonraker.sock";
-
     this->klipperSocket = new QLocalSocket();
-    this->klipperSocket->setServerName(this->klipperLocation);
 
-    _printer = new Printer();
+    _printer = parent;
 }
 
 KlipperConsole::~KlipperConsole()
@@ -50,8 +47,19 @@ void KlipperConsole::sendCommand(KlipperMessage message)
     emit(commandSent(message.toRpc(QJsonDocument::Indented)));
 }
 
+void KlipperConsole::setMoonrakerLocation(QString location)
+{
+    _moonrakerLocation = location;
+}
+
 void KlipperConsole::connectKlipper()
 {
+    if(klipperSocket->isOpen())
+        return;
+
+    _startup = true;
+    klipperSocket->setServerName(_moonrakerLocation);
+
     if(this->messageReadTimer == NULL)
     {
         messageReadTimer = new QTimer(this);
@@ -82,12 +90,15 @@ void KlipperConsole::connectKlipper()
         return;
     }
 
+    _moonrakerConnected = true;
+    emit(moonrakerConnected());
+
     //Startup commands to get base information
     this->sendPreset("Client Identifier");
-    this->sendPreset("Server Information");
-    this->sendPreset("Server Config");
-    this->sendPreset("Printer Information");
-    this->sendPreset("File Roots");
+    serverInfo();
+    serverConfig();
+    serverFileRoots();
+    printerInfo();
     this->sendPreset("sub.toolhead");
 }
 
@@ -422,6 +433,20 @@ void KlipperConsole::sendGcode(QString gcode)
     this->sendCommand(message);
 }
 
+void KlipperConsole::printerInfo()
+{
+
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "printer.info";
+
+    message.setDocument(messageObject);
+
+    this->sendCommand(message);
+}
+
 void KlipperConsole::restartKlipper()
 {
     KlipperMessage message;
@@ -442,6 +467,45 @@ void KlipperConsole::restartFirmware()
     QJsonObject paramsObject;
 
     messageObject["method"] = "printer.firmware_restart";
+
+    message.setDocument(messageObject);
+
+    this->sendCommand(message);
+}
+
+void KlipperConsole::serverInfo()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "server.info";
+
+    message.setDocument(messageObject);
+
+    this->sendCommand(message);
+}
+
+void KlipperConsole::serverConfig()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "server.config";
+
+    message.setDocument(messageObject);
+
+    this->sendCommand(message);
+}
+
+void KlipperConsole::serverFileRoots()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "server.files.roots";
 
     message.setDocument(messageObject);
 
@@ -545,8 +609,40 @@ void KlipperConsole::on_messageParseTimer()
 
     if(response["method"] == QString("notify_proc_stat_update"))
         emit(systemUpdateReceived(response));
+    else if(response["method"] == QString("server.info"))
+    {
+        QJsonObject result = response["result"].toObject();
+
+        if(result["klippy_connected"].toBool())
+        {
+            if(!_klipperConnected)
+            {
+                _klipperConnected = true;
+                emit(klipperConnected());
+            }
+            if(result["klippy_state"].toString() == "ready")
+            {
+            }
+            else if(result["klippy_state"].toString() == "error")
+            {
+            }
+
+        }
+        else
+        {
+            _klipperConnected = false;
+            emit(klipperDisconnected());
+        }
+
+        emit(responseReceived(response));
+    }
     else if(response["method"] == QString("notify_status_update") || response["method"] == QString("printer.objects.subscribe"))
     {
+        if(!_printerConnected)
+        {
+            _printerConnected = true;
+            emit(printerOnline());
+        }
         //Parse extruders
         for(int index = 0; true; index++)
         {
@@ -678,6 +774,9 @@ void KlipperConsole::on_messageParseTimer()
             if(toolhead.contains("estimated_print_time"))
             {
                 //in seconds?
+                double time = toolhead["estimated_print_time"].toDouble();
+                QDateTime date = QDateTime::currentDateTime().addSecs(time);
+                _printer->setPrintEndTime(date);
             }
             if(toolhead.contains("extruder"))
             {
@@ -748,7 +847,7 @@ void KlipperConsole::on_messageParseTimer()
             }
         }
 
-        emit(printerUpdate(_printer));
+        emit(printerUpdate());
 
         emit(printerUpdateReceived(response));
     }
@@ -947,12 +1046,21 @@ void KlipperConsole::on_messageParseTimer()
                 _printer->setStatus(Printer::Cancelled);
         }
 
+        if(result.contains(QString("config_file")))
+            _printer->setConfigFile(result["config_file"].toString());
+
         if(result.contains(QString("state_message")))
             _printer->setStatusMessage(result["state_message"].toString());
         if(result.contains(QString("software_version")))
             _printer->setFirmwareVersion(result["software_version"].toString());
 
-        emit(printerUpdate(_printer));
+        if(_startup)
+        {
+            _startup = false;
+            emit(printerFound());
+        }
+
+        emit(printerUpdate());
         emit(responseReceived(response));
     }
     else

@@ -1,7 +1,7 @@
 #include "filebrowseritem.h"
 #include "ui_filebrowseritem.h"
 
-#include "../settings.h"
+#include "../../settings.h"
 
 FileBrowserItem::FileBrowserItem(QWidget *parent) :
     QFrame(parent),

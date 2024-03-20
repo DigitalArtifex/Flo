@@ -5,7 +5,7 @@
 #include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
 #include <QSizePolicy>
-#include <QGridLayout>>
+#include <QGridLayout>
 
 #include <QChart>
 #include <QChartView>
@@ -20,15 +20,16 @@
 #include "settings.h"
 
 //UI elements
-#include "temperaturegraph.h"
-#include "circularprogressbar.h"
+#include "widgets/temperature/temperaturegraph.h"
+#include "ui/circularprogressbar.h"
 #include "ui/menubutton.h"
 #include "ui/popup.h"
 #include "ui/dashboardanimation.h"
 
 //Pages
-#include "pages/filebrowserpage.h"
-#include "pages/printerpage.h"
+#include "pages/filebrowser/filebrowserpage.h"
+#include "pages/settings/settingspage.h"
+#include "pages/printer/printerpage.h"
 #include "types/klipperfile.h"
 #include "types/printer.h"
 
@@ -56,7 +57,6 @@ class MainWindow : public QMainWindow
     PrinterPage *printerPage;
     FileBrowserPage *dashboardFileBrowser;
 
-    KlipperConsole console;
     CircularProgressBar *dashboardExtruderProgressBar;
     CircularProgressBar *dashboardExtruder1ProgressBar;
     CircularProgressBar *dashboardExtruder2ProgressBar;
@@ -158,8 +158,6 @@ private slots:
     void on_menuAnimationOut_finished();
     void on_titleOpacityAnimation_finished();
 
-    void on_settingsApplyButton_clicked();
-
     void on_gcodeFilesMenuButton_toggled(MenuButton* button);
 
     void on_printerMenuButton_toggled(MenuButton* button);
@@ -206,16 +204,24 @@ private slots:
 
     void on_klipperConnected();
     void on_klipperDisconnected();
+    void on_printerFound(Printer *printer);
 
     void on_klipperRestartButton_clicked();
 
     void on_firmwareRestartButton_clicked();
+
+    void on_powerButton_clicked();
+
 
 private:
     Ui::MainWindow *ui;
     QAction *_restartAction;
     QAction *_shutdownAction;
     QAction *_closeAction;
+    Printer *_printer;
+    PrinterList _printers;
+
+    SettingsPage *_settingsPage = nullptr;
 
 
     void consoleSendCommand();
@@ -224,6 +230,9 @@ private:
     void showPopup();
     void setMenuEnabled(bool enabled);
     void setupPowerActions();
+
+    void setPrinter(Printer *printer);
+    void loadPrinters();
 
 };
 #endif // MAINWINDOW_H

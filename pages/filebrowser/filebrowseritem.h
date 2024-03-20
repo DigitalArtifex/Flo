@@ -7,7 +7,7 @@
 #include <QMouseEvent>
 #include <QTimer>
 
-#include "../types/klipperfile.h"
+#include "../../types/klipperfile.h"
 
 namespace Ui {
 class FileBrowserItem;

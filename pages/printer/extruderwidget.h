@@ -2,8 +2,8 @@
 #define EXTRUDERWIDGET_H
 
 #include <QWidget>
-#include "../circularprogressbar.h"
-#include "../types/extruder.h"
+#include "../../ui/circularprogressbar.h"
+#include "../../types/extruder.h"
 
 namespace Ui {
 class ExtruderWidget;

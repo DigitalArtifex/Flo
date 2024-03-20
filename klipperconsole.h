@@ -24,13 +24,13 @@
 #include "types/klippermessage.h"
 #include "types/klipperresponse.h"
 
-#include "settings.h"
 #include "types/klipperfile.h"
 #include "types/bed.h"
 #include "types/extruder.h"
 #include "types/position.h"
-#include "types/printer.h"
 #include "types/toolhead.h"
+
+class Printer;
 
 struct ConsolePreset
 {
@@ -58,11 +58,12 @@ class KlipperConsole : public QObject
     QMap<int, KlipperMessage> klipperMessageBuffer;
 
 public:
-    KlipperConsole();
+    KlipperConsole(Printer *parent);
     ~KlipperConsole();
 
     void sendCommand(QString command, KlipperMessage::MessageOrigin origin = KlipperMessage::System);
     void sendCommand(KlipperMessage message);
+    void setMoonrakerLocation(QString location);
     void connectKlipper();
     void disconnectKlipper();
 
@@ -95,8 +96,15 @@ public:
 
     void sendGcode(QString gcode);
 
+    //Printer Management
+    void printerInfo();
     void restartKlipper();
     void restartFirmware();
+
+    //Server Management
+    void serverInfo();
+    void serverConfig();
+    void serverFileRoots();
 
 signals:
     void commandSent(QString data);
@@ -107,11 +115,16 @@ signals:
     void commandUnlock();
     void fileListReceived(QList<KlipperFile> files);
     void directoryListReceived(QList<KlipperFile> files);
-    void newPrinter(Printer *printer);
-    void printerUpdate(Printer *printer);
+    void printerFound();
+    void printerUpdate();
+    void printerOnline();
 
     void klipperConnected();
+    void klipperError(QString message);
     void klipperDisconnected();
+
+    void moonrakerConnected();
+    void moonrakerDisconnected();
 
     void fileDirectoryChanged(QString directory);
 
@@ -126,6 +139,12 @@ private:
     Printer* _printer;
     QTimer *_messageParseTimer = nullptr;
     QQueue<QByteArray> messageQueue;
+    QString _moonrakerLocation;
+
+    bool _moonrakerConnected = false;
+    bool _klipperConnected = false;
+    bool _printerConnected = false;
+    bool _startup = true;
 };
 
 #endif // KLIPPERCONSOLE_H

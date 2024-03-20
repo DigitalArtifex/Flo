@@ -1,7 +1,7 @@
 #include "filebrowserpage.h"
 #include "ui_filebrowserpage.h"
 
-#include "../settings.h"
+#include "../../settings.h"
 
 FileBrowserPage::FileBrowserPage(QString rootDirectory, QWidget *parent) :
     QFrame(parent),

@@ -6,7 +6,7 @@
 #include <QLayout>
 #include <QLayout>
 
-#include "../types/klipperfile.h"
+#include "../../types/klipperfile.h"
 #include "filebrowseritem.h"
 #include "filebrowserwidget.h"
 
@@ -14,7 +14,7 @@
 #include <QFileDialog>
 #include <QScreen>
 #include <QRegularExpression>
-#include "../ui/popup.h"
+#include "../../ui/popup.h"
 
 namespace Ui {
 class FileBrowserPage;

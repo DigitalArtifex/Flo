@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>1121</width>
+    <height>728</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,58 +30,6 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <widget class="QFrame" name="TitleBar">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>35</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>35</height>
-      </size>
-     </property>
-     <property name="baseSize">
-      <size>
-       <width>0</width>
-       <height>50</height>
-      </size>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="filePageTitle">
-        <property name="text">
-         <string>Settings</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0">
     <widget class="QFrame" name="actionBar">
      <property name="maximumSize">
       <size>
@@ -96,6 +44,9 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
+      <property name="bottomMargin">
+       <number>9</number>
+      </property>
       <item row="0" column="0">
        <widget class="QLineEdit" name="searchEdit">
         <property name="inputMask">
@@ -191,7 +142,7 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="1" column="0">
     <widget class="QGroupBox" name="pageContents">
      <property name="title">
       <string/>
@@ -215,6 +166,77 @@
       <property name="verticalSpacing">
        <number>4</number>
       </property>
+      <item row="0" column="0">
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="printerTab">
+         <attribute name="title">
+          <string>Printer Settings</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <widget class="QGroupBox" name="groupBox">
+            <property name="title">
+             <string>Printers</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="0" column="0" rowspan="2">
+              <widget class="QWidget" name="widget" native="true">
+               <layout class="QGridLayout" name="gridLayout_6">
+                <item row="3" column="1">
+                 <widget class="QPushButton" name="pushButton_3">
+                  <property name="text">
+                   <string>Remove Selected Printer</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="pushButton_2">
+                  <property name="text">
+                   <string>Edit Selected Printer</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <spacer name="verticalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QPushButton" name="addPrinterButton">
+                  <property name="text">
+                   <string>Add New Printer</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" rowspan="5">
+                 <layout class="QVBoxLayout" name="printerListLayout"/>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="systemTab">
+         <attribute name="title">
+          <string>System Settings</string>
+         </attribute>
+        </widget>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

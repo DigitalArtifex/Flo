@@ -17,6 +17,8 @@
 
 #include <QIcon>
 
+#include "types/printer.h"
+
 class Settings
 {
     static QMap<QString,QVariant> settings;
@@ -39,6 +41,16 @@ public:
     static QIcon getThemeIcon(QString key);
     static QStringList getThemeList();
     static void setTheme(QString key);
+
+    static Printer *defaultPrinter();
+    static void addPrinter(PrinterDefinition printer);
+    static void setDefaultPrinter(PrinterDefinition printer);
+    static void updatePrinter(PrinterDefinition printer);
+    static PrinterDefinitionList printers();
+
+private:
+    static Printer *_printer;
+    static PrinterDefinitionList _printers;
 };
 
 #endif // SETTINGS_H

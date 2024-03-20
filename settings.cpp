@@ -5,6 +5,7 @@ QMap<QString,QVariant> Settings::settings;
 QMap<QString,QVariant> Settings::themeSettings;
 QMap<QString,QString> Settings::themeMap;
 QMap<QString,QIcon> Settings::iconMap;
+PrinterDefinitionList Settings::_printers;
 
 void Settings::loadThemes()
 {
@@ -92,8 +93,38 @@ void Settings::load()
             return;
         }
 
+        _printers.clear();
+
         for(settingsIterator = settingsObject.begin(); settingsIterator != settingsObject.end(); settingsIterator++)
-            set(settingsIterator.key(), settingsIterator.value().toVariant());
+        {
+            if(settingsIterator->isArray())
+            {
+                if(settingsIterator.key() == QString("printers"))
+                {
+                    QJsonArray settingsArray = settingsIterator->toArray();
+                    for(int i = 0; i < settingsArray.count(); i++)
+                    {
+                        QJsonObject printerObject = settingsArray[i].toObject();
+                        PrinterDefinition printer;
+                        printer.id = printerObject["id"].toString();
+                        printer.name = printerObject["name"].toString();
+                        printer.instanceLocation = printerObject["instance_location"].toString();
+                        printer.gcodeLocation = printerObject["gcode_location"].toString();
+                        printer.configLocation = printerObject["config_location"].toString();
+                        printer.klipperLocation = printerObject["klipper_location"].toString();
+                        printer.moonrakerLocation = printerObject["moonraker_location"].toString();
+                        printer.configFile = printerObject["config_file"].toString();
+                        printer.defaultPrinter = printerObject["default_printer"].toBool();
+                        printer.autoConnect = printerObject["auto_connect"].toBool();
+                        printer.apiKey = printerObject["api_key"].toString();
+                        _printers.append(printer);
+                    }
+                }
+            }
+            else
+                set(settingsIterator.key(), settingsIterator.value().toVariant());
+
+        }
     }
 
     loadThemes();
@@ -109,6 +140,29 @@ void Settings::save()
 
     for(mapIterator = settings.begin(); mapIterator != settings.end(); mapIterator++)
         rootObject[mapIterator.key()] = QJsonValue::fromVariant(mapIterator.value());
+
+    QJsonArray printerArray;
+    //QJsonArray::fromVariantList(_printers);
+
+    for(int i = 0; i < _printers.count(); i++)
+    {
+        QJsonObject printerObject;
+        printerObject["name"] = _printers[i].name;
+        printerObject["id"] = _printers[i].id;
+        printerObject["config_file"] = _printers[i].configFile;
+        printerObject["config_location"] = _printers[i].configLocation;
+        printerObject["gcode_location"] = _printers[i].gcodeLocation;
+        printerObject["instance_location"] = _printers[i].instanceLocation;
+        printerObject["auto_connect"] = _printers[i].autoConnect;
+        printerObject["default_printer"] = _printers[i].defaultPrinter;
+        printerObject["klipper_location"] = _printers[i].klipperLocation;
+        printerObject["moonraker_location"] = _printers[i].moonrakerLocation;
+        printerObject["api_key"] = _printers[i].apiKey;
+
+        printerArray.append(printerObject);
+    }
+
+    rootObject["printers"] = printerArray;
 
     //Currently experiencing a bug that writes over a files to the length of the current data,
     //but leaves the previously written data. Quite obviously a bug I'm creating as its been a while,
@@ -267,4 +321,38 @@ QStringList Settings::getThemeList()
 void Settings::setTheme(QString key)
 {
     set("system.theme", key);
+}
+
+void Settings::addPrinter(PrinterDefinition printer)
+{
+    _printers.append(printer);
+    save();
+}
+
+void Settings::setDefaultPrinter(PrinterDefinition printer)
+{
+    for(int i = 0; i < _printers.count(); i++)
+    {
+        if(_printers[i].id == printer.id)
+            _printers[i].defaultPrinter = true;
+        else
+            _printers[i].defaultPrinter = false;
+    }
+}
+
+void Settings::updatePrinter(PrinterDefinition printer)
+{
+    for(int i = 0; i < _printers.count(); i++)
+    {
+        if(_printers[i].id == printer.id)
+        {
+            _printers[i] = printer;
+            break;
+        }
+    }
+}
+
+PrinterDefinitionList Settings::printers()
+{
+    return _printers;
 }
