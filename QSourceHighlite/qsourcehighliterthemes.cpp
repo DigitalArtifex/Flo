@@ -22,7 +22,7 @@
  */
 
 #include "qsourcehighliterthemes.h"
-#include "../settings.h"
+#include "../system/settings.h"
 
 namespace QSourceHighlite {
 

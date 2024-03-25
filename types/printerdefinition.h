@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QMap>
 
 class PrinterDefinition
 {
@@ -19,6 +20,8 @@ public:
     QString apiKey;
     bool autoConnect = true;
     bool defaultPrinter = false;
+    qreal extruderWattage = 0;
+    QMap<QString, qreal> powerProfile;
 };
 
 typedef QList<PrinterDefinition> PrinterDefinitionList;

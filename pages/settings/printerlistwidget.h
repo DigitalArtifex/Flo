@@ -5,6 +5,7 @@
 #include <QSpacerItem>
 #include <QMouseEvent>
 
+#include "../../types/printer.h"
 #include "printerlistitem.h"
 
 namespace Ui {
@@ -19,10 +20,18 @@ public:
     explicit PrinterListWidget(QWidget *parent = nullptr);
     ~PrinterListWidget();
 
-    void addItem(PrinterListItem *item);
+    void addItem(PrinterDefinition definition);
+    PrinterListItem *selectedItem();
+
+signals:
+    void itemSelected(PrinterListItem *item);
 
 private slots:
     void on_itemClicked(PrinterListItem *item);
+    void on_printerPool_printerRemoved(Printer *printer);
+    void on_printerPool_printerAdded(Printer *printer);
+    void on_printerPool_printerUpdated(Printer *printer);
+
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 

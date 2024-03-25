@@ -1,11 +1,13 @@
-#ifndef DASHBOARDANIMATION_H
-#define DASHBOARDANIMATION_H
+#ifndef WIDGETANIMATION_H
+#define WIDGETANIMATION_H
 
 #include <QObject>
+#include <QWidget>
 #include <QPropertyAnimation>
-#include <QParallelAnimationGroup>>
+#include <QParallelAnimationGroup>
+#include <QGraphicsOpacityEffect>
 
-class DashboardAnimation : public QObject
+class WidgetAnimation : public QObject
 {
     Q_OBJECT
 public:
@@ -14,11 +16,12 @@ public:
         MaxWidth = 2,
         MinHeight = 4,
         MinWidth = 8,
+        Opacity = 16,
         MinMaxHeight = (MaxHeight | MinHeight),
         MinMaxWidth = (MaxWidth | MinWidth)
     };
 
-    explicit DashboardAnimation(QObject *target, Property property, QObject *parent = nullptr);
+    explicit WidgetAnimation(QWidget *target, Property property, QObject *parent = nullptr);
 
     void show();
     void hide();
@@ -32,8 +35,10 @@ public:
     bool hasPropertyFlag(Property property);
 
 signals:
+    void finished();
 
 private slots:
+    void on_animations_finished();
 
 private:
     Property _property = (Property)0;
@@ -42,17 +47,20 @@ private:
     qreal _widthIn = 0;
     qreal _widthOut = 0;
 
-    QObject *_target = nullptr;
+    QWidget *_target = nullptr;
     QParallelAnimationGroup *_animationsIn = nullptr;
     QParallelAnimationGroup *_animationsOut = nullptr;
     QPropertyAnimation *_animationIn_maxHeight = nullptr;
     QPropertyAnimation *_animationIn_minHeight = nullptr;
     QPropertyAnimation *_animationIn_maxWidth = nullptr;
     QPropertyAnimation *_animationIn_minWidth = nullptr;
+    QPropertyAnimation *_animationIn_opacity = nullptr;
     QPropertyAnimation *_animationOut_maxHeight = nullptr;
     QPropertyAnimation *_animationOut_minHeight = nullptr;
     QPropertyAnimation *_animationOut_maxWidth = nullptr;
     QPropertyAnimation *_animationOut_minWidth = nullptr;
+    QPropertyAnimation *_animationOut_opacity = nullptr;
+    QGraphicsOpacityEffect *_effect_opacity = nullptr;
 };
 
-#endif // DASHBOARDANIMATION_H
+#endif // WIDGETANIMATION_H

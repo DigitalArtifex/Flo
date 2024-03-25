@@ -17,19 +17,20 @@
 #include "QSourceHighlite/qsourcehighliter.h"
 
 #include "klipperconsole.h"
-#include "settings.h"
+#include "system/settings.h"
 
 //UI elements
 #include "widgets/temperature/temperaturegraph.h"
 #include "ui/circularprogressbar.h"
 #include "ui/menubutton.h"
 #include "ui/popup.h"
-#include "ui/dashboardanimation.h"
+#include "ui/widgetanimation.h"
 
 //Pages
 #include "pages/filebrowser/filebrowserpage.h"
 #include "pages/settings/settingspage.h"
 #include "pages/printer/printerpage.h"
+#include "pages/dashboard/dashboardpage.h"
 #include "types/klipperfile.h"
 #include "types/printer.h"
 
@@ -112,14 +113,6 @@ class MainWindow : public QMainWindow
     QSourceHighliter *_terminalResponseHighlighter = nullptr;
     QSourceHighliter *_terminalDebugHighlighter = nullptr;
 
-    //Dashboard Animations
-
-    DashboardAnimation *_dashboardFilesWidgetAnimation = nullptr;
-    DashboardAnimation *_dashboardSystemWidgetAnimation = nullptr;
-    DashboardAnimation *_dashboardWebcamWidgetAnimation = nullptr;
-    DashboardAnimation *_dashboardTemperaturesWidgetAnimation = nullptr;
-    DashboardAnimation *_dashboardPrinterWidgetAnimation = nullptr;
-
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -140,18 +133,13 @@ private slots:
     void on_consoleButtonSend_clicked();
 
     void on_consoleResponse(KlipperResponse response);
-    void on_consoleSystemUpdate(KlipperResponse response);
     void on_consolePresetSelector_currentChanged(int index);
     void on_commandSent(QString data);
 
-    void on_tabWidget_currentChanged(int index);
 
     void on_dashboardMenuButton_toggled(MenuButton* button);
-
     void on_moonrakerMenuButton_toggled(MenuButton* button);
-
     void on_gcodeMenuButton_toggled(MenuButton* button);
-
     void on_settingsMenuButton_toggled(MenuButton* button);
 
     void on_menuAnimationIn_finished();
@@ -159,9 +147,7 @@ private slots:
     void on_titleOpacityAnimation_finished();
 
     void on_gcodeFilesMenuButton_toggled(MenuButton* button);
-
     void on_printerMenuButton_toggled(MenuButton* button);
-
     void on_printerError(QString message);
 
     void updateStyleSheet();
@@ -177,11 +163,6 @@ private slots:
     void on_fileDirectoryChanged(QString directory);
     void on_filePrintRequested(KlipperFile file);
     void on_fileDeleteRequested(KlipperFile file);
-
-    void on_extrsuionFactorSlider_valueChanged(int value);
-    void on_extrsuionFactorSlider_2_valueChanged(int value);
-    void on_extrusionFactorEdit_textChanged(const QString &arg1);
-    void on_extrusionFactorEdit_2_textChanged(const QString &arg1);
     void on_emergencyStopButton_clicked();
 
     void on_restartAction_triggered(bool checked);
@@ -189,16 +170,6 @@ private slots:
     void on_closeAction_triggered(bool checked);
 
     void on_debugTerminalButton_toggled(bool checked);
-
-    void on_filesWidgetToggleButton_toggled(bool checked);
-
-    void on_webcamWidgetToggleButton_toggled(bool checked);
-
-    void on_systemWidgetToggleButton_toggled(bool checked);
-
-    void on_temperatureWidgetToggleButton_toggled(bool checked);
-
-    void on_printerWidgetToggleButton_toggled(bool checked);
 
     void on_printerUpdate(Printer *printer);
 
@@ -212,16 +183,20 @@ private slots:
 
     void on_powerButton_clicked();
 
+    //Redo
+    void on_settingsPage_printerAdded(PrinterDefinition definition);
+
 
 private:
     Ui::MainWindow *ui;
     QAction *_restartAction;
     QAction *_shutdownAction;
     QAction *_closeAction;
-    Printer *_printer;
+    Printer *_printer = nullptr;
     PrinterList _printers;
 
     SettingsPage *_settingsPage = nullptr;
+    DashboardPage *_dashboardPage = nullptr;
 
 
     void consoleSendCommand();
@@ -232,7 +207,6 @@ private:
     void setupPowerActions();
 
     void setPrinter(Printer *printer);
-    void loadPrinters();
 
 };
 #endif // MAINWINDOW_H

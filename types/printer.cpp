@@ -2,19 +2,10 @@
 
 Printer::Printer(QString name, QString id) : QObject(nullptr)
 {
-    _name = name;
-    _id = id;
 
-    _toolhead = new Toolhead();
-    _bed = new Bed();
-    _partsFan = new Fan();
-    _console = new KlipperConsole(this);
-
-    connect(_console, SIGNAL(moonrakerConnected()), this, SLOT(on_moonrakerConnected()));
-    connect(_console, SIGNAL(klipperConnected()), this, SLOT(on_klipperConnected()));
 }
 
-Printer::Printer(PrinterDefinition definition)
+Printer::Printer(PrinterDefinition definition) : QObject(nullptr)
 {
     _name = definition.name;
     _klipperLocation = definition.klipperLocation;
@@ -27,16 +18,21 @@ Printer::Printer(PrinterDefinition definition)
     _autoConnect = definition.autoConnect;
     _defaultPrinter = definition.defaultPrinter;
     _apiKey = definition.apiKey;
+    _powerProfile = definition.powerProfile;
 
     _toolhead = new Toolhead();
     _bed = new Bed();
     _partsFan = new Fan();
     _console = new KlipperConsole(this);
+    _system = new System(this);
 
     _console->setMoonrakerLocation(_moonrakerLocation);
 
     connect(_console, SIGNAL(moonrakerConnected()), this, SLOT(on_moonrakerConnected()));
     connect(_console, SIGNAL(klipperConnected()), this, SLOT(on_klipperConnected()));
+    connect(_console, SIGNAL(klipperDisconnected()), this, SLOT(on_klipperDisconnected()));
+    connect(_console, SIGNAL(printerUpdate()), this, SLOT(on_printerUpdate()));
+    connect(_console, SIGNAL(systemUpdate()), this, SLOT(on_systemUpdate()));
 }
 
 Printer::~Printer()
@@ -192,6 +188,11 @@ void Printer::connectMoonraker()
     _console->connectKlipper();
 }
 
+PrintJob *Printer::currentJob()
+{
+    return _printJob;
+}
+
 Bed *Printer::bed()
 {
     return _bed;
@@ -202,9 +203,19 @@ Fan *Printer::fan()
     return _partsFan;
 }
 
+System *Printer::system()
+{
+    return _system;
+}
+
 void Printer::on_klipperConnected()
 {
     emit(klipperConnected(this));
+}
+
+void Printer::on_klipperDisconnected()
+{
+    emit(klipperDisconnected(this));
 }
 
 void Printer::on_moonrakerConnected()
@@ -212,7 +223,12 @@ void Printer::on_moonrakerConnected()
     emit(moonrakerConnected(this));
 }
 
-void Printer::on_printerUpdate(Printer *printer)
+void Printer::on_printerUpdate()
 {
     emit(printerUpdate(this));
+}
+
+void Printer::on_systemUpdate()
+{
+    emit(systemUpdate(this));
 }

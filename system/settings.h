@@ -17,7 +17,7 @@
 
 #include <QIcon>
 
-#include "types/printer.h"
+#include "../types/printer.h"
 
 class Settings
 {
@@ -44,12 +44,15 @@ public:
 
     static Printer *defaultPrinter();
     static void addPrinter(PrinterDefinition printer);
+    static void removePrinter(PrinterDefinition printer);
     static void setDefaultPrinter(PrinterDefinition printer);
     static void updatePrinter(PrinterDefinition printer);
     static PrinterDefinitionList printers();
 
+    static Settings *instance();
+
 private:
-    static Printer *_printer;
+    static Settings *_instance;
     static PrinterDefinitionList _printers;
 };
 

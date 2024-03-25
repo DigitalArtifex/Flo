@@ -109,12 +109,12 @@ public:
 signals:
     void commandSent(QString data);
     void responseReceived(KlipperResponse response);
-    void systemUpdateReceived(KlipperResponse response);
     void printerUpdateReceived(KlipperResponse response);
     void commandLock();
     void commandUnlock();
     void fileListReceived(QList<KlipperFile> files);
     void directoryListReceived(QList<KlipperFile> files);
+    void systemUpdate();
     void printerFound();
     void printerUpdate();
     void printerOnline();
@@ -133,11 +133,14 @@ private slots:
     void on_messageReadTimer();
     void on_messageParseTimer();
 
+    void on_klipperRestartTimer_timeout();
+
 private:
     void sendError(QString message);
 
     Printer* _printer;
     QTimer *_messageParseTimer = nullptr;
+    QTimer *_klipperRestartTimer = nullptr;
     QQueue<QByteArray> messageQueue;
     QString _moonrakerLocation;
 

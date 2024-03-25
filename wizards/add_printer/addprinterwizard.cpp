@@ -1,7 +1,7 @@
 #include "addprinterwizard.h"
 #include "ui_addprinterwizard.h"
 
-#include "../../settings.h"
+#include "../../system/settings.h"
 
 AddPrinterWizard::AddPrinterWizard(QWidget *parent) :
     QWizard(parent),

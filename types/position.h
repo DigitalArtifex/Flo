@@ -9,10 +9,11 @@ class Position
     qreal _x;
     qreal _y;
     qreal _z;
+    qreal _e;
 
 public:
     Position();
-    Position(qreal x, qreal y, qreal z);
+    Position(qreal x, qreal y, qreal z, qreal e = 0);
 
     void set(qreal x, qreal y, qreal z);
 
@@ -24,6 +25,9 @@ public:
 
     void setZ(qreal z);
     qreal z();
+
+    void setE(qreal e);
+    qreal e();
 };
 
 #endif // POSITION_H

@@ -1,7 +1,7 @@
 #include "popup.h"
 #include "ui_popup.h"
 
-#include "../settings.h"
+#include "../system/settings.h"
 
 Popup::Popup(QString title, QWidget *parent) :
     QFrame(parent),

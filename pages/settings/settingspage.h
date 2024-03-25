@@ -20,10 +20,17 @@ public:
 
     void updatePrinterList();
 
+signals:
+    void printerAdded(PrinterDefinition definition);
+
 private slots:
     void on_addPrinterButton_clicked();
     void on_addPrinterWizardFinished(int result);
     void on_addPrinterWizardCancelled();
+
+    void on_printerListWidget_itemSelected(PrinterListItem *item);
+
+    void on_removePrinterButton_clicked();
 
 private:
     Ui::SettingsPage *ui;

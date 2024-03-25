@@ -1,5 +1,13 @@
 <RCC>
     <qresource prefix="/images">
         <file alias="application-icon">images/flo_beta.png</file>
+        <file>images/loading.gif</file>
+        <file>images/loading 2.gif</file>
+        <file>images/loading_widget.gif</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file>fonts/segmono_boot.ttf</file>
+        <file>fonts/segoen_slboot.ttf</file>
+        <file>fonts/segoe_slboot.ttf</file>
     </qresource>
 </RCC>

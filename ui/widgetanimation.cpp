@@ -1,6 +1,6 @@
-#include "dashboardanimation.h"
+#include "widgetanimation.h"
 
-DashboardAnimation::DashboardAnimation(QObject *target, Property property, QObject *parent)
+WidgetAnimation::WidgetAnimation(QWidget *target, Property property, QObject *parent)
     : QObject{parent}
 {
     _target = target;
@@ -8,9 +8,14 @@ DashboardAnimation::DashboardAnimation(QObject *target, Property property, QObje
 
     _animationsIn = new QParallelAnimationGroup(this->parent());
     _animationsOut = new QParallelAnimationGroup(this->parent());
+
+    connect(_animationsIn, SIGNAL(finished()), this, SLOT(on_animations_finished()));
+    connect(_animationsOut, SIGNAL(finished()), this, SLOT(on_animations_finished()));
+
+    _effect_opacity = new QGraphicsOpacityEffect(_target);
 }
 
-void DashboardAnimation::show()
+void WidgetAnimation::show()
 {
     if(_animationsIn->state() == QAnimationGroup::Running)
         return;
@@ -19,9 +24,19 @@ void DashboardAnimation::show()
 
     _animationsIn->clear();
 
+    if(hasPropertyFlag(Property::Opacity))
+    {
+        _animationIn_opacity = new QPropertyAnimation(_effect_opacity, "opacity");
+        _animationIn_opacity->setStartValue(0);
+        _animationIn_opacity->setEndValue(1);
+        _animationIn_opacity->setDuration(1000);
+        _animationsIn->addAnimation(_animationIn_opacity);
+        _target->setGraphicsEffect(_effect_opacity);
+    }
+
     if(this->hasPropertyFlag(Property::MaxHeight))
     {
-            _animationIn_maxHeight = new QPropertyAnimation(_target, "maximumHeight", this->parent());
+        _animationIn_maxHeight = new QPropertyAnimation(_target, "maximumHeight", this->parent());
 
         _animationIn_maxHeight->setStartValue(_heightOut);
         _animationIn_maxHeight->setEndValue(_heightIn);
@@ -31,7 +46,7 @@ void DashboardAnimation::show()
 
     if(this->hasPropertyFlag(Property::MinHeight))
     {
-            _animationIn_minHeight = new QPropertyAnimation(_target, "minimumHeight", this->parent());
+        _animationIn_minHeight = new QPropertyAnimation(_target, "minimumHeight", this->parent());
 
         _animationIn_minHeight->setStartValue(_heightOut);
         _animationIn_minHeight->setEndValue(_heightIn);
@@ -62,7 +77,7 @@ void DashboardAnimation::show()
     _animationsIn->start(QParallelAnimationGroup::KeepWhenStopped);
 }
 
-void DashboardAnimation::hide()
+void WidgetAnimation::hide()
 {
     if(_animationsOut->state() == QAnimationGroup::Running)
         return;
@@ -71,9 +86,19 @@ void DashboardAnimation::hide()
 
     _animationsOut->clear();
 
+    if(hasPropertyFlag(Property::Opacity))
+    {
+        _animationOut_opacity = new QPropertyAnimation(_effect_opacity, "opacity");
+        _animationOut_opacity->setStartValue(1);
+        _animationOut_opacity->setEndValue(0);
+        _animationOut_opacity->setDuration(1000);
+        _animationsOut->addAnimation(_animationOut_opacity);
+        //_target->setGraphicsEffect(_effect_opacity);
+    }
+
     if(this->hasPropertyFlag(Property::MaxHeight))
     {
-            _animationOut_maxHeight = new QPropertyAnimation(_target, "maximumHeight", this->parent());
+        _animationOut_maxHeight = new QPropertyAnimation(_target, "maximumHeight", this->parent());
 
         _animationOut_maxHeight->setStartValue(_heightIn);
         _animationOut_maxHeight->setEndValue(_heightOut);
@@ -83,7 +108,7 @@ void DashboardAnimation::hide()
 
     if(this->hasPropertyFlag(Property::MinHeight))
     {
-            _animationOut_minHeight = new QPropertyAnimation(_target, "minimumHeight", this->parent());
+        _animationOut_minHeight = new QPropertyAnimation(_target, "minimumHeight", this->parent());
 
         _animationOut_minHeight->setStartValue(_heightIn);
         _animationOut_minHeight->setEndValue(_heightOut);
@@ -93,7 +118,7 @@ void DashboardAnimation::hide()
 
     if(this->hasPropertyFlag(Property::MaxWidth))
     {
-            _animationOut_maxWidth = new QPropertyAnimation(_target, "maximumWidth", this->parent());
+        _animationOut_maxWidth = new QPropertyAnimation(_target, "maximumWidth", this->parent());
 
         _animationOut_maxWidth->setStartValue(_widthIn);
         _animationOut_maxWidth->setEndValue(_widthOut);
@@ -103,7 +128,7 @@ void DashboardAnimation::hide()
 
     if(this->hasPropertyFlag(Property::MinWidth))
     {
-            _animationOut_minWidth = new QPropertyAnimation(_target, "minimumWidth", this->parent());
+        _animationOut_minWidth = new QPropertyAnimation(_target, "minimumWidth", this->parent());
 
         _animationOut_minWidth->setStartValue(_widthIn);
         _animationOut_minWidth->setEndValue(_widthOut);
@@ -114,32 +139,37 @@ void DashboardAnimation::hide()
     _animationsOut->start(QParallelAnimationGroup::KeepWhenStopped);
 }
 
-void DashboardAnimation::setProperty(Property property)
+void WidgetAnimation::setProperty(Property property)
 {
     _property = property;
 }
 
-void DashboardAnimation::setHeightIn(qreal height)
+void WidgetAnimation::setHeightIn(qreal height)
 {
     _heightIn = height;
 }
 
-void DashboardAnimation::setHeightOut(qreal height)
+void WidgetAnimation::setHeightOut(qreal height)
 {
     _heightOut = height;
 }
 
-void DashboardAnimation::setWidthIn(qreal width)
+void WidgetAnimation::setWidthIn(qreal width)
 {
     _widthIn = width;
 }
 
-void DashboardAnimation::setWidthOut(qreal width)
+void WidgetAnimation::setWidthOut(qreal width)
 {
     _widthOut = width;
 }
 
-bool DashboardAnimation::hasPropertyFlag(Property property)
+bool WidgetAnimation::hasPropertyFlag(Property property)
 {
     return ((_property & property) == property);
+}
+
+void WidgetAnimation::on_animations_finished()
+{
+    emit(finished());
 }

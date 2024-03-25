@@ -1,6 +1,6 @@
 #include "printerpage.h"
 #include "ui_printerpage.h"
-#include "../../settings.h"
+#include "../../system/settings.h"
 
 PrinterPage::PrinterPage(QWidget *parent) :
     QFrame(parent),

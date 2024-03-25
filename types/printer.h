@@ -9,6 +9,8 @@
 #include "bed.h"
 #include "fan.h"
 #include "klipperfile.h"
+#include "system.h"
+#include "printjob.h"
 
 #include "../klipperconsole.h"
 #include "printerdefinition.h"
@@ -20,11 +22,12 @@ class Printer: public QObject
 public:
 
     enum Status {
-        Ready,
-        Printing,
-        Paused,
-        Cancelled,
-        Error
+        Ready = 0x00000001,
+        Error = 0x00000010,
+        Printing = 0x00010000,
+        Paused = (Ready | Printing),
+        Cancelled = (Error | Printing),
+        Offline = 0x10000000
     };
 
     Printer(QString name = QString("printer"), QString id = QString(""));
@@ -35,6 +38,7 @@ public:
     Extruder *extruder(int index);
     Bed *bed();
     Fan *fan();
+    System *system();
 
     void setName(QString name);
     QString name();
@@ -74,21 +78,28 @@ public:
 
     void connectMoonraker();
 
+    PrintJob *currentJob();
+
 signals:
+    void systemUpdate(Printer *printer);
     void printerUpdate(Printer *printer);
     void klipperConnected(Printer *printer);
+    void klipperDisconnected(Printer *printer);
     void moonrakerConnected(Printer *printer);
     void printerOnline(Printer *printer);
 
 private slots:
     void on_klipperConnected();
+    void on_klipperDisconnected();
     void on_moonrakerConnected();
-    void on_printerUpdate(Printer *printer);
+    void on_printerUpdate();
+    void on_systemUpdate();
 
 private:
     Toolhead *_toolhead = nullptr;
     Bed *_bed = nullptr;
     Fan *_partsFan = nullptr;
+    QMap<QString,qreal> _powerProfile;
     QString _name;
     QString _id;
     QString _firmwareVersion;
@@ -107,9 +118,12 @@ private:
     KlipperFile _currentFile;
     QDateTime _printStarted;
     QDateTime _printEnding;
-    Status _status = Error;
+    Status _status = Offline;
 
     KlipperConsole *_console = nullptr;
+
+    System *_system;
+    PrintJob *_printJob;
 };
 
 typedef QList<Printer*> PrinterList;

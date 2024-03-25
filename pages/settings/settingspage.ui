@@ -186,14 +186,20 @@
               <widget class="QWidget" name="widget" native="true">
                <layout class="QGridLayout" name="gridLayout_6">
                 <item row="3" column="1">
-                 <widget class="QPushButton" name="pushButton_3">
+                 <widget class="QPushButton" name="removePrinterButton">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="text">
                    <string>Remove Selected Printer</string>
                   </property>
                  </widget>
                 </item>
                 <item row="2" column="1">
-                 <widget class="QPushButton" name="pushButton_2">
+                 <widget class="QPushButton" name="editPrinterButton">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="text">
                    <string>Edit Selected Printer</string>
                   </property>

@@ -1,7 +1,9 @@
- #include "settingspage.h"
+#include "settingspage.h"
 #include "ui_settingspage.h"
-#include "../../settings.h"
+#include "../../system/settings.h"
 #include "printerlistitem.h"
+
+#include "../../system/printerpool.h"
 
 SettingsPage::SettingsPage(QWidget *parent) :
     QFrame(parent),
@@ -11,6 +13,8 @@ SettingsPage::SettingsPage(QWidget *parent) :
     _printerListWidget = new PrinterListWidget();
     ui->printerListLayout->addWidget(_printerListWidget);
     updatePrinterList();
+
+    connect(_printerListWidget, SIGNAL(itemSelected(PrinterListItem*)), this, SLOT(on_printerListWidget_itemSelected(PrinterListItem*)));
 }
 
 SettingsPage::~SettingsPage()
@@ -24,10 +28,7 @@ void SettingsPage::updatePrinterList()
 
     foreach(PrinterDefinition printer, printers)
     {
-        PrinterListItem *item = new PrinterListItem();
-        item->setPrinterDefinition(printer);
-        item->setMinimumHeight(50);
-        _printerListWidget->addItem(item);
+        _printerListWidget->addItem(printer);
     }
 }
 
@@ -46,11 +47,12 @@ void SettingsPage::on_addPrinterButton_clicked()
 void SettingsPage::on_addPrinterWizardFinished(int result)
 {
     PrinterDefinition definition = _addPrinterWizard->definition();
-    Settings::addPrinter(definition);
+    PrinterPool::addPrinter(definition);
     updatePrinterList();
 
     delete _addPrinterWizard;
     _addPrinterWizard = nullptr;
+    emit(printerAdded(definition));
 }
 
 void SettingsPage::on_addPrinterWizardCancelled()
@@ -58,3 +60,29 @@ void SettingsPage::on_addPrinterWizardCancelled()
     delete _addPrinterWizard;
     _addPrinterWizard = nullptr;
 }
+
+void SettingsPage::on_printerListWidget_itemSelected(PrinterListItem *item)
+{
+    if(item != nullptr)
+    {
+        ui->editPrinterButton->setEnabled(true);
+        ui->removePrinterButton->setEnabled(true);
+    }
+    else
+    {
+        ui->editPrinterButton->setEnabled(false);
+        ui->removePrinterButton->setEnabled(false);
+    }
+}
+
+void SettingsPage::on_removePrinterButton_clicked()
+{
+    if(_printerListWidget->selectedItem() != nullptr)
+    {
+        ui->editPrinterButton->setEnabled(false);
+        ui->removePrinterButton->setEnabled(false);
+        PrinterDefinition definition = _printerListWidget->selectedItem()->printerDefinition();
+        PrinterPool::removePrinter(definition);
+    }
+}
+

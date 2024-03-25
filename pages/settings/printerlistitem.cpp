@@ -55,6 +55,11 @@ bool PrinterListItem::selected()
     return this->property("selected").toBool();
 }
 
+PrinterDefinition PrinterListItem::printerDefinition()
+{
+    return _definition;
+}
+
 void PrinterListItem::clickTimeout()
 {
     if(this->_pressed)

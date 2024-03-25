@@ -25,6 +25,8 @@ public:
     void setSelected(bool selected);
     bool selected();
 
+    PrinterDefinition printerDefinition();
+
 signals:
     void clicked(PrinterListItem *item);
     void longPressed(PrinterListItem *item);

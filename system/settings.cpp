@@ -1,11 +1,12 @@
 #include "settings.h"
-#include "QVariableSytleSheet/qvariablestylesheet.h"
+#include "../QVariableSytleSheet/qvariablestylesheet.h"
 
 QMap<QString,QVariant> Settings::settings;
 QMap<QString,QVariant> Settings::themeSettings;
 QMap<QString,QString> Settings::themeMap;
 QMap<QString,QIcon> Settings::iconMap;
 PrinterDefinitionList Settings::_printers;
+Settings *Settings::_instance = nullptr;
 
 void Settings::loadThemes()
 {
@@ -117,6 +118,18 @@ void Settings::load()
                         printer.defaultPrinter = printerObject["default_printer"].toBool();
                         printer.autoConnect = printerObject["auto_connect"].toBool();
                         printer.apiKey = printerObject["api_key"].toString();
+
+                        QJsonArray powerArray = printerObject["power_profiles"].toArray();
+
+                        for(int i = 0; i < powerArray.count(); i++)
+                        {
+                            QJsonObject powerObject = powerArray[i].toObject();
+                            QString key = powerObject["key"].toString();
+                            qreal value = powerObject["value"].toDouble();
+
+                            printer.powerProfile[key] = value;
+                        }
+
                         _printers.append(printer);
                     }
                 }
@@ -146,6 +159,17 @@ void Settings::save()
 
     for(int i = 0; i < _printers.count(); i++)
     {
+        QJsonArray powerArray;
+        QStringList keys = _printers[i].powerProfile.keys();
+
+        foreach(QString key, keys)
+        {
+            QJsonObject powerObject;
+            powerObject["key"] = key;
+            powerObject["value"] = _printers[i].powerProfile[key];
+            powerArray.append(powerObject);
+        }
+
         QJsonObject printerObject;
         printerObject["name"] = _printers[i].name;
         printerObject["id"] = _printers[i].id;
@@ -158,6 +182,7 @@ void Settings::save()
         printerObject["klipper_location"] = _printers[i].klipperLocation;
         printerObject["moonraker_location"] = _printers[i].moonrakerLocation;
         printerObject["api_key"] = _printers[i].apiKey;
+        printerObject["power_profile"] = powerArray;
 
         printerArray.append(printerObject);
     }
@@ -329,6 +354,18 @@ void Settings::addPrinter(PrinterDefinition printer)
     save();
 }
 
+void Settings::removePrinter(PrinterDefinition printer)
+{
+    for(int i = 0; i < _printers.count(); i++)
+    {
+        if(_printers[i].id == printer.id)
+        {
+            _printers.removeAt(i);
+            save();
+        }
+    }
+}
+
 void Settings::setDefaultPrinter(PrinterDefinition printer)
 {
     for(int i = 0; i < _printers.count(); i++)
@@ -338,6 +375,8 @@ void Settings::setDefaultPrinter(PrinterDefinition printer)
         else
             _printers[i].defaultPrinter = false;
     }
+
+    save();
 }
 
 void Settings::updatePrinter(PrinterDefinition printer)
@@ -355,4 +394,12 @@ void Settings::updatePrinter(PrinterDefinition printer)
 PrinterDefinitionList Settings::printers()
 {
     return _printers;
+}
+
+Settings *Settings::instance()
+{
+    if(_instance == nullptr)
+        _instance = new Settings();
+
+    return _instance;
 }

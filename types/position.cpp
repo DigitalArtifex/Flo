@@ -7,11 +7,12 @@ Position::Position()
     _z = 0;
 }
 
-Position::Position(qreal x, qreal y, qreal z)
+Position::Position(qreal x, qreal y, qreal z, qreal e)
 {
     _x = x;
     _y = y;
     _z = z;
+    _e = e;
 }
 
 void Position::set(qreal x, qreal y, qreal z)
@@ -49,4 +50,14 @@ void Position::setZ(qreal z)
 qreal Position::z()
 {
     return _z;
+}
+
+void Position::setE(qreal e)
+{
+    _e = e;
+}
+
+qreal Position::e()
+{
+    return _e;
 }

@@ -1,0 +1,168 @@
+#include "printerpool.h"
+#include "../types/printer.h"
+#include "../system/settings.h"
+
+QMap<QString,Printer*> PrinterPool::_printerPool;
+PrinterPool *PrinterPool::_instance = nullptr;
+
+PrinterPool::PrinterPool() : QObject()
+{
+
+}
+
+Printer *PrinterPool::getPrinterById(QString id)
+{
+    if(_printerPool.contains(id))
+        return _printerPool[id];
+    else
+        return nullptr;
+}
+
+void PrinterPool::addPrinter(PrinterDefinition definition)
+{
+    Printer *printer = new Printer(definition);
+
+    if(definition.autoConnect)
+        printer->connectMoonraker();
+
+    _printerPool.insert(definition.id,printer);
+    Settings::addPrinter(definition);
+
+    instance()->on_printerAdded(printer);
+}
+
+void PrinterPool::removePrinter(PrinterDefinition definition)
+{
+    Printer *printer = _printerPool[definition.id];
+    _printerPool.remove(definition.id);
+
+    delete printer;
+    Settings::removePrinter(definition);
+
+    instance()->on_printerRemoved(printer);
+}
+
+void PrinterPool::loadPrinters()
+{
+    PrinterDefinitionList printerDefinitions = Settings::printers();
+    bool hasDefault = false;
+
+    foreach(PrinterDefinition definition, printerDefinitions)
+    {
+        if(_printerPool.contains(definition.id))
+            continue;
+
+        if(definition.defaultPrinter && !hasDefault)
+            hasDefault = true;
+        else if(definition.defaultPrinter)
+            definition.defaultPrinter = false;
+
+        Printer *printer = new Printer(definition);
+
+        if(definition.autoConnect)
+            printer->connectMoonraker();
+
+        _printerPool.insert(definition.id,printer);
+
+        instance()->on_printerAdded(printer);
+    }
+
+    if(!hasDefault && !_printerPool.isEmpty())
+    {
+        Settings::setDefaultPrinter(_printerPool[0]->definition());
+    }
+}
+
+bool PrinterPool::contains(QString id)
+{
+    return _printerPool.contains(id);
+}
+
+long PrinterPool::printersOnline()
+{
+    long online = 0;
+    QStringList keys = _printerPool.keys();
+
+    foreach(QString key, keys)
+    {
+        if(_printerPool[key]->status() != Printer::Offline)
+            online++;
+    }
+
+    return online;
+}
+
+long PrinterPool::printersAvailable()
+{
+    return _printerPool.count();
+}
+
+long PrinterPool::printersRunning()
+{
+    long running = 0;
+    QStringList keys = _printerPool.keys();
+
+    foreach(QString key, keys)
+    {
+        if(_printerPool[key]->status() == Printer::Printing)
+            running++;
+        else if(_printerPool[key]->status() == Printer::Paused)
+                running++;
+    }
+
+    return running;
+}
+
+QList<PrintJob *> PrinterPool::printJobs()
+{
+    QList<PrintJob*> jobs;
+    QStringList keys = _printerPool.keys();
+
+    foreach(QString key, keys)
+    {
+        if(_printerPool[key]->status() == Printer::Printing)
+            jobs.append(_printerPool[key]->currentJob());
+        else if(_printerPool[key]->status() == Printer::Paused)
+            jobs.append(_printerPool[key]->currentJob());
+    }
+
+    return jobs;
+}
+
+PrinterPool *PrinterPool::instance()
+{
+    if(_instance == nullptr)
+        _instance = new PrinterPool();
+
+    return _instance;
+}
+
+void PrinterPool::on_printerAdded(Printer *printer)
+{
+    emit(printerAdded(printer));
+}
+
+void PrinterPool::on_printerRemoved(Printer *printer)
+{
+    emit(printerRemoved(printer));
+}
+
+void PrinterPool::on_printerUpdated(Printer *printer)
+{
+    emit(printerUpdated(printer));
+}
+
+void PrinterPool::on_jobStarted(PrintJob *job)
+{
+    emit(jobStarted(job));
+}
+
+void PrinterPool::on_jobFinished(PrintJob *job)
+{
+    emit(jobFinished(job));
+}
+
+void PrinterPool::on_jobUpdated(PrintJob *job)
+{
+    emit(jobUpdated(job));
+}

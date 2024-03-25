@@ -1,7 +1,7 @@
 #include "addprinterpage.h"
 #include "ui_addprinterpage.h"
 
-#include "../../settings.h"
+#include "../../system/settings.h"
 
 AddPrinterPage::AddPrinterPage(QWidget *parent) :
     QWizardPage(parent),

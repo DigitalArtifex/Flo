@@ -1,10 +1,14 @@
 #include "klipperconsole.h"
 #include "types/printer.h"
-#include "settings.h"
+#include "system/settings.h"
 
 KlipperConsole::KlipperConsole(Printer *parent)
 {
     this->klipperSocket = new QLocalSocket();
+
+    _klipperRestartTimer = new QTimer();
+    _klipperRestartTimer->setInterval(3000);
+    connect(_klipperRestartTimer, SIGNAL(timeout()), this, SLOT(on_klipperRestartTimer_timeout()));
 
     _printer = parent;
 }
@@ -608,7 +612,34 @@ void KlipperConsole::on_messageParseTimer()
     }
 
     if(response["method"] == QString("notify_proc_stat_update"))
-        emit(systemUpdateReceived(response));
+    {
+        //Parse heatbed status
+        if(response["result"].toObject().contains("system_cpu_usage"))
+        {
+            int cpuCount = 0;
+            QJsonObject cpuLoadArray = response["result"].toObject()["system_cpu_usage"].toObject();
+
+            QJsonObject::Iterator cpuIterator;
+            QList<qreal> cpus;
+
+            for(cpuIterator = cpuLoadArray.begin(); cpuIterator != cpuLoadArray.end(); cpuIterator++)
+            {
+                cpus.append(cpuIterator->toDouble());
+                cpuCount++;
+            }
+            _printer->system()->setCpuCount(cpuCount);
+            _printer->system()->setCpuList(cpus);
+        }
+
+        //Parse heatbed status
+        if(response["result"].toObject().contains("system_memory"))
+        {
+            QJsonObject memoryLoadObject = response["result"].toObject()["system_memory"].toObject();
+            _printer->system()->setMemoryCapacity(memoryLoadObject["total"].toDouble());
+            _printer->system()->setMemoryUsage(memoryLoadObject["used"].toDouble());
+        }
+        emit(systemUpdate());
+    }
     else if(response["method"] == QString("server.info"))
     {
         QJsonObject result = response["result"].toObject();
@@ -618,6 +649,7 @@ void KlipperConsole::on_messageParseTimer()
             if(!_klipperConnected)
             {
                 _klipperConnected = true;
+                _klipperRestartTimer->stop();
                 emit(klipperConnected());
             }
             if(result["klippy_state"].toString() == "ready")
@@ -631,10 +663,9 @@ void KlipperConsole::on_messageParseTimer()
         else
         {
             _klipperConnected = false;
+            _klipperRestartTimer->start();
             emit(klipperDisconnected());
         }
-
-        emit(responseReceived(response));
     }
     else if(response["method"] == QString("notify_status_update") || response["method"] == QString("printer.objects.subscribe"))
     {
@@ -711,12 +742,11 @@ void KlipperConsole::on_messageParseTimer()
             {
                 if(toolhead["axis_maximum"].isArray())
                 {
-                    qreal x,y,z,e;
+                    qreal x,y,z;
                     QJsonArray maxPos = toolhead["axis_maximum"].toArray();
                     x = maxPos[0].toDouble();
                     y = maxPos[1].toDouble();
                     z = maxPos[2].toDouble();
-                    e = maxPos[3].toDouble();
 
                     _printer->toolhead()->setMaxPosition(x,y,z);
                 }
@@ -725,12 +755,11 @@ void KlipperConsole::on_messageParseTimer()
             {
                 if(toolhead["axis_minimum"].isArray())
                 {
-                    qreal x,y,z,e;
+                    qreal x,y,z;
                     QJsonArray maxPos = toolhead["axis_minimum"].toArray();
                     x = maxPos[0].toDouble();
                     y = maxPos[1].toDouble();
                     z = maxPos[2].toDouble();
-                    e = maxPos[3].toDouble();
 
                     _printer->toolhead()->setMinPosition(x,y,z);
                 }
@@ -746,7 +775,7 @@ void KlipperConsole::on_messageParseTimer()
                     z = maxPos[2].toDouble();
                     e = maxPos[3].toDouble();
 
-                    _printer->toolhead()->setDestination(x,y,z);
+                    _printer->toolhead()->setDestination(Position(x,y,z,e));
                 }
             }
             if(toolhead.contains("homed_axes"))
@@ -953,8 +982,6 @@ void KlipperConsole::on_messageParseTimer()
         }
 
         this->getFileList(QString("gcodes"));
-
-        emit(responseReceived(response));
     }
     else if(response["method"] == QString("server.files.list"))
     {
@@ -1017,15 +1044,21 @@ void KlipperConsole::on_messageParseTimer()
             }
 
             emit(fileListReceived(fileList));
-            emit(responseReceived(response));
         }
     }
     else if(response["method"] == QString("notify_klippy_disconnected"))
+    {
+        _klipperConnected = false;
+        _klipperRestartTimer->start();
+
         emit(klipperDisconnected());
+    }
     else if(response["method"] == QString("notify_klippy_ready"))
     {
-        this->sendPreset("sub.toolhead");
+        _klipperConnected = true;
+        _klipperRestartTimer->stop();
         emit(klipperConnected());
+        this->sendPreset("sub.toolhead");
     }
     else if(response["method"] == QString("printer.info"))
     {
@@ -1054,6 +1087,11 @@ void KlipperConsole::on_messageParseTimer()
         if(result.contains(QString("software_version")))
             _printer->setFirmwareVersion(result["software_version"].toString());
 
+        if(result.contains(QString("cpu_info")))
+            _printer->system()->setCpuInfo(result["cpu_info"].toString());
+        if(result.contains(QString("hostname")))
+            _printer->system()->setHostname(result["hostname"].toString());
+
         if(_startup)
         {
             _startup = false;
@@ -1061,11 +1099,11 @@ void KlipperConsole::on_messageParseTimer()
         }
 
         emit(printerUpdate());
-        emit(responseReceived(response));
+        emit(systemUpdate());
     }
-    else
-        emit(responseReceived(response));
 
+    if(response["method"] != QString("notify_proc_stat_update"))
+        emit(responseReceived(response));
 
     if(response["id"] == this->lockId)
     {
@@ -1073,4 +1111,9 @@ void KlipperConsole::on_messageParseTimer()
         this->lockId = 0;
         emit(commandUnlock());
     }
+}
+
+void KlipperConsole::on_klipperRestartTimer_timeout()
+{
+    serverInfo();
 }

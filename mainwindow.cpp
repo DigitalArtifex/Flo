@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "system/printerpool.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -61,14 +62,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->menuButtonLayout->addWidget(settingsButton);
     connect(settingsButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_settingsMenuButton_toggled(MenuButton*)));
 
-    ui->dashboardSystemTemperatureLayout->addWidget(dashboardSystemFanProgressBar);
-    ui->dashboardSystemCpuLoadLayout->addWidget(dashboardSystemCpuLoadProgressBar);
-    ui->dashboardSystemMemoryLoadLayout->addWidget(dashboardSystemMemoryLoadProgressBar);
-
-
-    QGridLayout *layout = (QGridLayout *)ui->temperatureWidgetContents->layout();
-    layout->addWidget(dashboardTemperatureGraph,2,0,1,1);
-
     ui->errorMessageFrame->setMaximumHeight(0);
 
     showMaximized();
@@ -108,7 +101,6 @@ MainWindow::MainWindow(QWidget *parent)
     errorAnimationOut->setEndValue(0);
     errorAnimationOut->setDuration(250);
 
-    ui->dashboardPageTitleBar->setHidden(true);
     ui->terminalPageTitleBar->setHidden(true);
 
     connect(this,SIGNAL(PrinterError(QString)),this,SLOT(on_printerError(QString)));
@@ -125,13 +117,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(dashboardFileBrowser, SIGNAL(deleteRequested(KlipperFile)), this, SLOT(on_fileDeleteRequested(KlipperFile)));
     connect(dashboardFileBrowser, SIGNAL(deleteDirectory(KlipperFile)), this, SLOT(on_directoryDeleteRequested(KlipperFile)));
     ui->gcodeFilesPage->layout()->addWidget(fileBrowser);
-    layout = (QGridLayout *)ui->filesWidgetContents->layout();
-    layout->addWidget(dashboardFileBrowser,2,0,1,1);
 
     printerPage = new PrinterPage(this);
     ui->printerPage->layout()->addWidget(printerPage);
 
     _settingsPage = new SettingsPage(this);
+    connect(_settingsPage, SIGNAL(printerAdded(PrinterDefinition)), this, SLOT(on_settingsPage_printerAdded(PrinterDefinition)));
     ui->settingsPageLayout->layout()->addWidget(_settingsPage);
 
     _terminalDebugGeometryIn = ui->sentCommands->geometry();
@@ -148,26 +139,6 @@ MainWindow::MainWindow(QWidget *parent)
     _terminalDebugAnimationOut->setEndValue(0);
     _terminalDebugAnimationOut->setDuration(250);
 
-    _dashboardFilesWidgetAnimation = new DashboardAnimation(ui->filesWidget, DashboardAnimation::MinMaxHeight, this);
-    _dashboardFilesWidgetAnimation->setHeightOut(50);
-    _dashboardFilesWidgetAnimation->setHeightIn(445);
-
-    _dashboardWebcamWidgetAnimation = new DashboardAnimation(ui->webcamWidget, DashboardAnimation::MinMaxHeight, this);
-    _dashboardWebcamWidgetAnimation->setHeightOut(50);
-    _dashboardWebcamWidgetAnimation->setHeightIn(445);
-
-    _dashboardPrinterWidgetAnimation = new DashboardAnimation(ui->printerWidget, DashboardAnimation::MinMaxHeight, this);
-    _dashboardPrinterWidgetAnimation->setHeightOut(50);
-    _dashboardPrinterWidgetAnimation->setHeightIn(700);
-
-    _dashboardSystemWidgetAnimation = new DashboardAnimation(ui->systemWidget, DashboardAnimation::MinMaxHeight, this);
-    _dashboardSystemWidgetAnimation->setHeightOut(50);
-    _dashboardSystemWidgetAnimation->setHeightIn(600);
-
-    _dashboardTemperaturesWidgetAnimation = new DashboardAnimation(ui->temperatureWidget, DashboardAnimation::MinMaxHeight, this);
-    _dashboardTemperaturesWidgetAnimation->setHeightOut(50);
-    _dashboardTemperaturesWidgetAnimation->setHeightIn(600);
-
     _terminalResponseHighlighter = new QSourceHighliter(ui->consoleEditTerminal->document());
     _terminalResponseHighlighter->setCurrentLanguage(QSourceHighliter::CodeJSON);
     _terminalResponseHighlighter->setTheme(QSourceHighliter::System);
@@ -176,35 +147,22 @@ MainWindow::MainWindow(QWidget *parent)
 
     setupPowerActions();
 
-    setupUiClasses();
-    updateStyleSheet();
-
-    ui->filesWidgetToggleButton->setIcon(Settings::getThemeIcon(QString("collapse-icon")));
-    ui->webcamWidgetToggleButton->setIcon(Settings::getThemeIcon(QString("collapse-icon")));
-    ui->systemWidgetToggleButton->setIcon(Settings::getThemeIcon(QString("collapse-icon")));
-    ui->temperatureWidgetToggleButton->setIcon(Settings::getThemeIcon(QString("collapse-icon")));
-
-    _printer = new Printer();
-    _printer->console()->loadPresets();
-
-    QList<ConsolePreset> consolePresets = _printer->console()->getPresetList();
-
-    for(int i = 0; i < consolePresets.count(); i++)
-    {
-        if(consolePresets[i].type == QString("system"))
-            continue;
-
-        ui->consolePresetSelector->insertItem(i, consolePresets[i].name);
-        ui->consolePresetSelector->setItemIcon(i, Settings::getThemeIcon(consolePresets[i].icon));
-    }
-
     //_printer->setMoonrakerLocation(QString("/home/parametheus/printer_data/comms/moonraker.sock"));
     //_printer->connectMoonraker();
     //_printer->console()->connectKlipper();
+    PrinterPool::loadPrinters();
+    _printer = PrinterPool::getPrinterById(Settings::printers()[0].id);
+    connect(_printer->console(), SIGNAL(responseReceived(KlipperResponse)), this, SLOT(on_consoleResponse(KlipperResponse)));
+    connect(_printer->console(), SIGNAL(printerUpdateReceived(KlipperResponse)), this, SLOT(on_printerStatusUpdate(KlipperResponse)));
 
-    loadPrinters();
+    _dashboardPage = new DashboardPage(this);
+    ui->dashboardPageLayout->layout()->addWidget(_dashboardPage);
+
 
     startup = false;
+
+    setupUiClasses();
+    updateStyleSheet();
 }
 
 MainWindow::~MainWindow()
@@ -276,64 +234,6 @@ void MainWindow::on_consoleResponse(KlipperResponse response)
     {
         //if(response.origin != KlipperResponse::System)
             ui->consoleEditTerminal->append(QJsonDocument(response.rootObject).toJson());
-
-        //Parse Server Info
-        if(response["method"] == QString("server.connection.identify"))
-        {
-            QJsonObject result = response["result"].toObject();
-
-            ui->dashboardMoonrakerConnectionStatus->setText("Connected");
-            ui->dashboardMoonrakerConnectionStatus->setProperty("class", "MoonrakerStatus Connected ConnectionStatus");
-        }
-        else if(response["method"] == QString("server.info"))
-        {
-            QJsonObject result = response["result"].toObject();
-
-            if(result.contains("moonraker_version"))
-                ui->versionInfo->setText(result["moonraker_version"].toString());
-
-            if(result["klippy_connected"].toBool())
-            {
-                ui->dashboardKlipperConnectionStatus->setText("Connected");
-
-                if(result["klippy_state"].toString() == "ready")
-                    ui->dashboardKlipperConnectionStatus->setProperty("class", "KlipperStatus Connected ConnectionStatus ReadyState");
-                else if(result["klippy_state"].toString() == "error")
-                    ui->dashboardKlipperConnectionStatus->setProperty("class", "KlipperStatus Connected ConnectionStatus ErrorState");
-                else
-                    ui->dashboardKlipperConnectionStatus->setProperty("class", "KlipperStatus Connected ConnectionStatus");
-
-            }
-            else
-            {
-                ui->dashboardKlipperConnectionStatus->setText("Disconnected");
-                ui->dashboardKlipperConnectionStatus->setProperty("class", "KlipperStatus Disconnected ConnectionStatus");
-            }
-        }
-        else if(response["method"] == QString("printer.info"))
-        {
-            QJsonObject result = response["result"].toObject();
-
-            if(result["state"].toString() == QString("error"))
-            {
-                emit(PrinterError(result["state_message"].toString()));
-            }
-            else if(result["state"].toString() == QString("ready"))
-            {
-                ui->dashboardPrinterConnectionStatus->setProperty("class", "PrinterStatus Connected ConnectionStatus");
-                ui->dashboardPrinterConnectionStatus->setText("Connected");
-                ui->printerPage->setEnabled(true);
-                ui->printerWidget->setEnabled(true);
-            }
-
-            ui->systemInfoList->clear();
-            if(result.contains(QString("cpu_info")))
-                ui->systemInfoList->addItem(result["cpu_info"].toString());
-            if(result.contains(QString("hostname")))
-                ui->hostnameStatus->setText(result["hostname"].toString());
-            if(result.contains(QString("state_message")))
-                ui->systemInfoList->addItem(QString("Status: ") + result["state_message"].toString());
-        }
     }
     else
     {
@@ -349,38 +249,6 @@ void MainWindow::on_consoleResponse(KlipperResponse response)
 
     ui->consoleEditCommand->setEnabled(true);
     updateStyleSheet();
-}
-
-void MainWindow::on_consoleSystemUpdate(KlipperResponse response)
-{
-    //Parse heatbed status
-    if(response["result"].toObject().contains("system_cpu_usage"))
-    {
-        QJsonObject system = response["result"].toObject()["system_cpu_usage"].toObject();
-        qreal cpuAverage = 0.0;
-        int cpuCount = 0;
-        QJsonObject cpuLoadArray = system["system_cpu_usage"].toObject();
-
-        QJsonObject::Iterator cpuIterator;
-
-        for(cpuIterator = cpuLoadArray.begin(); cpuIterator != cpuLoadArray.end(); cpuIterator++)
-        {
-            cpuAverage += cpuIterator->toDouble();
-            cpuCount++;
-        }
-
-        cpuAverage /= cpuCount;
-
-        this->dashboardSystemCpuLoadProgressBar->setProgress((int)cpuAverage);
-    }
-
-    //Parse heatbed status
-    if(response["result"].toObject().contains("system_memory"))
-    {
-        QJsonObject memoryLoadObject = response["result"].toObject()["system_memory"].toObject();
-        this->dashboardSystemMemoryLoadProgressBar->setMaximum(memoryLoadObject["total"].toDouble());
-        this->dashboardSystemMemoryLoadProgressBar->setProgress(memoryLoadObject["used"].toDouble());
-    }
 }
 
 void MainWindow::on_consolePresetSelector_currentChanged(int index)
@@ -420,17 +288,12 @@ void MainWindow::setupUiClasses()
     ui->consolePage->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
     ui->moonrakerPage->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
     _settingsPage->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
-    ui->dashboardMoonrakerConnectionStatus->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MoonrakerStatus" << "Disconnected" << "ConnectionStatus" ));
-    ui->dashboardKlipperConnectionStatus->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "KlipperStatus" << "Disconnected" << "ConnectionStatus" ));
-    ui->dashboardPrinterConnectionStatus->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PrinterStatus" << "Disconnected" << "ConnectionStatus" ));
+
     ui->menuBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuBar"));
     ui->errorMessageFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PopupFrame" << "ErrorFrame" ));
     ui->errorMessageLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ErrorText" ));
     ui->errorTitle->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ErrorTitle" ));
     ui->pageTitle->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageTitle" ));
-    ui->dashboardActionBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageActionBar" ));
-
-
 
     //Menu Buttons
     ui->menuFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Menu"));
@@ -440,47 +303,19 @@ void MainWindow::setupUiClasses()
     dashboardButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuButton" << "DashboardMenuButton"));
     consoleButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuButton" << "TerminalMenuButton"));
 
-    //Dashboard widgets
-    ui->webcamWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget"));
-    ui->filesWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget"));
-    ui->systemWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget"));
-    ui->printerWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget"));
-    ui->temperatureWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget"));
-
     //Dashboard widget titles
-    ui->webcamTitle->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidgetTitle"));
-    ui->filesTitle->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidgetTitle"));
-    ui->systemTitle->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidgetTitle"));
-    ui->printerTitle->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidgetTitle"));
-    ui->temperatureTitle->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidgetTitle"));
-    ui->webcamIcon->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidgetIcon"));
-    ui->filesIcon->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidgetIcon"));
-    ui->systemIcon->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidgetIcon"));
-    ui->printerIcon->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidgetIcon"));
-    ui->temperaturesIcon->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidgetIcon"));
 
 
     dashboardFileBrowser->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget"));
-    ui->dashboardWebcamView->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget"));
-    ui->noVideoFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget"));
-    ui->cpuFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget"));
-    ui->memoryFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget"));
-    ui->temperatureFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget"));
     //ui->statusFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget"));
 
-    //Dashboard scroll area
-    ui->scrollArea->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardScrollArea"));
-    ui->dashboardContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardContents"));
 
     //Page Titles
     ui->terminalPageTitle->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageTitle"));
     ui->terminalPageTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageTitleBar"));
-    ui->dashboardPageTitle->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageTitle"));
-    ui->dashboardPageTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageTitleBar"));
     ui->terminalPageActionBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageActionBar"));
 
     //Icons
-    ui->systemIcon->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardIcon"));
     ui->powerButton->setIcon(Settings::getThemeIcon(QString("power-icon")));
 
     //Loading widgets
@@ -488,11 +323,6 @@ void MainWindow::setupUiClasses()
     ui->loadingMoonrakerFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget"));
     ui->loadingPrinterFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget"));
 }
-
-void MainWindow::on_tabWidget_currentChanged(int index)
-{
-}
-
 
 void MainWindow::on_dashboardMenuButton_toggled(MenuButton* button)
 {
@@ -608,36 +438,13 @@ void MainWindow::updateStyleSheet()
     dashboardTemperatureGraph->updateStyleSheet();
 
     //Dashboard icons should all be the same size
-    QSize size(ui->temperaturesIcon->width(), ui->temperaturesIcon->height());
-    QPixmap pixmap = Settings::getThemeIcon("temperature-icon").pixmap(size);
-    ui->temperaturesIcon->setPixmap(pixmap);
-
-    pixmap = Settings::getThemeIcon("webcam-icon").pixmap(size);
-    ui->webcamIcon->setPixmap(pixmap);
-
-    pixmap = Settings::getThemeIcon("files").pixmap(size);
-    ui->filesIcon->setPixmap(pixmap);
-
-    pixmap = Settings::getThemeIcon("temperature-icon").pixmap(size);
-    ui->temperaturesIcon->setPixmap(pixmap);
-
-    pixmap = Settings::getThemeIcon("printer").pixmap(size);
-    ui->printerIcon->setPixmap(pixmap);
-
-    pixmap = Settings::getThemeIcon("temperature-icon").pixmap(size);
-    ui->temperaturesIcon->setPixmap(pixmap);
-
-    pixmap = Settings::getThemeIcon("system-icon").pixmap(size);
-    ui->systemIcon->setPixmap(pixmap);
+    QPixmap pixmap;
 
     //pixmap = Settings::getThemeIcon("application-icon").pixmap(ui->applicationIcon->size());
     //ui->applicationIcon->setPixmap(pixmap);
 
     pixmap = Settings::getThemeIcon("printer-error-icon").pixmap(ui->errorIcon->size());
     ui->errorIcon->setPixmap(pixmap);
-
-    pixmap = Settings::getThemeIcon("no-video-icon").pixmap(QSize(100,100));
-    ui->noVideoIcon->setPixmap(pixmap);
 
     pixmap = Settings::getThemeIcon("power-icon").pixmap(20,20);
     ui->powerButton->setIcon(pixmap);
@@ -670,6 +477,8 @@ void MainWindow::updateStyleSheet()
     this->fileBrowser->setIcons();
     this->dashboardFileBrowser->setIcons();
     printerPage->setStyleSheet(style);
+    _dashboardPage->setStyleSheet(style);
+    _settingsPage->setStyleSheet(style);
 }
 
 void MainWindow::on_directoryCreateRequested(KlipperFile directory)
@@ -756,39 +565,6 @@ void MainWindow::setPrinter(Printer *printer)
     connect(_printer->console(), SIGNAL(fileDirectoryChanged(QString)), this, SLOT(on_fileDirectoryChanged(QString)));
 }
 
-void MainWindow::loadPrinters()
-{
-    PrinterDefinitionList printerDefinitions = Settings::printers();
-    bool hasDefault = false;
-
-    foreach(PrinterDefinition definition, printerDefinitions)
-    {
-        Printer *printer = new Printer(definition);
-
-        if(definition.defaultPrinter)
-        {
-            hasDefault = true;
-            setPrinter(printer);
-        }
-
-        connect(printer, SIGNAL(printerUpdate(Printer*)), this, SLOT(on_printerUpdate(Printer*)));
-        connect(printer, SIGNAL(klipperConnected(Printer *printer)), this, SLOT(on_klipperConnected(Printer *printer)));
-        connect(printer, SIGNAL(klipperDisconnected(Printer *printer)), this, SLOT(on_klipperDisconnected(Printer *printer)));
-        connect(printer, SIGNAL(printerFound(Printer *printer)), this, SLOT(on_printerFound(Printer *printer)));
-
-        if(definition.autoConnect)
-            printer->connectMoonraker();
-
-        _printers.append(printer);
-    }
-
-    if(!hasDefault && !_printers.isEmpty())
-    {
-        _printer = _printers[0];
-        Settings::setDefaultPrinter(_printers[0]->definition());
-    }
-}
-
 
 void MainWindow::on_closeErrorButton_clicked()
 {
@@ -796,23 +572,6 @@ void MainWindow::on_closeErrorButton_clicked()
     errorAnimationOpacity->setEndValue(0);
     errorAnimationOpacity->start();
     errorAnimationOut->start();
-}
-
-void MainWindow::on_extrsuionFactorSlider_valueChanged(int value)
-{
-}
-
-
-void MainWindow::on_extrusionFactorEdit_textChanged(const QString &arg1)
-{
-}
-
-void MainWindow::on_extrsuionFactorSlider_2_valueChanged(int value)
-{
-}
-
-void MainWindow::on_extrusionFactorEdit_2_textChanged(const QString &arg1)
-{
 }
 
 
@@ -958,86 +717,6 @@ void MainWindow::on_debugTerminalButton_toggled(bool checked)
 }
 
 
-void MainWindow::on_filesWidgetToggleButton_toggled(bool checked)
-{
-    if(checked)
-    {
-        ui->filesWidgetToggleButton->setIcon(Settings::getThemeIcon(QString("expand-icon")));
-        ui->filesWidgetContents->setHidden(true);
-        _dashboardFilesWidgetAnimation->hide();
-    }
-    else
-    {
-        ui->filesWidgetToggleButton->setIcon(Settings::getThemeIcon(QString("collapse-icon")));
-        ui->filesWidgetContents->setHidden(false);
-        _dashboardFilesWidgetAnimation->show();
-    }
-}
-
-
-void MainWindow::on_webcamWidgetToggleButton_toggled(bool checked)
-{
-    if(checked)
-    {
-        ui->webcamWidgetToggleButton->setIcon(Settings::getThemeIcon(QString("expand-icon")));
-        ui->webcamWidgetContents->setHidden(true);
-        _dashboardWebcamWidgetAnimation->hide();
-    }
-    else
-    {
-        ui->webcamWidgetToggleButton->setIcon(Settings::getThemeIcon(QString("collapse-icon")));
-        ui->webcamWidgetContents->setHidden(false);
-        _dashboardWebcamWidgetAnimation->show();
-    }
-}
-
-
-void MainWindow::on_systemWidgetToggleButton_toggled(bool checked)
-{
-    if(checked)
-    {
-        ui->systemWidgetToggleButton->setIcon(Settings::getThemeIcon(QString("expand-icon")));
-        ui->systemWidgetContents->setHidden(true);
-        _dashboardSystemWidgetAnimation->hide();
-    }
-    else
-    {
-        ui->systemWidgetToggleButton->setIcon(Settings::getThemeIcon(QString("collapse-icon")));
-        ui->systemWidgetContents->setHidden(false);
-        _dashboardSystemWidgetAnimation->show();
-    }
-}
-
-
-void MainWindow::on_temperatureWidgetToggleButton_toggled(bool checked)
-{
-    if(checked)
-    {
-        ui->temperatureWidgetToggleButton->setIcon(Settings::getThemeIcon(QString("expand-icon")));
-        ui->temperatureWidgetContents->setHidden(true);
-        _dashboardTemperaturesWidgetAnimation->hide();
-    }
-    else
-    {
-        ui->temperatureWidgetToggleButton->setIcon(Settings::getThemeIcon(QString("collapse-icon")));
-        ui->temperatureWidgetContents->setHidden(false);
-        _dashboardTemperaturesWidgetAnimation->show();
-    }
-}
-
-void MainWindow::on_printerWidgetToggleButton_toggled(bool checked)
-{
-    if(checked)
-    {
-        _dashboardPrinterWidgetAnimation->hide();
-    }
-    else
-    {
-        _dashboardPrinterWidgetAnimation->show();
-    }
-}
-
-
 void MainWindow::on_klipperRestartButton_clicked()
 {
     changeTabIndex(2, QString());
@@ -1055,5 +734,10 @@ void MainWindow::on_firmwareRestartButton_clicked()
 void MainWindow::on_powerButton_clicked()
 {
     on_closeAction_triggered(true);
+}
+
+void MainWindow::on_settingsPage_printerAdded(PrinterDefinition definition)
+{
+    _dashboardPage->loadPrinters();
 }
 
