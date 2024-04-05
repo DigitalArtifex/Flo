@@ -1,0 +1,11 @@
+04/04/2024
+-- Added changelog file
+-- Reorganized the project
+-- Recreated the dashboard page
+-- Added some animated widgets classes
+-- Added support for multiple printers
+---- Removed terminal and file browser from menu (Moving to Printer Page)
+---- Redesigned printer page
+---- Procedurally adding menu buttons for each printer
+
+
