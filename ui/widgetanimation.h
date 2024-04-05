@@ -17,6 +17,7 @@ public:
         MinHeight = 4,
         MinWidth = 8,
         Opacity = 16,
+        Blur = 16,
         MinMaxHeight = (MaxHeight | MinHeight),
         MinMaxWidth = (MaxWidth | MinWidth)
     };

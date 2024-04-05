@@ -3,14 +3,13 @@
 
 #include <QScrollArea>
 #include <QGridLayout>
+#include <QSpacerItem>
 
 #include "printjoblistitem.h"
 
-namespace Ui {
-class PrintJobListWidget;
-}
+#include "../../list/qanimatedlistwidget.h"
 
-class PrintJobListWidget : public QScrollArea
+class PrintJobListWidget : public QAnimatedListWidget
 {
     Q_OBJECT
 
@@ -18,14 +17,13 @@ public:
     explicit PrintJobListWidget(QWidget *parent = nullptr);
     ~PrintJobListWidget();
 
+    virtual void setStyleSheet(QString styleSheet);
+
     void addJob(PrintJob *job);
     void removeJob(PrintJob *job);
     void updateJob(PrintJob *job);
 
 private:
-    Ui::PrintJobListWidget *ui;
-    QList<PrintJobListItem*> _items;
-    QWidget *_centralWidget = nullptr;
 };
 
 #endif // PRINTJOBLISTWIDGET_H

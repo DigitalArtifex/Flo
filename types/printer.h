@@ -2,6 +2,7 @@
 #define PRINTER_H
 
 #include <QObject>
+#include <QTimer>
 #include <QMap>
 
 #include "toolhead.h"
@@ -31,7 +32,7 @@ public:
     };
 
     Printer(QString name = QString("printer"), QString id = QString(""));
-    Printer(PrinterDefinition definition);
+    Printer(PrinterDefinition definition, QObject *parent = nullptr);
     ~Printer();
 
     Toolhead *toolhead();
@@ -83,10 +84,13 @@ public:
 signals:
     void systemUpdate(Printer *printer);
     void printerUpdate(Printer *printer);
+    void printerOnline(Printer *printer);
+    void printerError(QString title, QString message, Printer *printer);
     void klipperConnected(Printer *printer);
     void klipperDisconnected(Printer *printer);
     void moonrakerConnected(Printer *printer);
-    void printerOnline(Printer *printer);
+
+    void connectionTimeout(Printer *printer);
 
 private slots:
     void on_klipperConnected();
@@ -94,6 +98,10 @@ private slots:
     void on_moonrakerConnected();
     void on_printerUpdate();
     void on_systemUpdate();
+
+    void on_connectionTimer_timeout();
+    void on_console_responseReceived(KlipperResponse response);
+    void on_console_klipperError(QString error, QString message);
 
 private:
     Toolhead *_toolhead = nullptr;
@@ -111,6 +119,8 @@ private:
     QString _instanceLocation;
     QString _configFile;
     QString _apiKey;
+
+    QTimer *_connectionTimer = nullptr;
 
     bool _autoConnect = true;
     bool _defaultPrinter = false;

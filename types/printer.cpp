@@ -5,7 +5,7 @@ Printer::Printer(QString name, QString id) : QObject(nullptr)
 
 }
 
-Printer::Printer(PrinterDefinition definition) : QObject(nullptr)
+Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent)
 {
     _name = definition.name;
     _klipperLocation = definition.klipperLocation;
@@ -23,7 +23,7 @@ Printer::Printer(PrinterDefinition definition) : QObject(nullptr)
     _toolhead = new Toolhead();
     _bed = new Bed();
     _partsFan = new Fan();
-    _console = new KlipperConsole(this);
+    _console = new KlipperConsole(this, parent);
     _system = new System(this);
 
     _console->setMoonrakerLocation(_moonrakerLocation);
@@ -33,6 +33,7 @@ Printer::Printer(PrinterDefinition definition) : QObject(nullptr)
     connect(_console, SIGNAL(klipperDisconnected()), this, SLOT(on_klipperDisconnected()));
     connect(_console, SIGNAL(printerUpdate()), this, SLOT(on_printerUpdate()));
     connect(_console, SIGNAL(systemUpdate()), this, SLOT(on_systemUpdate()));
+    connect(_console,SIGNAL(klipperError(QString,QString)), this, SLOT(on_console_klipperError(QString,QString)));
 }
 
 Printer::~Printer()
@@ -183,8 +184,11 @@ KlipperConsole *Printer::console()
 
 void Printer::connectMoonraker()
 {
-    connect(_console, SIGNAL(printerUpdate(Printer*)), this, SLOT(on_printerUpdate(Printer*)));
+    connect(_console, SIGNAL(printerUpdate()), this, SLOT(on_printerUpdate()));
+    connect(_console,SIGNAL(responseReceived(KlipperResponse)), this, SLOT(on_console_responseReceived(KlipperResponse)));
+    _console->loadPresets();
     _console->setMoonrakerLocation(_moonrakerLocation);
+    //_console->start();
     _console->connectKlipper();
 }
 
@@ -231,4 +235,18 @@ void Printer::on_printerUpdate()
 void Printer::on_systemUpdate()
 {
     emit(systemUpdate(this));
+}
+
+void Printer::on_connectionTimer_timeout()
+{
+
+}
+
+void Printer::on_console_responseReceived(KlipperResponse response)
+{
+}
+
+void Printer::on_console_klipperError(QString error, QString message)
+{
+    emit printerError(error, message, this);
 }

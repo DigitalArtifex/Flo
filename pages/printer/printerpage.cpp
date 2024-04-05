@@ -17,6 +17,13 @@ PrinterPage::PrinterPage(QWidget *parent) :
     ui->chamberLayout->addWidget(_chamberTemperatureBar);
     ui->chamberWidget->setHidden(true);
     ui->bedLayout->addWidget(_bedTemperatureBar);
+
+    ui->tabWidget->setTabVisible(0, false);
+    ui->tabWidget->setTabVisible(1, false);
+    ui->tabWidget->setTabVisible(2, false);
+    ui->tabWidget->setTabVisible(3, false);
+    ui->tabWidget->setTabVisible(4, false);
+    ui->tabWidget->setCurrentIndex(0);
 }
 
 PrinterPage::~PrinterPage()
@@ -36,8 +43,77 @@ void PrinterPage::addExtruder(Extruder *extruder, QString name)
     ui->extruderTabWidget->addTab(_extruderMap[index], name);
 }
 
-void PrinterPage::update(Printer *printer)
+void PrinterPage::setStyleSheet(QString style)
 {
+    for(int i = 0; i < _extruderMap.count(); i++)
+    {
+        _extruderMap[i]->setStyleSheet(style);
+    }
+    QPixmap pixmap = Settings::getThemeIcon(QString("printer")).pixmap(50,50);
+    ui->printerIconLabel->setPixmap(pixmap);
+
+}
+
+void PrinterPage::setupUiClasses()
+{
+    ui->filePageTitle->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageTitle"));
+    ui->actionBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageActionBar"));
+    ui->pageContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
+    ui->TitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageTitleBar"));
+    this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    ui->tabWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    ui->bedWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+    ui->chamberWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+    ui->toolheadWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+    ui->fanFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+    ui->currentPositionFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
+    ui->destinationPositionFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
+    ui->settingsFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+    ui->extruderTabWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+}
+
+void PrinterPage::on_xPosDecreaseButton_clicked()
+{
+
+}
+
+void PrinterPage::on_terminalButton_toggled(bool checked)
+{
+    if(checked)
+        ui->tabWidget->setCurrentIndex(1);
+}
+
+
+void PrinterPage::on_overviewButton_toggled(bool checked)
+{
+    if(checked)
+        ui->tabWidget->setCurrentIndex(0);
+}
+
+
+void PrinterPage::on_filesButton_toggled(bool checked)
+{
+    if(checked)
+        ui->tabWidget->setCurrentIndex(2);
+}
+
+
+void PrinterPage::on_bedMeshButton_toggled(bool checked)
+{
+    if(checked)
+        ui->tabWidget->setCurrentIndex(3);
+}
+
+
+void PrinterPage::on_settingsButton_toggled(bool checked)
+{
+    if(checked)
+        ui->tabWidget->setCurrentIndex(4);
+}
+
+void PrinterPage::on_printerUpdate(Printer *printer)
+{
+
     if(_extruderMap.count() == 0)
     {
         for(int i = 0; i < printer->extruderCount(); i++)
@@ -126,36 +202,17 @@ void PrinterPage::update(Printer *printer)
     //ui->pa->setText(QString::number(printer->toolhead()->fan()->speed()));
 }
 
-void PrinterPage::setStyleSheet(QString style)
+Printer *PrinterPage::printer() const
 {
-    for(int i = 0; i < _extruderMap.count(); i++)
-    {
-        _extruderMap[i]->setStyleSheet(style);
-    }
-    QPixmap pixmap = Settings::getThemeIcon(QString("printer")).pixmap(50,50);
-    ui->printerIconLabel->setPixmap(pixmap);
-
+    return _printer;
 }
 
-void PrinterPage::setupUiClasses()
+void PrinterPage::setPrinter(Printer *printer)
 {
-    ui->filePageTitle->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageTitle"));
-    ui->actionBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageActionBar"));
-    ui->pageContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
-    ui->TitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageTitleBar"));
-    this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
-    ui->bedWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
-    ui->chamberWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
-    ui->toolheadWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
-    ui->fanFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
-    ui->currentPositionFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
-    ui->destinationPositionFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
-    ui->settingsFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
-    ui->extruderTabWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
-}
+    if(_printer)
+        disconnect(_printer, SIGNAL(printerUpdate(Printer*)), this, SLOT(on_printerUpdate(Printer*)));
 
-void PrinterPage::on_xPosDecreaseButton_clicked()
-{
-
+    _printer = printer;
+    connect(_printer, SIGNAL(printerUpdate(Printer*)), this, SLOT(on_printerUpdate(Printer*)));
 }
 

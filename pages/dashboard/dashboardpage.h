@@ -6,7 +6,7 @@
 #include "../../types/printer.h"
 #include "../../widgets/printer/printerwidget.h"
 #include "../../widgets/system/systemwidget.h"
-#include "../../widgets/job/printjobwidget.h"
+#include "../../widgets/status/statuswidget.h"
 #include "../../ui/layouts/qflowlayout.h"
 
 namespace Ui {
@@ -27,11 +27,9 @@ public:
 
     virtual void setStyleSheet(QString styleSheet);
 
-private slots:
-    void on_console_response(Printer *printer, KlipperResponse);
-    void on_printer_update(Printer *printer);
-    void on_printer_systemUpdate(Printer *printer);
+    virtual void resizeEvent(QResizeEvent *event);
 
+private slots:
     //Printer Pool
     void on_printerPool_printerRemoved(Printer *printer);
     void on_printerPool_printerAdded(Printer *printer);
@@ -42,8 +40,9 @@ private:
     QList<PrinterWidget*> _printerWidgets;
     PrinterWidget *_selectedWidget = nullptr;
     SystemWidget *_systemWidget = nullptr;
-    PrintJobWidget *_printJobWidget = nullptr;
+    StatusWidget *_statusWidget = nullptr;
     QFlowLayout *_layout = nullptr;
+    QTimer *_initTimer = nullptr;
 };
 
 #endif // DASHBOARDPAGE_H

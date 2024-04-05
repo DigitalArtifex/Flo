@@ -51,9 +51,12 @@ public:
 
     static Settings *instance();
 
+    static QString currentTheme();
+
 private:
     static Settings *_instance;
     static PrinterDefinitionList _printers;
+    static QString _currentTheme;
 };
 
 #endif // SETTINGS_H

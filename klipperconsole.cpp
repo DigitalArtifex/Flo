@@ -2,27 +2,33 @@
 #include "types/printer.h"
 #include "system/settings.h"
 
-KlipperConsole::KlipperConsole(Printer *parent)
+KlipperConsole::KlipperConsole(Printer *printer, QObject *parent) : QObject(parent)
 {
-    this->klipperSocket = new QLocalSocket();
+    _printer = printer;
 
-    _klipperRestartTimer = new QTimer();
+    klipperSocket = new QLocalSocket(parent);
+    connect(klipperSocket, SIGNAL(readyRead()), this, SLOT(on_klipperSocket_readyRead()));
+
+    _klipperRestartTimer = new QTimer(parent);
     _klipperRestartTimer->setInterval(3000);
     connect(_klipperRestartTimer, SIGNAL(timeout()), this, SLOT(on_klipperRestartTimer_timeout()));
-
-    _printer = parent;
 }
 
 KlipperConsole::~KlipperConsole()
 {
-    if(this->klipperSocket->isOpen())
+    if(klipperSocket->isOpen())
     {
         //TODO proper shutdown
-        this->klipperSocket->close();
+        klipperSocket->close();
     }
 
     delete messageReadTimer;
     delete _messageParseTimer;
+}
+
+void KlipperConsole::shutdown()
+{
+    _shutdown = true;
 }
 
 void KlipperConsole::sendCommand(QString command, KlipperMessage::MessageOrigin origin)
@@ -33,21 +39,34 @@ void KlipperConsole::sendCommand(QString command, KlipperMessage::MessageOrigin 
     message.setDocument(messageObject);
     message.origin = origin;
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::sendCommand(KlipperMessage message)
 {
-    if(message.commandLock && !this->commandLocked)
+    if(message.commandLock && !commandLocked)
     {
-        this->commandLocked = true;
-        this->lockId = message.id;
+        commandLocked = true;
+        lockId = message.id;
         emit(commandLock());
     }
 
     QByteArray document = message.toRpc(QJsonDocument::Compact);
     klipperMessageBuffer[message["id"].toInt()] = message;
-    this->klipperSocket->write(document);
+    qint64 length = klipperSocket->write(document);
+
+    if(length != document.length())
+    {
+        qDebug() << QString("Failed to write data") << length << document.length();
+    }
+
+    QFile file(QDir::homePath() + QDir::separator() + QString("poop.test"));
+    if(file.open(QFile::ReadWrite | QFile::Append))
+    {
+        file.write(message.toRpc(QJsonDocument::Indented));
+        file.close();
+    }
+
     emit(commandSent(message.toRpc(QJsonDocument::Indented)));
 }
 
@@ -63,34 +82,12 @@ void KlipperConsole::connectKlipper()
 
     _startup = true;
     klipperSocket->setServerName(_moonrakerLocation);
+    klipperSocket->connectToServer();
 
-    if(this->messageReadTimer == NULL)
+    if(!klipperSocket->waitForConnected())
     {
-        messageReadTimer = new QTimer(this);
-        messageReadTimer->setTimerType(Qt::CoarseTimer);
-        messageReadTimer->setInterval(50);
-
-        connect(messageReadTimer, SIGNAL(timeout()), this, SLOT(on_messageReadTimer()));
-
-        messageReadTimer->start();
-    }
-
-    if(this->_messageParseTimer == nullptr)
-    {
-        _messageParseTimer = new QTimer(this);
-        _messageParseTimer->setTimerType(Qt::CoarseTimer);
-        _messageParseTimer->setInterval(60);
-
-        connect(_messageParseTimer, SIGNAL(timeout()), this, SLOT(on_messageParseTimer()));
-
-        _messageParseTimer->start();
-    }
-
-    this->klipperSocket->connectToServer();
-
-    if(!this->klipperSocket->waitForConnected())
-    {
-        this->sendError("Could not connect to local socket");
+        qDebug() << QString("Failed to connect to moonraker");
+        sendError("Could not connect to local socket");
         return;
     }
 
@@ -98,12 +95,12 @@ void KlipperConsole::connectKlipper()
     emit(moonrakerConnected());
 
     //Startup commands to get base information
-    this->sendPreset("Client Identifier");
+    clientIdentifier();
     serverInfo();
     serverConfig();
     serverFileRoots();
     printerInfo();
-    this->sendPreset("sub.toolhead");
+    printerSubscribe();
 }
 
 void KlipperConsole::disconnectKlipper()
@@ -213,7 +210,7 @@ void KlipperConsole::getFileList(QString directory)
     message.setDocument(messageObject);
 
     emit(fileDirectoryChanged(directory));
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::deleteFile(QString file)
@@ -229,7 +226,7 @@ void KlipperConsole::deleteFile(QString file)
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::moveFile(QString source, QString destination)
@@ -246,7 +243,7 @@ void KlipperConsole::moveFile(QString source, QString destination)
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::copyFile(QString source, QString destination)
@@ -263,7 +260,7 @@ void KlipperConsole::copyFile(QString source, QString destination)
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::createDirectory(QString directory)
@@ -278,7 +275,7 @@ void KlipperConsole::createDirectory(QString directory)
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::deleteDirectory(QString directory)
@@ -294,7 +291,7 @@ void KlipperConsole::deleteDirectory(QString directory)
     messageObject["params"] = paramsObject;
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::startPrint(QString file)
@@ -310,7 +307,7 @@ void KlipperConsole::startPrint(QString file)
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::pausePrint()
@@ -322,7 +319,7 @@ void KlipperConsole::pausePrint()
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::resumePrint()
@@ -334,7 +331,7 @@ void KlipperConsole::resumePrint()
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::cancelPrint()
@@ -346,7 +343,7 @@ void KlipperConsole::cancelPrint()
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::machineShutdown()
@@ -358,7 +355,7 @@ void KlipperConsole::machineShutdown()
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::machineReboot()
@@ -370,7 +367,7 @@ void KlipperConsole::machineReboot()
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::serviceRestart(QString service)
@@ -386,7 +383,7 @@ void KlipperConsole::serviceRestart(QString service)
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::serviceStop(QString service)
@@ -402,7 +399,7 @@ void KlipperConsole::serviceStop(QString service)
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::serviceStart(QString service)
@@ -418,7 +415,7 @@ void KlipperConsole::serviceStart(QString service)
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::sendGcode(QString gcode)
@@ -434,7 +431,7 @@ void KlipperConsole::sendGcode(QString gcode)
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::printerInfo()
@@ -448,7 +445,7 @@ void KlipperConsole::printerInfo()
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::restartKlipper()
@@ -461,7 +458,7 @@ void KlipperConsole::restartKlipper()
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::restartFirmware()
@@ -474,7 +471,34 @@ void KlipperConsole::restartFirmware()
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
+}
+
+void KlipperConsole::printerSubscribe()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+    QJsonObject objectArray;
+
+    objectArray["toolhead"];
+    objectArray["extruder"];
+    objectArray["bed_mesh"];
+    objectArray["heater_bed"];
+    objectArray["fan"];
+    objectArray["gcode_move"];
+    //This needs to be expanded to fans in the config file
+    objectArray["heater_fan heatbreak_cooling_fan"];
+    objectArray["motion_report"];
+
+    paramsObject["objects"] = objectArray;
+
+    messageObject["method"] = "printer.objects.subscribe";
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
 }
 
 void KlipperConsole::serverInfo()
@@ -487,7 +511,7 @@ void KlipperConsole::serverInfo()
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::serverConfig()
@@ -500,7 +524,7 @@ void KlipperConsole::serverConfig()
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
 }
 
 void KlipperConsole::serverFileRoots()
@@ -513,7 +537,26 @@ void KlipperConsole::serverFileRoots()
 
     message.setDocument(messageObject);
 
-    this->sendCommand(message);
+    sendCommand(message);
+}
+
+void KlipperConsole::clientIdentifier()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["client_name"] = "FLO Beta";
+    paramsObject["version"] = "0.0.1";
+    paramsObject["type"] = "other";
+    paramsObject["url"] = "n/a";
+
+    messageObject["method"] = "server.connection.identify";
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
 }
 
 void KlipperConsole::sendError(QString message)
@@ -529,26 +572,26 @@ void KlipperConsole::sendError(QString message)
 
     response.setDocument(messageObject);
 
-    this->on_messageReceived(response);
+    on_messageReceived(response);
 }
 
 void KlipperConsole::on_messageReceived(KlipperResponse message)
 {
     emit(responseReceived(message));
 
-    if(this->commandLocked)
+    if(commandLocked)
     {
-        this->commandLocked = false;
+        commandLocked = false;
         emit(commandUnlock());
     }
 }
 
-void KlipperConsole::on_messageReadTimer()
+void KlipperConsole::on_klipperSocket_readyRead()
 {
-    if(this->klipperSocket->isOpen())
+    if(klipperSocket->isOpen())
     {
-        while(this->klipperSocket->bytesAvailable() > 0)
-            this->messageBuffer += this->klipperSocket->readAll();
+        while(klipperSocket->bytesAvailable() > 0)
+            messageBuffer += klipperSocket->readAll();
     }
 
     if(messageBuffer.contains((char)0x03))
@@ -561,10 +604,14 @@ void KlipperConsole::on_messageReadTimer()
             responseData.remove(responseData.length() - 1, 1);
 
         messageQueue.enqueue(responseData);
+
+        QtConcurrent::run([this]{
+            on_messageParse();
+        });
     }
 }
 
-void KlipperConsole::on_messageParseTimer()
+void KlipperConsole::on_messageParse()
 {
     if(messageQueue.isEmpty())
         return;
@@ -575,7 +622,7 @@ void KlipperConsole::on_messageParseTimer()
 
     if(responseDocumentError.error != QJsonParseError::NoError)
     {
-        this->sendError("Invalid response from local socket");
+        sendError("Invalid response from local socket");
         return;
     }
 
@@ -657,6 +704,7 @@ void KlipperConsole::on_messageParseTimer()
             }
             else if(result["klippy_state"].toString() == "error")
             {
+                emit klipperError(result["error"].toString(), result["message"].toString());
             }
 
         }
@@ -898,7 +946,7 @@ void KlipperConsole::on_messageParseTimer()
                     path.clear();
 
                 path = root + QDir::separator() + path;
-                this->getFileList(path);
+                getFileList(path);
             }
         }
     }
@@ -920,7 +968,7 @@ void KlipperConsole::on_messageParseTimer()
                     path.clear();
 
                 path = root + QDir::separator() + path;
-                this->getFileList(path);
+                getFileList(path);
             }
         }
     }
@@ -943,7 +991,7 @@ void KlipperConsole::on_messageParseTimer()
                     path.clear();
 
                 path = root + QDir::separator() + path;
-                this->getFileList(path);
+                getFileList(path);
             }
         }
     }
@@ -981,7 +1029,7 @@ void KlipperConsole::on_messageParseTimer()
             Settings::save();
         }
 
-        this->getFileList(QString("gcodes"));
+        getFileList(QString("gcodes"));
     }
     else if(response["method"] == QString("server.files.list"))
     {
@@ -1058,7 +1106,7 @@ void KlipperConsole::on_messageParseTimer()
         _klipperConnected = true;
         _klipperRestartTimer->stop();
         emit(klipperConnected());
-        this->sendPreset("sub.toolhead");
+        sendPreset("sub.toolhead");
     }
     else if(response["method"] == QString("printer.info"))
     {
@@ -1105,10 +1153,10 @@ void KlipperConsole::on_messageParseTimer()
     if(response["method"] != QString("notify_proc_stat_update"))
         emit(responseReceived(response));
 
-    if(response["id"] == this->lockId)
+    if(response["id"] == lockId)
     {
-        this->commandLocked = false;
-        this->lockId = 0;
+        commandLocked = false;
+        lockId = 0;
         emit(commandUnlock());
     }
 }

@@ -32,122 +32,6 @@
    <property name="verticalSpacing">
     <number>10</number>
    </property>
-   <item row="1" column="0">
-    <widget class="QFrame" name="actionBar">
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>50</height>
-      </size>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QLineEdit" name="searchEdit">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="inputMask">
-         <string/>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="maxLength">
-         <number>32767</number>
-        </property>
-        <property name="echoMode">
-         <enum>QLineEdit::Normal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QToolButton" name="folderCreateButton">
-        <property name="minimumSize">
-         <size>
-          <width>32</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="searchButton">
-        <property name="minimumSize">
-         <size>
-          <width>32</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>32</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QToolButton" name="fileUploadButton">
-        <property name="minimumSize">
-         <size>
-          <width>32</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QToolButton" name="fileRefreshButton_2">
-        <property name="minimumSize">
-         <size>
-          <width>32</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="2" column="0">
     <widget class="QScrollArea" name="scrollArea">
      <property name="widgetResizable">
@@ -157,309 +41,752 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-347</y>
+        <y>0</y>
         <width>1156</width>
-        <height>1023</height>
+        <height>756</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_5">
-       <item row="2" column="2">
-        <widget class="QFrame" name="fanFrame">
-         <property name="minimumSize">
-          <size>
-           <width>250</width>
-           <height>0</height>
-          </size>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="3" column="0">
+        <widget class="QTabWidget" name="tabWidget">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_6">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Fans</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Controller Fan:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="Line" name="line_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Parts Fan:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="contollerFanLabel">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="partsFanLabel">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QFrame" name="statusFrame">
-         <property name="minimumSize">
-          <size>
-           <width>400</width>
-           <height>50</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>400</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_10">
-          <item row="2" column="0" colspan="2">
-           <widget class="QLabel" name="fileLabel">
-            <property name="text">
-             <string>File:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="QLabel" name="statusMessageLabel">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="printerIconLabel">
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>50</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QProgressBar" name="printProgress">
-            <property name="value">
-             <number>0</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="printStatusLabel">
-            <property name="text">
-             <string>Status:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QLabel" name="etaLabel">
-            <property name="text">
-             <string>ETA:</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="1" rowspan="7">
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <property name="rightMargin">
-          <number>8</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="currentIndex">
           <number>0</number>
          </property>
-         <item>
-          <widget class="QTabWidget" name="extruderTabWidget">
-           <property name="currentIndex">
-            <number>-1</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="bedWidget">
-           <property name="title">
-            <string/>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_27">
-            <item row="1" column="0" colspan="3">
-             <widget class="Line" name="line_9">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_72">
-              <property name="text">
-               <string>Bed Width</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_71">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Beb Temperature</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2" rowspan="4">
-             <widget class="QGroupBox" name="bedInfoWidget">
-              <property name="title">
-               <string/>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_7">
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_14">
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_15">
+         <widget class="QWidget" name="overviewTab">
+          <attribute name="title">
+           <string>Overview</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_24">
+           <item row="1" column="2">
+            <widget class="QFrame" name="fanFrame">
+             <property name="minimumSize">
+              <size>
+               <width>250</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_6">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Fans</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>Controller Fan:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" colspan="2">
+               <widget class="Line" name="line_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>Parts Fan:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLabel" name="contollerFanLabel">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLabel" name="partsFanLabel">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <spacer name="verticalSpacer_11">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="1" rowspan="4">
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <property name="rightMargin">
+              <number>8</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QTabWidget" name="extruderTabWidget">
+               <property name="currentIndex">
+                <number>-1</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="bedWidget">
+               <property name="title">
+                <string/>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_27">
+                <item row="1" column="0" colspan="3">
+                 <widget class="Line" name="line_9">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="label_72">
+                  <property name="text">
+                   <string>Bed Width</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_71">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Beb Temperature</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2" rowspan="4">
+                 <widget class="QGroupBox" name="bedInfoWidget">
+                  <property name="title">
+                   <string/>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_7">
                    <item>
-                    <spacer name="verticalSpacer_4">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>10</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_16">
+                    <layout class="QHBoxLayout" name="horizontalLayout_14">
                      <item>
-                      <widget class="QLabel" name="label_30">
-                       <property name="text">
-                        <string>Target:</string>
-                       </property>
-                      </widget>
+                      <layout class="QVBoxLayout" name="verticalLayout_15">
+                       <item>
+                        <spacer name="verticalSpacer_4">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>10</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <layout class="QHBoxLayout" name="horizontalLayout_16">
+                         <item>
+                          <widget class="QLabel" name="label_30">
+                           <property name="text">
+                            <string>Target:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QLabel" name="bedTargetTempLabel">
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <layout class="QHBoxLayout" name="horizontalLayout_13">
+                         <item>
+                          <widget class="QLabel" name="label_31">
+                           <property name="text">
+                            <string>Power:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QLabel" name="bedPowerLabel">
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <spacer name="verticalSpacer_5">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>10</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
                      </item>
                      <item>
-                      <widget class="QLabel" name="bedTargetTempLabel">
-                       <property name="text">
-                        <string/>
-                       </property>
-                      </widget>
+                      <layout class="QVBoxLayout" name="bedLayout"/>
                      </item>
                     </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_13">
-                     <item>
-                      <widget class="QLabel" name="label_31">
-                       <property name="text">
-                        <string>Power:</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="bedPowerLabel">
-                       <property name="text">
-                        <string/>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <spacer name="verticalSpacer_5">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>10</height>
-                      </size>
-                     </property>
-                    </spacer>
                    </item>
                   </layout>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QLineEdit" name="lineEdit_2">
+                  <property name="text">
+                   <string>60C</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" colspan="2">
+                 <widget class="QLabel" name="label_10">
+                  <property name="text">
+                   <string>Bed</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QLabel" name="bedHeightLabel">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_14">
+                  <property name="text">
+                   <string>Bed Height</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <layout class="QHBoxLayout" name="horizontalLayout_35">
+                  <item>
+                   <spacer name="horizontalSpacer_14">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QToolButton" name="toolButton_9">
+                    <property name="text">
+                     <string>Turn On</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QLabel" name="bedWidthLabel">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_9">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="0" column="0">
+            <widget class="QFrame" name="statusFrame">
+             <property name="minimumSize">
+              <size>
+               <width>400</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>400</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_10">
+              <item row="2" column="0" colspan="2">
+               <widget class="QLabel" name="fileLabel">
+                <property name="text">
+                 <string>File:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" colspan="2">
+               <widget class="QLabel" name="statusMessageLabel">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="printerIconLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>50</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>50</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0" colspan="2">
+               <widget class="QProgressBar" name="printProgress">
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="printStatusLabel">
+                <property name="text">
+                 <string>Status:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0" colspan="2">
+               <widget class="QLabel" name="etaLabel">
+                <property name="text">
+                 <string>ETA:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="0" rowspan="3">
+            <widget class="QGroupBox" name="toolheadWidget">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string/>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_26">
+              <item>
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>Toolhead</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="line">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Position</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="currentPositionFrame">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_7">
+                 <item row="1" column="1">
+                  <widget class="QLabel" name="yLabel">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
                  </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="bedLayout"/>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="xLabel">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="2">
+                  <widget class="QLabel" name="zLabel">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0" colspan="3">
+                  <widget class="QLabel" name="label_4">
+                   <property name="text">
+                    <string>Current</string>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="lineEdit_2">
-              <property name="text">
-               <string>60C</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" colspan="2">
-             <widget class="QLabel" name="label_10">
-              <property name="text">
-               <string>Bed</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLabel" name="bedHeightLabel">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_14">
-              <property name="text">
-               <string>Bed Height</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <layout class="QHBoxLayout" name="horizontalLayout_35">
+               </widget>
+              </item>
               <item>
-               <spacer name="horizontalSpacer_14">
+               <widget class="QFrame" name="destinationPositionFrame">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_8">
+                 <item row="1" column="1">
+                  <widget class="QLabel" name="yDestinationLabel">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="xDestinationLabel">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="2">
+                  <widget class="QLabel" name="zDestination">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0" colspan="3">
+                  <widget class="QLabel" name="label_9">
+                   <property name="text">
+                    <string>Destination</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <layout class="QGridLayout" name="gridLayout_4">
+                <property name="verticalSpacing">
+                 <number>10</number>
+                </property>
+                <item row="9" column="0" colspan="3">
+                 <widget class="QComboBox" name="posIncrementSelect">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>400</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>1mm</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>5mm</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>10mm</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>100mm</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QPushButton" name="xPosDecreaseButton">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>-</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="2">
+                 <widget class="QPushButton" name="xPosIncreaseButton">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>+</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="2">
+                 <widget class="QPushButton" name="yPosIncreaseButton">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>+</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QLabel" name="label_11">
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>X</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="1">
+                 <widget class="QPushButton" name="zPosDecreaseButton">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>-</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QPushButton" name="yPosDecreaseButton">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>-</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="0">
+                 <widget class="QLabel" name="label_13">
+                  <property name="font">
+                   <font>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Z</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="0" colspan="3">
+                 <widget class="QPushButton" name="pushButton_11">
+                  <property name="minimumSize">
+                   <size>
+                    <width>300</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>400</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Home</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="2">
+                 <widget class="QPushButton" name="zPosIncreaseButton">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>+</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0" colspan="3">
+                 <spacer name="verticalSpacer_8">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="7" column="0">
+                 <widget class="QLabel" name="label_12">
+                  <property name="font">
+                   <font>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Y</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QLabel" name="label_8">
+                  <property name="text">
+                   <string>Homed Axes</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1" colspan="2">
+                 <widget class="QLabel" name="homedLabel">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QFrame" name="settingsFrame">
+             <property name="minimumSize">
+              <size>
+               <width>350</width>
+               <height>150</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>350</width>
+               <height>150</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_9">
+              <item row="4" column="1">
+               <spacer name="horizontalSpacer_2">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
@@ -471,625 +798,190 @@
                 </property>
                </spacer>
               </item>
-              <item>
-               <widget class="QToolButton" name="toolButton_9">
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_16">
                 <property name="text">
-                 <string>Turn On</string>
+                 <string>Print Speed</string>
                 </property>
                </widget>
               </item>
-             </layout>
-            </item>
-            <item row="4" column="1">
-             <widget class="QLabel" name="bedWidthLabel">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_9">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item row="10" column="1">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="4" column="2">
-        <spacer name="verticalSpacer_10">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="2">
-        <widget class="QFrame" name="settingsFrame">
-         <property name="minimumSize">
-          <size>
-           <width>350</width>
-           <height>150</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>350</width>
-           <height>150</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_9">
-          <item row="4" column="1">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_16">
-            <property name="text">
-             <string>Print Speed</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLineEdit" name="extrusionFactorEdit">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>1</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="3">
-           <widget class="Line" name="line_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="4" column="2">
-           <widget class="QLineEdit" name="lineEdit">
-            <property name="text">
-             <string>1</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_20">
-            <property name="text">
-             <string>Extrusion Factor</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="3">
-           <widget class="QSlider" name="extrsuionFactorSlider">
-            <property name="maximum">
-             <number>200</number>
-            </property>
-            <property name="value">
-             <number>100</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0" colspan="3">
-           <widget class="QSlider" name="printSpeedSlider">
-            <property name="maximum">
-             <number>200</number>
-            </property>
-            <property name="value">
-             <number>100</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QGroupBox" name="chamberWidget">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="title">
-          <string/>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_9">
-          <item>
-           <widget class="QLabel" name="label_15">
-            <property name="text">
-             <string>Chamber</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Line" name="line_11">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_15">
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout_16">
-              <item>
-               <spacer name="verticalSpacer_6">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
+              <item row="0" column="2">
+               <widget class="QLineEdit" name="extrusionFactorEdit">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Minimum</enum>
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="3">
+               <widget class="Line" name="line_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
-                  <width>20</width>
-                  <height>10</height>
+                  <width>40</width>
+                  <height>20</height>
                  </size>
                 </property>
                </spacer>
               </item>
-              <item>
-               <widget class="QLabel" name="dashboardChamberTempLabel">
+              <item row="4" column="2">
+               <widget class="QLineEdit" name="lineEdit">
                 <property name="text">
-                 <string>Current Temp:</string>
+                 <string>1</string>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QLabel" name="dashboardChamberTargetTempLabel">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_20">
                 <property name="text">
-                 <string>Target Temp:</string>
+                 <string>Extrusion Factor</string>
                 </property>
                </widget>
               </item>
-              <item>
-               <spacer name="verticalSpacer_7">
+              <item row="1" column="0" colspan="3">
+               <widget class="QSlider" name="extrsuionFactorSlider">
+                <property name="maximum">
+                 <number>200</number>
+                </property>
+                <property name="value">
+                 <number>100</number>
+                </property>
                 <property name="orientation">
-                 <enum>Qt::Vertical</enum>
+                 <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Minimum</enum>
+               </widget>
+              </item>
+              <item row="5" column="0" colspan="3">
+               <widget class="QSlider" name="printSpeedSlider">
+                <property name="maximum">
+                 <number>200</number>
                 </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>10</height>
-                 </size>
+                <property name="value">
+                 <number>100</number>
                 </property>
-               </spacer>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <layout class="QVBoxLayout" name="chamberLayout"/>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="9" column="1">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="8" column="0">
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0" rowspan="4">
-        <widget class="QGroupBox" name="toolheadWidget">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="title">
-          <string/>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_26">
-          <item>
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Toolhead</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Line" name="line">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>Position</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QFrame" name="currentPositionFrame">
-            <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_7">
-             <item row="1" column="1">
-              <widget class="QLabel" name="yLabel">
-               <property name="text">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="xLabel">
-               <property name="text">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QLabel" name="zLabel">
-               <property name="text">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" colspan="3">
-              <widget class="QLabel" name="label_4">
-               <property name="text">
-                <string>Current</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QFrame" name="destinationPositionFrame">
-            <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_8">
-             <item row="1" column="1">
-              <widget class="QLabel" name="yDestinationLabel">
-               <property name="text">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="xDestinationLabel">
-               <property name="text">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QLabel" name="zDestination">
-               <property name="text">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" colspan="3">
-              <widget class="QLabel" name="label_9">
-               <property name="text">
-                <string>Destination</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <layout class="QGridLayout" name="gridLayout_4">
-            <property name="verticalSpacing">
-             <number>10</number>
-            </property>
-            <item row="9" column="0" colspan="3">
-             <widget class="QComboBox" name="posIncrementSelect">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>50</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>400</width>
-                <height>16777215</height>
-               </size>
-              </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QGroupBox" name="chamberWidget">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string/>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
               <item>
-               <property name="text">
-                <string>1mm</string>
-               </property>
+               <widget class="QLabel" name="label_15">
+                <property name="text">
+                 <string>Chamber</string>
+                </property>
+               </widget>
               </item>
               <item>
-               <property name="text">
-                <string>5mm</string>
-               </property>
+               <widget class="Line" name="line_11">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
               </item>
               <item>
-               <property name="text">
-                <string>10mm</string>
-               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_15">
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_16">
+                  <item>
+                   <spacer name="verticalSpacer_6">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::Minimum</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>10</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="dashboardChamberTempLabel">
+                    <property name="text">
+                     <string>Current Temp:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="dashboardChamberTargetTempLabel">
+                    <property name="text">
+                     <string>Target Temp:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="verticalSpacer_7">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::Minimum</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>10</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QVBoxLayout" name="chamberLayout"/>
+                </item>
+               </layout>
               </item>
-              <item>
-               <property name="text">
-                <string>100mm</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="6" column="1">
-             <widget class="QPushButton" name="xPosDecreaseButton">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>50</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="2">
-             <widget class="QPushButton" name="xPosIncreaseButton">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>50</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="2">
-             <widget class="QPushButton" name="yPosIncreaseButton">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>50</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
-             <widget class="QLabel" name="label_11">
-              <property name="maximumSize">
-               <size>
-                <width>100</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>X</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="1">
-             <widget class="QPushButton" name="zPosDecreaseButton">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>50</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1">
-             <widget class="QPushButton" name="yPosDecreaseButton">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>50</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="0">
-             <widget class="QLabel" name="label_13">
-              <property name="font">
-               <font>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Z</string>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="0" colspan="3">
-             <widget class="QPushButton" name="pushButton_11">
-              <property name="minimumSize">
-               <size>
-                <width>300</width>
-                <height>50</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>400</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>Home</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="2">
-             <widget class="QPushButton" name="zPosIncreaseButton">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>50</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0" colspan="3">
-             <spacer name="verticalSpacer_8">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="7" column="0">
-             <widget class="QLabel" name="label_12">
-              <property name="font">
-               <font>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Y</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>Homed Axes</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1" colspan="2">
-             <widget class="QLabel" name="homedLabel">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="7" column="0" colspan="3">
-        <widget class="QTabWidget" name="tabWidget">
-         <property name="currentIndex">
-          <number>0</number>
-         </property>
+             </layout>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <spacer name="verticalSpacer_24">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
          <widget class="QWidget" name="terminalTab">
           <attribute name="title">
            <string>Terminal</string>
@@ -1117,7 +1009,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tab_2">
+         <widget class="QWidget" name="gcodeTab">
           <attribute name="title">
            <string>G-Code FIles</string>
           </attribute>
@@ -1127,7 +1019,7 @@
            <string>Bed Mesh</string>
           </attribute>
          </widget>
-         <widget class="QWidget" name="tab_3">
+         <widget class="QWidget" name="settingsTab">
           <attribute name="title">
            <string>Settings</string>
           </attribute>
@@ -1186,6 +1078,159 @@
          <string>Printer Control</string>
         </property>
        </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QFrame" name="actionBar">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QPushButton" name="overviewButton">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Overview</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QToolButton" name="terminalButton">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Terminal</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5">
+       <widget class="QToolButton" name="settingsButton">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Settings</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QToolButton" name="filesButton">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Files</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QToolButton" name="bedMeshButton">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Bed Mesh</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>

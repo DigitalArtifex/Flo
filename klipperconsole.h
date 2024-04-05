@@ -20,6 +20,7 @@
 #include <QQueue>
 
 #include <QTimer>
+#include <QtConcurrent/QtConcurrent>
 
 #include "types/klippermessage.h"
 #include "types/klipperresponse.h"
@@ -58,8 +59,10 @@ class KlipperConsole : public QObject
     QMap<int, KlipperMessage> klipperMessageBuffer;
 
 public:
-    KlipperConsole(Printer *parent);
+    KlipperConsole(Printer *printer, QObject *parent = nullptr);
     ~KlipperConsole();
+
+    virtual void shutdown();
 
     void sendCommand(QString command, KlipperMessage::MessageOrigin origin = KlipperMessage::System);
     void sendCommand(KlipperMessage message);
@@ -100,11 +103,15 @@ public:
     void printerInfo();
     void restartKlipper();
     void restartFirmware();
+    void printerSubscribe();
 
     //Server Management
     void serverInfo();
     void serverConfig();
     void serverFileRoots();
+
+    //Client Management
+    void clientIdentifier();
 
 signals:
     void commandSent(QString data);
@@ -120,7 +127,7 @@ signals:
     void printerOnline();
 
     void klipperConnected();
-    void klipperError(QString message);
+    void klipperError(QString error, QString message);
     void klipperDisconnected();
 
     void moonrakerConnected();
@@ -130,8 +137,8 @@ signals:
 
 private slots:
     void on_messageReceived(KlipperResponse message);
-    void on_messageReadTimer();
-    void on_messageParseTimer();
+    void on_klipperSocket_readyRead();
+    void on_messageParse();
 
     void on_klipperRestartTimer_timeout();
 
@@ -148,6 +155,9 @@ private:
     bool _klipperConnected = false;
     bool _printerConnected = false;
     bool _startup = true;
+    bool _shutdown = false;
+
+    int _startupState = 0;
 };
 
 #endif // KLIPPERCONSOLE_H

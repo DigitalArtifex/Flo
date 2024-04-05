@@ -7,6 +7,7 @@ QMap<QString,QString> Settings::themeMap;
 QMap<QString,QIcon> Settings::iconMap;
 PrinterDefinitionList Settings::_printers;
 Settings *Settings::_instance = nullptr;
+QString Settings::_currentTheme = "";
 
 void Settings::loadThemes()
 {
@@ -56,6 +57,8 @@ void Settings::loadThemes()
             }
         }
     }
+
+    _currentTheme = getTheme(get("system.theme").toString());
 }
 
 void Settings::load()
@@ -261,13 +264,14 @@ QString Settings::getTheme(QString key)
     theme = sheet.process();
 
     //For Debug
-
+/*
     QFile alteredFile(themeMap[key] + QString("2"));
     if(alteredFile.open(QFile::WriteOnly))
     {
         alteredFile.write(theme.toUtf8());
         alteredFile.close();
     }
+*/
 
     QString themeLocation = QString(themeMap[key]).remove("theme.css");
     QString themeIconLocation = themeLocation + QDir::separator() + "icons" + QDir::separator();
@@ -402,4 +406,9 @@ Settings *Settings::instance()
         _instance = new Settings();
 
     return _instance;
+}
+
+QString Settings::currentTheme()
+{
+    return _currentTheme;
 }

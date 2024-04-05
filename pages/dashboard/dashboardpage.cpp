@@ -15,19 +15,33 @@ DashboardPage::DashboardPage(QWidget *parent) :
     _systemWidget = new SystemWidget();
     ui->scrollAreaWidgetContents->layout()->addWidget(_systemWidget);
 
-    _printJobWidget = new PrintJobWidget();
-    ui->scrollAreaWidgetContents->layout()->addWidget(_printJobWidget);
+    _statusWidget = new StatusWidget(this);
+    ui->scrollAreaWidgetContents->layout()->addWidget(_statusWidget);
 
     setUiClasses();
     loadPrinters();
 
     connect(PrinterPool::instance(), SIGNAL(printerAdded(Printer*)), this, SLOT(on_printerPool_printerAdded(Printer*)));
     connect(PrinterPool::instance(), SIGNAL(printerRemoved(Printer*)), this, SLOT(on_printerPool_printerRemoved(Printer*)));
+
+    setStyleSheet(styleSheet());
 }
 
 DashboardPage::~DashboardPage()
 {
     delete ui;
+
+    if(_systemWidget)
+        delete _systemWidget;
+
+    if(_statusWidget)
+        delete _statusWidget;
+
+    for(int i = 0; i < _printerWidgets.count(); i++)
+        delete _printerWidgets[i];
+
+    if(_layout)
+        delete _layout;
 }
 
 void DashboardPage::loadPrinters()
@@ -57,7 +71,13 @@ void DashboardPage::loadPrinters()
             _printerWidgets.append(widget);
             ui->scrollAreaWidgetContents->layout()->addWidget(widget);
 
-            connect(printer, SIGNAL(systemUpdate(Printer*)), this, SLOT(on_printer_systemUpdate(Printer*)));
+            if(definition.defaultPrinter)
+            {
+                _selectedWidget = widget;
+                _systemWidget->setPrinter(printer);
+            }
+
+            //connect(printer, SIGNAL(systemUpdate(Printer*)), this, SLOT(on_printer_systemUpdate(Printer*)));
         }
     }
 
@@ -83,26 +103,26 @@ void DashboardPage::updateStyleSheet(QString styleSheet)
 void DashboardPage::setStyleSheet(QString styleSheet)
 {
     QFrame::setStyleSheet(styleSheet);
-    _systemWidget->setStyleSheet(styleSheet);
-    _printJobWidget->setStyleSheet(styleSheet);
 
-    for(int i = 0; i < _printerWidgets.count(); i++)
-        _printerWidgets[i]->setStyleSheet(styleSheet);
+    if(_systemWidget)
+        _systemWidget->setStyleSheet(styleSheet);
+
+    if(_statusWidget)
+        _statusWidget->setStyleSheet(styleSheet);
 }
 
-void DashboardPage::on_console_response(Printer *printer, KlipperResponse response)
+void DashboardPage::resizeEvent(QResizeEvent *event)
 {
+    QFrame::resizeEvent(event);
 
-}
+    qint32 padding = _layout->horizontalSpacing() * 2;
+    padding += _layout->contentsMargins().left();
+    padding += _layout->contentsMargins().right();
+    qint32 statusWidth = ((width() - padding) - _systemWidget->width()) - 20;
+    qint32 statusHeight = _systemWidget->height();
 
-void DashboardPage::on_printer_update(Printer *printer)
-{
-
-}
-
-void DashboardPage::on_printer_systemUpdate(Printer *printer)
-{
-
+    if(_statusWidget)
+        _statusWidget->setFixedSize(QSize(statusWidth, statusHeight));
 }
 
 void DashboardPage::on_printerPool_printerRemoved(Printer *printer)

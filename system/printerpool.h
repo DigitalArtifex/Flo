@@ -12,7 +12,7 @@ class PrinterPool : public QObject
 {
     Q_OBJECT
 public:
-    static void loadPrinters();
+    static void loadPrinters(QObject *parent);
 
     static Printer *getPrinterById(QString id);
     static void addPrinter(PrinterDefinition definition);
@@ -32,14 +32,16 @@ signals:
     void printerAdded(Printer *printer);
     void printerRemoved(Printer *printer);
     void printerUpdated(Printer *printer);
+    void printerError(QString title, QString message, Printer *printer);
     void jobStarted(PrintJob *job);
     void jobFinished(PrintJob *job);
     void jobUpdated(PrintJob *job);
 
-private:
+private slots:
     void on_printerAdded(Printer *printer);
     void on_printerRemoved(Printer *printer);
     void on_printerUpdated(Printer *printer);
+    void on_printerError(QString title, QString message, Printer *printer);
     void on_jobStarted(PrintJob *job);
     void on_jobFinished(PrintJob *job);
     void on_jobUpdated(PrintJob *job);

@@ -14,6 +14,21 @@
    <string>Frame</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
    <item row="1" column="0">
     <widget class="QScrollArea" name="scrollArea">
      <property name="widgetResizable">
@@ -24,8 +39,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>1114</width>
-        <height>657</height>
+        <width>1132</width>
+        <height>681</height>
        </rect>
       </property>
      </widget>

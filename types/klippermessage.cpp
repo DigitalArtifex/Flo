@@ -25,7 +25,7 @@ KlipperMessage::~KlipperMessage()
 QByteArray KlipperMessage::toRpc(QJsonDocument::JsonFormat format)
 {
     QByteArray document = QJsonDocument(rootObject).toJson(format);
-    document += this->endOfFile.toUtf8();
+    document += this->endOfFile.toUtf8() + QByteArray("\n");
 
     return document;
 }

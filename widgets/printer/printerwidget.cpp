@@ -197,6 +197,8 @@ void PrinterWidget::showLoadingScreen()
     if(_loadingAnimation != nullptr)
         delete _loadingAnimation;
 
+    setGraphicsEffect(nullptr);
+
     _loadingGif = new QMovie(":/images/images/loading_widget.gif");
     _loadingLabel = new QLabel(this);
     _loadingLabel->setMinimumWidth(this->width());

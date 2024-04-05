@@ -21,6 +21,7 @@ Printer *PrinterPool::getPrinterById(QString id)
 void PrinterPool::addPrinter(PrinterDefinition definition)
 {
     Printer *printer = new Printer(definition);
+    connect(printer, SIGNAL(printerError(QString,QString,Printer*)), _instance, SLOT(on_printerError(QString,QString,Printer*)));
 
     if(definition.autoConnect)
         printer->connectMoonraker();
@@ -42,13 +43,16 @@ void PrinterPool::removePrinter(PrinterDefinition definition)
     instance()->on_printerRemoved(printer);
 }
 
-void PrinterPool::loadPrinters()
+void PrinterPool::loadPrinters(QObject *parent)
 {
     PrinterDefinitionList printerDefinitions = Settings::printers();
     bool hasDefault = false;
 
     foreach(PrinterDefinition definition, printerDefinitions)
     {
+        if(definition.id.isEmpty())
+            continue;
+
         if(_printerPool.contains(definition.id))
             continue;
 
@@ -57,7 +61,8 @@ void PrinterPool::loadPrinters()
         else if(definition.defaultPrinter)
             definition.defaultPrinter = false;
 
-        Printer *printer = new Printer(definition);
+        Printer *printer = new Printer(definition, parent);
+        connect(printer, SIGNAL(printerError(QString,QString,Printer*)), _instance, SLOT(on_printerError(QString,QString,Printer*)));
 
         if(definition.autoConnect)
             printer->connectMoonraker();
@@ -150,6 +155,11 @@ void PrinterPool::on_printerRemoved(Printer *printer)
 void PrinterPool::on_printerUpdated(Printer *printer)
 {
     emit(printerUpdated(printer));
+}
+
+void PrinterPool::on_printerError(QString title, QString message, Printer *printer)
+{
+    emit printerError(title,message,printer);
 }
 
 void PrinterPool::on_jobStarted(PrintJob *job)
