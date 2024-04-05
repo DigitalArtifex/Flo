@@ -68,7 +68,14 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
         _printerButtons[i]->setEnabled(false);
 
     //Title
+    if(_titleOpacityAnimation)
+        delete _titleOpacityAnimation;
+
+    _titleOpacityAnimation = new QPropertyAnimation(_titleOpacityEffect, "opacity");
+    _titleOpacityAnimation->setDuration(500);
+
     connect(_titleOpacityAnimation, SIGNAL(finished()), this, SLOT(on_titleOpacityAnimation_finished()));
+
     _nextTitle = title;
     _titleOpacityAnimation->setStartValue(1);
     _titleOpacityAnimation->setEndValue(0);
