@@ -209,7 +209,6 @@ void KlipperConsole::getFileList(QString directory)
     messageObject["params"] = paramsObject;
     message.setDocument(messageObject);
 
-    emit(fileDirectoryChanged(directory));
     sendCommand(message);
 }
 
@@ -619,6 +618,7 @@ void KlipperConsole::on_messageParse()
     QByteArray responseData = messageQueue.dequeue();
     QJsonParseError responseDocumentError;
     QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+    KlipperMessage origin;
 
     if(responseDocumentError.error != QJsonParseError::NoError)
     {
@@ -636,7 +636,8 @@ void KlipperConsole::on_messageParse()
 
     if(!response.rootObject.contains("method"))
     {
-        response["method"] = klipperMessageBuffer[response["id"].toInt()]["method"];
+        origin = klipperMessageBuffer[response["id"].toInt()];
+        response["method"] = origin["method"];
         response.origin = (KlipperResponse::ResponseOrigin)klipperMessageBuffer[response["id"].toInt()].origin;
         klipperMessageBuffer.remove(response["id"].toInt());
     }
@@ -1008,28 +1009,22 @@ void KlipperConsole::on_messageParse()
                     {
                         if(referenceObject["name"] == QString("gcodes"))
                         {
-                            Settings::set(QString("system.klipper.gcode_location"), referenceObject["path"].toString());
+                            _printer->setGcodesLocation(referenceObject["path"].toString());
                         }
                         else if(referenceObject["name"] == QString("config"))
                         {
-                            Settings::set(QString("system.klipper.config_location"), referenceObject["path"].toString());
+                            _printer->setConfigLocation(referenceObject["path"].toString());
                         }
                         else if(referenceObject["name"] == QString("config_examples"))
-                        {
-                            Settings::set(QString("system.klipper.config_examples_location"), referenceObject["path"].toString());
-                        }
+                            ;
                         else if(referenceObject["name"] == QString("docs"))
-                        {
-                            Settings::set(QString("system.klipper.docs_location"), referenceObject["path"].toString());
-                        }
+                            ;
                     }
                 }
             }
-
-            Settings::save();
         }
 
-        getFileList(QString("gcodes"));
+        emit(printerUpdate());
     }
     else if(response["method"] == QString("server.files.list"))
     {
@@ -1058,22 +1053,45 @@ void KlipperConsole::on_messageParse()
     {
         if(response["result"].isObject())
         {
+            QJsonObject originObject = origin.document();
             QJsonObject result = response["result"].toObject();
+            QJsonObject rootInfo = result["root_info"].toObject();
             QJsonArray files = result["files"].toArray();
             QJsonArray directories = result["dirs"].toArray();
             QList<KlipperFile> fileList;
+
+            QString directory = originObject["params"].toObject()["path"].toString();
+            QString root = rootInfo["name"].toString();
+
+            if(directory.contains(QString("/")))
+            {
+                if(directory.endsWith(QString("/")))
+                    directory = directory.mid(0, directory.length() -1);
+
+                directory.remove(root);
+
+                if(directory.startsWith(QString("/")))
+                    directory = directory.mid(1, directory.length() -1);
+
+                directory = directory.mid(0, directory.lastIndexOf(QString("/")));
+            }
+            else
+                directory.remove(root);
 
             foreach(QJsonValueConstRef directoryRef, directories)
             {
                 if(directoryRef.isObject())
                 {
                     QJsonObject directoryObject = directoryRef.toObject();
-                    KlipperFile directory;
-                    directory.fileLocation = directoryObject["dirname"].toString();
-                    directory.fileSize = directoryObject["size"].toDouble();
-                    directory.dateModified = directoryObject["modified"].toDouble();
-                    directory.type = KlipperFile::Directory;
-                    fileList.append(directory);
+                    KlipperFile directoryListing;
+                    QString directoryName = directoryObject["dirname"].toString();
+
+                    directoryListing.fileLocation = directoryName;
+                    directoryListing.fileSize = directoryObject["size"].toDouble();
+                    directoryListing.dateModified = directoryObject["modified"].toDouble();
+                    directoryListing.type = KlipperFile::Directory;
+
+                    fileList.append(directoryListing);
                 }
             }
 
@@ -1083,15 +1101,20 @@ void KlipperConsole::on_messageParse()
                 {
                     QJsonObject fileObject = fileRef.toObject();
                     KlipperFile file;
-                    file.fileLocation = fileObject["filename"].toString();
+                    QString fileName = fileObject["filename"].toString();
+
+                    fileName.remove(directory);
+
+                    file.fileLocation = fileName;
                     file.fileSize = fileObject["size"].toDouble();
                     file.dateModified = fileObject["modified"].toDouble();
                     file.type = KlipperFile::GCode;
+
                     fileList.append(file);
                 }
             }
 
-            emit(fileListReceived(fileList));
+            emit directoryListing(root, directory, fileList);
         }
     }
     else if(response["method"] == QString("notify_klippy_disconnected"))

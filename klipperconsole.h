@@ -26,6 +26,7 @@
 #include "types/klipperresponse.h"
 
 #include "types/klipperfile.h"
+
 #include "types/bed.h"
 #include "types/extruder.h"
 #include "types/position.h"
@@ -120,7 +121,7 @@ signals:
     void commandLock();
     void commandUnlock();
     void fileListReceived(QList<KlipperFile> files);
-    void directoryListReceived(QList<KlipperFile> files);
+    void directoryListing(QString root, QString directory, QList<KlipperFile> files);
     void systemUpdate();
     void printerFound();
     void printerUpdate();
