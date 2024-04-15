@@ -11,6 +11,7 @@ FileBrowser::FileBrowser(Printer *printer, QString root, QWidget *parent) :
     setupConnections();
 
     setPrinter(printer);
+    setStyleSheet(Settings::currentTheme());
 }
 
 FileBrowser::~FileBrowser()
@@ -34,6 +35,9 @@ FileBrowser::~FileBrowser()
     delete _sideBar;
 
     delete _layout;
+
+    delete _overlay;
+    delete _editor;
 }
 
 Printer *FileBrowser::printer() const
@@ -151,6 +155,13 @@ void FileBrowser::setupUi()
         _printFileButton->setHidden(true);
     else
         _printFileButton->setHidden(false);
+
+    _editor = new FileEditor(_printer, this);
+
+    _overlay = new FileBrowserOverlay(this);
+    _overlay->setGeometry(0,0,width(),height());
+    _overlay->raise();
+    _overlay->setHidden(false);
 }
 
 void FileBrowser::setupConnections()
@@ -164,6 +175,7 @@ void FileBrowser::setupConnections()
     connect(_editFileButton, SIGNAL(clicked(bool)), this, SLOT(on_editFileButton_clicked()));
     connect(_printFileButton, SIGNAL(clicked(bool)), this, SLOT(on_printFileButton_clicked()));
     connect(_deleteFileButton, SIGNAL(clicked(bool)), this, SLOT(on_deleteFileButton_clicked()));
+    connect(_overlay,SIGNAL(animatedOut()),this,SLOT(on_overlay_animatedOut()));
 }
 
 void FileBrowser::setStyleSheet(const QString &styleSheet)
@@ -173,11 +185,19 @@ void FileBrowser::setStyleSheet(const QString &styleSheet)
     if(_filebrowserWidget)
         _filebrowserWidget->setStyleSheet(styleSheet);
 
+    if(_overlay)
+        _overlay->setStyleSheet(styleSheet);
+
     _upDirectoryButton->setIcon(Settings::getThemeIcon(QString("up-directory-icon")));
     _refreshButton->setIcon(Settings::getThemeIcon(QString("refresh-icon")));
     _uploadFileButton->setIcon(Settings::getThemeIcon(QString("file-upload-icon")));
     _newFolderButton->setIcon(Settings::getThemeIcon(QString("folder-create-icon")));
     _downloadFolderButton->setIcon(Settings::getThemeIcon(QString("refresh-icon")));
+}
+
+void FileBrowser::resizeEvent(QResizeEvent *event)
+{
+    _overlay->setGeometry(0,0,width(),height());
 }
 
 void FileBrowser::on_uploadFileButton_clicked(bool clicked)
@@ -194,7 +214,10 @@ void FileBrowser::on_uploadFileButton_clicked(bool clicked)
         "Select one or more files to open",
         QDir::homePath(),
         fileTypes);
-
+    _overlay->setText(QString("Uploading Files"));
+    _overlay->raise();
+    _overlay->setHidden(false);
+    _overlay->animateIn();
     foreach(QString fileLocation, files)
     {
         QFile file(fileLocation);
@@ -230,6 +253,10 @@ void FileBrowser::on_downloadFolderButton_clicked(bool clicked)
 
 void FileBrowser::on_refreshButton_clicked(bool clicked)
 {
+    _overlay->setText(QString("Refreshing Directory"));
+    _overlay->raise();
+    _overlay->setHidden(false);
+    _overlay->animateIn();
     _refreshButton->setEnabled(false);
     _uploadFileButton->setEnabled(false);
     _newFolderButton->setEnabled(false);
@@ -270,15 +297,6 @@ void FileBrowser::on_printFileButton_clicked()
 
 void FileBrowser::on_editFileButton_clicked()
 {
-    if(!_editor)
-    {
-        _editor = new FileEditor(_printer, this);
-
-        connect(_editor, SIGNAL(reset()), this, SLOT(on_fileEditor_reset()));
-        connect(_editor, SIGNAL(save()), this, SLOT(on_fileEditor_save()));
-        connect(_editor, SIGNAL(saveAndRestart()), this, SLOT(on_fileEditor_saveAndRestart()));
-    }
-
     if(_filebrowserWidget->selectedItem())
     {
         _editor->setFile(_filebrowserWidget->selectedItem()->file());
@@ -321,6 +339,8 @@ void FileBrowser::on_printer_fileListing(QString root, QString directory, QList<
 {
     if(root != _rootDirectory)
         return;
+
+    _overlay->animateOut();
 
     _currentDirectory = directory;
 
@@ -369,4 +389,10 @@ void FileBrowser::on_fileBrowserWidget_fileSelected(QAnimatedListItem *item)
         _editFileButton->setEnabled(false);
         _deleteFileButton->setEnabled(false);
     }
+}
+
+void FileBrowser::on_overlay_animatedOut()
+{
+    _overlay->lower();
+    _overlay->setHidden(true);
 }

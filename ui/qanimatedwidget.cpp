@@ -1,7 +1,7 @@
 #include "qanimatedwidget.h"
 
 QAnimatedWidget::QAnimatedWidget(QWidget *parent)
-    : QWidget{parent}
+    : QFrame{parent}
 {
     _animationFinal = new QWidgetAnimation(this, parent);
     _animationIn = new QWidgetAnimation(this, parent);

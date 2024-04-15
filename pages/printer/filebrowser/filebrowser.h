@@ -19,7 +19,7 @@
 #include "filebrowseritem.h"
 
 #include "editor/fileeditor.h"
-#include
+#include "overlay/filebrowseroverlay.h"
 
 class FileBrowser : public QWidget
 {
@@ -34,6 +34,7 @@ public:
     virtual void setupUi();
     virtual void setupConnections();
     virtual void setStyleSheet(const QString &styleSheet);
+    virtual void resizeEvent(QResizeEvent *event);
 
 private slots:
     //Tool buttons
@@ -54,6 +55,9 @@ private slots:
 
     //FileBrowserWidget
     void on_fileBrowserWidget_fileSelected(QAnimatedListItem *item);
+
+    //Overlay
+    void on_overlay_animatedOut();
 
 private:
     bool _startup = true;
@@ -86,6 +90,8 @@ private:
     QGridLayout *_sideBarLayout = nullptr;
 
     FileEditor *_editor = nullptr;
+
+    FileBrowserOverlay *_overlay = nullptr;
 };
 
 #endif // FILEBROWSER_H

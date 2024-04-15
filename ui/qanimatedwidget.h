@@ -2,12 +2,12 @@
 #define QANIMATEDWIDGET_H
 
 #include <QObject>
-#include <QWidget>
+#include <QFrame>
 #include <QGridLayout>
 
 #include "qwidgetanimation.h"
 
-class QAnimatedWidget : public QWidget
+class QAnimatedWidget : public QFrame
 {
     Q_OBJECT
 public:

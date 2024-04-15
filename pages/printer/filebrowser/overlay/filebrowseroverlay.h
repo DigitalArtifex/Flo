@@ -3,13 +3,25 @@
 
 #include <QObject>
 #include <QWidget>
+#include <QLabel>
+#include <QGridLayout>
 #include "../../../../ui/qanimatedwidget.h"
 
 class FileBrowserOverlay : public QAnimatedWidget
 {
     Q_OBJECT
 public:
-    FileBrowserOverlay();
+    FileBrowserOverlay(QWidget *parent = nullptr);
+    ~FileBrowserOverlay();
+
+    void setupUi();
+
+    virtual void setText(const QString &text);
+
+private:
+
+    QLabel *_label = nullptr;
+    QGridLayout *_layout = nullptr;
 };
 
 #endif // FILEBROWSEROVERLAY_H
