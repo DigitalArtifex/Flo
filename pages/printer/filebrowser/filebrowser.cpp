@@ -7,10 +7,10 @@ FileBrowser::FileBrowser(Printer *printer, QString root, QWidget *parent) :
 {
     _rootDirectory = root;
 
+    setPrinter(printer);
     setupUi();
     setupConnections();
 
-    setPrinter(printer);
     setStyleSheet(Settings::currentTheme());
 }
 
