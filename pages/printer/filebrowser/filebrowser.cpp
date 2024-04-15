@@ -166,7 +166,7 @@ void FileBrowser::setupConnections()
     connect(_deleteFileButton, SIGNAL(clicked(bool)), this, SLOT(on_deleteFileButton_clicked()));
 }
 
-void FileBrowser::setStyleSheet(QString styleSheet)
+void FileBrowser::setStyleSheet(const QString &styleSheet)
 {
     QWidget::setStyleSheet(styleSheet);
 
@@ -290,10 +290,19 @@ void FileBrowser::on_deleteFileButton_clicked()
 {
     QMessageBox msgBox;
     msgBox.setText("Confirm Delete");
-    msgBox.setInformativeText("Are you sure you want to delete this print?");
+    msgBox.setInformativeText("Are you sure you want to delete this file?");
     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Ok);
     int ret = msgBox.exec();
+
+    switch(ret)
+    {
+    case QMessageBox::Ok:
+        _printer->console()->deleteFile(_filebrowserWidget->selectedItem()->file());
+        break;
+    default:
+        break;
+    }
 }
 
 void FileBrowser::on_printer_update(Printer *printer)
@@ -360,24 +369,4 @@ void FileBrowser::on_fileBrowserWidget_fileSelected(QAnimatedListItem *item)
         _editFileButton->setEnabled(false);
         _deleteFileButton->setEnabled(false);
     }
-}
-
-void FileBrowser::on_fileEditor_closed()
-{
-
-}
-
-void FileBrowser::on_fileEditor_save()
-{
-
-}
-
-void FileBrowser::on_fileEditor_reset()
-{
-
-}
-
-void FileBrowser::on_fileEditor_saveAndRestart()
-{
-
 }

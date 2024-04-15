@@ -18,7 +18,8 @@
 #include "filebrowserwidget.h"
 #include "filebrowseritem.h"
 
-#include "../editor/fileeditor.h"
+#include "editor/fileeditor.h"
+#include
 
 class FileBrowser : public QWidget
 {
@@ -32,7 +33,7 @@ public:
 
     virtual void setupUi();
     virtual void setupConnections();
-    virtual void setStyleSheet(QString styleSheet);
+    virtual void setStyleSheet(const QString &styleSheet);
 
 private slots:
     //Tool buttons
@@ -53,11 +54,6 @@ private slots:
 
     //FileBrowserWidget
     void on_fileBrowserWidget_fileSelected(QAnimatedListItem *item);
-
-    void on_fileEditor_closed();
-    void on_fileEditor_save();
-    void on_fileEditor_reset();
-    void on_fileEditor_saveAndRestart();
 
 private:
     bool _startup = true;

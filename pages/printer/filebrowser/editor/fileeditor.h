@@ -2,9 +2,9 @@
 #define FILEEDITOR_H
 
 #include <QMainWindow>
-#include "../../../QSourceHighlite/qsourcehighliter.h"
-#include "../../../types/klipperfile.h"
-#include "../../../types/printer.h"
+#include "../../../../QSourceHighlite/qsourcehighliter.h"
+#include "../../../../types/klipperfile.h"
+#include "../../../../types/printer.h"
 
 namespace Ui {
 class FileEditor;
