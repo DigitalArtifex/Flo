@@ -25,6 +25,7 @@
 #define QSOURCEHIGHLITER_H
 
 #include <QSyntaxHighlighter>
+#include <QRegularExpression>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QStringView>
@@ -93,7 +94,8 @@ public:
         CodeMake = 242,
         CodeAsm = 244,
         CodeLua = 246,
-        CodeLuaComment = 247
+        CodeLuaComment = 247,
+        CodeGCode = 248
     };
     Q_ENUM(Language)
 
@@ -149,6 +151,9 @@ private:
     void makeHighlighter(const QString &text);
     void highlightInlineAsmLabels(const QString& text);
     void asmHighlighter(const QString& text);
+    void gcodeHighlighter(const QString& text);
+    void jsonHighlighter(const QString& text);
+    void iniHighlighter(const QString& text);
     void initFormats();
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)

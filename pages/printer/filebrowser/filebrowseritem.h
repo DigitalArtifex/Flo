@@ -7,6 +7,8 @@
 #include <QToolButton>
 #include <QGridLayout>
 #include <QSpacerItem>
+#include <QDateTime>
+
 #include "../../../widgets/list/qanimatedlistitem.h"
 #include "../../../types/klipperfile.h"
 
@@ -21,7 +23,6 @@ public:
     void setFile(const KlipperFile &file);
 
     bool isDirectory() const;
-    void setDirectory(bool directory);
 
 signals:
     void printRequested(FileBrowserItem *item);

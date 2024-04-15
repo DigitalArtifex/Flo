@@ -127,6 +127,9 @@ void QSourceHighliter::highlightSyntax(const QString &text)
     bool isMake = false;
     bool isAsm = false;
     bool isSQL = false;
+    bool isGcode = false;
+    bool isJson = false;
+    bool isINI = false;
 
     LanguageData keywords{},
                 others{},
@@ -192,6 +195,7 @@ void QSourceHighliter::highlightSyntax(const QString &text)
             loadSQLData(types, keywords, builtin, literals, others);
             break;
         case CodeJSON :
+            isJson = true;
             loadJSONData(types, keywords, builtin, literals, others);
             break;
         case CodeXML :
@@ -213,6 +217,7 @@ void QSourceHighliter::highlightSyntax(const QString &text)
             break;
         case CodeINI:
             comment = QLatin1Char('#');
+            isINI = true;
             break;
         case CodeVex:
         case CodeVexComment:
@@ -231,6 +236,11 @@ void QSourceHighliter::highlightSyntax(const QString &text)
             isAsm = true;
             loadAsmData(types, keywords, builtin, literals, others);
             comment = QLatin1Char('#');
+            break;
+        case CodeGCode:
+            isGcode = true;
+            loadGcodeData(types, keywords, builtin, literals, others);
+            comment = QLatin1Char(';');
             break;
         default:
             break;
@@ -405,6 +415,8 @@ void QSourceHighliter::highlightSyntax(const QString &text)
     if (isYAML) ymlHighlighter(text);
     if (isMake) makeHighlighter(text);
     if (isAsm)  asmHighlighter(text);
+    if (isGcode) gcodeHighlighter(text);
+    if (isINI) iniHighlighter(text);
 }
 
 /**
@@ -937,5 +949,118 @@ void QSourceHighliter::asmHighlighter(const QString& text)
 
     if (!isLabel && i < text.length() && text.at(i) == QLatin1Char('#'))
         setFormat(0, colonPos, format);
+}
+
+void QSourceHighliter::gcodeHighlighter(const QString &text)
+{
+    auto format = _formats[Token::CodeKeyWord];
+    format.setFontUnderline(false);
+    format.setFontWeight(1000);
+
+    auto valueFormat = _formats[Token::CodeNumLiteral];
+    valueFormat.setFontUnderline(false);
+    valueFormat.setFontWeight(250);
+
+    auto valueNameFormat = _formats[Token::CodeBuiltIn];
+    valueNameFormat.setFontUnderline(false);
+    valueNameFormat.setFontWeight(500);
+
+    QRegularExpression gcodeExpression("^\\s*[g|G|m|M]\\d+", QRegularExpression::MultilineOption);
+    QRegularExpression mcodeLineExpression("^\\s*[m|M]\\d+\\s+([a-Z]\\d*(\\.\\d+|))+\\n", QRegularExpression::MultilineOption);
+    QRegularExpression valueExpression("[A-Z|a-z](\\-|)\\d+(\\.\\d+|)", QRegularExpression::MultilineOption);
+
+    QRegularExpressionMatchIterator iterator = valueExpression.globalMatch(text.toUtf8());
+
+    while(iterator.hasNext())
+    {
+        QRegularExpressionMatch gcodeMatch = iterator.next();
+        int pos = gcodeMatch.capturedStart();
+        QString gcode = gcodeMatch.captured(0);
+        gcode.remove(QString(" "));
+
+        setFormat(pos, 1, valueNameFormat);
+        setFormat(pos + 1, gcode.length() - 1, valueFormat);
+    }
+
+    iterator = gcodeExpression.globalMatch(text.toUtf8());
+
+    while(iterator.hasNext())
+    {
+        QRegularExpressionMatch gcodeMatch = iterator.next();
+        QString gcode = gcodeMatch.captured(0);
+        gcode.remove(QString(" "));
+
+        setFormat(text.indexOf(gcode), gcode.length(), format);
+    }
+}
+
+void QSourceHighliter::jsonHighlighter(const QString &text)
+{
+    auto format = _formats[Token::CodeKeyWord];
+    format.setFontUnderline(false);
+    format.setFontWeight(1000);
+
+    auto valueFormat = _formats[Token::CodeNumLiteral];
+    valueFormat.setFontUnderline(false);
+    valueFormat.setFontWeight(250);
+
+    auto valueNameFormat = _formats[Token::CodeBuiltIn];
+    valueNameFormat.setFontUnderline(false);
+    valueNameFormat.setFontWeight(500);
+
+    QRegularExpression gcodeExpression("^\\s*[g|G|m|M]\\d+", QRegularExpression::MultilineOption);
+
+    QRegularExpressionMatchIterator iterator = gcodeExpression.globalMatch(text.toUtf8());
+
+    while(iterator.hasNext())
+    {
+        QRegularExpressionMatch gcodeMatch = iterator.next();
+        int pos = gcodeMatch.capturedStart();
+        QString gcode = gcodeMatch.captured(0);
+        gcode.remove(QString(" "));
+
+        setFormat(pos, gcode.length(), format);
+    }
+}
+
+void QSourceHighliter::iniHighlighter(const QString &text)
+{
+    auto format = _formats[Token::CodeKeyWord];
+    format.setFontUnderline(false);
+    format.setFontWeight(500);
+
+    auto valueFormat = _formats[Token::CodeNumLiteral];
+    valueFormat.setFontUnderline(false);
+    valueFormat.setFontWeight(250);
+
+    auto valueNameFormat = _formats[Token::CodeBuiltIn];
+    valueNameFormat.setFontUnderline(false);
+    valueNameFormat.setFontWeight(250);
+
+    QRegularExpression keywordExpression("^\\s*[a-zA-Z_]+\\:+", QRegularExpression::MultilineOption);
+    QRegularExpression sectionExpression("^\\s*\\[[a-zA-Z_\\s]+\\]", QRegularExpression::MultilineOption);
+
+    QRegularExpressionMatchIterator iterator = keywordExpression.globalMatch(text.toUtf8());
+
+    while(iterator.hasNext())
+    {
+        QRegularExpressionMatch gcodeMatch = iterator.next();
+        int pos = gcodeMatch.capturedStart();
+        QString gcode = gcodeMatch.captured(0);
+        gcode.removeLast();
+
+        setFormat(pos, gcode.length(), format);
+    }
+
+    iterator = sectionExpression.globalMatch(text.toUtf8());
+
+    while(iterator.hasNext())
+    {
+        QRegularExpressionMatch gcodeMatch = iterator.next();
+        int pos = gcodeMatch.capturedStart();
+        QString gcode = gcodeMatch.captured(0);
+
+        setFormat(pos, gcode.length(), format);
+    }
 }
 }

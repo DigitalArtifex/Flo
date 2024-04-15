@@ -17,12 +17,16 @@ public:
         Directory
     };
 
+    QString fileLocation();
+
     KlipperFile(FileType type = GCode);
 
     QMap<QString,QVariant> metadata();
     double dateModified = 0;
     double fileSize = 0;
-    QString fileLocation = QString("");
+    QString root;
+    QString path;
+    QString name;
     FileType type;
     QVariant operator[](QString key);
 };

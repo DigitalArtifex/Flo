@@ -15,8 +15,6 @@ void IssueListWidget::addIssue(QString title, QString source, QString message)
     item->setOpacityOut(0);
     item->setDuration(1000);
 
-    qDebug() << item->property("class");
-
     addItem(item);
 }
 

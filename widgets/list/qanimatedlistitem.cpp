@@ -7,6 +7,9 @@ QAnimatedListItem::QAnimatedListItem(QWidget *parent)
     _animationIn = new QWidgetAnimation(this, parent);
     _animationOut = new QWidgetAnimation(this, parent);
 
+    connect(_animationIn, SIGNAL(finished()), this, SLOT(on_animationIn_finished()));
+    connect(_animationOut, SIGNAL(finished()), this, SLOT(on_animationOut_finished()));
+
     this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ListItem" ));
 }
 
@@ -99,18 +102,22 @@ void QAnimatedListItem::setSelectable(bool selectable)
     _selectable = selectable;
 }
 
-void QAnimatedListItem::setSelected(bool select)
+void QAnimatedListItem::setSelected(bool select, bool trigger)
 {
     if(!_selectable)
         return;
 
     _selected = select;
     setProperty("selected", select);
+    this->style()->polish(this);
 
-    if(select)
-        emit(selected(this));
-    else
-        emit(deselected(this));
+    if(trigger)
+    {
+        if(select)
+            emit(selected(this));
+        else
+            emit(deselected(this));
+    }
 }
 
 void QAnimatedListItem::setWidget(QWidget *widget)
@@ -137,32 +144,34 @@ void QAnimatedListItem::on_clickTimer_timeout()
 
 void QAnimatedListItem::mousePressEvent(QMouseEvent *event)
 {
+    QWidget::mousePressEvent(event);
+
     if(event->button() == Qt::LeftButton)
     {
         _clickTimer = new QTimer(this);
         _clickTimer->setInterval(500);
         _clickTimer->setSingleShot(true);
-        connect(_clickTimer, SIGNAL(timeout()), this, SLOT(clickTimeout()));
+        connect(_clickTimer, SIGNAL(timeout()), this, SLOT(on_clickTimer_timeout()));
         _clickTimer->start();
         setProperty("pressed", true);
         _pressed = true;
         style()->polish(this);
-        qDebug() << "Pressed";
     }
 }
 
 void QAnimatedListItem::mouseReleaseEvent(QMouseEvent *event)
 {
+    QWidget::mouseReleaseEvent(event);
+
     if(event->button() == Qt::LeftButton)
     {
         this->setProperty("pressed", false);
         this->style()->polish(this);
-        qDebug() << "Released";
 
         if(this->_clickTimer != nullptr)
         {
             _clickTimer->stop();
-            disconnect(_clickTimer, SIGNAL(timeout()), this, SLOT(clickTimeout()));
+            disconnect(_clickTimer, SIGNAL(timeout()), this, SLOT(on_clickTimer_timeout()));
             delete _clickTimer;
             _clickTimer = nullptr;
         }
@@ -171,7 +180,8 @@ void QAnimatedListItem::mouseReleaseEvent(QMouseEvent *event)
         {
             _pressed = false;
             _longPressed = false;
-            setSelected(true);
+
+            setSelected(!_selected);
         }
         else if(_longPressed)
         {
@@ -180,6 +190,16 @@ void QAnimatedListItem::mouseReleaseEvent(QMouseEvent *event)
             emit longPressed(this);
         }
     }
+}
+
+void QAnimatedListItem::on_animationIn_finished()
+{
+    emit animationIn_finished(this);
+}
+
+void QAnimatedListItem::on_animationOut_finished()
+{
+    emit animationOut_finished(this);
 }
 
 qint32 QAnimatedListItem::widthOut() const

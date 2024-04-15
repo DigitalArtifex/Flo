@@ -150,8 +150,7 @@ void MainWindow::online()
 
     foreach(PrinterDefinition definition, printers)
     {
-        PrinterPage *printerPage = new PrinterPage(this);
-        printerPage->setPrinter(Flo::printerPool()->getPrinterById(definition.id));
+        PrinterPage *printerPage = new PrinterPage(Flo::printerPool()->getPrinterById(definition.id), this);
 
         QAnimatedWidget *animatedPage = new QAnimatedWidget(this);
         animatedPage->setWidget(printerPage);
@@ -344,8 +343,8 @@ void MainWindow::updateStyleSheet()
 
     this->setStyleSheet(style);
 
-    for(int i = 0; i < _printerButtons.count(); i++)
-        _printerButtons[i]->setIcon(QString("printer"));
+    for(int i = 0; i < _printerPages.count(); i++)
+        _printerPages[i]->setStyleSheet(style);
 
     if(_dashboardPage != nullptr)
         _dashboardPage->setStyleSheet(style);

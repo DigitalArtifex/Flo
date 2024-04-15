@@ -58,6 +58,45 @@ namespace QSourceHighlite {
 /* LuaData ************************************************/
 /**********************************************************/
 
+static bool gcodeDataInitialized = false;
+static LanguageData gcode_keywords;
+static LanguageData gcode_types;
+static LanguageData gcode_builtin;
+static LanguageData gcode_literals;
+static LanguageData gcode_other;
+void initGcodeData() {
+    gcode_keywords = LanguageData{};
+
+    gcode_literals = LanguageData{};
+
+    gcode_other = LanguageData{
+    };
+
+    gcode_builtin = LanguageData{
+    };
+
+}
+
+void loadGcodeData(LanguageData &typess,
+                 LanguageData &keywordss,
+                 LanguageData &builtins,
+                 LanguageData &literalss,
+                 LanguageData &others){
+    if (!gcodeDataInitialized) {
+        initGcodeData();
+        gcodeDataInitialized = true;
+    }
+    typess    = gcode_types;
+    keywordss = gcode_keywords;
+    builtins  = gcode_builtin;
+    literalss = gcode_literals;
+    others    = gcode_other;
+}
+
+/**********************************************************/
+/* LuaData ************************************************/
+/**********************************************************/
+
 static bool luaDataInitialized = false;
 static LanguageData lua_keywords;
 static LanguageData lua_types;

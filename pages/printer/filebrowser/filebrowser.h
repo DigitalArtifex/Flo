@@ -4,47 +4,67 @@
 #include <QObject>
 #include <QLabel>
 #include <QToolButton>
+#include <QPushButton>
 #include <QIcon>
 #include <QPixmap>
 #include <QGridLayout>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QInputDialog>
+#include <QDialog>
 
 #include "../../../types/printer.h"
 #include "../../../types/klipperfile.h"
 #include "filebrowserwidget.h"
+#include "filebrowseritem.h"
+
+#include "../editor/fileeditor.h"
 
 class FileBrowser : public QWidget
 {
     Q_OBJECT
 public:
     FileBrowser(Printer *printer, QString root, QWidget *parent = nullptr);
-
-    QString fileRoot() const;
-    void setFileRoot(const QString &fileRoot);
+    ~FileBrowser();
 
     Printer *printer() const;
     void setPrinter(Printer *printer);
-
-    QString currentDirectory() const;
-    void setCurrentDirectory(const QString &currentDirectory);
-
-    QList<KlipperFile> files() const;
-    void setFiles(const QList<KlipperFile> &files);
 
     virtual void setupUi();
     virtual void setupConnections();
     virtual void setStyleSheet(QString styleSheet);
 
 private slots:
+    //Tool buttons
     void on_uploadFileButton_clicked(bool clicked);
     void on_newFolderButton_clicked(bool clicked);
     void on_downloadFolderButton_clicked(bool clicked);
     void on_refreshButton_clicked(bool clicked);
+    void on_upDirectoryButton_clicked(bool clicked);
+
+    //Pushbuttons
+    void on_printFileButton_clicked();
+    void on_editFileButton_clicked();
+    void on_deleteFileButton_clicked();
+
+    //Printer
+    void on_printer_update(Printer *printer);
+    void on_printer_fileListing(QString root, QString directory, QList<KlipperFile> files, Printer *printer);
+
+    //FileBrowserWidget
+    void on_fileBrowserWidget_fileSelected(QAnimatedListItem *item);
+
+    void on_fileEditor_closed();
+    void on_fileEditor_save();
+    void on_fileEditor_reset();
+    void on_fileEditor_saveAndRestart();
 
 private:
+    bool _startup = true;
+
     Printer *_printer = nullptr;
-    QString _fileRoot = QString("");
+    QString _rootDirectory = QString("");
     QString _currentDirectory = QString("");
-    QList<KlipperFile> _files = QList<KlipperFile>();
 
     //UI
     FileBrowserWidget *_filebrowserWidget = nullptr;
@@ -53,13 +73,23 @@ private:
     QToolButton *_uploadFileButton = nullptr;
     QToolButton *_newFolderButton = nullptr;
     QToolButton *_downloadFolderButton = nullptr;
+    QToolButton *_upDirectoryButton = nullptr;
+
+    QPushButton *_printFileButton = nullptr;
+    QPushButton *_editFileButton = nullptr;
+    QPushButton *_deleteFileButton = nullptr;
 
     QLabel *_currentDirectoryLabel = nullptr;
+    QLabel *_thumbnailLabel = nullptr;
 
     QWidget *_actionBar = nullptr;
+    QWidget *_sideBar = nullptr;
 
     QGridLayout *_layout = nullptr;
     QGridLayout *_actionBarLayout = nullptr;
+    QGridLayout *_sideBarLayout = nullptr;
+
+    FileEditor *_editor = nullptr;
 };
 
 #endif // FILEBROWSER_H

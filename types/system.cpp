@@ -6,7 +6,7 @@ System::System(QObject *parent)
 
 }
 
-void System::setCpuCount(int count)
+void System::setCpuCount(qint16 count)
 {
     _cpuCount = count;
 }
@@ -44,12 +44,12 @@ QString System::cpuInfo()
     return _cpuInfo;
 }
 
-void System::setMemoryUsage(long memory)
+void System::setMemoryUsage(qint64 memory)
 {
     _memoryUsage = memory;
 }
 
-void System::setMemoryCapacity(long memory)
+void System::setMemoryCapacity(qint64 memory)
 {
     _memoryCapacity = memory;
 }
@@ -77,4 +77,34 @@ void System::setHostname(QString hostname)
 QString System::hostname()
 {
     return _hostname;
+}
+
+qint64 System::driveCapacity() const
+{
+    return _driveCapacity;
+}
+
+void System::setDriveCapacity(qint64 driveCapacity)
+{
+    _driveCapacity = driveCapacity;
+}
+
+qint64 System::driveUsage() const
+{
+    return _driveUsage;
+}
+
+void System::setDriveUsage(qint64 driveUsage)
+{
+    _driveUsage = driveUsage;
+}
+
+qint64 System::driveFree() const
+{
+    return _driveFree;
+}
+
+void System::setDriveFree(qint64 driveFree)
+{
+    _driveFree = driveFree;
 }

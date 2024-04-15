@@ -36,6 +36,7 @@ private slots:
     //Private Functions
 private:
     void convertBytes(qreal &bytes, QString &label);
+    void convertDriveBytes(qreal &bytes, QString &label);
     void showLoadingScreen();
     void hideLoadingScreen();
 

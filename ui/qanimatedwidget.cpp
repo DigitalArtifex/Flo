@@ -162,6 +162,12 @@ void QAnimatedWidget::setWidthOut(qint32 widthOut)
     _animationOut->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Width));
 }
 
+void QAnimatedWidget::setStyleSheet(QString styleSheet)
+{
+    if(_widget)
+        _widget->setStyleSheet(styleSheet);
+}
+
 void QAnimatedWidget::setWidthIn(qint32 widthIn)
 {
     _widthIn = widthIn;

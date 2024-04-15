@@ -20,7 +20,7 @@ public:
     virtual void animateOut();
 
     virtual void setSelectable(bool selectable);
-    virtual void setSelected(bool selected);
+    virtual void setSelected(bool selected, bool trigger = true);
     virtual void setWidget(QWidget *widget);
 
     virtual QWidget *widget();
@@ -64,8 +64,11 @@ private slots:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
+    void on_animationIn_finished();
+    void on_animationOut_finished();
+
 private:
-    bool _selectable = false;
+    bool _selectable = true;
     bool _selected = false;
     bool _pressed = false;
     bool _longPressed = false;

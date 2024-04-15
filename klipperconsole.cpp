@@ -228,6 +228,87 @@ void KlipperConsole::deleteFile(QString file)
     sendCommand(message);
 }
 
+void KlipperConsole::deleteFile(KlipperFile file)
+{
+
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "server.files.delete_file";
+
+    paramsObject["path"] = file.fileLocation();
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+QString KlipperConsole::downloadFile(KlipperFile file)
+{
+    if(_connectionLoaction == LocationLocal)
+    {
+        QString rootLocation;
+
+        if(file.type == KlipperFile::GCode)
+            rootLocation = _printer->gcodesLocation();
+        else if(file.type == KlipperFile::Config)
+            rootLocation = _printer->configLocation();
+
+        QFile localFile(rootLocation + QDir::separator() + file.fileLocation());
+        QString localFileData;
+
+        if(localFile.open(QFile::ReadOnly))
+        {
+            localFileData = localFile.readAll();
+            localFile.close();
+        }
+
+        return localFileData;
+    }
+
+    return QString();
+}
+
+bool KlipperConsole::uploadFile(QString root, QString directory, QString name, QByteArray data)
+{
+    if(_connectionLoaction == LocationLocal)
+    {
+        QString rootLocation;
+        QString localFileLocation;
+
+        if(directory.endsWith(QDir::separator()))
+            directory.removeLast();
+
+        if(root == QString("gcodes"))
+            rootLocation = _printer->gcodesLocation();
+        else if(root == QString("config"))
+            rootLocation = _printer->configLocation();
+
+        if(directory.isEmpty())
+            localFileLocation = rootLocation + QDir::separator() + name;
+        else
+            localFileLocation = rootLocation + QDir::separator() + directory + QDir::separator() + name;
+
+        if(QFile::exists(localFileLocation))
+            QFile::moveToTrash(localFileLocation);
+
+        QFile localFile(localFileLocation);
+        QString localFileData;
+
+        if(localFile.open(QFile::WriteOnly))
+        {
+            localFile.write(data);
+            localFile.close();
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 void KlipperConsole::moveFile(QString source, QString destination)
 {
     KlipperMessage message;
@@ -574,6 +655,16 @@ void KlipperConsole::sendError(QString message)
     on_messageReceived(response);
 }
 
+KlipperConsole::ConnectionLocation KlipperConsole::connectionLoaction() const
+{
+    return _connectionLoaction;
+}
+
+void KlipperConsole::setConnectionLoaction(ConnectionLocation connectionLoaction)
+{
+    _connectionLoaction = connectionLoaction;
+}
+
 void KlipperConsole::on_messageReceived(KlipperResponse message)
 {
     emit(responseReceived(message));
@@ -833,20 +924,9 @@ void KlipperConsole::on_messageParse()
                 {
                     QString homed = toolhead["homed_axes"].toString();
 
-                    if(homed.contains(QString("x")))
-                        _printer->toolhead()->setXHomed(true);
-                    else
-                        _printer->toolhead()->setXHomed(false);
-
-                    if(homed.contains(QString("y")))
-                        _printer->toolhead()->setYHomed(true);
-                    else
-                        _printer->toolhead()->setYHomed(false);
-
-                    if(homed.contains(QString("z")))
-                        _printer->toolhead()->setZHomed(true);
-                    else
-                        _printer->toolhead()->setZHomed(false);
+                    _printer->toolhead()->setXHomed(homed.contains(QString("x")));
+                    _printer->toolhead()->setYHomed(homed.contains(QString("y")));
+                    _printer->toolhead()->setZHomed(homed.contains(QString("z")));
                 }
             }
             if(toolhead.contains("estimated_print_time"))
@@ -874,7 +954,6 @@ void KlipperConsole::on_messageParse()
             }
             if(toolhead.contains("print_time"))
             {
-                //in seconds?
             }
             if(toolhead.contains("square_corner_velocity"))
             {
@@ -1039,7 +1118,7 @@ void KlipperConsole::on_messageParse()
                 {
                     QJsonObject fileObject = fileRef.toObject();
                     KlipperFile file;
-                    file.fileLocation = fileObject["path"].toString();
+                    file.name = fileObject["path"].toString();
                     file.fileSize = fileObject["size"].toDouble();
                     file.dateModified = fileObject["modified"].toDouble();
                     fileList.append(file);
@@ -1059,6 +1138,16 @@ void KlipperConsole::on_messageParse()
             QJsonArray files = result["files"].toArray();
             QJsonArray directories = result["dirs"].toArray();
             QList<KlipperFile> fileList;
+
+            if(result.contains(QString("disk_usage")))
+            {
+                QJsonObject driveUsage = result["disk_usage"].toObject();
+                _printer->system()->setDriveUsage(driveUsage["used"].toInteger());
+                _printer->system()->setDriveCapacity(driveUsage["total"].toInteger());
+                _printer->system()->setDriveFree(driveUsage["free"].toInteger());
+
+                emit systemUpdate();
+            }
 
             QString directory = originObject["params"].toObject()["path"].toString();
             QString root = rootInfo["name"].toString();
@@ -1086,7 +1175,9 @@ void KlipperConsole::on_messageParse()
                     KlipperFile directoryListing;
                     QString directoryName = directoryObject["dirname"].toString();
 
-                    directoryListing.fileLocation = directoryName;
+                    directoryListing.name = directoryName;
+                    directoryListing.root = root;
+                    directoryListing.path = directory;
                     directoryListing.fileSize = directoryObject["size"].toDouble();
                     directoryListing.dateModified = directoryObject["modified"].toDouble();
                     directoryListing.type = KlipperFile::Directory;
@@ -1105,10 +1196,16 @@ void KlipperConsole::on_messageParse()
 
                     fileName.remove(directory);
 
-                    file.fileLocation = fileName;
+                    file.name = fileName;
                     file.fileSize = fileObject["size"].toDouble();
                     file.dateModified = fileObject["modified"].toDouble();
-                    file.type = KlipperFile::GCode;
+                    file.root = root;
+                    file.path = directory;
+
+                    if(root == QString("gcodes"))
+                        file.type = KlipperFile::GCode;
+                    else if(root == QString("config"))
+                        file.type = KlipperFile::Config;
 
                     fileList.append(file);
                 }
@@ -1129,7 +1226,7 @@ void KlipperConsole::on_messageParse()
         _klipperConnected = true;
         _klipperRestartTimer->stop();
         emit(klipperConnected());
-        sendPreset("sub.toolhead");
+        printerSubscribe();
     }
     else if(response["method"] == QString("printer.info"))
     {
@@ -1169,18 +1266,18 @@ void KlipperConsole::on_messageParse()
             emit(printerFound());
         }
 
-        emit(printerUpdate());
-        emit(systemUpdate());
+        emit printerUpdate();
+        emit systemUpdate();
     }
 
     if(response["method"] != QString("notify_proc_stat_update"))
-        emit(responseReceived(response));
+        emit responseReceived(response);
 
     if(response["id"] == lockId)
     {
         commandLocked = false;
         lockId = 0;
-        emit(commandUnlock());
+        emit commandUnlock();
     }
 }
 

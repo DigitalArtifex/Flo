@@ -60,6 +60,13 @@ class KlipperConsole : public QObject
     QMap<int, KlipperMessage> klipperMessageBuffer;
 
 public:
+
+    enum ConnectionLocation
+    {
+        LocationLocal,
+        LocationRemote
+    };
+
     KlipperConsole(Printer *printer, QObject *parent = nullptr);
     ~KlipperConsole();
 
@@ -76,10 +83,14 @@ public:
     void sendPreset(QString key, KlipperMessage::MessageOrigin origin = KlipperMessage::System);
 
     //File Management
-    void getFileList(QString directory = QString("gcodes"));
     void deleteFile(QString file);
+    void deleteFile(KlipperFile file);
+    QString downloadFile(KlipperFile file);
+    bool uploadFile(QString root, QString directory, QString name, QByteArray data);
     void moveFile(QString source, QString destination);
     void copyFile(QString source, QString destination);
+
+    void getFileList(QString directory = QString("gcodes"));
     void createDirectory(QString directory);
     void deleteDirectory(QString directory);
 
@@ -113,6 +124,9 @@ public:
 
     //Client Management
     void clientIdentifier();
+
+    ConnectionLocation connectionLoaction() const;
+    void setConnectionLoaction(ConnectionLocation connectionLoaction);
 
 signals:
     void commandSent(QString data);
@@ -159,6 +173,8 @@ private:
     bool _shutdown = false;
 
     int _startupState = 0;
+
+    ConnectionLocation _connectionLoaction = LocationLocal;
 };
 
 #endif // KLIPPERCONSOLE_H

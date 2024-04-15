@@ -24,7 +24,7 @@ DashboardPage::DashboardPage(QWidget *parent) :
     connect(PrinterPool::instance(), SIGNAL(printerAdded(Printer*)), this, SLOT(on_printerPool_printerAdded(Printer*)));
     connect(PrinterPool::instance(), SIGNAL(printerRemoved(Printer*)), this, SLOT(on_printerPool_printerRemoved(Printer*)));
 
-    setStyleSheet(styleSheet());
+    setStyleSheet(Settings::currentTheme());
 }
 
 DashboardPage::~DashboardPage()

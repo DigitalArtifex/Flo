@@ -81,6 +81,20 @@ public:
 
     PrintJob *currentJob();
 
+    QString gcodesLocation() const;
+    void setGcodesLocation(const QString &gcodesLocation);
+
+    QString configLocation() const;
+    void setConfigLocation(const QString &configLocation);
+
+    QString instanceLocation() const;
+    void setInstanceLocation(const QString &instanceLocation);
+
+    QString apiKey() const;
+    void setApiKey(const QString &apiKey);
+
+    void getFiles(QString root, QString directory);
+
 signals:
     void systemUpdate(Printer *printer);
     void printerUpdate(Printer *printer);
@@ -92,6 +106,8 @@ signals:
 
     void connectionTimeout(Printer *printer);
 
+    void directoryListing(QString root, QString directory, QList<KlipperFile> files, Printer *printer);
+
 private slots:
     void on_klipperConnected();
     void on_klipperDisconnected();
@@ -102,6 +118,7 @@ private slots:
     void on_connectionTimer_timeout();
     void on_console_responseReceived(KlipperResponse response);
     void on_console_klipperError(QString error, QString message);
+    void on_console_directoryListing(QString root, QString directory, QList<KlipperFile> files);
 
 private:
     Toolhead *_toolhead = nullptr;

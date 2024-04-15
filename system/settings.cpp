@@ -332,7 +332,7 @@ QString Settings::getTheme(QString key)
             iconMap[themeIcon["name"].toString()] = loadedIcon;
         }
     }
-
+    _currentTheme = theme;
     return theme;
 }
 

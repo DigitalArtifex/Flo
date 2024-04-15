@@ -8,4 +8,14 @@
 ---- Redesigned printer page
 ---- Procedurally adding menu buttons for each printer
 
+04/09/24
+--Finished File Browser UI
 
+04/14/24
+-- Updated File Browser
+---- Added file upload functionality
+---- Added support for configs directory
+---- Added File Editor
+------ Added syntax support for GCode
+------ Added syntax support for INI
+------ Extended syntax support for JSON

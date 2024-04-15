@@ -73,6 +73,27 @@ void SystemWidget::on_printer_systemUpdate(Printer *printer)
     memoryAvailableString += availableLabel;
     ui->memoryAvailableLabel->setText(memoryAvailableString);
 
+    QString driveFreeString("Drive Free: ");
+    QString driveFreeValueString;
+    qreal driveFree = printer->system()->driveFree();
+    convertDriveBytes(driveFree, driveFreeValueString);
+    driveFreeString = driveFreeString + QString::number(driveFree) + driveFreeValueString;
+    ui->driveFreeLabel->setText(driveFreeString);
+
+    QString driveUsedString("Drive Used: ");
+    QString driveUsedValueString;
+    qreal driveUsed = printer->system()->driveUsage();
+    convertDriveBytes(driveUsed, driveUsedValueString);
+    driveUsedString = driveUsedString + QString::number(driveUsed) + driveUsedValueString;
+    ui->driveUsedLabel->setText(driveUsedString);
+
+    QString driveCapacityString("Drive Capacity: ");
+    QString driveCapacityValueString;
+    qreal driveCapacity = printer->system()->driveCapacity();
+    convertDriveBytes(driveCapacity, driveCapacityValueString);
+    driveCapacityString = driveCapacityString + QString::number(driveCapacity) + driveUsedValueString;
+    ui->driveCapacityLabel->setText(driveCapacityString);
+
     ui->hostnameLabel->setText(QString("Hostname: ") + printer->system()->hostname());
 }
 
@@ -105,6 +126,35 @@ void SystemWidget::convertBytes(qreal &bytes, QString &label)
     {
         bytes /= 1024;
         label = QString(" Megabytes");
+
+        if(bytes >= 1024)
+        {
+            bytes /= 1024;
+            label = QString(" Gigabytes");
+        }
+
+        if(bytes >= 1024)
+        {
+            bytes /= 1024;
+            label = QString(" Terabytes");
+        }
+    }
+}
+
+void SystemWidget::convertDriveBytes(qreal &bytes, QString &label)
+{
+    label = QString(" Bytes");
+
+    if(bytes >= 1024)
+    {
+        bytes /= 1024;
+        label = QString(" Kilobytes");
+
+        if(bytes >= 1024)
+        {
+            bytes /= 1024;
+            label = QString(" Gigabytes");
+        }
 
         if(bytes >= 1024)
         {

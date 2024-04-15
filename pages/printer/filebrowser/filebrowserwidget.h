@@ -16,6 +16,8 @@ public:
     void addFile(KlipperFile file);
     void setFiles(const QList<KlipperFile> &files);
 
+    FileBrowserItem *selectedItem();
+
 private:
 };
 

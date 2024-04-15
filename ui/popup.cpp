@@ -37,7 +37,7 @@ void Popup::setFileMode(KlipperFile file)
     ui->acceptButton_2->setHidden(true);
     ui->cancelButton_2->setHidden(true);
     this->data = QVariant::fromValue(file);
-    ui->fileName->setText(file.fileLocation);
+    ui->fileName->setText(file.name);
     ui->informationList->addAction(QString("Size: ") + QString::number(file.fileSize));
     ui->acceptButton->setText(QString("Print"));
 }

@@ -33,7 +33,8 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
     connect(_console, SIGNAL(klipperDisconnected()), this, SLOT(on_klipperDisconnected()));
     connect(_console, SIGNAL(printerUpdate()), this, SLOT(on_printerUpdate()));
     connect(_console, SIGNAL(systemUpdate()), this, SLOT(on_systemUpdate()));
-    connect(_console,SIGNAL(klipperError(QString,QString)), this, SLOT(on_console_klipperError(QString,QString)));
+    connect(_console, SIGNAL(klipperError(QString,QString)), this, SLOT(on_console_klipperError(QString,QString)));
+    connect(_console, SIGNAL(directoryListing(QString,QString,QList<KlipperFile>)), this, SLOT(on_console_directoryListing(QString,QString,QList<KlipperFile>)));
 }
 
 Printer::~Printer()
@@ -214,27 +215,27 @@ System *Printer::system()
 
 void Printer::on_klipperConnected()
 {
-    emit(klipperConnected(this));
+    emit klipperConnected(this);
 }
 
 void Printer::on_klipperDisconnected()
 {
-    emit(klipperDisconnected(this));
+    emit klipperDisconnected(this);
 }
 
 void Printer::on_moonrakerConnected()
 {
-    emit(moonrakerConnected(this));
+    emit moonrakerConnected(this);
 }
 
 void Printer::on_printerUpdate()
 {
-    emit(printerUpdate(this));
+    emit printerUpdate(this);
 }
 
 void Printer::on_systemUpdate()
 {
-    emit(systemUpdate(this));
+    emit systemUpdate(this);
 }
 
 void Printer::on_connectionTimer_timeout()
@@ -249,4 +250,57 @@ void Printer::on_console_responseReceived(KlipperResponse response)
 void Printer::on_console_klipperError(QString error, QString message)
 {
     emit printerError(error, message, this);
+}
+
+void Printer::on_console_directoryListing(QString root, QString directory, QList<KlipperFile> files)
+{
+    emit directoryListing(root, directory, files, this);
+}
+
+QString Printer::apiKey() const
+{
+    return _apiKey;
+}
+
+void Printer::setApiKey(const QString &apiKey)
+{
+    _apiKey = apiKey;
+}
+
+void Printer::getFiles(QString root, QString directory)
+{
+    if(directory.isEmpty())
+        _console->getFileList(root);
+    else
+        _console->getFileList(root + QString("/") + directory);
+}
+
+QString Printer::instanceLocation() const
+{
+    return _instanceLocation;
+}
+
+void Printer::setInstanceLocation(const QString &instanceLocation)
+{
+    _instanceLocation = instanceLocation;
+}
+
+QString Printer::configLocation() const
+{
+    return _configLocation;
+}
+
+void Printer::setConfigLocation(const QString &configLocation)
+{
+    _configLocation = configLocation;
+}
+
+QString Printer::gcodesLocation() const
+{
+    return _gcodesLocation;
+}
+
+void Printer::setGcodesLocation(const QString &gcodesLocation)
+{
+    _gcodesLocation = gcodesLocation;
 }

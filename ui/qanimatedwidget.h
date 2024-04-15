@@ -33,6 +33,8 @@ public:
     void setWidthIn(qint32 widthIn);
     void setWidthOut(qint32 widthOut);
 
+    virtual void setStyleSheet(QString styleSheet);
+
 signals:
     void animatedIn();
     void animatedOut();

@@ -2,13 +2,12 @@
 #include "ui_printerpage.h"
 #include "../../system/settings.h"
 
-PrinterPage::PrinterPage(QWidget *parent) :
+PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
     QFrame(parent),
     ui(new Ui::PrinterPage)
 {
     ui->setupUi(this);
     setupUiClasses();
-    ui->TitleBar->setHidden(true);
 
     _bedTemperatureBar = new CircularProgressBar(this);
     _chamberTemperatureBar = new CircularProgressBar(this);
@@ -24,6 +23,26 @@ PrinterPage::PrinterPage(QWidget *parent) :
     ui->tabWidget->setTabVisible(3, false);
     ui->tabWidget->setTabVisible(4, false);
     ui->tabWidget->setCurrentIndex(0);
+
+    _fileBrowser = new FileBrowser(printer, QString("gcodes"));
+    _fileBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->gcodeTab->layout()->addWidget(_fileBrowser);
+
+    _configBrowser = new FileBrowser(printer, QString("config"));
+    _configBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->settingsTab->layout()->addWidget(_configBrowser);
+
+    _bedMeshWidget = new BedMeshWidget(ui->bedMeshTab);
+    _bedMeshWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->bedMeshTab->layout()->addWidget(_bedMeshWidget);
+
+    _printerOfflineScreen = new PrinterOfflineScreen(this);
+    _printerOfflineScreen->setGeometry(QRect(0,0,width(),height()));
+    _printerOfflineScreen->raise();
+
+    setPrinter(printer);
+
+    setStyleSheet(Settings::currentTheme());
 }
 
 PrinterPage::~PrinterPage()
@@ -43,23 +62,29 @@ void PrinterPage::addExtruder(Extruder *extruder, QString name)
     ui->extruderTabWidget->addTab(_extruderMap[index], name);
 }
 
-void PrinterPage::setStyleSheet(QString style)
+void PrinterPage::setStyleSheet(QString styleSheet)
 {
     for(int i = 0; i < _extruderMap.count(); i++)
     {
-        _extruderMap[i]->setStyleSheet(style);
+        _extruderMap[i]->setStyleSheet(styleSheet);
     }
+
     QPixmap pixmap = Settings::getThemeIcon(QString("printer")).pixmap(50,50);
     ui->printerIconLabel->setPixmap(pixmap);
 
+    if(_fileBrowser)
+        _fileBrowser->setStyleSheet(styleSheet);
+
+    if(_printerOfflineScreen)
+        _printerOfflineScreen->setStyleSheet(styleSheet);
+
+    QFrame::setStyleSheet(styleSheet);
 }
 
 void PrinterPage::setupUiClasses()
 {
-    ui->filePageTitle->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageTitle"));
     ui->actionBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageActionBar"));
     ui->pageContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
-    ui->TitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageTitleBar"));
     this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
     ui->tabWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
     ui->bedWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
@@ -160,21 +185,38 @@ void PrinterPage::on_printerUpdate(Printer *printer)
     {
     case Printer::Ready:
         status = QString("Ready");
+        _printerOfflineScreen->lower();
+        _printerOfflineScreen->setHidden(true);
         break;
     case Printer::Error:
         status = QString("Error");
+        _printerOfflineScreen->lower();
+        _printerOfflineScreen->setHidden(true);
         break;
     case Printer::Cancelled:
         status = QString("Cancelled");
+        _printerOfflineScreen->lower();
+        _printerOfflineScreen->setHidden(true);
         break;
     case Printer::Printing:
         status = QString("Printing");
+        _printerOfflineScreen->lower();
+        _printerOfflineScreen->setHidden(true);
         break;
     case Printer::Paused:
         status = QString("Paused");
+        _printerOfflineScreen->lower();
+        _printerOfflineScreen->setHidden(true);
+        break;
+    case Printer::Offline:
+        status = QString("Offline");
+        _printerOfflineScreen->raise();
+        _printerOfflineScreen->setHidden(false);
         break;
     default:
         status = QString("Unknown");
+        _printerOfflineScreen->raise();
+        _printerOfflineScreen->setHidden(false);
         break;
     }
 
@@ -202,6 +244,18 @@ void PrinterPage::on_printerUpdate(Printer *printer)
     //ui->pa->setText(QString::number(printer->toolhead()->fan()->speed()));
 }
 
+void PrinterPage::on_console_response(KlipperResponse message)
+{
+    QString messageData = QJsonDocument(message.document()).toJson();
+
+    ui->terminalInboxEdit->append(messageData);
+}
+
+void PrinterPage::on_console_command(QString message)
+{
+    ui->terminalOutEdit->append(message);
+}
+
 Printer *PrinterPage::printer() const
 {
     return _printer;
@@ -214,5 +268,27 @@ void PrinterPage::setPrinter(Printer *printer)
 
     _printer = printer;
     connect(_printer, SIGNAL(printerUpdate(Printer*)), this, SLOT(on_printerUpdate(Printer*)));
+    connect(_printer->console(), SIGNAL(responseReceived(KlipperResponse)), this, SLOT(on_console_response(KlipperResponse)));
+    connect(_printer->console(), SIGNAL(commandSent(QString)), this, SLOT(on_console_command(QString)));
+
+    if(_printer->status() == Printer::Offline)
+    {
+        _printerOfflineScreen->raise();
+        _printerOfflineScreen->show();
+    }
+}
+
+void PrinterPage::resizeEvent(QResizeEvent *event)
+{
+    _printerOfflineScreen->setGeometry(QRect(0,0,width(),height()));
+}
+
+
+void PrinterPage::on_toolButton_toggled(bool checked)
+{
+    if(checked)
+        ui->terminalOutEdit->setMaximumWidth(400);
+    else
+        ui->terminalOutEdit->setMaximumWidth(0);
 }
 

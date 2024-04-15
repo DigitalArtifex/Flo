@@ -5,6 +5,7 @@
 #include <QScrollArea>
 #include <QList>
 #include <QSpacerItem>
+#include <QScrollBar>
 
 #include "qanimatedlistitem.h"
 
@@ -30,6 +31,12 @@ public:
 
     virtual void setStyleSheet(QString styleSheet);
 
+    SelectionMode selectionMode() const;
+    void setSelectionMode(SelectionMode selectionMode);
+
+signals:
+    void itemSelected(QAnimatedListItem *item);
+
 private slots:
     void on_listItem_animationOut_finished(QAnimatedListItem *item);
     void on_listItem_animationIn_finished(QAnimatedListItem *item);
@@ -37,11 +44,13 @@ private slots:
     void on_item_selected(QAnimatedListItem *item);
     void on_item_deselected(QAnimatedListItem *item);
 
-private:
+protected:
     QList<QAnimatedListItem*> _items;
     QList<QAnimatedListItem*> _selectedItems;
     QWidget *_scrollAreaContents = nullptr;
     QSpacerItem *_spacer = nullptr;
+
+    SelectionMode _selectionMode = SingleSelect;
 };
 
 #endif // QANIMATEDLISTWIDGET_H
