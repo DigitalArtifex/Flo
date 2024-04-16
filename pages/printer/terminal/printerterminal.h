@@ -4,17 +4,22 @@
 #include <QFrame>
 #include <QObject>
 #include <QWidget>
+#include <QLineEdit>
+#include <QPushButton>
 #include <QGridLayout>
 
 #include "printerterminalwidget.h"
-#include "../../../widgets/list/qanimatedlistwidget.h"
 #include "../../../types/printer.h"
 
-class PrinterTeminal : public QFrame
+class PrinterTerminal : public QFrame
 {
     Q_OBJECT
 public:
-    PrinterTeminal(QWidget *parent = nullptr);
+    PrinterTerminal(Printer *printer, QWidget *parent = nullptr);
+    ~PrinterTerminal();
+
+protected:
+    virtual void setupUi();
 
 private:
     QGridLayout *_layout = nullptr;

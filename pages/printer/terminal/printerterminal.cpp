@@ -1,6 +1,16 @@
 #include "printerterminal.h"
 
-PrinterTeminal::PrinterTeminal(QWidget *parent)
+PrinterTerminal::PrinterTerminal(Printer *printer, QWidget *parent)
+{
+
+}
+
+PrinterTerminal::~PrinterTerminal()
+{
+
+}
+
+void PrinterTerminal::setupUi()
 {
 
 }
