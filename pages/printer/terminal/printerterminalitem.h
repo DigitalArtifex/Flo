@@ -18,6 +18,12 @@ public:
     PrinterTerminalItem(QWidget *parent = nullptr);
     ~PrinterTerminalItem();
 
+    KlipperMessage message() const;
+    void setMessage(const KlipperMessage &message);
+
+    KlipperResponse response() const;
+    void setResponse(const KlipperResponse &response);
+
 protected:
     virtual void setupUi();
 
@@ -27,6 +33,11 @@ private:
 
     //UI
     QGridLayout *_layout = nullptr;
+
+    QLabel *_messageTimestampLabel = nullptr;
+    QLabel *_messageMethodLabel = nullptr;
+    QLabel *_responseTimestampLabel = nullptr;
+    QLabel *_responseMethodLabel = nullptr;
 };
 
 #endif // PRINTERTERMINALITEM_H
