@@ -43,6 +43,10 @@ void PrinterTerminal::on_commandEdit_textChanged()
     {
         text.remove("\n");
         text.remove("\r");
+
+        _commandEdit->setText(text);
+        _commandSendButton->setEnabled(false);
+
         sendCommand();
     }
 
@@ -67,6 +71,7 @@ void PrinterTerminal::setupUi()
 
     _commandEdit = new QTextEdit();
     _commandEdit->setFixedHeight(32);
+    _commandEdit->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleCommandEdit"));
 
     _layout->addWidget(_commandEdit, 1,0,1,1);
     connect(_commandEdit, SIGNAL(textChanged()), this, SLOT(on_commandEdit_textChanged()));
@@ -75,9 +80,9 @@ void PrinterTerminal::setupUi()
     _commandSendButton->setText(QString("Send"));
     _commandSendButton->setEnabled(false);
     _commandSendButton->setFixedHeight(32);
+    _commandSendButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleCommandButton"));
     _layout->addWidget(_commandSendButton, 1,1,1,1);
     connect(_commandSendButton, SIGNAL(clicked(bool)), this, SLOT(on_commandSendButton_clicked()));
-    //_terminal->setSelectionMode(PrinterTerminalWidget::NoSelect);
 
     _highlighter = new QSourceHighliter(_commandEdit->document());
     _highlighter->setCurrentLanguage(QSourceHighliter::CodeGCode);

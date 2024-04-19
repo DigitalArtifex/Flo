@@ -36,8 +36,7 @@ private:
 
     QLabel *_messageTimestampLabel = nullptr;
     QLabel *_messageMethodLabel = nullptr;
-    QLabel *_responseTimestampLabel = nullptr;
-    QLabel *_responseMethodLabel = nullptr;
+    QLabel *_responseMessageLabel = nullptr;
 };
 
 #endif // PRINTERTERMINALITEM_H
