@@ -180,7 +180,7 @@
              </font>
             </property>
             <property name="text">
-             <string>TextLabel</string>
+             <string>v0.1.5</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>

@@ -67,7 +67,7 @@ void KlipperConsole::sendCommand(KlipperMessage message)
         file.close();
     }
 
-    emit(commandSent(message.toRpc(QJsonDocument::Indented)));
+    emit commandSent(message);
 }
 
 void KlipperConsole::setMoonrakerLocation(QString location)
@@ -722,6 +722,8 @@ void KlipperConsole::on_messageParse()
 
     if(!response.rootObject.contains("error"))
         response.status = KlipperResponse::OK;
+
+    response.setId(response["id"].toInt());
 
     response.timestamp = QDateTime::currentDateTime();
 

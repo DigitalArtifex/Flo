@@ -129,7 +129,7 @@ public:
     void setConnectionLoaction(ConnectionLocation connectionLoaction);
 
 signals:
-    void commandSent(QString data);
+    void commandSent(KlipperMessage data);
     void responseReceived(KlipperResponse response);
     void printerUpdateReceived(KlipperResponse response);
     void commandLock();

@@ -10,6 +10,7 @@
 #include "filebrowser/filebrowser.h"
 #include "bedmesh/bedmeshwidget.h"
 #include "offline/printerofflinescreen.h"
+#include "terminal/printerterminal.h"
 
 namespace Ui {
 class PrinterPage;
@@ -41,11 +42,6 @@ private slots:
     void on_settingsButton_toggled(bool checked);
     void on_printerUpdate(Printer *printer);
 
-    void on_console_response(KlipperResponse message);
-    void on_console_command(QString message);
-
-    void on_toolButton_toggled(bool checked);
-
 private:
     CircularProgressBar *_bedTemperatureBar;
     CircularProgressBar *_chamberTemperatureBar;
@@ -54,11 +50,12 @@ private:
     FileBrowser *_fileBrowser = nullptr;
     FileBrowser *_configBrowser = nullptr;
     BedMeshWidget *_bedMeshWidget = nullptr;
+    PrinterOfflineScreen *_printerOfflineScreen = nullptr;
+    PrinterTerminal *_terminal = nullptr;
 
     QMap<int, ExtruderWidget*> _extruderMap;
 
     Printer *_printer = nullptr;
-    PrinterOfflineScreen *_printerOfflineScreen = nullptr;
 
     Ui::PrinterPage *ui;
     void setupUiClasses();

@@ -24,6 +24,10 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
     ui->tabWidget->setTabVisible(4, false);
     ui->tabWidget->setCurrentIndex(0);
 
+    _terminal = new PrinterTerminal(printer, this);
+    _terminal->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->terminalTab->layout()->addWidget(_terminal);
+
     _fileBrowser = new FileBrowser(printer, QString("gcodes"));
     _fileBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->gcodeTab->layout()->addWidget(_fileBrowser);
@@ -47,6 +51,14 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
 
 PrinterPage::~PrinterPage()
 {
+    delete _bedTemperatureBar;
+    delete _chamberTemperatureBar;
+    delete _fileBrowser;
+    delete _configBrowser;
+    delete _bedMeshWidget;
+    delete _terminal;
+    delete _printerOfflineScreen;
+
     delete ui;
 }
 
@@ -244,18 +256,6 @@ void PrinterPage::on_printerUpdate(Printer *printer)
     //ui->pa->setText(QString::number(printer->toolhead()->fan()->speed()));
 }
 
-void PrinterPage::on_console_response(KlipperResponse message)
-{
-    QString messageData = QJsonDocument(message.document()).toJson();
-
-    ui->terminalInboxEdit->append(messageData);
-}
-
-void PrinterPage::on_console_command(QString message)
-{
-    ui->terminalOutEdit->append(message);
-}
-
 Printer *PrinterPage::printer() const
 {
     return _printer;
@@ -268,27 +268,9 @@ void PrinterPage::setPrinter(Printer *printer)
 
     _printer = printer;
     connect(_printer, SIGNAL(printerUpdate(Printer*)), this, SLOT(on_printerUpdate(Printer*)));
-    connect(_printer->console(), SIGNAL(responseReceived(KlipperResponse)), this, SLOT(on_console_response(KlipperResponse)));
-    connect(_printer->console(), SIGNAL(commandSent(QString)), this, SLOT(on_console_command(QString)));
-
-    if(_printer->status() == Printer::Offline)
-    {
-        _printerOfflineScreen->raise();
-        _printerOfflineScreen->show();
-    }
 }
 
 void PrinterPage::resizeEvent(QResizeEvent *event)
 {
     _printerOfflineScreen->setGeometry(QRect(0,0,width(),height()));
 }
-
-
-void PrinterPage::on_toolButton_toggled(bool checked)
-{
-    if(checked)
-        ui->terminalOutEdit->setMaximumWidth(400);
-    else
-        ui->terminalOutEdit->setMaximumWidth(0);
-}
-

@@ -42,6 +42,12 @@ public:
     QJsonValueRef operator[](QString key) {
         return this->rootObject[key];
     }
+
+    qint64 id() const;
+    void setId(qint64 id);
+
+private:
+    qint64 _id = 0;
 };
 
 #endif // KLIPPERRESPONSE_H
