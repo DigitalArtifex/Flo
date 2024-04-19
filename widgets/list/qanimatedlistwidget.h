@@ -31,6 +31,8 @@ public:
 
     virtual void setStyleSheet(QString styleSheet);
 
+    void setAnimationSlide(QAnimatedListItem *item);
+
     SelectionMode selectionMode() const;
     void setSelectionMode(SelectionMode selectionMode);
 

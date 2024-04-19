@@ -51,15 +51,6 @@ void QAnimatedListWidget::addItem(QAnimatedListItem *item)
     item->setStyleSheet(styleSheet);
     style()->polish(item);
 
-    qint32 ypos = ((0 + (item->height() * _items.count())) + (_scrollAreaContents->layout()->contentsMargins().top()));
-    ypos += _scrollAreaContents->layout()->spacing() * _items.count();
-
-    item->setPositionIn(QPoint(_scrollAreaContents->layout()->contentsMargins().left(), ypos));
-    item->setPositionOut(QPoint(width(),ypos));
-    item->setOpacityIn(1);
-    item->setOpacityOut(0);
-    item->setDuration(100 + (50 * _items.count()));
-
     _items.append(item);
     item->animateIn();
 }
@@ -137,6 +128,18 @@ void QAnimatedListWidget::setStyleSheet(QString styleSheet)
         _items[i]->setStyleSheet(styleSheet);
         style()->polish(_items[i]);
     }
+}
+
+void QAnimatedListWidget::setAnimationSlide(QAnimatedListItem *item)
+{
+    qint32 ypos = ((0 + (item->height() * _items.count())) + (_scrollAreaContents->layout()->contentsMargins().top()));
+    ypos += _scrollAreaContents->layout()->spacing() * _items.count();
+
+    item->setPositionIn(QPoint(_scrollAreaContents->layout()->contentsMargins().left(), ypos));
+    item->setPositionOut(QPoint(width(),ypos));
+    item->setOpacityIn(1);
+    item->setOpacityOut(0);
+    item->setDuration(100 + (50 * _items.count()));
 }
 
 bool QAnimatedListWidget::isItemInViewport(QAnimatedListItem *item)
