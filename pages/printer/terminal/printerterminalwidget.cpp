@@ -13,6 +13,7 @@ void PrinterTerminalWidget::addMessage(KlipperMessage message)
     item->setMessage(message);
     item->setOpacityIn(1);
     item->setOpacityOut(0);
+    item->setDuration(100);
 
     _itemMap[message.id] = item;
 

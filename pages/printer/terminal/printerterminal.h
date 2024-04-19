@@ -4,12 +4,13 @@
 #include <QFrame>
 #include <QObject>
 #include <QWidget>
-#include <QLineEdit>
+#include <QTextEdit>
 #include <QPushButton>
 #include <QGridLayout>
 
 #include "printerterminalwidget.h"
 #include "../../../types/printer.h"
+#include "../../../QSourceHighlite/qsourcehighliter.h"
 
 class PrinterTerminal : public QFrame
 {
@@ -32,11 +33,13 @@ protected:
 
 private:
     QGridLayout *_layout = nullptr;
-    QLineEdit *_commandEdit = nullptr;
+    QTextEdit *_commandEdit = nullptr;
     QPushButton *_commandSendButton = nullptr;
     PrinterTerminalWidget *_terminal = nullptr;
 
     Printer *_printer = nullptr;
+
+    QSourceHighlite::QSourceHighliter *_highlighter = nullptr;
 };
 
 #endif // PRINTERTERMINAL_H

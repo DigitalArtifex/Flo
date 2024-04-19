@@ -1,5 +1,7 @@
 #include "printerterminal.h"
 
+using namespace QSourceHighlite;
+
 PrinterTerminal::PrinterTerminal(Printer *printer, QWidget *parent)
 {
     _printer = printer;
@@ -36,9 +38,17 @@ void PrinterTerminal::on_commandEdit_returnPressed()
 
 void PrinterTerminal::on_commandEdit_textChanged()
 {
-    if(_commandEdit->text().isEmpty() && _commandSendButton->isEnabled())
+    QString text = _commandEdit->toPlainText();
+    if(text.contains(QString("\n")))
+    {
+        text.remove("\n");
+        text.remove("\r");
+        sendCommand();
+    }
+
+    if(text.isEmpty() && _commandSendButton->isEnabled())
         _commandSendButton->setEnabled(false);
-    else if(!_commandEdit->text().isEmpty() && !_commandSendButton->isEnabled())
+    else if(!text.isEmpty() && !_commandSendButton->isEnabled())
         _commandSendButton->setEnabled(true);
 }
 
@@ -55,11 +65,11 @@ void PrinterTerminal::setupUi()
     _terminal = new PrinterTerminalWidget(this);
     _layout->addWidget(_terminal, 0,0,1,2);
 
-    _commandEdit = new QLineEdit();
+    _commandEdit = new QTextEdit();
     _commandEdit->setFixedHeight(32);
 
     _layout->addWidget(_commandEdit, 1,0,1,1);
-    connect(_commandEdit, SIGNAL(returnPressed()), this, SLOT(on_commandEdit_returnPressed()));
+    connect(_commandEdit, SIGNAL(textChanged()), this, SLOT(on_commandEdit_textChanged()));
 
     _commandSendButton = new QPushButton();
     _commandSendButton->setText(QString("Send"));
@@ -69,15 +79,22 @@ void PrinterTerminal::setupUi()
     connect(_commandSendButton, SIGNAL(clicked(bool)), this, SLOT(on_commandSendButton_clicked()));
     //_terminal->setSelectionMode(PrinterTerminalWidget::NoSelect);
 
+    _highlighter = new QSourceHighliter(_commandEdit->document());
+    _highlighter->setCurrentLanguage(QSourceHighliter::CodeGCode);
+    _highlighter->setTheme(QSourceHighliter::System);
+
     setLayout(_layout);
 }
 
 void PrinterTerminal::sendCommand()
 {
-    QString command = _commandEdit->text();
+    QString command = _commandEdit->toPlainText();
     _commandEdit->clear();
 
-    if(command.startsWith("g", Qt::CaseInsensitive) || command.startsWith("m", Qt::CaseInsensitive))
+    QRegularExpression gcodeExpression("^\\s*[g|G|m|M]\\d+", QRegularExpression::MultilineOption);
+    QRegularExpressionMatchIterator match = gcodeExpression.globalMatch(command);
+
+    if(match.hasNext())
         _printer->console()->sendGcode(command);
     else
         _printer->console()->sendCommand(command);
