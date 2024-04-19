@@ -52,8 +52,9 @@ void QAnimatedListWidget::addItem(QAnimatedListItem *item)
     style()->polish(item);
 
     qint32 ypos = ((0 + (item->height() * _items.count())) + (_scrollAreaContents->layout()->contentsMargins().top()));
+    ypos += _scrollAreaContents->layout()->spacing() * _items.count();
 
-    item->setPositionIn(QPoint(0, ypos));
+    item->setPositionIn(QPoint(_scrollAreaContents->layout()->contentsMargins().left(), ypos));
     item->setPositionOut(QPoint(width(),ypos));
     item->setOpacityIn(1);
     item->setOpacityOut(0);
