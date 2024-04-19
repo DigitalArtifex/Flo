@@ -139,7 +139,6 @@ void QAnimatedListWidget::setAnimationSlide(QAnimatedListItem *item)
     item->setPositionOut(QPoint(width(),ypos));
     item->setOpacityIn(1);
     item->setOpacityOut(0);
-    item->setDuration(100 + (50 * _items.count()));
 }
 
 bool QAnimatedListWidget::isItemInViewport(QAnimatedListItem *item)
