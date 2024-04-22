@@ -43,6 +43,16 @@ void PrinterPool::removePrinter(PrinterDefinition definition)
     instance()->on_printerRemoved(printer);
 }
 
+void PrinterPool::updatePrinter(PrinterDefinition definition)
+{
+    if(_printerPool.contains(definition.id))
+    {
+        _printerPool[definition.id]->update(definition);
+        Settings::updatePrinter(definition);
+        Settings::save();
+    }
+}
+
 void PrinterPool::loadPrinters(QObject *parent)
 {
     PrinterDefinitionList printerDefinitions = Settings::printers();

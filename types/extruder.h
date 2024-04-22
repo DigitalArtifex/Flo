@@ -35,6 +35,9 @@ public:
     void setCanExtrude(bool canExtrude);
     bool canExtrude();
 
+    qreal watts() const;
+    void setWatts(qreal watts);
+
 private:
     Position _offset;
     Fan *_fan;
@@ -43,6 +46,7 @@ private:
     qreal _smoothTime = 0;
     qreal _pressureAdvance = 0;
     qreal _power = 0;
+    qreal _watts = 0;
     bool _canExtrude = false;
 };
 

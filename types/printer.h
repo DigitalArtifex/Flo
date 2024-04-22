@@ -12,6 +12,7 @@
 #include "klipperfile.h"
 #include "system.h"
 #include "printjob.h"
+#include "chamber.h"
 
 #include "../klipperconsole.h"
 #include "printerdefinition.h"
@@ -72,6 +73,7 @@ public:
     QString configFile();
 
     PrinterDefinition definition();
+    void update(PrinterDefinition definition);
 
     int extruderCount();
 
@@ -94,6 +96,8 @@ public:
     void setApiKey(const QString &apiKey);
 
     void getFiles(QString root, QString directory);
+
+    QMap<QString, qreal> powerProfile() const;
 
 signals:
     void systemUpdate(Printer *printer);
@@ -123,6 +127,7 @@ private slots:
 private:
     Toolhead *_toolhead = nullptr;
     Bed *_bed = nullptr;
+    Chamber *_chamber = nullptr;
     Fan *_partsFan = nullptr;
     QMap<QString,qreal> _powerProfile;
     QString _name;

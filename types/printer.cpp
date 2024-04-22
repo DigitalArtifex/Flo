@@ -22,6 +22,9 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
 
     _toolhead = new Toolhead();
     _bed = new Bed();
+    _bed->setWatts(_powerProfile["bed"]);
+    _chamber = new Chamber();
+    _chamber->setWatts(_powerProfile["chamber"]);
     _partsFan = new Fan();
     _console = new KlipperConsole(this, parent);
     _system = new System(this);
@@ -170,7 +173,54 @@ PrinterDefinition Printer::definition()
     definition.id = _id;
     definition.name = _name;
 
+    definition.powerProfile["chamber"] = _chamber->watts();
+    definition.powerProfile["bed"] = _bed->watts();
+
+    for(int i = 0; i < _toolhead->extruderCount(); i++)
+    {
+        QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
+        definition.powerProfile[extruderName] = _toolhead->extruder(i)->watts();
+    }
+
     return definition;
+}
+
+void Printer::update(PrinterDefinition definition)
+{
+    _name = definition.name;
+    _klipperLocation = definition.klipperLocation;
+    _id = definition.id;
+    _gcodesLocation = definition.gcodeLocation;
+    _configLocation = definition.configLocation;
+    _configFile = definition.configFile;
+    _autoConnect = definition.autoConnect;
+    _defaultPrinter = definition.defaultPrinter;
+    _apiKey = definition.apiKey;
+    _powerProfile = definition.powerProfile;
+
+    _bed->setWatts(_powerProfile["bed"]);
+    _chamber->setWatts(_powerProfile["chamber"]);
+
+    for(int i = 0; i < _toolhead->extruderCount(); i++)
+    {
+        QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
+        _toolhead->extruder(i)->setWatts(definition.powerProfile[extruderName]);
+    }
+
+    if(_moonrakerLocation != definition.moonrakerLocation)
+    {
+        _moonrakerLocation = definition.moonrakerLocation;
+        _instanceLocation = definition.instanceLocation;
+
+        _status = Offline;
+
+        emit printerUpdate(this);
+
+        _console->disconnectKlipper();
+        _console->connectKlipper();
+    }
+    else
+        emit printerUpdate(this);
 }
 
 int Printer::extruderCount()
@@ -255,6 +305,11 @@ void Printer::on_console_klipperError(QString error, QString message)
 void Printer::on_console_directoryListing(QString root, QString directory, QList<KlipperFile> files)
 {
     emit directoryListing(root, directory, files, this);
+}
+
+QMap<QString, qreal> Printer::powerProfile() const
+{
+    return _powerProfile;
 }
 
 QString Printer::apiKey() const

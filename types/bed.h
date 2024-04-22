@@ -16,23 +16,25 @@ public:
 
     Bed(Type type = NonHeated);
 
-    void setCurrentTemp(qreal temp);
-    qreal currentTemp();
-
-    void setTargetTemp(qreal temp);
-    qreal targetTemp();
-
-    void setPower(qreal power);
-    qreal power();
-
-    void setStartTime(QDateTime time);
-
     long timeRunning();
+    qreal currentTemp() const;
+    void setCurrentTemp(qreal currentTemp);
+
+    qreal targetTemp() const;
+    void setTargetTemp(qreal targetTemp);
+
+    qreal power() const;
+    void setPower(qreal power);
+
+    qreal watts() const;
+    void setWatts(qreal watts);
+
 private:
-    qreal _currentTemp;
-    qreal _targetTemp;
-    qreal _timeRunning;
-    qreal _power;
+    qreal _currentTemp = 0;
+    qreal _targetTemp = 0;
+    qreal _power = 0;
+    qreal _watts = 0;
+
     QDateTime _startTime;
 };
 

@@ -122,7 +122,7 @@ void Settings::load()
                         printer.autoConnect = printerObject["auto_connect"].toBool();
                         printer.apiKey = printerObject["api_key"].toString();
 
-                        QJsonArray powerArray = printerObject["power_profiles"].toArray();
+                        QJsonArray powerArray = printerObject["power_profile"].toArray();
 
                         for(int i = 0; i < powerArray.count(); i++)
                         {

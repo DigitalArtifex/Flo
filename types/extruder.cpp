@@ -85,3 +85,13 @@ bool Extruder::canExtrude()
 {
     return _canExtrude;
 }
+
+qreal Extruder::watts() const
+{
+    return _watts;
+}
+
+void Extruder::setWatts(qreal watts)
+{
+    _watts = watts;
+}

@@ -5,24 +5,34 @@ Bed::Bed(Type type)
 
 }
 
-void Bed::setCurrentTemp(qreal temp)
+long Bed::timeRunning()
 {
-    _currentTemp = temp;
+    return _startTime.secsTo(QDateTime::currentDateTime());
 }
 
-qreal Bed::currentTemp()
+qreal Bed::currentTemp() const
 {
     return _currentTemp;
 }
 
-void Bed::setTargetTemp(qreal temp)
+void Bed::setCurrentTemp(qreal currentTemp)
 {
-    _targetTemp = temp;
+    _currentTemp = currentTemp;
 }
 
-qreal Bed::targetTemp()
+qreal Bed::targetTemp() const
 {
     return _targetTemp;
+}
+
+void Bed::setTargetTemp(qreal targetTemp)
+{
+    _targetTemp = targetTemp;
+}
+
+qreal Bed::power() const
+{
+    return _power;
 }
 
 void Bed::setPower(qreal power)
@@ -30,17 +40,12 @@ void Bed::setPower(qreal power)
     _power = power;
 }
 
-qreal Bed::power()
+qreal Bed::watts() const
 {
-    return _power;
+    return _watts;
 }
 
-void Bed::setStartTime(QDateTime time)
+void Bed::setWatts(qreal watts)
 {
-    _startTime = time;
-}
-
-long Bed::timeRunning()
-{
-    return _startTime.secsTo(QDateTime::currentDateTime());
+    _watts = watts;
 }
