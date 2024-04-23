@@ -71,6 +71,11 @@ QtApplication {
         "pages/printer/terminal/printerterminalitem.h",
         "pages/printer/terminal/printerterminalwidget.cpp",
         "pages/printer/terminal/printerterminalwidget.h",
+        "pages/settings/edit_printer/editprinterdialog.cpp",
+        "pages/settings/edit_printer/editprinterdialog.h",
+        "pages/settings/edit_printer/editprinterdialog.ui",
+        "pages/settings/edit_printer/qmoonrakervalidator.cpp",
+        "pages/settings/edit_printer/qmoonrakervalidator.h",
         "pages/settings/printerlistitem.cpp",
         "pages/settings/printerlistitem.h",
         "pages/settings/printerlistitem.ui",
@@ -90,6 +95,8 @@ QtApplication {
         "textures.qrc",
         "types/bed.cpp",
         "types/bed.h",
+        "types/chamber.cpp",
+        "types/chamber.h",
         "types/extruder.cpp",
         "types/extruder.h",
         "types/fan.cpp",
@@ -160,9 +167,6 @@ QtApplication {
         "wizards/add_printer/validateprinterpage.cpp",
         "wizards/add_printer/validateprinterpage.h",
         "wizards/add_printer/validateprinterpage.ui",
-        "wizards/edit_printer/editprinterwizard.cpp",
-        "wizards/edit_printer/editprinterwizard.h",
-        "wizards/edit_printer/editprinterwizard.ui",
     ]
 
     Group {
