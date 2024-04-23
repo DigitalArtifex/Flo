@@ -99,6 +99,12 @@ public:
 
     QMap<QString, qreal> powerProfile() const;
 
+    Chamber *chamber() const;
+    void setChamber(Chamber *chamber);
+
+    bool isAutoConnect() const;
+    bool isDefaultPrinter() const;
+
 signals:
     void systemUpdate(Printer *printer);
     void printerUpdate(Printer *printer);

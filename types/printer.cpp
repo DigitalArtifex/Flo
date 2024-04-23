@@ -307,6 +307,26 @@ void Printer::on_console_directoryListing(QString root, QString directory, QList
     emit directoryListing(root, directory, files, this);
 }
 
+bool Printer::isAutoConnect() const
+{
+    return _autoConnect;
+}
+
+bool Printer::isDefaultPrinter() const
+{
+    return _defaultPrinter;
+}
+
+Chamber *Printer::chamber() const
+{
+    return _chamber;
+}
+
+void Printer::setChamber(Chamber *chamber)
+{
+    _chamber = chamber;
+}
+
 QMap<QString, qreal> Printer::powerProfile() const
 {
     return _powerProfile;
@@ -337,7 +357,11 @@ QString Printer::instanceLocation() const
 
 void Printer::setInstanceLocation(const QString &instanceLocation)
 {
-    _instanceLocation = instanceLocation;
+    _instanceLocation = instanceLocation + ((instanceLocation.endsWith(QDir::separator())) ? QString("") : QDir::separator());
+    _gcodesLocation = instanceLocation + QString("gcodes");
+    _configLocation = instanceLocation + QString("config");
+    _klipperLocation = instanceLocation + QString("comms") + QDir::separator() + QString("klippy.sock");
+    _moonrakerLocation = instanceLocation + QString("comms") + QDir::separator() + QString("moonraker.sock");
 }
 
 QString Printer::configLocation() const
