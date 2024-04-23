@@ -105,7 +105,10 @@ void KlipperConsole::connectKlipper()
 
 void KlipperConsole::disconnectKlipper()
 {
+    klipperSocket->disconnectFromServer();
+    klipperSocket->waitForDisconnected();
 
+    emit klipperDisconnected();
 }
 
 void KlipperConsole::loadPresets()
@@ -814,18 +817,18 @@ void KlipperConsole::on_messageParse()
         if(!_printerConnected)
         {
             _printerConnected = true;
-            emit(printerOnline());
+            emit printerOnline();
         }
+
         //Parse extruders
         for(int index = 0; true; index++)
         {
-            QString extruderName = QString("extruder");
-
-            if(index > 0)
-                extruderName += QString::number(index);
+            QString extruderName = QString("extruder") + ((index > 0) ? QString::number(index) : QString(""));
 
             if(!response["result"].toObject().contains(extruderName))
                 break;
+
+            _printer->extruder(index)->setWatts(_printer->powerProfile()[extruderName]);
 
             QJsonObject extruder = response["result"].toObject()[extruderName].toObject();
             if(extruder.contains("temperature"))
