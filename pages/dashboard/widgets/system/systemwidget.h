@@ -5,9 +5,9 @@
 #include <QLabel>
 #include <QMovie>
 
-#include "../../types/printer.h"
-#include "../../ui/circularprogressbar.h"
-#include "../../ui/widgetanimation.h"
+#include "../../../../types/printer.h"
+#include "../../../../ui/circularprogressbar.h"
+#include "../../../../ui/widgetanimation.h"
 
 namespace Ui {
 class SystemWidget;

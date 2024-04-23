@@ -11,8 +11,8 @@
 #include <QGridLayout>
 #include <QStringList>
 
-#include "../../../types/printjob.h"
-#include "../../list/qanimatedlistitem.h"
+#include "../../../../../types/printjob.h"
+#include "../../../../../ui/list/qanimatedlistitem.h"
 
 class IssueListItem : public QAnimatedListItem
 {

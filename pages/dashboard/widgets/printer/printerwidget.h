@@ -7,9 +7,9 @@
 #include <QMovie>
 #include <QLabel>
 
-#include "../../types/printer.h"
-#include "../../ui/widgetanimation.h"
-#include "../../ui/qanimatedwidget.h"
+#include "../../../../types/printer.h"
+#include "../../../../ui/widgetanimation.h"
+#include "../../../../ui/qanimatedwidget.h"
 
 namespace Ui {
 class PrinterWidget;

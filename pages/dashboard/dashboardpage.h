@@ -4,9 +4,9 @@
 #include <QFrame>
 
 #include "../../types/printer.h"
-#include "../../widgets/printer/printerwidget.h"
-#include "../../widgets/system/systemwidget.h"
-#include "../../widgets/status/statuswidget.h"
+#include "widgets/printer/printerwidget.h"
+#include "widgets/system/systemwidget.h"
+#include "widgets/status/statuswidget.h"
 #include "../../ui/layouts/qflowlayout.h"
 
 namespace Ui {

@@ -4,9 +4,9 @@
 #include <QObject>
 #include <QWidget>
 
-#include "../../../types/printer.h"
-#include "../../../system/printerpool.h"
-#include "../../list/qanimatedlistwidget.h"
+#include "../../../../../types/printer.h"
+#include "../../../../../system/printerpool.h"
+#include "../../../../../ui/list/qanimatedlistwidget.h"
 
 #include "issuelistitem.h"
 

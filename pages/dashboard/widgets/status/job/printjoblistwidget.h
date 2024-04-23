@@ -7,7 +7,7 @@
 
 #include "printjoblistitem.h"
 
-#include "../../list/qanimatedlistwidget.h"
+#include "../../../../../ui/list/qanimatedlistwidget.h"
 
 class PrintJobListWidget : public QAnimatedListWidget
 {

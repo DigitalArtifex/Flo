@@ -1,7 +1,7 @@
 #include "systemwidget.h"
 #include "ui_systemwidget.h"
 
-#include "../../system/settings.h"
+#include "../../../../system/settings.h"
 
 SystemWidget::SystemWidget(QWidget *parent) :
     QFrame(parent),

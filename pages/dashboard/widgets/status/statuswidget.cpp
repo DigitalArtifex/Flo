@@ -1,7 +1,7 @@
 #include "statuswidget.h"
 
-#include "../../system/settings.h"
-#include "../../system/printerpool.h"
+#include "../../../../system/settings.h"
+#include "../../../../system/printerpool.h"
 
 StatusWidget::StatusWidget(QWidget *parent) :
     QTabWidget(parent)
