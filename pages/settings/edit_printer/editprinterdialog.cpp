@@ -175,6 +175,32 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
 
 void EditPrinterDialog::on_printerInstanceLocationEdit_textChanged(QString text)
 {
-    ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(ui->printerInstanceLocationEdit->hasAcceptableInput());
+    if(text.contains(_httpExpression))
+    {
+        ui->printerKeyEdit->setEnabled(true);
+    }
+    else
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(ui->printerInstanceLocationEdit->hasAcceptableInput());
+}
+
+
+void EditPrinterDialog::on_printerBrowseFilesButton_clicked()
+{
+    QString dir = QFileDialog::getExistingDirectory
+    (
+        this,
+        tr("Open Directory"),
+        QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+    );
+
+    if(!dir.isEmpty())
+        ui->printerInstanceLocationEdit->setText(dir);
+}
+
+
+void EditPrinterDialog::on_printerKeyEdit_textChanged(const QString &arg1)
+{
+    if(ui->printerInstanceLocationEdit->hasAcceptableInput())
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
 }
 

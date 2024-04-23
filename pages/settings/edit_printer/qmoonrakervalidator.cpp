@@ -6,8 +6,17 @@ QMoonrakerValidator::QMoonrakerValidator(QObject *parent)
 
 }
 
+/*!
+ * \brief QMoonrakerValidator::validate
+ * \param text
+ * \param pos
+ * \return Valid/Invalid state
+ */
 QValidator::State QMoonrakerValidator::validate(QString &text, int &pos) const
 {
+    if(text.contains(_httpExpression))
+        return QValidator::Acceptable;
+
     QDir instanceDirectory(text);
 
     if(instanceDirectory.exists())

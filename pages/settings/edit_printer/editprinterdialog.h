@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QAbstractButton>
 #include <QPushButton>
+#include <QFileDialog>
 
 #include "../../../types/printer.h"
 
@@ -34,12 +35,18 @@ private slots:
     void on_extruderCountSpinBox_valueChanged(int arg1);
     void on_printerInstanceLocationEdit_textChanged(QString text);
 
+    void on_printerBrowseFilesButton_clicked();
+
+    void on_printerKeyEdit_textChanged(const QString &arg1);
+
 private:
     Ui::EditPrinterDialog *ui;
 
     int _extruderCount = 0;
 
     Printer *_printer = nullptr;
+
+    QRegularExpression _httpExpression = QRegularExpression("^\\s*(http|https)\\:\\/\\/");
 };
 
 #endif // EDITPRINTERDIALOG_H
