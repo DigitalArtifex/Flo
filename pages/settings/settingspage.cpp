@@ -86,3 +86,19 @@ void SettingsPage::on_removePrinterButton_clicked()
     }
 }
 
+
+void SettingsPage::on_editPrinterButton_clicked()
+{
+    if(!_editPrinterDialog)
+    {
+        _editPrinterDialog = new EditPrinterDialog();
+        connect(_addPrinterWizard, SIGNAL(finished(int)), this, SLOT(on_addPrinterWizardFinished(int)));
+        connect(_addPrinterWizard, SIGNAL(rejected()), this, SLOT(on_addPrinterWizardCancelled()));
+    }
+
+    Printer *printer = PrinterPool::getPrinterById(_printerListWidget->selectedItem()->printerDefinition().id);
+
+    _editPrinterDialog->setPrinter(printer);
+    _editPrinterDialog->show();
+}
+

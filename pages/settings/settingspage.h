@@ -4,6 +4,7 @@
 #include <QFrame>
 
 #include "../../wizards/add_printer/addprinterwizard.h"
+#include "edit_printer/editprinterdialog.h"
 #include "printerlistwidget.h"
 
 namespace Ui {
@@ -32,10 +33,13 @@ private slots:
 
     void on_removePrinterButton_clicked();
 
+    void on_editPrinterButton_clicked();
+
 private:
     Ui::SettingsPage *ui;
 
     AddPrinterWizard *_addPrinterWizard = nullptr;
+    EditPrinterDialog *_editPrinterDialog = nullptr;
     PrinterListWidget *_printerListWidget = nullptr;
 };
 

@@ -2,10 +2,12 @@
 #define EDITPRINTERDIALOG_H
 
 #include <QDialog>
+#include <QAbstractButton>
+#include <QPushButton>
 
 #include "../../../types/printer.h"
-#include "editprinterextruderpage.h"
 
+#include "qmoonrakervalidator.h"
 
 namespace Ui {
 class EditPrinterDialog;
@@ -22,11 +24,22 @@ public:
     Printer *printer() const;
     void setPrinter(Printer *printer);
 
+    void reset();
+    void clear();
+    void apply();
+
+private slots:
+    void on_buttonBox_clicked(QAbstractButton *button);
+
+    void on_extruderCountSpinBox_valueChanged(int arg1);
+    void on_printerInstanceLocationEdit_textChanged(QString text);
+
 private:
     Ui::EditPrinterDialog *ui;
 
+    int _extruderCount = 0;
+
     Printer *_printer = nullptr;
-    QList<EditPrinterExtruderPage*> _extruderPages;
 };
 
 #endif // EDITPRINTERDIALOG_H
