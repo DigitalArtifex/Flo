@@ -9,7 +9,7 @@
 
 #include "../../../types/klippermessage.h"
 #include "../../../types/klipperresponse.h"
-#include "../../../widgets/list/qanimatedlistitem.h"
+#include "../../../ui/list/qanimatedlistitem.h"
 
 class PrinterTerminalItem : public QAnimatedListItem
 {

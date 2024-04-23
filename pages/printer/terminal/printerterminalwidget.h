@@ -6,7 +6,7 @@
 #include <QMap>
 #include <QPair>
 
-#include "../../../widgets/list/qanimatedlistwidget.h"
+#include "../../../ui/list/qanimatedlistwidget.h"
 #include "../../../types/klippermessage.h"
 #include "../../../types/klipperresponse.h"
 

@@ -9,7 +9,7 @@
 #include <QSpacerItem>
 #include <QDateTime>
 
-#include "../../../widgets/list/qanimatedlistitem.h"
+#include "../../../ui/list/qanimatedlistitem.h"
 #include "../../../types/klipperfile.h"
 
 class FileBrowserItem : public QAnimatedListItem

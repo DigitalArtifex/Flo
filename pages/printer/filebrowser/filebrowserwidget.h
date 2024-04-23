@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "../../../widgets/list/qanimatedlistwidget.h"
+#include "../../../ui/list/qanimatedlistwidget.h"
 #include "../../../types/klipperfile.h"
 #include "filebrowseritem.h"
 
