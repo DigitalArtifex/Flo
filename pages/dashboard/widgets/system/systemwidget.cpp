@@ -95,6 +95,7 @@ void SystemWidget::on_printer_systemUpdate(Printer *printer)
     ui->driveCapacityLabel->setText(driveCapacityString);
 
     ui->hostnameLabel->setText(QString("Hostname: ") + printer->system()->hostname());
+    ui->cpuInfoLabel->setText(_printer->system()->cpuInfo());
 }
 
 void SystemWidget::on_printer_klipperDisconnected(Printer *printer)

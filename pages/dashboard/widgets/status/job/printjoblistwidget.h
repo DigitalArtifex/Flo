@@ -4,6 +4,7 @@
 #include <QScrollArea>
 #include <QGridLayout>
 #include <QSpacerItem>
+#include <QWidget>
 
 #include "printjoblistitem.h"
 

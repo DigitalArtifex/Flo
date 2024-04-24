@@ -5,6 +5,8 @@ PrintJobListWidget::PrintJobListWidget(QWidget *parent) :
 {
     if(parent)
         setStyleSheet(parent->styleSheet());
+
+    setEmptyText(QString("No Print Jobs Running"));
 }
 
 PrintJobListWidget::~PrintJobListWidget()

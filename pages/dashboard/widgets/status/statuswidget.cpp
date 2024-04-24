@@ -31,10 +31,10 @@ void StatusWidget::loadPrintJobs()
 
     if(jobs.isEmpty())
     {
-        PrintJob *job = new PrintJob();
+        /*PrintJob *job = new PrintJob();
         job->fileName = QString("No Jobs Running");
         job->printerName = QString("None");
-        _printJobList->addJob(job);
+        _printJobList->addJob(job);*/
     }
     else
     {
