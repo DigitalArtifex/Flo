@@ -8,6 +8,7 @@
 #include <QScrollBar>
 
 #include "qanimatedlistitem.h"
+#include "qanimatedemptylistitem.h"
 
 class QAnimatedListWidget : public QScrollArea
 {
@@ -49,6 +50,9 @@ private slots:
 protected:
     QList<QAnimatedListItem*> _items;
     QList<QAnimatedListItem*> _selectedItems;
+
+    QAnimatedEmptyListItem *_emptyListItem = nullptr;
+
     QWidget *_scrollAreaContents = nullptr;
     QSpacerItem *_spacer = nullptr;
 

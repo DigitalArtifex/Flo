@@ -14,11 +14,16 @@ QAnimatedListWidget::QAnimatedListWidget(QWidget *parent) :
     setLayoutDirection(Qt::LayoutDirectionAuto);
 
     _spacer = new QSpacerItem(20,20,QSizePolicy::Fixed,QSizePolicy::Expanding);
-    _scrollAreaContents->layout()->addItem(_spacer);
+
+    _emptyListItem = new QAnimatedEmptyListItem(this);
+    _emptyListItem->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+
+    _scrollAreaContents->layout()->addWidget(_emptyListItem);
     _scrollAreaContents->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+
     setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     setWidget(_scrollAreaContents);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setWidgetResizable(true);
 
     this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "List"));
@@ -26,6 +31,13 @@ QAnimatedListWidget::QAnimatedListWidget(QWidget *parent) :
 
 void QAnimatedListWidget::addItem(QAnimatedListItem *item)
 {
+    if(_emptyListItem)
+    {
+        _scrollAreaContents->layout()->removeWidget(_emptyListItem);
+        delete _emptyListItem;
+        _emptyListItem = nullptr;
+    }
+
     if(_selectionMode == SingleSelect | _selectionMode == MultiSelect)
     {
         item->setSelected(false, false);
@@ -91,6 +103,11 @@ void QAnimatedListWidget::removeItem(QAnimatedListItem *item)
         else
             on_listItem_animationOut_finished(item);
     }
+    if(_items.isEmpty())
+    {
+        _emptyListItem = new QAnimatedEmptyListItem();
+        _scrollAreaContents->layout()->addWidget(_emptyListItem);
+    }
 }
 
 void QAnimatedListWidget::removeWidget(QWidget *widget)
@@ -102,6 +119,11 @@ void QAnimatedListWidget::removeWidget(QWidget *widget)
             removeItem(_items[i]);
             break;
         }
+    }
+    if(_items.isEmpty())
+    {
+        _emptyListItem = new QAnimatedEmptyListItem();
+        _scrollAreaContents->layout()->addWidget(_emptyListItem);
     }
 }
 
@@ -162,6 +184,12 @@ void QAnimatedListWidget::on_listItem_animationOut_finished(QAnimatedListItem *i
 {
     _items.removeAll(item);
     delete item;
+
+    if(_items.isEmpty() && !_emptyListItem)
+    {
+        _emptyListItem = new QAnimatedEmptyListItem();
+        _scrollAreaContents->layout()->addWidget(_emptyListItem);
+    }
 }
 
 void QAnimatedListWidget::on_listItem_animationIn_finished(QAnimatedListItem *item)
