@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 13.0.0, 2024-04-24T02:38:26. -->
+<!-- Written by QtCreator 13.0.0, 2024-04-24T03:56:36. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -82,13 +82,7 @@
      <value type="QString">/home/parametheus/repo/Flo</value>
     </valuelist>
     <valuelist type="QVariantList" key="ClangTools.SelectedFiles"/>
-    <valuelist type="QVariantList" key="ClangTools.SuppressedDiagnostics">
-     <valuemap type="QVariantMap">
-      <value type="QString" key="ClangTools.SuppressedDiagnosticFilePath">widgets/status/issue/issuelistwidget.h</value>
-      <value type="QString" key="ClangTools.SuppressedDiagnosticMessage">Slots named on_foo_bar are error prone [clazy-connect-by-name]</value>
-      <value type="int" key="ClangTools.SuppressedDiagnosticUniquifier">0</value>
-     </valuemap>
-    </valuelist>
+    <valuelist type="QVariantList" key="ClangTools.SuppressedDiagnostics"/>
     <value type="bool" key="ClangTools.UseGlobalSettings">true</value>
    </valuemap>
    <valuemap type="QVariantMap" key="CppEditor.QuickFix">

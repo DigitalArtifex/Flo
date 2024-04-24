@@ -121,6 +121,7 @@ void Settings::load()
                         printer.defaultPrinter = printerObject["default_printer"].toBool();
                         printer.autoConnect = printerObject["auto_connect"].toBool();
                         printer.apiKey = printerObject["api_key"].toString();
+                        printer.extruderCount = printerObject["extruder_count"].toInt();
 
                         QJsonArray powerArray = printerObject["power_profile"].toArray();
 
@@ -185,6 +186,7 @@ void Settings::save()
         printerObject["klipper_location"] = _printers[i].klipperLocation;
         printerObject["moonraker_location"] = _printers[i].moonrakerLocation;
         printerObject["api_key"] = _printers[i].apiKey;
+        printerObject["extruder_count"] = _printers[i].extruderCount;
         printerObject["power_profile"] = powerArray;
 
         printerArray.append(printerObject);

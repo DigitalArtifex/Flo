@@ -130,6 +130,7 @@ QtApplication {
         "types/printer.cpp",
         "types/printer.h",
         "types/printerdefinition.h",
+        "types/printjob.cpp",
         "types/printjob.h",
         "types/system.cpp",
         "types/system.h",
