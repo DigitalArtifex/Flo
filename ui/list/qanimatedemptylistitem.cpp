@@ -13,6 +13,7 @@ QAnimatedEmptyListItem::~QAnimatedEmptyListItem()
     //delete _iconLabel;
     //delete _topSpacer;
     //delete _bottomSpacer;
+    //delete _middleSpacer;
     delete _layout;
 }
 
@@ -31,12 +32,14 @@ void QAnimatedEmptyListItem::setupUi()
 
     _topSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
     _bottomSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    _middleSpacer = new QSpacerItem(20,20, QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     _layout = new QGridLayout();
     _layout->addItem(_topSpacer,0,0);
     _layout->addWidget(_label);
+    _layout->addItem(_middleSpacer,2,0);
     _layout->addWidget(_iconLabel);
-    _layout->addItem(_bottomSpacer,3,0);
+    _layout->addItem(_bottomSpacer,4,0);
 
     setLayout(_layout);
 }

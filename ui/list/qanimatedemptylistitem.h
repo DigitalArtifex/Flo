@@ -27,6 +27,7 @@ private:
     QLabel *_iconLabel = nullptr;
 
     QSpacerItem *_topSpacer = nullptr;
+    QSpacerItem *_middleSpacer = nullptr;
     QSpacerItem *_bottomSpacer = nullptr;
 
     QGridLayout *_layout = nullptr;

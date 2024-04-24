@@ -209,7 +209,9 @@ void QAnimatedListWidget::on_listItem_animationOut_finished(QAnimatedListItem *i
     if(_items.isEmpty() && !_emptyListItem)
     {
         _emptyListItem = new QAnimatedEmptyListItem();
-        _emptyListItem->setText(_emptyText);
+
+        if(!_emptyText.isEmpty())
+            _emptyListItem->setText(_emptyText);
 
         if(!_emptyPixmap.isNull())
             _emptyListItem->setIcon(_emptyPixmap);
