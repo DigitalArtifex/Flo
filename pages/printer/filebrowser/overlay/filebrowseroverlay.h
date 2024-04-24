@@ -5,6 +5,8 @@
 #include <QWidget>
 #include <QLabel>
 #include <QGridLayout>
+#include <QSpacerItem>
+
 #include "../../../../ui/qanimatedwidget.h"
 
 class FileBrowserOverlay : public QAnimatedWidget
@@ -17,10 +19,17 @@ public:
     void setupUi();
 
     virtual void setText(const QString &text);
+    virtual void setIcon(const QPixmap &pixmap);
+    virtual void setIcon(const QIcon &icon);
 
 private:
 
     QLabel *_label = nullptr;
+    QLabel *_iconLabel = nullptr;
+
+    QSpacerItem *_topSpacer = nullptr;
+    QSpacerItem *_bottomSpacer = nullptr;
+
     QGridLayout *_layout = nullptr;
 };
 

@@ -192,7 +192,7 @@ void FileBrowser::setStyleSheet(const QString &styleSheet)
     _refreshButton->setIcon(Settings::getThemeIcon(QString("refresh-icon")));
     _uploadFileButton->setIcon(Settings::getThemeIcon(QString("file-upload-icon")));
     _newFolderButton->setIcon(Settings::getThemeIcon(QString("folder-create-icon")));
-    _downloadFolderButton->setIcon(Settings::getThemeIcon(QString("refresh-icon")));
+    _downloadFolderButton->setIcon(Settings::getThemeIcon(QString("folder-download-icon")));
 }
 
 void FileBrowser::resizeEvent(QResizeEvent *event)
@@ -215,6 +215,7 @@ void FileBrowser::on_uploadFileButton_clicked(bool clicked)
         QDir::homePath(),
         fileTypes);
     _overlay->setText(QString("Uploading Files"));
+    _overlay->setIcon(Settings::getThemeIcon(QString("file-upload-icon")));
     _overlay->raise();
     _overlay->setHidden(false);
     _overlay->animateIn();
@@ -254,6 +255,7 @@ void FileBrowser::on_downloadFolderButton_clicked(bool clicked)
 void FileBrowser::on_refreshButton_clicked(bool clicked)
 {
     _overlay->setText(QString("Refreshing Directory"));
+    _overlay->setIcon(Settings::getThemeIcon(QString("refresh-icon")));
     _overlay->raise();
     _overlay->setHidden(false);
     _overlay->animateIn();
