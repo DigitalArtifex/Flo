@@ -103,11 +103,6 @@ void QAnimatedListWidget::removeItem(QAnimatedListItem *item)
         else
             on_listItem_animationOut_finished(item);
     }
-    if(_items.isEmpty())
-    {
-        _emptyListItem = new QAnimatedEmptyListItem();
-        _scrollAreaContents->layout()->addWidget(_emptyListItem);
-    }
 }
 
 void QAnimatedListWidget::removeWidget(QWidget *widget)
@@ -119,11 +114,6 @@ void QAnimatedListWidget::removeWidget(QWidget *widget)
             removeItem(_items[i]);
             break;
         }
-    }
-    if(_items.isEmpty())
-    {
-        _emptyListItem = new QAnimatedEmptyListItem();
-        _scrollAreaContents->layout()->addWidget(_emptyListItem);
     }
 }
 
@@ -216,6 +206,7 @@ void QAnimatedListWidget::on_listItem_animationOut_finished(QAnimatedListItem *i
         if(!_emptyPixmap.isNull())
             _emptyListItem->setIcon(_emptyPixmap);
 
+        _scrollAreaContents->layout()->removeItem(_spacer);
         _scrollAreaContents->layout()->addWidget(_emptyListItem);
     }
 }
