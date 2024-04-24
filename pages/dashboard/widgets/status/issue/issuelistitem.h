@@ -10,6 +10,8 @@
 #include <QProgressBar>
 #include <QGridLayout>
 #include <QStringList>
+#include <QSpacerItem>
+#include <QToolButton>
 
 #include "../../../../../types/printjob.h"
 #include "../../../../../ui/list/qanimatedlistitem.h"
@@ -23,6 +25,13 @@ public:
     ~IssueListItem();
 
     void setupUi();
+
+signals:
+    void removeRequest(IssueListItem *item);
+
+protected slots:
+    void on_closeButton_clicked();
+
 private:
     PrintJob *_job;
 
@@ -31,6 +40,12 @@ private:
     QLabel *_messageLabel = nullptr;
     QLabel *_iconLabel = nullptr;
 
+    QSpacerItem *_spacer = nullptr;
+    QSpacerItem *_buttonSpacer = nullptr;
+
+    QToolButton *_closeButton = nullptr;
+
+    QFrame *_separator;
     QWidget *_iconContainer = nullptr;
 };
 
