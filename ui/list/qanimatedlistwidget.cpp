@@ -180,6 +180,27 @@ bool QAnimatedListWidget::isItemInViewport(QAnimatedListItem *item)
     return (startsInViewport | endsInViewport);
 }
 
+void QAnimatedListWidget::setEmptyText(const QString &text)
+{
+    _emptyText = text;
+
+    if(_emptyListItem)
+        _emptyListItem->setText(text);
+}
+
+void QAnimatedListWidget::setEmptyIcon(const QPixmap &pixmap)
+{
+    _emptyPixmap = pixmap;
+}
+
+void QAnimatedListWidget::setEmptyIcon(const QIcon &icon)
+{
+    _emptyPixmap = icon.pixmap(64,64);
+
+    if(_emptyListItem)
+        _emptyListItem->setIcon(_emptyPixmap);
+}
+
 void QAnimatedListWidget::on_listItem_animationOut_finished(QAnimatedListItem *item)
 {
     _items.removeAll(item);
@@ -188,6 +209,11 @@ void QAnimatedListWidget::on_listItem_animationOut_finished(QAnimatedListItem *i
     if(_items.isEmpty() && !_emptyListItem)
     {
         _emptyListItem = new QAnimatedEmptyListItem();
+        _emptyListItem->setText(_emptyText);
+
+        if(!_emptyPixmap.isNull())
+            _emptyListItem->setIcon(_emptyPixmap);
+
         _scrollAreaContents->layout()->addWidget(_emptyListItem);
     }
 }

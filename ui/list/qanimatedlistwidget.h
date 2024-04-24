@@ -30,6 +30,10 @@ public:
     virtual void clear();
     virtual bool isItemInViewport(QAnimatedListItem *item);
 
+    virtual void setEmptyText(const QString &text);
+    virtual void setEmptyIcon(const QPixmap &pixmap);
+    virtual void setEmptyIcon(const QIcon &icon);
+
     virtual void setStyleSheet(QString styleSheet);
 
     void setAnimationSlide(QAnimatedListItem *item);
@@ -50,6 +54,9 @@ private slots:
 protected:
     QList<QAnimatedListItem*> _items;
     QList<QAnimatedListItem*> _selectedItems;
+
+    QString _emptyText;
+    QPixmap _emptyPixmap;
 
     QAnimatedEmptyListItem *_emptyListItem = nullptr;
 
