@@ -28,6 +28,13 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
     _partsFan = new Fan();
     _console = new KlipperConsole(this, parent);
     _system = new System(this);
+    _printJob = new PrintJob();
+
+    for(int i = 0; i < definition.extruderCount; i++)
+    {
+        QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
+        _toolhead->extruder(i)->setWatts(definition.powerProfile[extruderName]);
+    }
 
     _console->setMoonrakerLocation(_moonrakerLocation);
 
@@ -181,6 +188,8 @@ PrinterDefinition Printer::definition()
         QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
         definition.powerProfile[extruderName] = _toolhead->extruder(i)->watts();
     }
+
+    definition.extruderCount = _toolhead->extruderCount();
 
     return definition;
 }

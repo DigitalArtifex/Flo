@@ -22,6 +22,7 @@ public:
     bool defaultPrinter = false;
     qreal extruderWattage = 0;
     QMap<QString, qreal> powerProfile;
+    qint32 extruderCount = 0;
 };
 
 typedef QList<PrinterDefinition> PrinterDefinitionList;

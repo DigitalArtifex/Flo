@@ -565,8 +565,13 @@ void KlipperConsole::printerSubscribe()
     QJsonObject objectArray;
 
     objectArray["toolhead"];
-    objectArray["extruder"];
-    objectArray["extruder1"];
+
+    for(int i = 0; i < _printer->toolhead()->extruderCount(); i++)
+    {
+        QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
+        objectArray[extruderName];
+    }
+
     objectArray["bed_mesh"];
     objectArray["heater_bed"];
     objectArray["fan"];
@@ -1004,6 +1009,33 @@ void KlipperConsole::on_messageParse()
                     _printer->toolhead()->setPosition(x,y,z);
                 }
             }
+        }
+
+        if(response["result"].toObject().contains("print_stats"))
+        {
+            QJsonObject printStats = response["result"].toObject()["print_stats"].toObject();
+
+            if(printStats.contains("filename"))
+                _printer->currentJob()->setFilename(printStats["filename"].toString());
+            if(printStats.contains("total_duration"))
+                _printer->currentJob()->setTotalDuration(printStats["total_duration"].toDouble());
+            if(printStats.contains("print_duration"))
+                _printer->currentJob()->setPrintDuration(printStats["print_duration"].toDouble());
+            if(printStats.contains("filament_used"))
+                _printer->currentJob()->setFilamentUsed(printStats["filament_used"].toDouble());
+            if(printStats.contains("message"))
+                _printer->currentJob()->setMessage(printStats["message"].toString());
+            if(printStats.contains("info"))
+            {
+                QJsonObject printInfo = printStats["info"].toObject();
+
+                if(printInfo.contains(QString("total_layer")))
+                    _printer->currentJob()->setTotalLayers(printInfo["total_layer"].toInt());
+                if(printInfo.contains(QString("current_layer")))
+                    _printer->currentJob()->setCurrentLayer(printInfo["current_layer"].toInt());
+            }
+            if(printStats.contains("state"))
+                _printer->currentJob()->setState(printStats["state"].toString());
         }
 
         if(!_printerConnected)
