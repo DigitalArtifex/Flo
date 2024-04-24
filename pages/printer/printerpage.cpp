@@ -190,8 +190,10 @@ void PrinterPage::on_printerUpdate(Printer *printer)
     else
         ui->homedLabel->setText(printer->toolhead()->homedAxes());
 
-    ui->statusMessageLabel->setText(printer->statusMessage());
+    ui->statusMessageLabel->setText(QString(""));
+
     QString status;
+    QPixmap pixmap;
 
     switch(printer->status())
     {
@@ -199,38 +201,72 @@ void PrinterPage::on_printerUpdate(Printer *printer)
         status = QString("Ready");
         _printerOfflineScreen->lower();
         _printerOfflineScreen->setHidden(true);
+
+        pixmap = Settings::getThemeIcon(QString("printer-ready-icon")).pixmap(50,50);
+        ui->printerIconLabel->setPixmap(pixmap);
         break;
     case Printer::Error:
         status = QString("Error");
+
+        if(_printer->statusMessage().contains("\n"))
+        {
+            QStringList split = _printer->statusMessage().split(QString("\n"), Qt::SkipEmptyParts);
+            status = split.last();
+
+            split.removeLast();
+            ui->statusMessageLabel->setText(split.join(QString("\n")));
+        }
+
         _printerOfflineScreen->lower();
         _printerOfflineScreen->setHidden(true);
+
+        pixmap = Settings::getThemeIcon(QString("printer-error-icon")).pixmap(50,50);
+        ui->printerIconLabel->setPixmap(pixmap);
         break;
     case Printer::Cancelled:
         status = QString("Cancelled");
         _printerOfflineScreen->lower();
         _printerOfflineScreen->setHidden(true);
+
+        pixmap = Settings::getThemeIcon(QString("printer-cancelled-icon")).pixmap(50,50);
+        ui->printerIconLabel->setPixmap(pixmap);
         break;
     case Printer::Printing:
         status = QString("Printing");
         _printerOfflineScreen->lower();
         _printerOfflineScreen->setHidden(true);
+
+        pixmap = Settings::getThemeIcon(QString("printer-printing-icon")).pixmap(50,50);
+        ui->printerIconLabel->setPixmap(pixmap);
         break;
     case Printer::Paused:
         status = QString("Paused");
         _printerOfflineScreen->lower();
         _printerOfflineScreen->setHidden(true);
+
+        pixmap = Settings::getThemeIcon(QString("printer-paused-icon")).pixmap(50,50);
+        ui->printerIconLabel->setPixmap(pixmap);
         break;
     case Printer::Offline:
         status = QString("Offline");
         _printerOfflineScreen->raise();
         _printerOfflineScreen->setHidden(false);
+
+        pixmap = Settings::getThemeIcon(QString("printer-offline-icon")).pixmap(50,50);
+        ui->printerIconLabel->setPixmap(pixmap);
         break;
     default:
         status = QString("Unknown");
         _printerOfflineScreen->raise();
         _printerOfflineScreen->setHidden(false);
+
+        pixmap = Settings::getThemeIcon(QString("printer-offline-icon")).pixmap(50,50);
+        ui->printerIconLabel->setPixmap(pixmap);
         break;
     }
+
+    if(_printer->status() != Printer::Error)
+        ui->statusMessageLabel->setText(_printer->statusMessage());
 
     ui->printStatusLabel->setText(QString("State: ") + status);
 
