@@ -9,10 +9,18 @@ PrinterOfflineScreen::PrinterOfflineScreen(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PopupOverlay"));
+
+    QPixmap pixmap = Settings::getThemeIcon(QString("no-connection-icon")).pixmap(64,64);
+    ui->printerOfflineIcon->setPixmap(pixmap);
 }
 
 PrinterOfflineScreen::~PrinterOfflineScreen()
 {
     delete ui;
+}
+
+void PrinterOfflineScreen::setStyleSheet(QString &styleSheet)
+{
+    QFrame::setStyleSheet(styleSheet);
 }

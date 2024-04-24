@@ -15,6 +15,8 @@ public:
     explicit PrinterOfflineScreen(QWidget *parent = nullptr);
     ~PrinterOfflineScreen();
 
+    virtual void setStyleSheet(QString &styleSheet);
+
 private:
     Ui::PrinterOfflineScreen *ui;
 };
