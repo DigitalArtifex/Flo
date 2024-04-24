@@ -71,7 +71,7 @@ PrintJob *PrintJobListItem::printJob()
 void PrintJobListItem::setPrintJob(PrintJob *job)
 {
     _job = job;
-    _jobNameLabel->setText(job->fileName);
-    _printerNameLabel->setText(job->printerName);
-    _timeRemainingLabel->setText(QString("Time Remaining: ") + job->endDate);
+    _jobNameLabel->setText(job->filename());
+    //_printerNameLabel->setText(job->printerName);
+    //_timeRemainingLabel->setText(QString("Time Remaining: ") + job->endDate);
 }

@@ -33,7 +33,6 @@ private slots:
     //Printer Pool
     void on_printerPool_printerRemoved(Printer *printer);
     void on_printerPool_printerAdded(Printer *printer);
-    void on_printerPool_printerUpdated(Printer *printer);
 
 private:
     Ui::DashboardPage *ui;

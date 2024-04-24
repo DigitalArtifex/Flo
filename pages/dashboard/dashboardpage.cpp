@@ -76,8 +76,6 @@ void DashboardPage::loadPrinters()
                 _selectedWidget = widget;
                 _systemWidget->setPrinter(printer);
             }
-
-            //connect(printer, SIGNAL(systemUpdate(Printer*)), this, SLOT(on_printer_systemUpdate(Printer*)));
         }
     }
 
@@ -145,15 +143,4 @@ void DashboardPage::on_printerPool_printerRemoved(Printer *printer)
 void DashboardPage::on_printerPool_printerAdded(Printer *printer)
 {
     loadPrinters();
-}
-
-void DashboardPage::on_printerPool_printerUpdated(Printer *printer)
-{
-    for(int i = 0; i < _printerWidgets.count(); i++)
-    {
-        if(printer->id() == _printerWidgets[i]->printer()->id())
-        {
-            _printerWidgets[i]->setPrinter(printer);
-        }
-    }
 }
