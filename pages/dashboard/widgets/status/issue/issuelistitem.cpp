@@ -8,7 +8,7 @@ IssueListItem::IssueListItem(QString title, QString source, QString message, QWi
 
     setBaseSize(100,75);
 
-    setFixedHeight(100);
+    setFixedHeight(120);
 
     _titleLabel->setText(title);
     _sourceLabel->setText(source);

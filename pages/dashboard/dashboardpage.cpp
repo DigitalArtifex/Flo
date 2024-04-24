@@ -109,6 +109,9 @@ void DashboardPage::setStyleSheet(QString styleSheet)
 
     if(_statusWidget)
         _statusWidget->setStyleSheet(styleSheet);
+
+    for(int i = 0; i < _printerWidgets.count(); i++)
+        _printerWidgets[i]->setStyleSheet(styleSheet);
 }
 
 void DashboardPage::resizeEvent(QResizeEvent *event)
