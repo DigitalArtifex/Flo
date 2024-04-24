@@ -49,6 +49,18 @@ public:
 
     QString homedAxes();
 
+    qint32 maxAcceleration() const;
+    void setMaxAcceleration(qint32 maxAcceleration);
+
+    qint32 maxVelocity() const;
+    void setMaxVelocity(qint32 maxVelocity);
+
+    qint32 maxAccelerationToDeceleration() const;
+    void setMaxAccelerationToDeceleration(qint32 maxAccelerationToDeceleration);
+
+    qint32 stalls() const;
+    void setStalls(qint32 stalls);
+
 private:
     Position _position;
     Position _destination;
@@ -60,6 +72,11 @@ private:
     bool _zHomed = false;
     bool _yHomed = false;
     bool _xHomed = false;
+
+    qint32 _maxAcceleration = 0;
+    qint32 _maxVelocity = 0;
+    qint32 _maxAccelerationToDeceleration = 0;
+    qint32 _stalls = 0;
 };
 
 #endif // TOOLHEAD_H

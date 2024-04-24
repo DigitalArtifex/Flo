@@ -138,3 +138,43 @@ QString Toolhead::homedAxes()
 
     return homed;
 }
+
+qint32 Toolhead::maxAcceleration() const
+{
+    return _maxAcceleration;
+}
+
+void Toolhead::setMaxAcceleration(qint32 maxAcceleration)
+{
+    _maxAcceleration = maxAcceleration;
+}
+
+qint32 Toolhead::maxVelocity() const
+{
+    return _maxVelocity;
+}
+
+void Toolhead::setMaxVelocity(qint32 maxVelocity)
+{
+    _maxVelocity = maxVelocity;
+}
+
+qint32 Toolhead::maxAccelerationToDeceleration() const
+{
+    return _maxAccelerationToDeceleration;
+}
+
+void Toolhead::setMaxAccelerationToDeceleration(qint32 maxAccelerationToDeceleration)
+{
+    _maxAccelerationToDeceleration = maxAccelerationToDeceleration;
+}
+
+qint32 Toolhead::stalls() const
+{
+    return _stalls;
+}
+
+void Toolhead::setStalls(qint32 stalls)
+{
+    _stalls = stalls;
+}

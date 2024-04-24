@@ -566,10 +566,12 @@ void KlipperConsole::printerSubscribe()
 
     objectArray["toolhead"];
     objectArray["extruder"];
+    objectArray["extruder1"];
     objectArray["bed_mesh"];
     objectArray["heater_bed"];
     objectArray["fan"];
     objectArray["gcode_move"];
+    objectArray["print_stats"];
     //This needs to be expanded to fans in the config file
     objectArray["heater_fan heatbreak_cooling_fan"];
     objectArray["motion_report"];
@@ -801,25 +803,19 @@ void KlipperConsole::on_messageParse()
             }
             else if(result["klippy_state"].toString() == "error")
             {
-                emit klipperError(result["error"].toString(), result["message"].toString());
+                emit klipperError(QString("Klipper Error"), QString("Moonraker connected, but klipper is not."));
             }
-
         }
         else
         {
             _klipperConnected = false;
             _klipperRestartTimer->start();
-            emit(klipperDisconnected());
+            emit klipperDisconnected();
+            emit klipperError(QString("Klipper Disconnected"), QString("Moonraker connected, but klipper is not."));
         }
     }
     else if(response["method"] == QString("notify_status_update") || response["method"] == QString("printer.objects.subscribe"))
     {
-        if(!_printerConnected)
-        {
-            _printerConnected = true;
-            emit printerOnline();
-        }
-
         //Parse extruders
         for(int index = 0; true; index++)
         {
@@ -944,18 +940,19 @@ void KlipperConsole::on_messageParse()
             if(toolhead.contains("extruder"))
             {
                 //string
+                toolhead.isEmpty();
             }
             if(toolhead.contains("max_accel"))
             {
-                //double
+                _printer->toolhead()->setMaxAcceleration(toolhead["max_accel"].toInt());
             }
             if(toolhead.contains("max_accel_to_decel"))
             {
-                //double
+                _printer->toolhead()->setMaxAccelerationToDeceleration(toolhead["max_accel_to_decel"].toInt());
             }
             if(toolhead.contains("max_velocity"))
             {
-                //double
+                _printer->toolhead()->setMaxVelocity(toolhead["max_velocity"].toInt());
             }
             if(toolhead.contains("print_time"))
             {
@@ -966,7 +963,7 @@ void KlipperConsole::on_messageParse()
             }
             if(toolhead.contains("stalls"))
             {
-                //int
+                _printer->toolhead()->setStalls(toolhead["stalls"].toInt());
             }
         }
 
@@ -1009,9 +1006,15 @@ void KlipperConsole::on_messageParse()
             }
         }
 
-        emit(printerUpdate());
+        if(!_printerConnected)
+        {
+            _printerConnected = true;
+            emit printerOnline();
+        }
 
-        emit(printerUpdateReceived(response));
+        emit printerUpdate();
+
+        emit printerUpdateReceived(response);
     }
     else if(response["method"] == QString("notify_filelist_changed"))
     {
@@ -1256,7 +1259,16 @@ void KlipperConsole::on_messageParse()
             _printer->setConfigFile(result["config_file"].toString());
 
         if(result.contains(QString("state_message")))
+        {
             _printer->setStatusMessage(result["state_message"].toString());
+
+            if(_printer->status() == Printer::Error)
+            {
+                QStringList split = _printer->statusMessage().split(QString("\n"),Qt::SkipEmptyParts);
+
+                emit klipperError(split.last(), _printer->statusMessage());
+            }
+        }
         if(result.contains(QString("software_version")))
             _printer->setFirmwareVersion(result["software_version"].toString());
 
