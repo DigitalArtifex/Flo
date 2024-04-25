@@ -3,7 +3,7 @@
 
 #include <QFrame>
 
-#include "../../wizards/add_printer/addprinterwizard.h"
+#include "add_printer/addprinterwizard.h"
 #include "edit_printer/editprinterdialog.h"
 #include "printerlistwidget.h"
 

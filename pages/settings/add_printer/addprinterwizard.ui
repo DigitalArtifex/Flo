@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AddPrinterWizard</class>
+ <widget class="QWizard" name="AddPrinterWizard">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>602</width>
+    <height>507</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Add New Printer</string>
+  </property>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
