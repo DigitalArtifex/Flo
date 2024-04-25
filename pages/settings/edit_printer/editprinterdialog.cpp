@@ -43,7 +43,7 @@ void EditPrinterDialog::reset()
     ui->printerAutoConnectCheckBox->setChecked(_printer->isAutoConnect());
     ui->printerDefaultPrinterCheckBox->setChecked(_printer->isDefaultPrinter());
 
-    QList<QLineEdit*> edits = ui->profileTab->findChildren<QLineEdit*>();
+    QList<QDoubleSpinBox*> edits = ui->profileTab->findChildren<QDoubleSpinBox*>();
 
     for(int c = 0; c < edits.count(); c++)
     {
@@ -52,7 +52,7 @@ void EditPrinterDialog::reset()
             if (edits[c]->property("extruder").isValid())
             {
                 int extruder = edits[c]->property("extruder").toInt();
-                edits[c]->setText(QString::number(_printer->powerProfile()[(QString("extruder") + ((extruder > 0) ? QString::number(extruder) : QString("")))]));
+                edits[c]->setValue(_printer->powerProfile()[(QString("extruder") + ((extruder > 0) ? QString::number(extruder) : QString("")))]);
             }
         }
     }

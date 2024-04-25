@@ -8,7 +8,10 @@
 #include <QFileDialog>
 
 #include "addprinterpage.h"
+#include "addextruderspage.h"
 #include "validateprinterpage.h"
+
+#include "../../../types/printer.h"
 
 namespace Ui {
 class AddPrinterWizard;
@@ -32,8 +35,10 @@ public slots:
 private:
     Ui::AddPrinterWizard *ui;
     AddPrinterPage *_addPage = nullptr;
+    AddExtrudersPage *_extruderPage = nullptr;
     ValidatePrinterPage *_validatePage = nullptr;
     PrinterDefinition _definition;
+    Printer *_printer = nullptr;
 };
 
 #endif // ADDPRINTERWIZARD_H
