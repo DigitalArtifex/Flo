@@ -413,8 +413,7 @@ QScrollArea
 
 .PopupOverlay
 {
-  background-color: #292929;
-  border: 2px solid white;
+  background-color: rgba(0,0,0,200);
 }
 
 .Popup

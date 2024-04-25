@@ -42,6 +42,10 @@
 			"icon": "icons8-error-folder-64.png" 
 		},
 		{
+			"name": "menu-icon",
+			"icon": "icons8-menu-64.png" 
+		},
+		{
 			"name": "settings",
 			"icon": "icons8-browser-settings-64.png" 
 		},
@@ -50,12 +54,32 @@
 			"icon": "icons8-3d-printer-64.png" 
 		},
 		{
+			"name": "printer-icon",
+			"icon": "icons8-3d-printer-64.png" 
+		},
+		{
 			"name": "printer-error-icon",
-			"icon": "icons8-3d-printer-64-error.png" 
+			"icon": "icons8-3d-printer-error-64.png" 
 		},
 		{
 			"name": "printer-ready-icon",
-			"icon": "icons8-3d-printer-64-ready.png" 
+			"icon": "icons8-3d-printer-ready-64.png" 
+		},
+		{
+			"name": "printer-paused-icon",
+			"icon": "icons8-3d-printer-paused-64.png" 
+		},
+		{
+			"name": "printer-offline-icon",
+			"icon": "icons8-3d-printer-offline-64.png" 
+		},
+		{
+			"name": "no-connection-icon",
+			"icon": "icons8-no-connection-64.png" 
+		},
+		{
+			"name": "empty-icon",
+			"icon": "icons8-empty-67.png" 
 		},
 		{
 			"name": "search-icon",
@@ -78,8 +102,20 @@
 			"icon": "icons8-code-file-64.png" 
 		},
 		{
+			"name": "file-firmware-icon",
+			"icon": "icons8-firmware-file.png" 
+		},
+		{
+			"name": "file-archive-icon",
+			"icon": "icons8-archive-64.png" 
+		},
+		{
 			"name": "folder-icon",
 			"icon": "icons8-error-folder-64.png" 
+		},
+		{
+			"name": "folder-download-icon",
+			"icon": "icons8-download-folder-90.png" 
 		},
 		{
 			"name": "folder-create-icon",
@@ -156,6 +192,62 @@
 		{
 			"name": "loading-klipper-icon",
 			"icon": "icons8-print-file-64.png" 
+		},
+		{
+			"name": "error-icon",
+			"icon": "icons8-error-64.png" 
+		},
+		{
+			"name": "voltage-icon",
+			"icon": "icons8-voltage-100.png" 
+		},
+		{
+			"name": "list-icon",
+			"icon": "icons8-list-64.png" 
+		},
+		{
+			"name": "issue-config-icon",
+			"icon": "icons8-file-alert-64.png" 
+		},
+		{
+			"name": "issue-connection-icon",
+			"icon": "icons8-list-64.png" 
+		},
+		{
+			"name": "issue-default-icon",
+			"icon": "icons8-error-64.png" 
+		},
+		{
+			"name": "issue-firmware-icon",
+			"icon": "icons8-firmware-error.png" 
+		},
+		{
+			"name": "joblist-icon",
+			"icon": "icons8-task-planning-96.png" 
+		},
+		{
+			"name": "printjob-printing-icon",
+			"icon": "icons8-play-64.png" 
+		},
+		{
+			"name": "printjob-paused-icon",
+			"icon": "icons8-pause-64.png" 
+		},
+		{
+			"name": "printjob-resumed-icon",
+			"icon": "icons8-resume-button-64.png" 
+		},
+		{
+			"name": "printjob-cancelled-icon",
+			"icon": "icons8-stop-64.png" 
+		},
+		{
+			"name": "printjob-completed-icon",
+			"icon": "icons8-complete-50.png" 
+		},
+		{
+			"name": "printjob-error-icon",
+			"icon": "icons8-error-64.png" 
 		}
 	]
 }
