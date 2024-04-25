@@ -29,7 +29,7 @@ void PrintJobListItem::setupUi()
     layout->addWidget(_iconContainer,0,0,3,1);
 
     _iconLabel = new QLabel(this);
-    _iconLabel->setBaseSize(100,100);
+    _iconLabel->setFixedSize(32,32);
     _iconLabel->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed));
     _iconLabel->setAlignment(Qt::AlignCenter);
     _iconLabel->setText(QString("Icon"));
@@ -160,12 +160,14 @@ void PrintJobListItem::on_printJob_finished(PrintJob *printJob)
 
 void PrintJobListItem::on_printJob_paused(PrintJob *printJob)
 {
-
+    QPixmap pixmap = Settings::getThemeIcon(QString("printjob-paused-icon")).pixmap(_iconLabel->size());
+    _iconLabel->setPixmap(pixmap);
 }
 
 void PrintJobListItem::on_printJob_resumed(PrintJob *printJob)
 {
-
+    QPixmap pixmap = Settings::getThemeIcon(QString("printjob-resume-icon")).pixmap(_iconLabel->size());
+    _iconLabel->setPixmap(pixmap);
 }
 
 void PrintJobListItem::on_printJob_cancelled(PrintJob *printJob)
