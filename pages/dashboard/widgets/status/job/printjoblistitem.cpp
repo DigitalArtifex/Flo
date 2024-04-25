@@ -1,12 +1,10 @@
 #include "printjoblistitem.h"
+#include "../../../../../system/settings.h"
 
 PrintJobListItem::PrintJobListItem(QWidget *parent) :
     QAnimatedListItem(parent)
 {
     setupUi();
-
-    if(parent)
-        setStyleSheet(parent->styleSheet());
 }
 
 PrintJobListItem::~PrintJobListItem()
@@ -72,6 +70,165 @@ void PrintJobListItem::setPrintJob(PrintJob *job)
 {
     _job = job;
     _jobNameLabel->setText(job->filename());
-    //_printerNameLabel->setText(job->printerName);
+    _printerNameLabel->setText(job->parent()->name());
+
+    QPixmap pixmap;
+
+    switch (_job->state())
+    {
+        case PrintJob::Standby:
+            break;
+        case PrintJob::Printing:
+            pixmap = Settings::getThemeIcon(QString("printjob-printing-icon")).pixmap(_iconLabel->size());
+            _iconLabel->setPixmap(pixmap);
+            break;
+        case PrintJob::Paused:
+            pixmap = Settings::getThemeIcon(QString("printjob-paused-icon")).pixmap(_iconLabel->size());
+            _iconLabel->setPixmap(pixmap);
+            break;
+        case PrintJob::Complete:
+            pixmap = Settings::getThemeIcon(QString("printjob-completed-icon")).pixmap(_iconLabel->size());
+            _iconLabel->setPixmap(pixmap);
+            break;
+        case PrintJob::Cancelled:
+            pixmap = Settings::getThemeIcon(QString("printjob-cancelled-icon")).pixmap(_iconLabel->size());
+            _iconLabel->setPixmap(pixmap);
+            break;
+        case PrintJob::Error:
+            pixmap = Settings::getThemeIcon(QString("printjob-error-icon")).pixmap(_iconLabel->size());
+            _iconLabel->setPixmap(pixmap);
+            break;
+    }
+
     //_timeRemainingLabel->setText(QString("Time Remaining: ") + job->endDate);
+
+    connect(_job, SIGNAL(finished(PrintJob*)), this, SLOT(on_printJob_finished(PrintJob*)));
+    connect(_job, SIGNAL(cancelled(PrintJob*)), this, SLOT(on_printJob_cancelled(PrintJob*)));
+    connect(_job, SIGNAL(error(PrintJob*)), this, SLOT(on_printJob_error(PrintJob*)));
+    connect(_job, SIGNAL(paused(PrintJob*)), this, SLOT(on_printJob_paused(PrintJob*)));
+    connect(_job, SIGNAL(resumed(PrintJob*)), this, SLOT(on_printJob_resumed(PrintJob*)));
+    connect(_job, SIGNAL(updated(PrintJob*)), this, SLOT(on_printJob_updated(PrintJob*)));
+}
+
+void PrintJobListItem::setStyleSheet(const QString &styleSheet)
+{
+    QFrame::setStyleSheet(styleSheet);
+
+    QPixmap pixmap;
+
+    switch (_job->state())
+    {
+        case PrintJob::Standby:
+            break;
+
+        case PrintJob::Printing:
+            pixmap = Settings::getThemeIcon(QString("printjob-printing-icon")).pixmap(_iconLabel->size());
+            _iconLabel->setPixmap(pixmap);
+            break;
+
+        case PrintJob::Paused:
+            pixmap = Settings::getThemeIcon(QString("printjob-paused-icon")).pixmap(_iconLabel->size());
+            _iconLabel->setPixmap(pixmap);
+            break;
+
+        case PrintJob::Complete:
+            pixmap = Settings::getThemeIcon(QString("printjob-completed-icon")).pixmap(_iconLabel->size());
+            _iconLabel->setPixmap(pixmap);
+            break;
+
+        case PrintJob::Cancelled:
+            pixmap = Settings::getThemeIcon(QString("printjob-cancelled-icon")).pixmap(_iconLabel->size());
+            _iconLabel->setPixmap(pixmap);
+            break;
+
+        case PrintJob::Error:
+            pixmap = Settings::getThemeIcon(QString("printjob-error-icon")).pixmap(_iconLabel->size());
+            _iconLabel->setPixmap(pixmap);
+            break;
+    }
+}
+
+void PrintJobListItem::on_printJob_finished(PrintJob *printJob)
+{
+    disconnect(printJob, SIGNAL(finished(PrintJob*)), this, SLOT(on_printJob_finished(PrintJob*)));
+    disconnect(printJob, SIGNAL(cancelled(PrintJob*)), this, SLOT(on_printJob_cancelled(PrintJob*)));
+    disconnect(printJob, SIGNAL(error(PrintJob*)), this, SLOT(on_printJob_error(PrintJob*)));
+    disconnect(printJob, SIGNAL(paused(PrintJob*)), this, SLOT(on_printJob_paused(PrintJob*)));
+    disconnect(printJob, SIGNAL(resumed(PrintJob*)), this, SLOT(on_printJob_resumed(PrintJob*)));
+    disconnect(printJob, SIGNAL(updated(PrintJob*)), this, SLOT(on_printJob_updated(PrintJob*)));
+}
+
+void PrintJobListItem::on_printJob_paused(PrintJob *printJob)
+{
+
+}
+
+void PrintJobListItem::on_printJob_resumed(PrintJob *printJob)
+{
+
+}
+
+void PrintJobListItem::on_printJob_cancelled(PrintJob *printJob)
+{
+    disconnect(printJob, SIGNAL(finished(PrintJob*)), this, SLOT(on_printJob_finished(PrintJob*)));
+    disconnect(printJob, SIGNAL(cancelled(PrintJob*)), this, SLOT(on_printJob_cancelled(PrintJob*)));
+    disconnect(printJob, SIGNAL(error(PrintJob*)), this, SLOT(on_printJob_error(PrintJob*)));
+    disconnect(printJob, SIGNAL(paused(PrintJob*)), this, SLOT(on_printJob_paused(PrintJob*)));
+    disconnect(printJob, SIGNAL(resumed(PrintJob*)), this, SLOT(on_printJob_resumed(PrintJob*)));
+    disconnect(printJob, SIGNAL(updated(PrintJob*)), this, SLOT(on_printJob_updated(PrintJob*)));
+}
+
+void PrintJobListItem::on_printJob_error(PrintJob *printJob)
+{
+
+    disconnect(printJob, SIGNAL(finished(PrintJob*)), this, SLOT(on_printJob_finished(PrintJob*)));
+    disconnect(printJob, SIGNAL(cancelled(PrintJob*)), this, SLOT(on_printJob_cancelled(PrintJob*)));
+    disconnect(printJob, SIGNAL(error(PrintJob*)), this, SLOT(on_printJob_error(PrintJob*)));
+    disconnect(printJob, SIGNAL(paused(PrintJob*)), this, SLOT(on_printJob_paused(PrintJob*)));
+    disconnect(printJob, SIGNAL(resumed(PrintJob*)), this, SLOT(on_printJob_resumed(PrintJob*)));
+    disconnect(printJob, SIGNAL(updated(PrintJob*)), this, SLOT(on_printJob_updated(PrintJob*)));
+}
+
+void PrintJobListItem::on_printJob_updated(PrintJob *printJob)
+{
+    QPixmap pixmap;
+
+    switch (_job->state())
+    {
+    case PrintJob::Standby:
+        break;
+
+    case PrintJob::Printing:
+        pixmap = Settings::getThemeIcon(QString("printjob-printing-icon")).pixmap(_iconLabel->size());
+        _iconLabel->setPixmap(pixmap);
+        break;
+
+    case PrintJob::Paused:
+        pixmap = Settings::getThemeIcon(QString("printjob-paused-icon")).pixmap(_iconLabel->size());
+        _iconLabel->setPixmap(pixmap);
+        break;
+
+    case PrintJob::Complete:
+        pixmap = Settings::getThemeIcon(QString("printjob-completed-icon")).pixmap(_iconLabel->size());
+        _iconLabel->setPixmap(pixmap);
+        break;
+
+    case PrintJob::Cancelled:
+        pixmap = Settings::getThemeIcon(QString("printjob-cancelled-icon")).pixmap(_iconLabel->size());
+        _iconLabel->setPixmap(pixmap);
+        break;
+
+    case PrintJob::Error:
+        pixmap = Settings::getThemeIcon(QString("printjob-error-icon")).pixmap(_iconLabel->size());
+        _iconLabel->setPixmap(pixmap);
+        break;
+    }
+
+    _timeRemainingLabel->setText(QString("Current Layer: ") + QString::number(_job->currentLayer()));
+    _timeRunningLabel->setText(QString("Total Layers: ") + QString::number(_job->totalLayers()));
+
+    qreal progress = (qreal)_job->currentLayer() / (qreal)_job->totalLayers();
+    progress *= 100;
+
+    _progressBar->setValue((int)progress);
 }

@@ -28,7 +28,7 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
     _partsFan = new Fan();
     _console = new KlipperConsole(this, parent);
     _system = new System(this);
-    _printJob = new PrintJob();
+    _printJob = new PrintJob(this);
 
     for(int i = 0; i < definition.extruderCount; i++)
     {

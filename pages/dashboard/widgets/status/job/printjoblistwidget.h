@@ -24,6 +24,9 @@ public:
     void removeJob(PrintJob *job);
     void updateJob(PrintJob *job);
 
+protected slots:
+    void on_printJob_started(PrintJob *printJob);
+
 private:
 };
 

@@ -10,6 +10,7 @@
 #include <QStringList>
 
 #include "../../../../../types/printjob.h"
+#include "../../../../../types/printer.h"
 #include "../../../../../ui/list/qanimatedlistitem.h"
 
 class PrintJobListItem : public QAnimatedListItem
@@ -24,6 +25,20 @@ public:
 
     PrintJob *printJob();
     void setPrintJob(PrintJob *job);
+
+    virtual void setStyleSheet(const QString &styleSheet);
+
+signals:
+    void removeRequested(PrintJobListItem *item);
+
+protected slots:
+    void on_printJob_finished(PrintJob *printJob);
+    void on_printJob_paused(PrintJob *printJob);
+    void on_printJob_resumed(PrintJob *printJob);
+    void on_printJob_cancelled(PrintJob *printJob);
+    void on_printJob_error(PrintJob *printJob);
+    void on_printJob_updated(PrintJob *printJob);
+
 private:
     PrintJob *_job;
     QLabel *_jobNameLabel = nullptr;

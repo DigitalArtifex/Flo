@@ -12,6 +12,23 @@
  */
 
 #include "printjob.h"
+#include "printer.h"
+
+PrintJob::PrintJob(Printer *parent)
+{
+    _parent = parent;
+#ifdef DEBUG_PRINTJOB
+    _printJobTestTimer = new QTimer();
+    _printJobTestTimer->setInterval(100);
+    connect(_printJobTestTimer, SIGNAL(timeout()), this, SLOT(on_printJobTestTimer_timeout()));
+    _printJobTestTimer->start();
+#endif
+}
+
+PrintJob::~PrintJob()
+{
+
+}
 
 PrintJob::JobState PrintJob::state() const
 {
@@ -30,39 +47,42 @@ void PrintJob::setState(JobState state)
     switch(state)
     {
         case Standby:
-            emit standby();
+            emit standby(this);
             break;
         case Printing:
             if(oldState == Paused)
-                emit resumed();
+                emit resumed(this);
             else if(oldState != Printing)
-                emit started();
+                emit started(this);
             else
-                emit updated();
+                emit updated(this);
             break;
         case Paused:
             if(oldState != Paused)
-                emit paused();
+                emit paused(this);
             else
-                emit updated();
+                emit updated(this);
             break;
         case Complete:
             if(oldState != Complete)
-                emit finished();
+            {
+                emit updated(this);
+                emit finished(this);
+            }
             else
-                emit updated();
+                emit updated(this);
             break;
         case Cancelled:
             if(oldState != Cancelled)
-                emit cancelled();
+                emit cancelled(this);
             else
-                emit updated();
+                emit updated(this);
             break;
         case Error:
             if(oldState != Error)
-                emit error();
+                emit error(this);
             else
-                emit updated();
+                emit updated(this);
             break;
     }
 }
@@ -157,3 +177,51 @@ void PrintJob::setCurrentLayer(qint64 currentLayer)
 {
     _currentLayer = currentLayer;
 }
+
+Printer *PrintJob::parent() const
+{
+    return _parent;
+}
+
+#ifdef DEBUG_PRINTJOB
+void PrintJob::on_printJobTestTimer_timeout()
+{
+    quint32 lowPoint = QRandomGenerator::global()->generate();
+    quint32 setPoint = QRandomGenerator::global()->generate();
+    bool printToggle = setPoint > lowPoint;
+
+    switch (_state)
+    {
+        case Standby:
+            setFilename(QString("Test Job"));
+            setCurrentLayer(0);
+            setTotalLayers(QRandomGenerator::global()->generate());
+            setTotalDuration(QRandomGenerator::global()->generate());
+            setState(Printing);
+            break;
+        case Printing:
+            if(printToggle)
+                setState(Paused);
+            else
+            {
+                setCurrentLayer(currentLayer() + (_totalLayers / 100));
+
+                if(currentLayer() >= totalLayers())
+                    setState(Complete);
+                else
+                    setState(Printing);
+            }
+            break;
+        case Paused:
+            if(printToggle)
+                setState(Printing);
+            break;
+        case Complete:
+            break;
+        case Cancelled:
+            break;
+        case Error:
+            break;
+    }
+}
+#endif

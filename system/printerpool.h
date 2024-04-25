@@ -33,18 +33,17 @@ signals:
     void printerRemoved(Printer *printer);
     void printerUpdated(Printer *printer);
     void printerError(QString title, QString message, Printer *printer);
-    void jobStarted(PrintJob *job);
-    void jobFinished(PrintJob *job);
-    void jobUpdated(PrintJob *job);
+    void printJobStarted(PrintJob *printJob);
+    void printJobFinished(PrintJob *printJob);
 
 private slots:
     void on_printerAdded(Printer *printer);
     void on_printerRemoved(Printer *printer);
     void on_printerUpdated(Printer *printer);
     void on_printerError(QString title, QString message, Printer *printer);
-    void on_jobStarted(PrintJob *job);
-    void on_jobFinished(PrintJob *job);
-    void on_jobUpdated(PrintJob *job);
+
+    void on_printJob_started(PrintJob *printJob);
+    void on_printJob_finished(PrintJob *printJob);
 
 private:
     explicit PrinterPool();

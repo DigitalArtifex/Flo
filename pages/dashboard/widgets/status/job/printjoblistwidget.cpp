@@ -1,4 +1,5 @@
 #include "printjoblistwidget.h"
+#include "../../../../../system/printerpool.h"
 
 PrintJobListWidget::PrintJobListWidget(QWidget *parent) :
     QAnimatedListWidget(parent)
@@ -7,6 +8,8 @@ PrintJobListWidget::PrintJobListWidget(QWidget *parent) :
         setStyleSheet(parent->styleSheet());
 
     setEmptyText(QString("No Print Jobs Running"));
+
+    connect(PrinterPool::instance(), SIGNAL(printJobStarted(PrintJob*)), this, SLOT(on_printJob_started(PrintJob*)));
 }
 
 PrintJobListWidget::~PrintJobListWidget()
@@ -22,11 +25,10 @@ void PrintJobListWidget::addJob(PrintJob *job)
 {
     PrintJobListItem *item = new PrintJobListItem(this);
     item->setPrintJob(job);
-    item->setPositionIn(item->pos());
-    item->setPositionOut(QPoint(width(),item->pos().y()));
+    setAnimationSlide(item);
     item->setOpacityIn(1);
     item->setOpacityOut(0);
-    item->setDuration(1000);
+    item->setDuration(250);
 
     addItem(item);
 }
@@ -39,4 +41,9 @@ void PrintJobListWidget::removeJob(PrintJob *job)
 void PrintJobListWidget::updateJob(PrintJob *job)
 {
 
+}
+
+void PrintJobListWidget::on_printJob_started(PrintJob *printJob)
+{
+    addJob(printJob);
 }

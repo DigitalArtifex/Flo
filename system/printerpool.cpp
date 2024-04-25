@@ -73,6 +73,8 @@ void PrinterPool::loadPrinters(QObject *parent)
 
         Printer *printer = new Printer(definition, parent);
         connect(printer, SIGNAL(printerError(QString,QString,Printer*)), _instance, SLOT(on_printerError(QString,QString,Printer*)));
+        connect(printer->currentJob(), SIGNAL(started(PrintJob*)), _instance, SLOT(on_printJob_started(PrintJob*)));
+        connect(printer->currentJob(), SIGNAL(finished(PrintJob*)), _instance, SLOT(on_printJob_finished(PrintJob*)));
 
         if(definition.autoConnect)
             printer->connectMoonraker();
@@ -172,17 +174,12 @@ void PrinterPool::on_printerError(QString title, QString message, Printer *print
     emit printerError(title,message,printer);
 }
 
-void PrinterPool::on_jobStarted(PrintJob *job)
+void PrinterPool::on_printJob_started(PrintJob *printJob)
 {
-    emit(jobStarted(job));
+    emit printJobStarted(printJob);
 }
 
-void PrinterPool::on_jobFinished(PrintJob *job)
+void PrinterPool::on_printJob_finished(PrintJob *printJob)
 {
-    emit(jobFinished(job));
-}
-
-void PrinterPool::on_jobUpdated(PrintJob *job)
-{
-    emit(jobUpdated(job));
+    emit printJobFinished(printJob);
 }
