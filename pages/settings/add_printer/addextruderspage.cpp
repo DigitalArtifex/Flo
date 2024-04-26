@@ -25,7 +25,7 @@ void AddExtrudersPage::reset()
             if (edits[c]->property("extruder").isValid())
             {
                 int extruder = edits[c]->property("extruder").toInt();
-                edits[c]->setValue(_definition.powerProfile[(QString("extruder") + ((c > 0) ? QString::number(c) : QString("")))]);
+                edits[c]->setValue(_definition.powerProfile[(QString("extruder") + ((extruder > 0) ? QString::number(extruder) : QString("")))]);
             }
         }
     }
@@ -43,13 +43,10 @@ void AddExtrudersPage::apply()
             {
                 int extruder = edits[c]->property("extruder").toInt();
                 qreal extruderPower = edits[c]->text().toFloat();
-                _definition.powerProfile[(QString("extruder") + ((c > 0) ? QString::number(c) : QString("")))] = extruderPower;
+                _definition.powerProfile[(QString("extruder") + ((extruder > 0) ? QString::number(extruder) : QString("")))] = extruderPower;
             }
         }
     }
-
-    PrinterDefinition definition = _printer->definition();
-    _printer->update(definition);
 }
 
 void AddExtrudersPage::on_extruderCountSpinBox_valueChanged(int arg1)
@@ -122,8 +119,9 @@ void AddExtrudersPage::setDefinition(PrinterDefinition definition)
     reset();
 }
 
-bool AddExtrudersPage::validate() const
+bool AddExtrudersPage::validate()
 {
+    apply();
     return true;
 }
 

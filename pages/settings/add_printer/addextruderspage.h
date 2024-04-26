@@ -7,7 +7,7 @@
 #include <QDoubleSpinBox>
 #include <QGridLayout>
 
-#include "../../../types/printer.h"
+#include "../../../types/printerdefinition.h"
 
 namespace Ui {
 class AddExtrudersPage;
@@ -27,7 +27,7 @@ public:
     PrinterDefinition definition() const;
     void setDefinition(PrinterDefinition definition);
 
-    virtual bool validate() const;
+    virtual bool validate();
 
 private slots:
     void on_extruderCountSpinBox_valueChanged(int arg1);
@@ -37,7 +37,6 @@ private:
 
     int _extruderCount = 0;
 
-    Printer *_printer = nullptr;
     PrinterDefinition _definition;
 };
 

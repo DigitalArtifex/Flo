@@ -9,6 +9,7 @@
 
 #include "addprinterpage.h"
 #include "addextruderspage.h"
+#include "addbedpage.h"
 #include "validateprinterpage.h"
 
 #include "../../../types/printer.h"
@@ -36,6 +37,7 @@ private:
     Ui::AddPrinterWizard *ui;
     AddPrinterPage *_addPage = nullptr;
     AddExtrudersPage *_extruderPage = nullptr;
+    AddBedPage *_bedPage = nullptr;
     ValidatePrinterPage *_validatePage = nullptr;
     PrinterDefinition _definition;
     Printer *_printer = nullptr;

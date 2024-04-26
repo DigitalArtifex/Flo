@@ -17,6 +17,9 @@ AddPrinterWizard::AddPrinterWizard(QWidget *parent) :
     _extruderPage = new AddExtrudersPage(this);
     addPage(_extruderPage);
 
+    _bedPage = new AddBedPage(this);
+    addPage(_bedPage);
+
     _validatePage = new ValidatePrinterPage(this);
     this->addPage(_validatePage);
 }
@@ -25,6 +28,7 @@ AddPrinterWizard::~AddPrinterWizard()
 {
     delete _addPage;
     delete _extruderPage;
+    delete _bedPage;
     delete _validatePage;
 
     delete ui;
@@ -44,6 +48,11 @@ bool AddPrinterWizard::validateCurrentPage()
         else if(currentId() == 1)
         {
             _definition = _extruderPage->definition();
+            _bedPage->setDefinition(_definition);
+        }
+        else if(currentId() == 2)
+        {
+            _definition = _bedPage->definition();
             _validatePage->setDefinition(_definition);
         }
     }
