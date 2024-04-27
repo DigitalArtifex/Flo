@@ -7,6 +7,8 @@
 #include "edit_printer/editprinterdialog.h"
 #include "printerlistwidget.h"
 
+#include "theme/themesettingspage.h"
+
 namespace Ui {
 class SettingsPage;
 }
@@ -35,12 +37,20 @@ private slots:
 
     void on_editPrinterButton_clicked();
 
+    void on_printersButton_toggled(bool checked);
+
+    void on_themeButton_toggled(bool checked);
+
+    void on_systemButton_toggled(bool checked);
+
 private:
     Ui::SettingsPage *ui;
 
     AddPrinterWizard *_addPrinterWizard = nullptr;
     EditPrinterDialog *_editPrinterDialog = nullptr;
     PrinterListWidget *_printerListWidget = nullptr;
+
+    ThemeSettingsPage *_themeSettingsPage = nullptr;
 };
 
 #endif // SETTINGSPAGE_H

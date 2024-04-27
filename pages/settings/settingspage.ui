@@ -43,74 +43,45 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <property name="bottomMargin">
-       <number>9</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QLineEdit" name="searchEdit">
-        <property name="inputMask">
-         <string/>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="maxLength">
-         <number>32767</number>
-        </property>
-        <property name="echoMode">
-         <enum>QLineEdit::Normal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QToolButton" name="folderCreateButton">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="printersButton">
         <property name="minimumSize">
          <size>
-          <width>35</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="searchButton">
-        <property name="minimumSize">
-         <size>
-          <width>35</width>
-          <height>35</height>
+          <width>150</width>
+          <height>32</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>35</width>
-          <height>35</height>
+          <width>32</width>
+          <height>32</height>
          </size>
         </property>
         <property name="text">
-         <string/>
+         <string>Printers</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QToolButton" name="fileUploadButton">
+      <item>
+       <widget class="QToolButton" name="themeButton">
         <property name="minimumSize">
          <size>
-          <width>35</width>
-          <height>35</height>
+          <width>150</width>
+          <height>32</height>
          </size>
         </property>
         <property name="text">
-         <string/>
+         <string>Theme</string>
         </property>
         <property name="iconSize">
          <size>
@@ -118,24 +89,43 @@
           <height>24</height>
          </size>
         </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
-      <item row="0" column="4">
-       <widget class="QToolButton" name="fileRefreshButton_2">
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>630</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="systemButton">
         <property name="minimumSize">
          <size>
-          <width>35</width>
-          <height>35</height>
+          <width>150</width>
+          <height>32</height>
          </size>
         </property>
         <property name="text">
-         <string/>
+         <string>System</string>
         </property>
-        <property name="iconSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -176,10 +166,25 @@
           <string>Printer Settings</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_5">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <item row="0" column="0">
            <widget class="QGroupBox" name="groupBox">
             <property name="title">
-             <string>Printers</string>
+             <string/>
             </property>
             <layout class="QGridLayout" name="gridLayout_4">
              <property name="leftMargin">
@@ -207,7 +212,7 @@
                  <number>0</number>
                 </property>
                 <property name="rightMargin">
-                 <number>0</number>
+                 <number>9</number>
                 </property>
                 <property name="bottomMargin">
                  <number>0</number>
@@ -269,6 +274,11 @@
            </widget>
           </item>
          </layout>
+        </widget>
+        <widget class="QWidget" name="themeTab">
+         <attribute name="title">
+          <string>Page</string>
+         </attribute>
         </widget>
         <widget class="QWidget" name="systemTab">
          <attribute name="title">

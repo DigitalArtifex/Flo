@@ -14,6 +14,18 @@ SettingsPage::SettingsPage(QWidget *parent) :
     ui->printerListLayout->addWidget(_printerListWidget);
     updatePrinterList();
 
+    _themeSettingsPage = new ThemeSettingsPage(this);
+
+    ui->tabWidget->setTabVisible(0, false);
+    ui->tabWidget->setTabVisible(1, false);
+    ui->tabWidget->setTabVisible(2, false);
+    ui->tabWidget->setCurrentIndex(0);
+
+    ui->themeTab->setLayout(new QVBoxLayout());
+    ui->themeTab->layout()->setContentsMargins(0,0,0,0);
+    ui->themeTab->layout()->setSpacing(0);
+    ui->themeTab->layout()->addWidget(_themeSettingsPage);
+
     connect(_printerListWidget, SIGNAL(itemSelected(PrinterListItem*)), this, SLOT(on_printerListWidget_itemSelected(PrinterListItem*)));
 }
 
@@ -100,5 +112,26 @@ void SettingsPage::on_editPrinterButton_clicked()
 
     _editPrinterDialog->setPrinter(printer);
     _editPrinterDialog->show();
+}
+
+
+void SettingsPage::on_printersButton_toggled(bool checked)
+{
+    if(checked)
+        ui->tabWidget->setCurrentIndex(0);
+}
+
+
+void SettingsPage::on_themeButton_toggled(bool checked)
+{
+    if(checked)
+        ui->tabWidget->setCurrentIndex(1);
+}
+
+
+void SettingsPage::on_systemButton_toggled(bool checked)
+{
+    if(checked)
+        ui->tabWidget->setCurrentIndex(2);
 }
 
