@@ -111,6 +111,8 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
         _currentPage->setPositionOut(QPoint(0, _pageSize.height()));
         _currentPage->setDuration(250);
 
+        ui->PageContainer->layout()->removeWidget(_currentPage);
+
         _currentPage->animateOut();
     }
     else
@@ -251,8 +253,6 @@ void MainWindow::on_currentPage_animationOut_finished()
 {
     disconnect(_currentPage, SIGNAL(animatedOut()), this, SLOT(on_currentPage_animationOut_finished()));
     connect(_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
-    ui->PageContainer->layout()->removeWidget(_currentPage);
-    ui->PageContainer->layout()->addWidget(_nextPage);
 
     _nextPage->setHidden(false);
     _nextPage->animateIn();
@@ -261,6 +261,7 @@ void MainWindow::on_currentPage_animationOut_finished()
 void MainWindow::on_nextPage_animationIn_finished()
 {
     disconnect(_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
+    ui->PageContainer->layout()->addWidget(_nextPage);
 
     _currentPage = _nextPage;
     _nextPage = nullptr;
@@ -274,6 +275,8 @@ void MainWindow::on_nextPage_animationIn_finished()
 
     for(int i = 0; i < _printerButtons.count(); i++)
         _printerButtons[i]->setEnabled(true);
+
+    style()->polish(this);
 }
 
 void MainWindow::on_titleOpacityAnimation_finished()
