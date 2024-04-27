@@ -50,7 +50,7 @@
        <item row="0" column="0">
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="variablesTab">
           <attribute name="title">
@@ -173,6 +173,11 @@
             </widget>
            </item>
           </layout>
+         </widget>
+         <widget class="QWidget" name="tab">
+          <attribute name="title">
+           <string>Page</string>
+          </attribute>
          </widget>
          <widget class="QWidget" name="additionalTab">
           <attribute name="title">
