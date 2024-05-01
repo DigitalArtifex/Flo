@@ -12,6 +12,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("server.files.delete_directory")] = (ParserFunction)&QAbstractKlipperConsole::on_deleteDirectory;
     _parserMap[QString("server.files.roots")] = (ParserFunction)&QAbstractKlipperConsole::on_serverFileRoots;
     _parserMap[QString("server.files.get_directory")] = (ParserFunction)&QAbstractKlipperConsole::on_getFileList;
+    _parserMap[QString("server.temperature_store")] = (ParserFunction)&QAbstractKlipperConsole::on_serverTemperatureStore;
     _parserMap[QString("server.files.list")] = (ParserFunction)&QAbstractKlipperConsole::on_getFileList;
     _parserMap[QString("printer.info")] = (ParserFunction)&QAbstractKlipperConsole::on_printerInfo;
 }
@@ -80,6 +81,418 @@ void QAbstractKlipperConsole::removeState(ConsoleState state)
 QAbstractSocket *QAbstractKlipperConsole::moonrakerSocket() const
 {
     return _moonrakerSocket;
+}
+
+void QLocalKlipperConsole::sendCommand(QString command, KlipperMessage::MessageOrigin origin)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    messageObject["method"] = command;
+    message.setDocument(messageObject);
+    message.origin = origin;
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::getFileList(QString directory)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["path"] = directory;
+
+    paramsObject["extended"] = true;
+    messageObject["method"] = "server.files.get_directory";
+    messageObject["params"] = paramsObject;
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::deleteFile(QString file)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "server.files.delete_file";
+
+    paramsObject["path"] = file;
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::deleteFile(KlipperFile file)
+{
+
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "server.files.delete_file";
+
+    paramsObject["path"] = file.fileLocation();
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::moveFile(QString source, QString destination)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "server.files.move";
+
+    paramsObject["source"] = source;
+    paramsObject["dest"] = destination;
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::copyFile(QString source, QString destination)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "server.files.copy";
+
+    paramsObject["source"] = source;
+    paramsObject["dest"] = destination;
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::createDirectory(QString directory)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "server.files.post_directory";
+    paramsObject["path"] = directory;
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::deleteDirectory(QString directory)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["path"] = directory;
+    paramsObject["force"] = true;
+
+    messageObject["method"] = "server.files.delete_directory";
+    messageObject["params"] = paramsObject;
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::startPrint(QString file)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "printer.print.start";
+
+    paramsObject["filename"] = file;
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::pausePrint()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+
+    messageObject["method"] = "printer.print.pause";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::resumePrint()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+
+    messageObject["method"] = "printer.print.resume";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::cancelPrint()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+
+    messageObject["method"] = "printer.print.cancel";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machineShutdown()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+
+    messageObject["method"] = "machine.shutdown";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machineReboot()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+
+    messageObject["method"] = "machine.reboot";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serviceRestart(QString service)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "machine.services.restart";
+
+    paramsObject["service"] = service;
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serviceStop(QString service)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "machine.services.stop";
+
+    paramsObject["service"] = service;
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serviceStart(QString service)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "machine.services.start";
+
+    paramsObject["service"] = service;
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::sendGcode(QString gcode)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "printer.gcode.script";
+
+    paramsObject["script"] = gcode;
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::printerInfo()
+{
+
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "printer.info";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::restartKlipper()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "printer.restart";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::restartFirmware()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "printer.firmware_restart";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::printerSubscribe()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+    QJsonObject objectArray;
+
+    objectArray["toolhead"];
+
+    for(int i = 0; i < _printer->toolhead()->extruderCount(); i++)
+    {
+        QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
+        objectArray[extruderName];
+    }
+
+    objectArray["bed_mesh"];
+    objectArray["heater_bed"];
+    objectArray["fan"];
+    objectArray["gcode_move"];
+    objectArray["print_stats"];
+    //This needs to be expanded to fans in the config file
+    objectArray["heater_fan heatbreak_cooling_fan"];
+    objectArray["motion_report"];
+
+    paramsObject["objects"] = objectArray;
+
+    messageObject["method"] = "printer.objects.subscribe";
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverInfo()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "server.info";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverConfig()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "server.config";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverFileRoots()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "server.files.roots";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverTemperatureStore()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["include_monitors"] = false;
+    messageObject["method"] = "server.temperature_store";
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::clientIdentifier()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["client_name"] = "FLO Beta";
+    paramsObject["version"] = "0.0.1";
+    paramsObject["type"] = "other";
+    paramsObject["url"] = "n/a";
+
+    messageObject["method"] = "server.connection.identify";
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
 }
 
 void QAbstractKlipperConsole::setMoonrakerSocket(QAbstractSocket *moonrakerSocket)
@@ -803,6 +1216,46 @@ void QAbstractKlipperConsole::on_serverFileRoots(KlipperResponse response)
                 }
             }
         }
+
+        emit printerUpdate();
+    }
+}
+
+void QAbstractKlipperConsole::on_serverTemperatureStore(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        for(int index = 0; true; index++)
+        {
+            QString extruderName = QString("extruder") + ((index > 0) ? QString::number(index) : QString(""));
+
+            if(result.contains(extruderName))
+            {
+                //The documentation suggests that the count for each of these arrays should be the same
+                QJsonArray temperatureValuesArray = result[extruderName].toObject()["temperatures"].toArray();
+                QJsonArray targetValuesArray = result[extruderName].toObject()["targets"].toArray();
+                QJsonArray powerValuesArray = result[extruderName].toObject()["targets"].toArray();
+
+                int count = temperatureValuesArray.count();
+
+                for(int i = 0; i < count; i++)
+                {
+                    TemperatureStoreValue storedValue;
+
+                    storedValue.temperature = temperatureValuesArray[i].toDouble();
+                    storedValue.target = targetValuesArray[i].toDouble();
+                    storedValue.power = powerValuesArray[i].toDouble();
+
+                    _printer->toolhead()->extruder(index)->temperatureStore().append(storedValue);
+                }
+            }
+            else
+                break;
+        }
+
+        emit printerUpdate();
     }
 }
 

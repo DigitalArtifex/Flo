@@ -54,55 +54,55 @@ public:
 
     virtual void shutdown() = 0;
 
-    virtual void sendCommand(QString command, KlipperMessage::MessageOrigin origin = KlipperMessage::System) = 0;
     virtual void sendCommand(KlipperMessage message) = 0;
-    virtual void setMoonrakerLocation(QString location) = 0;
-    virtual void connectToMoonraker();
+    virtual void sendCommand(QString command, KlipperMessage::MessageOrigin origin = KlipperMessage::System) = 0;
+    virtual void connectToMoonraker() = 0;
     virtual void disconnectKlipper() = 0;
 
     //File Management
-    virtual void deleteFile(QString file) = 0;
-    virtual void deleteFile(KlipperFile file) = 0;
-    virtual void moveFile(QString source, QString destination) = 0;
-    virtual void copyFile(QString source, QString destination) = 0;
+    virtual void deleteFile(QString file);
+    virtual void deleteFile(KlipperFile file);
+    virtual void moveFile(QString source, QString destination);
+    virtual void copyFile(QString source, QString destination);
 
     virtual QString downloadFile(KlipperFile file) = 0;
     virtual bool uploadFile(QString root, QString directory, QString name, QByteArray data) = 0;
 
-    virtual void getFileList(QString directory = QString("gcodes")) = 0;
-    virtual void createDirectory(QString directory) = 0;
-    virtual void deleteDirectory(QString directory) = 0;
+    virtual void getFileList(QString directory = QString("gcodes"));
+    virtual void createDirectory(QString directory);
+    virtual void deleteDirectory(QString directory);
 
     //Print Management
-    virtual void startPrint(QString file) = 0;
-    virtual void pausePrint() = 0;
-    virtual void resumePrint() = 0;
-    virtual void cancelPrint() = 0;
+    virtual void startPrint(QString file);
+    virtual void pausePrint();
+    virtual void resumePrint();
+    virtual void cancelPrint();
 
     //Machine Management
-    virtual void machineShutdown() = 0;
-    virtual void machineReboot() = 0;
+    virtual void machineShutdown();
+    virtual void machineReboot();
 
     //Service Management
-    virtual void serviceRestart(QString service) = 0;
-    virtual void serviceStop(QString service) = 0;
-    virtual void serviceStart(QString service) = 0;
+    virtual void serviceRestart(QString service);
+    virtual void serviceStop(QString service);
+    virtual void serviceStart(QString service);
 
-    virtual void sendGcode(QString gcode) = 0;
+    virtual void sendGcode(QString gcode);
 
     //Printer Management
-    virtual void printerInfo() = 0;
-    virtual void restartKlipper() = 0;
-    virtual void restartFirmware() = 0;
-    virtual void printerSubscribe() = 0;
+    virtual void printerInfo();
+    virtual void restartKlipper();
+    virtual void restartFirmware();
+    virtual void printerSubscribe();
 
     //Server Management
-    virtual void serverInfo() = 0;
-    virtual void serverConfig() = 0;
-    virtual void serverFileRoots() = 0;
+    virtual void serverInfo();
+    virtual void serverConfig();
+    virtual void serverFileRoots();
+    virtual void serverTemperatureStore();
 
     //Client Management
-    virtual void clientIdentifier() = 0;
+    virtual void clientIdentifier();
 
     virtual ConnectionLocation connectionLoaction() const = 0;
     virtual void setConnectionLoaction(ConnectionLocation connectionLoaction) = 0;
@@ -183,6 +183,7 @@ protected slots:
     virtual void on_serverInfo(KlipperResponse response);
     virtual void on_serverConfig(KlipperResponse response);
     virtual void on_serverFileRoots(KlipperResponse response);
+    virtual void on_serverTemperatureStore(KlipperResponse response);
 
     //Client Management
     virtual void on_clientIdentifier(KlipperResponse response);
