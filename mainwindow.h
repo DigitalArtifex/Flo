@@ -19,7 +19,7 @@
 
 #include "QSourceHighlite/qsourcehighliter.h"
 
-#include "klipperconsole.h"
+#include "types/console/qabstractklipperconsole.h"
 #include "system/flo.h"
 
 //UI elements
