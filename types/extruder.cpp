@@ -95,3 +95,8 @@ void Extruder::setWatts(qreal watts)
 {
     _watts = watts;
 }
+
+TemperatureStore Extruder::temperatureStore() const
+{
+    return _temperatureStore;
+}

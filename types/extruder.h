@@ -4,6 +4,7 @@
 #include <QObject>
 #include "position.h"
 #include "fan.h"
+#include "temperaturestore.h"
 
 class Extruder
 {
@@ -38,6 +39,8 @@ public:
     qreal watts() const;
     void setWatts(qreal watts);
 
+    TemperatureStore temperatureStore() const;
+
 private:
     Position _offset;
     Fan *_fan;
@@ -48,6 +51,8 @@ private:
     qreal _power = 0;
     qreal _watts = 0;
     bool _canExtrude = false;
+
+    TemperatureStore _temperatureStore;
 };
 
 #endif // EXTRUDER_H
