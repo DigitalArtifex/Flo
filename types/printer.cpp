@@ -26,7 +26,10 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
     _chamber = new Chamber();
     _chamber->setWatts(_powerProfile["chamber"]);
     _partsFan = new Fan();
-    _console = new KlipperConsole(this, parent);
+
+    if(_connectionLocation == LocationLocal)
+        _console = new QLocalKlipperConsole(this, parent);
+
     _system = new System(this);
     _printJob = new PrintJob(this);
 
@@ -226,7 +229,7 @@ void Printer::update(PrinterDefinition definition)
         emit printerUpdate(this);
 
         _console->disconnectKlipper();
-        _console->connectKlipper();
+        _console->connectToMoonraker();
     }
     else
         emit printerUpdate(this);
@@ -237,7 +240,7 @@ int Printer::extruderCount()
     return _toolhead->extruderCount();
 }
 
-KlipperConsole *Printer::console()
+QAbstractKlipperConsole *Printer::console()
 {
     return _console;
 }
@@ -246,10 +249,9 @@ void Printer::connectMoonraker()
 {
     connect(_console, SIGNAL(printerUpdate()), this, SLOT(on_printerUpdate()));
     connect(_console,SIGNAL(responseReceived(KlipperResponse)), this, SLOT(on_console_responseReceived(KlipperResponse)));
-    _console->loadPresets();
     _console->setMoonrakerLocation(_moonrakerLocation);
     //_console->start();
-    _console->connectKlipper();
+    _console->connectToMoonraker();
 }
 
 PrintJob *Printer::currentJob()

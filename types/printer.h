@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QMap>
+#include <QDir>
 
 #include "toolhead.h"
 #include "extruder.h"
@@ -14,7 +15,9 @@
 #include "printjob.h"
 #include "chamber.h"
 
-#include "../klipperconsole.h"
+//#include "../klipperconsole.h"
+#include "console/qabstractklipperconsole.h"
+#include "console/qlocalklipperconsole.h"
 #include "printerdefinition.h"
 
 class Printer: public QObject
@@ -22,6 +25,11 @@ class Printer: public QObject
 
     Q_OBJECT
 public:
+    enum ConnectionLocation
+    {
+        LocationLocal,
+        LocationRemote
+    };
 
     enum Status {
         Ready = 0x00000001,
@@ -77,7 +85,7 @@ public:
 
     int extruderCount();
 
-    KlipperConsole *console();
+    QAbstractKlipperConsole *console();
 
     void connectMoonraker();
 
@@ -156,9 +164,11 @@ private:
     KlipperFile _currentFile;
     QDateTime _printStarted;
     QDateTime _printEnding;
-    Status _status = Offline;
 
-    KlipperConsole *_console = nullptr;
+    Status _status = Offline;
+    ConnectionLocation _connectionLocation = LocationLocal;
+
+    QAbstractKlipperConsole *_console = nullptr;
 
     System *_system;
     PrintJob *_printJob;

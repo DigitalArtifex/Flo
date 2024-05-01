@@ -80,10 +80,10 @@ void ValidatePrinterPage::setDefinition(PrinterDefinition definition)
     _printer = new Printer(definition);
 
     ui->textEdit->append(QString("Connecting to ") + _printer->name());
-    connect(_printer, SIGNAL(moonrakerConnected(Printer *)), this, SLOT(on_moonrakerConnected(Printer *)));
-    connect(_printer, SIGNAL(printerOnline(Printer *)), this, SLOT(on_printerOnline(Printer *)));
-    connect(_printer, SIGNAL(klipperConnected(Printer *)), this, SLOT(on_klipperConnected(Printer *)));
-    _printer->console()->connectKlipper();
+    connect(_printer, SIGNAL(moonrakerConnected(Printer*)), this, SLOT(on_moonrakerConnected(Printer*)));
+    connect(_printer, SIGNAL(printerOnline(Printer*)), this, SLOT(on_printerOnline(Printer*)));
+    connect(_printer, SIGNAL(klipperConnected(Printer*)), this, SLOT(on_klipperConnected(Printer*)));
+    //_printer->console()->connectKlipper();
 }
 
 PrinterDefinition ValidatePrinterPage::definition()
