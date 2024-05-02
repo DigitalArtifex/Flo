@@ -22,6 +22,8 @@
 #include "../klippermessage.h"
 #include "../klipperresponse.h"
 
+#include "../gcodestore.h"
+
 class QAbstractKlipperConsole;
 class Printer;
 
@@ -100,6 +102,8 @@ public:
     virtual void serverConfig();
     virtual void serverFileRoots();
     virtual void serverTemperatureStore();
+    virtual void serverGcodeStore();
+    virtual void serverLogsRollover();
 
     //Client Management
     virtual void clientIdentifier();
@@ -143,6 +147,9 @@ signals:
 
     void startupProgress(QString message, qreal progress);
 
+    //Server signals
+    void serverGCodeStoreResponse(GCodeStore store);
+
 protected slots:
     virtual void on_moonrakerSocket_readyRead();
     virtual void on_messageReady();
@@ -184,6 +191,8 @@ protected slots:
     virtual void on_serverConfig(KlipperResponse response);
     virtual void on_serverFileRoots(KlipperResponse response);
     virtual void on_serverTemperatureStore(KlipperResponse response);
+    virtual void on_serverGCodeStore(KlipperResponse response);
+    virtual void on_serverLogsRollover(KlipperResponse response);
 
     //Client Management
     virtual void on_clientIdentifier(KlipperResponse response);

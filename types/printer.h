@@ -18,7 +18,9 @@
 //#include "../klipperconsole.h"
 #include "console/qabstractklipperconsole.h"
 #include "console/qlocalklipperconsole.h"
+
 #include "printerdefinition.h"
+#include "gcodestore.h"
 
 class Printer: public QObject
 {
@@ -28,7 +30,8 @@ public:
     enum ConnectionLocation
     {
         LocationLocal,
-        LocationRemote
+        LocationRemote,
+        LocationRemoteHttp
     };
 
     enum Status {
@@ -113,6 +116,8 @@ public:
     bool isAutoConnect() const;
     bool isDefaultPrinter() const;
 
+    GCodeStore gCodeStore() const;
+
 signals:
     void systemUpdate(Printer *printer);
     void printerUpdate(Printer *printer);
@@ -172,6 +177,8 @@ private:
 
     System *_system;
     PrintJob *_printJob;
+
+    GCodeStore _gCodeStore;
 };
 
 typedef QList<Printer*> PrinterList;

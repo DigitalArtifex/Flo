@@ -476,6 +476,17 @@ void QAbstractKlipperConsole::serverTemperatureStore()
     sendCommand(message);
 }
 
+void QAbstractKlipperConsole::serverLogsRollover()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    messageObject["method"] = "server.logs.rollover";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
 void QAbstractKlipperConsole::clientIdentifier()
 {
     KlipperMessage message;
@@ -1256,6 +1267,68 @@ void QAbstractKlipperConsole::on_serverTemperatureStore(KlipperResponse response
         }
 
         emit printerUpdate();
+    }
+}
+
+void QAbstractKlipperConsole::on_serverGCodeStore(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        if(result["gcode_store"].isArray())
+        {
+            GCodeStore store;
+
+            QJsonArray gCodeEntries = result["gcode_store"].toArray();
+            int count = gCodeEntries.count();
+
+            for(int i = 0; i < count; i++)
+            {
+                GCodeStoreValue gCode;
+
+                QJsonObject gCodeEntry = gCodeEntries.at(i).toObject();
+
+                if(gCodeEntry.contains(QString("message")))
+                    gCode.message = gCodeEntry["message"].toString();
+
+                if(gCodeEntry.contains(QString("time")))
+                    gCode.time = gCodeEntry["time"].toDouble();
+
+                if(gCodeEntry.contains(QString("type")))
+                {
+                    if(gCodeEntry["type"] == QString("command"))
+                        gCode.type = GCodeStoreValue::Command;
+                    else
+                        gCode.type = GCodeStoreValue::Response;
+                }
+
+                store.append(gCode);
+            }
+
+            emit serverGCodeStoreResponse(store);
+        }
+    }
+}
+
+void QAbstractKlipperConsole::on_serverLogsRollover(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        if(!result["failed"].toObject().isEmpty())
+        {
+            QJsonObject failures = result["failed"].toObject();
+
+            QJsonObject::Iterator failureIterator = failures.begin();
+
+            while(!failureIterator->isNull())
+            {
+                QString application = failureIterator.key();
+                QString message = failureIterator.value().toString();
+            }
+        }
     }
 }
 
