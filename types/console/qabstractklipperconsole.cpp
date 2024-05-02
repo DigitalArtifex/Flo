@@ -77,6 +77,11 @@ void QAbstractKlipperConsole::removeState(ConsoleState state)
     _state = (ConsoleState)(_state & (~state));
 }
 
+QGCodeMacroList QAbstractKlipperConsole::gcodeMacros() const
+{
+    return _gcodeMacros;
+}
+
 void QAbstractKlipperConsole::setMoonrakerLocation(const QString &moonrakerLocation)
 {
     _moonrakerLocation = moonrakerLocation;
@@ -1008,8 +1013,6 @@ void QAbstractKlipperConsole::on_printerObjectsList(KlipperResponse response)
 
 void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
 {
-
-
     QFile file(QDir::homePath() + QDir::separator() + QString("poop2.test"));
     if(file.open(QFile::ReadWrite | QFile::Append))
     {
@@ -1017,6 +1020,8 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         file.write(document.toJson(QJsonDocument::Indented));
         file.close();
     }
+
+    QJsonObject result = response["result"].toObject();
 
     //Parse extruders
     for(int index = 0; true; index++)
@@ -1233,6 +1238,26 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         }
         if(printStats.contains("state"))
             _printer->currentJob()->setState(printStats["state"].toString());
+    }
+
+    foreach (QString object, _macroObjects) {
+        if(result.contains(QString("gcode_macro ") + object.toLower()))
+        {
+            QJsonObject entryObject = result[QString("gcode_macro ") + object.toLower()].toObject();
+
+            QGCodeMacro macro;
+            macro.macro = object.toUpper();
+
+            if(entryObject.contains(QString("gcode")))
+                macro.gcode = entryObject["gcode"].toString();
+
+            if(entryObject.contains(QString("description")))
+                macro.description = entryObject["description"].toString();
+
+            //TODO: parse variable entries
+
+            _gcodeMacros += macro;
+        }
     }
 
     if(!hasState(Connected))

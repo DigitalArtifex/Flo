@@ -23,6 +23,7 @@
 #include "../klipperresponse.h"
 
 #include "../gcodestore.h"
+#include "../gcodemacro.h"
 
 class QAbstractKlipperConsole;
 class Printer;
@@ -129,6 +130,8 @@ public:
     void setMoonrakerSocket(QAbstractSocket *moonrakerSocket);
 
 
+    QGCodeMacroList gcodeMacros() const;
+
 signals:
     void startup();
 
@@ -222,6 +225,8 @@ protected:
     QMap<int, KlipperMessage> _klipperMessageBuffer;
     QStringList _subscriptionObjects;
     QStringList _macroObjects;
+
+    QGCodeMacroList _gcodeMacros;
 
     QString _moonrakerLocation;
 

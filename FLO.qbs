@@ -138,6 +138,7 @@ QtApplication {
         "types/extruder.h",
         "types/fan.cpp",
         "types/fan.h",
+        "types/gcodemacro.h",
         "types/gcodestore.h",
         "types/klipperfile.cpp",
         "types/klipperfile.h",
