@@ -17,6 +17,7 @@ QLocalKlipperConsole::QLocalKlipperConsole(Printer *printer, QObject *parent)
     _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::serverConfig);
     _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::serverFileRoots);
     _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::printerInfo);
+    _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::printerObjectsList);
     _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::printerSubscribe);
 }
 

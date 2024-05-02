@@ -95,6 +95,7 @@ public:
     virtual void printerInfo();
     virtual void restartKlipper();
     virtual void restartFirmware();
+    virtual void printerObjectsList();
     virtual void printerSubscribe();
 
     //Server Management
@@ -109,13 +110,15 @@ public:
     //Client Management
     virtual void clientIdentifier();
 
-    virtual ConnectionLocation connectionLoaction() const = 0;
-    virtual void setConnectionLoaction(ConnectionLocation connectionLoaction) = 0;
+    virtual ConnectionLocation connectionLoaction() const;
+    virtual void setConnectionLoaction(ConnectionLocation connectionLoaction);
 
     Printer *printer() const;
     void setPrinter(Printer *printer);
 
+    void setMoonrakerLocation(const QString &moonrakerLocation);
     QString moonrakerLocation() const;
+
     bool isMoonrakerConnected() const;
     bool isKlipperConnected() const;
     bool isConnected() const;
@@ -124,6 +127,7 @@ public:
 
     QAbstractSocket *moonrakerSocket() const;
     void setMoonrakerSocket(QAbstractSocket *moonrakerSocket);
+
 
 signals:
     void commandSent(KlipperMessage data);
@@ -150,6 +154,7 @@ signals:
 
     //Server signals
     void serverGCodeStoreResponse(GCodeStore store);
+    void serverLogsRolloverSuccess();
 
 protected slots:
     virtual void on_moonrakerSocket_readyRead();
@@ -185,6 +190,7 @@ protected slots:
     virtual void on_printerInfo(KlipperResponse response);
     virtual void on_restartKlipper(KlipperResponse response);
     virtual void on_restartFirmware(KlipperResponse response);
+    virtual void on_printerObjectsList(KlipperResponse response);
     virtual void on_printerSubscribe(KlipperResponse response);
 
     //Server Management
@@ -212,6 +218,8 @@ protected:
     QQueue<StartupFunction> _startupSequence;
     QMap<QString, ParserFunction> _parserMap;
     QMap<int, KlipperMessage> _klipperMessageBuffer;
+    QStringList _subscriptionObjects;
+    QStringList _macroObjects;
 
     QString _moonrakerLocation;
 

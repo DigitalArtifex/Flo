@@ -4,10 +4,13 @@
 
 QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *parent)
 {
+    _parserMap[QString("printer.info")] = (ParserFunction)&QAbstractKlipperConsole::on_printerInfo;
+    _parserMap[QString("printer.objects.list")] = (ParserFunction)&QAbstractKlipperConsole::on_printerObjectsList;
+    _parserMap[QString("printer.objects.subscribe")] = (ParserFunction)&QAbstractKlipperConsole::on_printerSubscribe;
+    _parserMap[QString("notify_status_update")] = (ParserFunction)&QAbstractKlipperConsole::on_printerSubscribe;
+
     _parserMap[QString("server.connection.identify")] = (ParserFunction)&QAbstractKlipperConsole::on_clientIdentifier;
     _parserMap[QString("server.info")] = (ParserFunction)&QAbstractKlipperConsole::on_serverInfo;
-    _parserMap[QString("notify_status_update")] = (ParserFunction)&QAbstractKlipperConsole::on_printerSubscribe;
-    _parserMap[QString("printer.objects.subscribe")] = (ParserFunction)&QAbstractKlipperConsole::on_printerSubscribe;
     _parserMap[QString("server.files.post_directory")] = (ParserFunction)&QAbstractKlipperConsole::on_createDirectory;
     _parserMap[QString("server.files.delete_directory")] = (ParserFunction)&QAbstractKlipperConsole::on_deleteDirectory;
     _parserMap[QString("server.files.roots")] = (ParserFunction)&QAbstractKlipperConsole::on_serverFileRoots;
@@ -16,15 +19,9 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("server.websocket.id")] = (ParserFunction)&QAbstractKlipperConsole::on_serverWebsocketId;
     _parserMap[QString("server.logs.rollover")] = (ParserFunction)&QAbstractKlipperConsole::on_serverLogsRollover;
     _parserMap[QString("server.files.list")] = (ParserFunction)&QAbstractKlipperConsole::on_getFileList;
-    _parserMap[QString("printer.info")] = (ParserFunction)&QAbstractKlipperConsole::on_printerInfo;
 }
 
 QAbstractKlipperConsole::~QAbstractKlipperConsole()
-{
-
-}
-
-void QAbstractKlipperConsole::connectToMoonraker()
 {
 
 }
@@ -78,6 +75,11 @@ void QAbstractKlipperConsole::addState(QAbstractKlipperConsole::ConsoleState sta
 void QAbstractKlipperConsole::removeState(ConsoleState state)
 {
     _state = (ConsoleState)(_state & (~state));
+}
+
+void QAbstractKlipperConsole::setMoonrakerLocation(const QString &moonrakerLocation)
+{
+    _moonrakerLocation = moonrakerLocation;
 }
 
 QAbstractSocket *QAbstractKlipperConsole::moonrakerSocket() const
@@ -390,6 +392,19 @@ void QAbstractKlipperConsole::restartFirmware()
     sendCommand(message);
 }
 
+void QAbstractKlipperConsole::printerObjectsList()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["method"] = "printer.objects.list";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
 void QAbstractKlipperConsole::printerSubscribe()
 {
     KlipperMessage message;
@@ -405,14 +420,9 @@ void QAbstractKlipperConsole::printerSubscribe()
         objectArray[extruderName];
     }
 
-    objectArray["bed_mesh"];
-    objectArray["heater_bed"];
-    objectArray["fan"];
-    objectArray["gcode_move"];
-    objectArray["print_stats"];
-    //This needs to be expanded to fans in the config file
-    objectArray["heater_fan heatbreak_cooling_fan"];
-    objectArray["motion_report"];
+    //Leave each object null to receive the full report
+    foreach(QString object, _subscriptionObjects)
+        objectArray[object];
 
     paramsObject["objects"] = objectArray;
 
@@ -478,6 +488,21 @@ void QAbstractKlipperConsole::serverTemperatureStore()
     sendCommand(message);
 }
 
+void QAbstractKlipperConsole::serverGcodeStore()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["include_monitors"] = false;
+    messageObject["method"] = "server.gcode_store";
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
 void QAbstractKlipperConsole::serverLogsRollover()
 {
     KlipperMessage message;
@@ -517,6 +542,16 @@ void QAbstractKlipperConsole::clientIdentifier()
     message.setDocument(messageObject);
 
     sendCommand(message);
+}
+
+QAbstractKlipperConsole::ConnectionLocation QAbstractKlipperConsole::connectionLoaction() const
+{
+
+}
+
+void QAbstractKlipperConsole::setConnectionLoaction(ConnectionLocation connectionLoaction)
+{
+
 }
 
 void QAbstractKlipperConsole::setMoonrakerSocket(QAbstractSocket *moonrakerSocket)
@@ -949,6 +984,33 @@ void QAbstractKlipperConsole::on_restartFirmware(KlipperResponse response)
 
 }
 
+void QAbstractKlipperConsole::on_printerObjectsList(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        if(result["objects"].isArray())
+        {
+            _subscriptionObjects.clear();
+            _macroObjects.clear();
+
+            QJsonArray objectsArray = result["objects"].toArray();
+            int count = objectsArray.count();
+
+            for(int i = 0; i < count; i++)
+            {
+                QString object = objectsArray.at(i).toString();
+
+                if(object.startsWith("gcode_macro"))
+                    _macroObjects += objectsArray.at(i).toString();
+                else
+                    _subscriptionObjects += objectsArray.at(i).toString();
+            }
+        }
+    }
+}
+
 void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
 {
     //Parse extruders
@@ -1340,8 +1402,12 @@ void QAbstractKlipperConsole::on_serverLogsRollover(KlipperResponse response)
             {
                 QString application = failureIterator.key();
                 QString message = failureIterator.value().toString();
+
+                emit klipperError(QString("Could not rollover logfile ") + application, message);
             }
         }
+        else
+            emit serverLogsRolloverSuccess();
     }
 }
 
