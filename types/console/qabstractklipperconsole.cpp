@@ -412,14 +412,6 @@ void QAbstractKlipperConsole::printerSubscribe()
     QJsonObject paramsObject;
     QJsonObject objectArray;
 
-    objectArray["toolhead"];
-
-    for(int i = 0; i < _printer->toolhead()->extruderCount(); i++)
-    {
-        QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
-        objectArray[extruderName];
-    }
-
     //Leave each object null to receive the full report
     foreach(QString object, _subscriptionObjects)
         objectArray[object];
@@ -716,6 +708,9 @@ void QAbstractKlipperConsole::on_messageReady()
         {
             StartupFunction function = _startupSequence.dequeue();
             (this->*function)();
+
+            if(!_startupSequence.count())
+                emit startup();
         }
     }
 }
@@ -1003,9 +998,9 @@ void QAbstractKlipperConsole::on_printerObjectsList(KlipperResponse response)
                 QString object = objectsArray.at(i).toString();
 
                 if(object.startsWith("gcode_macro"))
-                    _macroObjects += objectsArray.at(i).toString();
+                    _macroObjects.append(objectsArray.at(i).toString());
                 else
-                    _subscriptionObjects += objectsArray.at(i).toString();
+                    _subscriptionObjects.append(objectsArray.at(i).toString());
             }
         }
     }
@@ -1013,6 +1008,16 @@ void QAbstractKlipperConsole::on_printerObjectsList(KlipperResponse response)
 
 void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
 {
+
+
+    QFile file(QDir::homePath() + QDir::separator() + QString("poop2.test"));
+    if(file.open(QFile::ReadWrite | QFile::Append))
+    {
+        QJsonDocument document(response["result"].toObject());
+        file.write(document.toJson(QJsonDocument::Indented));
+        file.close();
+    }
+
     //Parse extruders
     for(int index = 0; true; index++)
     {

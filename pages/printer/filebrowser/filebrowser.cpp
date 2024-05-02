@@ -51,7 +51,7 @@ void FileBrowser::setPrinter(Printer *printer)
     _printer = printer;
 
     connect(_printer, SIGNAL(directoryListing(QString,QString,QList<KlipperFile>,Printer*)), this, SLOT(on_printer_fileListing(QString,QString,QList<KlipperFile>,Printer*)));
-    connect(_printer, SIGNAL(printerUpdate(Printer*)), this, SLOT(on_printer_update(Printer*)));
+    connect(_printer, SIGNAL(startup(Printer*)), this, SLOT(on_printer_startup(Printer*)));
 }
 
 void FileBrowser::setupUi()
@@ -327,14 +327,7 @@ void FileBrowser::on_deleteFileButton_clicked()
 
 void FileBrowser::on_printer_update(Printer *printer)
 {
-    if(_startup)
-    {
-        if(printer->status() != Printer::Offline)
-        {
-            _startup = false;
-            printer->getFiles(_rootDirectory, _currentDirectory);
-        }
-    }
+
 }
 
 void FileBrowser::on_printer_fileListing(QString root, QString directory, QList<KlipperFile> files, Printer *printer)
@@ -360,6 +353,11 @@ void FileBrowser::on_printer_fileListing(QString root, QString directory, QList<
     _uploadFileButton->setEnabled(true);
     _newFolderButton->setEnabled(true);
     _downloadFolderButton->setEnabled(files.count() > 0);
+}
+
+void FileBrowser::on_printer_startup(Printer *printer)
+{
+    printer->getFiles(_rootDirectory, _currentDirectory);
 }
 
 void FileBrowser::on_fileBrowserWidget_fileSelected(QAnimatedListItem *item)

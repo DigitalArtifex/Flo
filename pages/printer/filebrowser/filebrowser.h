@@ -52,6 +52,7 @@ private slots:
     //Printer
     void on_printer_update(Printer *printer);
     void on_printer_fileListing(QString root, QString directory, QList<KlipperFile> files, Printer *printer);
+    void on_printer_startup(Printer *printer);
 
     //FileBrowserWidget
     void on_fileBrowserWidget_fileSelected(QAnimatedListItem *item);

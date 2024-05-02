@@ -48,6 +48,7 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
     connect(_console, SIGNAL(systemUpdate()), this, SLOT(on_systemUpdate()));
     connect(_console, SIGNAL(klipperError(QString,QString)), this, SLOT(on_console_klipperError(QString,QString)));
     connect(_console, SIGNAL(directoryListing(QString,QString,QList<KlipperFile>)), this, SLOT(on_console_directoryListing(QString,QString,QList<KlipperFile>)));
+    connect(_console,SIGNAL(startup()),this,SLOT(on_console_startup()));
 }
 
 Printer::~Printer()
@@ -316,6 +317,11 @@ void Printer::on_console_klipperError(QString error, QString message)
 void Printer::on_console_directoryListing(QString root, QString directory, QList<KlipperFile> files)
 {
     emit directoryListing(root, directory, files, this);
+}
+
+void Printer::on_console_startup()
+{
+    emit startup(this);
 }
 
 ClientIdentifier Printer::clientIdentifier() const

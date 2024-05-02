@@ -130,6 +130,8 @@ signals:
     void klipperDisconnected(Printer *printer);
     void moonrakerConnected(Printer *printer);
 
+    void startup(Printer *printer);
+
     void connectionTimeout(Printer *printer);
 
     void directoryListing(QString root, QString directory, QList<KlipperFile> files, Printer *printer);
@@ -145,6 +147,7 @@ private slots:
     void on_console_responseReceived(KlipperResponse response);
     void on_console_klipperError(QString error, QString message);
     void on_console_directoryListing(QString root, QString directory, QList<KlipperFile> files);
+    void on_console_startup();
 
 private:
     Toolhead *_toolhead = nullptr;

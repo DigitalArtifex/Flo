@@ -130,6 +130,8 @@ public:
 
 
 signals:
+    void startup();
+
     void commandSent(KlipperMessage data);
     void responseReceived(KlipperResponse response);
     void printerUpdateReceived(KlipperResponse response);
