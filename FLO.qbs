@@ -128,6 +128,8 @@ QtApplication {
         "types/bed.h",
         "types/chamber.cpp",
         "types/chamber.h",
+        "types/clientidentifier.cpp",
+        "types/clientidentifier.h",
         "types/console/qabstractklipperconsole.cpp",
         "types/console/qabstractklipperconsole.h",
         "types/console/qlocalklipperconsole.cpp",

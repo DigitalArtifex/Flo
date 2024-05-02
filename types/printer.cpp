@@ -318,6 +318,11 @@ void Printer::on_console_directoryListing(QString root, QString directory, QList
     emit directoryListing(root, directory, files, this);
 }
 
+ClientIdentifier Printer::clientIdentifier() const
+{
+    return _clientIdentifier;
+}
+
 GCodeStore Printer::gCodeStore() const
 {
     return _gCodeStore;

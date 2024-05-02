@@ -21,6 +21,7 @@
 
 #include "printerdefinition.h"
 #include "gcodestore.h"
+#include "clientidentifier.h"
 
 class Printer: public QObject
 {
@@ -118,6 +119,8 @@ public:
 
     GCodeStore gCodeStore() const;
 
+    ClientIdentifier clientIdentifier() const;
+
 signals:
     void systemUpdate(Printer *printer);
     void printerUpdate(Printer *printer);
@@ -179,6 +182,7 @@ private:
     PrintJob *_printJob;
 
     GCodeStore _gCodeStore;
+    ClientIdentifier _clientIdentifier;
 };
 
 typedef QList<Printer*> PrinterList;

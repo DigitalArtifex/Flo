@@ -104,6 +104,7 @@ public:
     virtual void serverTemperatureStore();
     virtual void serverGcodeStore();
     virtual void serverLogsRollover();
+    virtual void serverWebsocketId();
 
     //Client Management
     virtual void clientIdentifier();
@@ -193,6 +194,7 @@ protected slots:
     virtual void on_serverTemperatureStore(KlipperResponse response);
     virtual void on_serverGCodeStore(KlipperResponse response);
     virtual void on_serverLogsRollover(KlipperResponse response);
+    virtual void on_serverWebsocketId(KlipperResponse response);
 
     //Client Management
     virtual void on_clientIdentifier(KlipperResponse response);

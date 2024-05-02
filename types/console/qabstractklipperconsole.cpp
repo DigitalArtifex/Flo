@@ -13,6 +13,8 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("server.files.roots")] = (ParserFunction)&QAbstractKlipperConsole::on_serverFileRoots;
     _parserMap[QString("server.files.get_directory")] = (ParserFunction)&QAbstractKlipperConsole::on_getFileList;
     _parserMap[QString("server.temperature_store")] = (ParserFunction)&QAbstractKlipperConsole::on_serverTemperatureStore;
+    _parserMap[QString("server.websocket.id")] = (ParserFunction)&QAbstractKlipperConsole::on_serverWebsocketId;
+    _parserMap[QString("server.logs.rollover")] = (ParserFunction)&QAbstractKlipperConsole::on_serverLogsRollover;
     _parserMap[QString("server.files.list")] = (ParserFunction)&QAbstractKlipperConsole::on_getFileList;
     _parserMap[QString("printer.info")] = (ParserFunction)&QAbstractKlipperConsole::on_printerInfo;
 }
@@ -481,6 +483,17 @@ void QAbstractKlipperConsole::serverLogsRollover()
     KlipperMessage message;
     QJsonObject messageObject = message.document();
     messageObject["method"] = "server.logs.rollover";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverWebsocketId()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    messageObject["method"] = "server.websocket.id";
 
     message.setDocument(messageObject);
 
@@ -1332,7 +1345,24 @@ void QAbstractKlipperConsole::on_serverLogsRollover(KlipperResponse response)
     }
 }
 
+void QAbstractKlipperConsole::on_serverWebsocketId(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        if(result.contains("websocket_id"))
+            _printer->clientIdentifier().setWebsocketId(result["websocket_id"].toInt());
+    }
+}
+
 void QAbstractKlipperConsole::on_clientIdentifier(KlipperResponse response)
 {
-    qDebug() << QString("Client ID");
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        if(result.contains("connection_id"))
+            _printer->clientIdentifier().setWebsocketId(result["connection_id"].toInt());
+    }
 }
