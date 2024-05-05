@@ -10,16 +10,6 @@ QLocalKlipperConsole::QLocalKlipperConsole(Printer *printer, QObject *parent)
     setMoonrakerSocket((QAbstractSocket*)socket);
 
     addState(Startup);
-
-    //Startup commands to get base information
-    _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::clientIdentifier);
-    _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::serverInfo);
-    _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::machineSystemInfo);
-    _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::serverConfig);
-    _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::serverFileRoots);
-    _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::printerInfo);
-    _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::printerObjectsList);
-    _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::printerSubscribe);
 }
 
 QLocalKlipperConsole::~QLocalKlipperConsole()

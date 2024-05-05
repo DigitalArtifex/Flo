@@ -9,59 +9,6 @@ System::~System()
 {
 }
 
-void System::setCpuCount(qint16 count)
-{
-    _cpuCount = count;
-}
-
-void System::setCpuList(QList<qreal> cpus)
-{
-    _cpuUsages.clear();
-    _cpuUsages.append(cpus);
-}
-
-int System::cpuCount()
-{
-    return _cpuCount;
-}
-
-qreal System::cpuLoad()
-{
-    qreal load = 0;
-
-    foreach(qreal i, _cpuUsages)
-        load += i;
-
-    load /= _cpuCount;
-
-    return load;
-}
-
-void System::setMemoryUsage(qint64 memory)
-{
-    _memoryUsage = memory;
-}
-
-void System::setMemoryCapacity(qint64 memory)
-{
-    _memoryCapacity = memory;
-}
-
-qreal System::memoryCapacity()
-{
-    return _memoryCapacity;
-}
-
-qreal System::memoryUsage()
-{
-    return _memoryUsage;
-}
-
-qreal System::memoryLoad()
-{
-    return (_memoryCapacity/_memoryUsage);
-}
-
 void System::setHostname(QString hostname)
 {
     _hostname = hostname;
@@ -185,4 +132,54 @@ System::SdInfo System::sdInfo() const
 void System::setSdInfo(const SdInfo &sdInfo)
 {
     _sdInfo = sdInfo;
+}
+
+QList<System::MoonrakerStatsEntry> System::moonrakerStats() const
+{
+    return _moonrakerStats;
+}
+
+QMap<QString, System::NetworkStatsEntry> System::networkStats() const
+{
+    return _networkStats;
+}
+
+System::ThrottleState System::throttleState() const
+{
+    return _throttleState;
+}
+
+void System::setThrottleState(const ThrottleState &throttleState)
+{
+    _throttleState = throttleState;
+}
+
+System::MemoryStats System::memoryStats() const
+{
+    return _memoryStats;
+}
+
+void System::setMemoryStats(const MemoryStats &memoryStats)
+{
+    _memoryStats = memoryStats;
+}
+
+qreal System::uptime() const
+{
+    return _uptime;
+}
+
+void System::setUptime(qreal uptime)
+{
+    _uptime = uptime;
+}
+
+qint32 System::connectionCount() const
+{
+    return _connectionCount;
+}
+
+void System::setConnectionCount(qint32 connectionCount)
+{
+    _connectionCount = connectionCount;
 }

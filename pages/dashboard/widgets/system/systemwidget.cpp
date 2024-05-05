@@ -53,12 +53,13 @@ void SystemWidget::setStyleSheet(QString styleSheet)
 
 void SystemWidget::on_printer_systemUpdate(Printer *printer)
 {
-    _systemCpuLoadProgressBar->setProgress(printer->system()->cpuLoad());
-    _systemMemoryLoadProgressBar->setMaximum(printer->system()->memoryCapacity());
-    _systemMemoryLoadProgressBar->setProgress(printer->system()->memoryUsage());
+    _systemCpuLoadProgressBar->setProgress(printer->system()->cpuInfo().usage);
+
+    _systemMemoryLoadProgressBar->setMaximum(printer->system()->memoryStats().total);
+    _systemMemoryLoadProgressBar->setProgress(printer->system()->memoryStats().used);
 
     QString memoryCapacityString("System Memory: ");
-    qreal capacity = printer->system()->memoryCapacity();
+    qreal capacity = printer->system()->memoryStats().total;
     QString capacityLabel;
     convertBytes(capacity, capacityLabel);
     memoryCapacityString += QString::number(capacity);
@@ -66,7 +67,7 @@ void SystemWidget::on_printer_systemUpdate(Printer *printer)
     ui->memoryCapacityLabel->setText(memoryCapacityString);
 
     QString memoryAvailableString("Available Memory: ");
-    qreal available = printer->system()->memoryCapacity() - printer->system()->memoryUsage();
+    qreal available = printer->system()->memoryStats().total - printer->system()->memoryStats().used;
     QString availableLabel;
     convertBytes(available, availableLabel);
     memoryAvailableString += QString::number(available);

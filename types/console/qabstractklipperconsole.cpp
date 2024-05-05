@@ -8,6 +8,10 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("printer.objects.list")] = (ParserFunction)&QAbstractKlipperConsole::on_printerObjectsList;
     _parserMap[QString("printer.objects.subscribe")] = (ParserFunction)&QAbstractKlipperConsole::on_printerSubscribe;
     _parserMap[QString("notify_status_update")] = (ParserFunction)&QAbstractKlipperConsole::on_printerSubscribe;
+    _parserMap[QString("printer.print.start")] = (ParserFunction)&QAbstractKlipperConsole::on_startPrint;
+    _parserMap[QString("printer.print.pause")] = (ParserFunction)&QAbstractKlipperConsole::on_pausePrint;
+    _parserMap[QString("printer.print.resume")] = (ParserFunction)&QAbstractKlipperConsole::on_resumePrint;
+    _parserMap[QString("printer.print.cancel")] = (ParserFunction)&QAbstractKlipperConsole::on_cancelPrint;
     _parserMap[QString("printer.emergency_stop")] = (ParserFunction)&QAbstractKlipperConsole::on_printerEmergencyStop;
     _parserMap[QString("printer.query_endstops.status")] = (ParserFunction)&QAbstractKlipperConsole::on_printerQueryEndstops;
 
@@ -23,6 +27,22 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("server.files.list")] = (ParserFunction)&QAbstractKlipperConsole::on_getFileList;
 
     _parserMap[QString("machine.system_info")] = (ParserFunction)&QAbstractKlipperConsole::on_machineSystemInfo;
+    _parserMap[QString("machine.services.restart")] = (ParserFunction)&QAbstractKlipperConsole::on_machineServiceRestart;
+    _parserMap[QString("machine.services.stop")] = (ParserFunction)&QAbstractKlipperConsole::on_machineServiceStop;
+    _parserMap[QString("machine.services.start")] = (ParserFunction)&QAbstractKlipperConsole::on_machineServiceStart;
+    _parserMap[QString("machine.proc_stats")] = (ParserFunction)&QAbstractKlipperConsole::on_machineProcStats;
+    _parserMap[QString("notify_proc_stat_update")] = (ParserFunction)&QAbstractKlipperConsole::on_machineProcStats;
+
+    //Startup commands to get base information
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::clientIdentifier);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverInfo);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineSystemInfo);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineProcStats);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverConfig);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverFileRoots);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerInfo);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerObjectsList);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerSubscribe);
 }
 
 QAbstractKlipperConsole::~QAbstractKlipperConsole()
@@ -244,6 +264,8 @@ void QAbstractKlipperConsole::startPrint(QString file)
 
     message.setDocument(messageObject);
 
+    _waitForOkId = message.id;
+
     sendCommand(message);
 }
 
@@ -255,6 +277,8 @@ void QAbstractKlipperConsole::pausePrint()
     messageObject["method"] = "printer.print.pause";
 
     message.setDocument(messageObject);
+
+    _waitForOkId = message.id;
 
     sendCommand(message);
 }
@@ -268,6 +292,8 @@ void QAbstractKlipperConsole::resumePrint()
 
     message.setDocument(messageObject);
 
+    _waitForOkId = message.id;
+
     sendCommand(message);
 }
 
@@ -279,6 +305,8 @@ void QAbstractKlipperConsole::cancelPrint()
     messageObject["method"] = "printer.print.cancel";
 
     message.setDocument(messageObject);
+
+    _waitForOkId = message.id;
 
     sendCommand(message);
 }
@@ -319,8 +347,9 @@ void QAbstractKlipperConsole::machineSystemInfo()
     sendCommand(message);
 }
 
-void QAbstractKlipperConsole::serviceRestart(QString service)
+void QAbstractKlipperConsole::machineServiceRestart(QString service)
 {
+
     KlipperMessage message;
     QJsonObject messageObject = message.document();
     QJsonObject paramsObject;
@@ -332,35 +361,54 @@ void QAbstractKlipperConsole::serviceRestart(QString service)
 
     message.setDocument(messageObject);
 
+    _waitForOkId = message.id;
+
     sendCommand(message);
 }
 
-void QAbstractKlipperConsole::serviceStop(QString service)
+void QAbstractKlipperConsole::machineServiceStop(QString service)
 {
+
     KlipperMessage message;
     QJsonObject messageObject = message.document();
     QJsonObject paramsObject;
 
-    messageObject["method"] = "machine.services.stop";
-
     paramsObject["service"] = service;
     messageObject["params"] = paramsObject;
+    messageObject["method"] = "machine.services.stop";
 
     message.setDocument(messageObject);
 
+    _waitForOkId = message.id;
+
     sendCommand(message);
 }
 
-void QAbstractKlipperConsole::serviceStart(QString service)
+void QAbstractKlipperConsole::machineServiceStart(QString service)
 {
     KlipperMessage message;
     QJsonObject messageObject = message.document();
     QJsonObject paramsObject;
 
-    messageObject["method"] = "machine.services.start";
-
     paramsObject["service"] = service;
     messageObject["params"] = paramsObject;
+    messageObject["method"] = "machine.proc_stats";
+
+    message.setDocument(messageObject);
+
+    _waitForOkId = message.id;
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machineProcStats()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["params"] = paramsObject;
+    messageObject["method"] = "machine.services.start";
 
     message.setDocument(messageObject);
 
@@ -373,12 +421,13 @@ void QAbstractKlipperConsole::sendGcode(QString gcode)
     QJsonObject messageObject = message.document();
     QJsonObject paramsObject;
 
-    messageObject["method"] = "printer.gcode.script";
-
     paramsObject["script"] = gcode;
     messageObject["params"] = paramsObject;
+    messageObject["method"] = "printer.gcode.script";
 
     message.setDocument(messageObject);
+
+    _waitForOkId = message.id;
 
     sendCommand(message);
 }
@@ -617,18 +666,28 @@ void QAbstractKlipperConsole::on_moonrakerSocket_readyRead()
         while(_moonrakerSocket->bytesAvailable() > 0)
         {
             QByteArray incoming = _moonrakerSocket->readAll();
-
-            if(incoming.toLower() == QByteArray("ok"))
-            {
-                _messageDataQueue.enqueue(incoming);
-                on_messageReady();
-            }
-            else
-                _dataBuffer += incoming;
+            _dataBuffer += incoming;
         }
     }
 
-    if(_dataBuffer.contains((char)0x03))
+    QString okPattern;
+    okPattern = QString("[") + QString(_eof) + QString("|][o|O][k|K]");
+
+    QRegularExpression okExpression(okPattern);
+    QRegularExpressionMatch okMatch = okExpression.match(QString::fromUtf8(_dataBuffer));
+
+    if(okMatch.hasMatch())
+    {
+        QString ok = okMatch.captured();
+
+        if(ok.contains(_eof))
+            ok.remove(_eof);
+
+        _dataBuffer.replace(ok.toStdString(), "");
+
+        _messageDataQueue.enqueue("ok");
+    }
+    else if(_dataBuffer.contains((char)0x03))
     {
         int index = _dataBuffer.indexOf((char)0x03);
         QByteArray responseData = _dataBuffer.mid(0, index + 1);
@@ -664,23 +723,28 @@ void QAbstractKlipperConsole::on_messageReady()
 
     if(responseData == QByteArray("ok"))
     {
-        qDebug();
-    }
-
-    if(!response.rootObject.contains("error"))
-        response.status = KlipperResponse::OK;
-
-    response.setId(response["id"].toInt());
-
-    response.timestamp = QDateTime::currentDateTime();
-
-    if(!response.rootObject.contains("method"))
-    {
         origin = _klipperMessageBuffer[response["id"].toInt()];
-        response["message"] = origin.document();
+        response["origin"] = origin.document();
         response["method"] = origin["method"];
         response.origin = (KlipperResponse::ResponseOrigin)_klipperMessageBuffer[response["id"].toInt()].origin;
-        _klipperMessageBuffer.remove(response["id"].toInt());
+    }
+    else
+    {
+        if(!response.rootObject.contains("error"))
+            response.status = KlipperResponse::OK;
+
+        response.setId(response["id"].toInt());
+
+        response.timestamp = QDateTime::currentDateTime();
+
+        if(!response.rootObject.contains("method"))
+        {
+            origin = _klipperMessageBuffer[response["id"].toInt()];
+            response["origin"] = origin.document();
+            response["method"] = origin["method"];
+            response.origin = (KlipperResponse::ResponseOrigin)_klipperMessageBuffer[response["id"].toInt()].origin;
+            _klipperMessageBuffer.remove(response["id"].toInt());
+        }
     }
 
     QFile file(QDir::homePath() + QDir::separator() + QString("poop2.test"));
@@ -707,38 +771,9 @@ void QAbstractKlipperConsole::on_messageReady()
         response["result"] = result;
     }
 
-    if(response["method"].toString().startsWith("notify") && response["method"] != QString("notify_status_update"))
+    if(response["method"].toString().startsWith("notify") && response["method"] != QString("notify_status_update") && response["method"] != QString("notify_proc_stat_update"))
     {
-        if(response["method"] == QString("notify_proc_stat_update"))
-        {
-            //Parse heatbed status
-            if(response["result"].toObject().contains("system_cpu_usage"))
-            {
-                int cpuCount = 0;
-                QJsonObject cpuLoadArray = response["result"].toObject()["system_cpu_usage"].toObject();
-
-                QJsonObject::Iterator cpuIterator;
-                QList<qreal> cpus;
-
-                for(cpuIterator = cpuLoadArray.begin(); cpuIterator != cpuLoadArray.end(); cpuIterator++)
-                {
-                    cpus.append(cpuIterator->toDouble());
-                    cpuCount++;
-                }
-                _printer->system()->setCpuCount(cpuCount);
-                _printer->system()->setCpuList(cpus);
-            }
-
-            //Parse heatbed status
-            if(response["result"].toObject().contains("system_memory"))
-            {
-                QJsonObject memoryLoadObject = response["result"].toObject()["system_memory"].toObject();
-                _printer->system()->setMemoryCapacity(memoryLoadObject["total"].toDouble());
-                _printer->system()->setMemoryUsage(memoryLoadObject["used"].toDouble());
-            }
-            emit systemUpdate();
-        }
-        else if(response["method"] == QString("notify_klippy_disconnected"))
+        if(response["method"] == QString("notify_klippy_disconnected"))
         {
             if(!_klipperRestartTimer)
             {
@@ -835,7 +870,7 @@ void QAbstractKlipperConsole::on_getFileList(KlipperResponse response)
 {
     if(response["result"].isObject())
     {
-        QJsonObject originObject = response["message"].toObject();
+        QJsonObject originObject = response["origin"].toObject();
         QJsonObject result = response["result"].toObject();
         QJsonObject rootInfo = result["root_info"].toObject();
         QJsonArray files = result["files"].toArray();
@@ -968,32 +1003,30 @@ void QAbstractKlipperConsole::on_deleteDirectory(KlipperResponse response)
 
 void QAbstractKlipperConsole::on_startPrint(KlipperResponse response)
 {
-
+    printerInfo();
 }
 
 void QAbstractKlipperConsole::on_pausePrint(KlipperResponse response)
 {
-
+    printerInfo();
 }
 
 void QAbstractKlipperConsole::on_resumePrint(KlipperResponse response)
 {
-
+    printerInfo();
 }
 
 void QAbstractKlipperConsole::on_cancelPrint(KlipperResponse response)
 {
-
+    printerInfo();
 }
 
 void QAbstractKlipperConsole::on_machineShutdown(KlipperResponse response)
 {
-
 }
 
 void QAbstractKlipperConsole::on_machineReboot(KlipperResponse response)
 {
-
 }
 
 void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
@@ -1004,9 +1037,9 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
 
         if(result.contains("system_info") && result["system_info"].isObject())
         {
-            QJsonObject systemInfo = response["system_info"].toObject();
+            QJsonObject systemInfo = result["system_info"].toObject();
 
-            if(result.contains("cpu_info") && result["cpu_info"].isObject())
+            if(systemInfo.contains("cpu_info") && systemInfo["cpu_info"].isObject())
             {
                 QJsonObject cpuInfoObject = systemInfo["cpu_info"].toObject();
                 System::CpuInfo cpuInfo = _printer->system()->cpuInfo();
@@ -1046,7 +1079,7 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                 _printer->system()->setCpuInfo(cpuInfo);
             }
 
-            if(result.contains("sd_info") && result["sd_info"].isObject())
+            if(systemInfo.contains("sd_info") && systemInfo["sd_info"].isObject())
             {
                 QJsonObject sdInfoObject = systemInfo["sd_info"].toObject();
                 System::SdInfo sdInfo = _printer->system()->sdInfo();
@@ -1081,7 +1114,7 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                 _printer->system()->setSdInfo(sdInfo);
             }
 
-            if(result.contains("distribution") && result["distribution"].isObject())
+            if(systemInfo.contains("distribution") && systemInfo["distribution"].isObject())
             {
                 QJsonObject distributionObject = systemInfo["distribution"].toObject();
                 System::DistributionInfo distribution = _printer->system()->distributionInfo();
@@ -1117,18 +1150,18 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                 _printer->system()->setDistributionInfo(distribution);
             }
 
-            if(result.contains("available_services") && result["available_services"].isArray())
+            if(systemInfo.contains("available_services") && systemInfo["available_services"].isArray())
             {
-                QJsonArray servicesArray = result["available_services"].toArray();
+                QJsonArray servicesArray = systemInfo["available_services"].toArray();
                 _printer->system()->availableServices().clear();
 
                 for(int i = 0; i < servicesArray.count(); i++)
                     _printer->system()->availableServices() += servicesArray[i].toString();
             }
 
-            if(result.contains("service_state") && result["service_state"].isObject())
+            if(systemInfo.contains("service_state") && systemInfo["service_state"].isObject())
             {
-                QJsonObject serviceState = result["service_state"].toObject();
+                QJsonObject serviceState = systemInfo["service_state"].toObject();
                 QStringList keys = serviceState.keys();
 
                 _printer->system()->serviceStates().clear();
@@ -1151,9 +1184,9 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                 }
             }
 
-            if(result.contains("network") && result["network"].isObject())
+            if(systemInfo.contains("network") && systemInfo["network"].isObject())
             {
-                QJsonObject networkObject = result["network"].toObject();
+                QJsonObject networkObject = systemInfo["network"].toObject();
                 QStringList keys = networkObject.keys();
 
                 _printer->system()->networkInterfaces().clear();
@@ -1191,9 +1224,9 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                 }
             }
 
-            if(result.contains("canbus") && result["canbus"].isObject())
+            if(systemInfo.contains("canbus") && systemInfo["canbus"].isObject())
             {
-                QJsonObject canbusObject = result["canbus"].toObject();
+                QJsonObject canbusObject = systemInfo["canbus"].toObject();
                 QStringList keys = canbusObject.keys();
 
                 _printer->system()->canBus().clear();
@@ -1219,9 +1252,9 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                 }
             }
 
-            if(result.contains("python") && result["python"].isObject())
+            if(systemInfo.contains("python") && systemInfo["python"].isObject())
             {
-                QJsonObject pythonObject = result["python"].toObject();
+                QJsonObject pythonObject = systemInfo["python"].toObject();
 
                 if(pythonObject.contains("version_string"))
                     _printer->system()->setPythonVersion(pythonObject["version_string"].toString());
@@ -1230,19 +1263,120 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
     }
 }
 
-void QAbstractKlipperConsole::on_serviceRestart(KlipperResponse response)
+void QAbstractKlipperConsole::on_machineServiceRestart(KlipperResponse response)
 {
 
 }
 
-void QAbstractKlipperConsole::on_serviceStop(KlipperResponse response)
+void QAbstractKlipperConsole::on_machineServiceStop(KlipperResponse response)
 {
 
 }
 
-void QAbstractKlipperConsole::on_serviceStart(KlipperResponse response)
+void QAbstractKlipperConsole::on_machineServiceStart(KlipperResponse response)
 {
 
+}
+
+void QAbstractKlipperConsole::on_machineProcStats(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        System::CpuInfo cpuInfo = _printer->system()->cpuInfo();
+        System::MemoryStats memory = _printer->system()->memoryStats();
+        System::ThrottleState throttleState = _printer->system()->throttleState();
+
+        //Parse cpu usage status
+        if(result.contains("system_cpu_usage"))
+        {
+            QJsonObject cpuLoadArray = result["system_cpu_usage"].toObject();
+            QStringList keys = cpuLoadArray.keys();
+            qreal usage = 0;
+            cpuInfo.coreUsage.clear();
+
+            foreach(QString key, keys)
+            {
+                usage += cpuLoadArray[key].toDouble();
+                cpuInfo.coreUsage.append(cpuLoadArray[key].toDouble());
+            }
+
+            cpuInfo.usage = (usage / cpuInfo.cpuCount);
+        }
+
+        if(result.contains("cpu_temp"))
+            cpuInfo.temp = result["cpu_temp"].toDouble();
+
+        if(result.contains("throttled_state"))
+        {
+            QJsonObject throttleObject = result["throttled_state"].toObject();
+            throttleState.flags.clear();
+
+            if(throttleObject.contains("bits"))
+                throttleState.bits = throttleObject["bits"].toInt();
+
+            if(throttleObject.contains("flags"))
+            {
+                QJsonArray flagsArray = throttleObject["flags"].toArray();
+
+                for(int i = 0; i < flagsArray.count(); i++)
+                    throttleState.flags += flagsArray[i].toString();
+            }
+
+        }
+
+        if(result.contains("network"))
+        {
+            QJsonObject networkLoadObject = result["system_cpu_usage"].toObject();
+            QStringList keys = networkLoadObject.keys();
+
+            _printer->system()->networkStats().clear();
+
+            foreach(QString key, keys)
+            {
+                QJsonObject statObject = networkLoadObject[key].toObject();
+                System::NetworkStatsEntry statEntry;
+
+                if(statObject.contains("rx_bytes"))
+                    statEntry.rxBytes = statObject["rx_bytes"].toDouble();
+
+                if(statObject.contains("tx_bytes"))
+                    statEntry.txBytes = statObject["tx_bytes"].toDouble();
+
+                if(statObject.contains("bandwidth"))
+                    statEntry.bandwidth = statObject["bandwidth"].toDouble();
+
+                _printer->system()->networkStats().insert(key, statEntry);
+            }
+        }
+
+        //Parse memory status
+        if(result.contains("system_memory"))
+        {
+            QJsonObject memoryLoadObject = result["system_memory"].toObject();
+
+            if(memoryLoadObject.contains("total"))
+                memory.total = memoryLoadObject["total"].toDouble();
+
+            if(memoryLoadObject.contains("used"))
+                memory.used = memoryLoadObject["used"].toDouble();
+
+            memory.average = memory.used / memory.total;
+        }
+
+        if(result.contains("system_uptime"))
+            _printer->system()->setUptime(result["system_uptime"].toDouble());
+
+        if(result.contains("websocket_connections"))
+            _printer->system()->setConnectionCount(result["websocket_connections"].toInt());
+
+        _printer->system()->setCpuInfo(cpuInfo);
+        _printer->system()->setMemoryStats(memory);
+        _printer->system()->setThrottleState(throttleState);
+
+        emit systemUpdate();
+    }
 }
 
 void QAbstractKlipperConsole::on_sendGcode(KlipperResponse response)

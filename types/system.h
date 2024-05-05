@@ -64,12 +64,17 @@ public:
         qint32 bitCount = 0;
         qint64 totalMemory = 0;
 
+        qreal temp = 0;
+        qreal usage = 0;
+
         QString processor;
         QString description;
         QString serialNumber;
         QString hardwareDescription;
         QString model;
         QString memoryUnits;
+
+        QList<qreal> coreUsage;
     };
 
     /*!
@@ -106,20 +111,50 @@ public:
         QString codename;
     };
 
+    /*!
+     * \brief Filled by machine.proc_stats
+     */
+    struct MoonrakerStatsEntry
+    {
+        qreal time = 0;
+        qreal cpuUsage = 0;
+        qreal memory = 0;
+
+        QString memoryUnits;
+    };
+
+    /*!
+     * \brief Filled by machine.proc_stats
+     */
+    struct NetworkStatsEntry
+    {
+        qreal rxBytes = 0;
+        qreal txBytes = 0;
+        qreal bandwidth = 0;
+    };
+
+    /*!
+     * \brief Filled by machine.proc_stats
+     */
+    struct MemoryStats
+    {
+        qreal total = 0;
+        qreal used = 0;
+        qreal average = 0;
+    };
+
+    /*!
+     * \brief Filled by machine.proc_stats
+     */
+    struct ThrottleState
+    {
+        qint32 bits = 0;
+
+        QStringList flags;
+    };
+
     explicit System(QObject *parent = nullptr);
     ~System();
-
-    void setCpuCount(qint16 count);
-    void setCpuList(QList<qreal> cpus);
-    int cpuCount();
-    qreal cpuLoad();
-
-    void setMemoryUsage(qint64 memory);
-    void setMemoryCapacity(qint64 memory);
-
-    qreal memoryCapacity();
-    qreal memoryUsage();
-    qreal memoryLoad();
 
     void setHostname(QString hostname);
     QString hostname();
@@ -159,6 +194,22 @@ public:
     SdInfo sdInfo() const;
     void setSdInfo(const SdInfo &sdInfo);
 
+    QList<MoonrakerStatsEntry> moonrakerStats() const;
+
+    QMap<QString, NetworkStatsEntry> networkStats() const;
+
+    ThrottleState throttleState() const;
+    void setThrottleState(const ThrottleState &throttleState);
+
+    MemoryStats memoryStats() const;
+    void setMemoryStats(const MemoryStats &memoryStats);
+
+    qreal uptime() const;
+    void setUptime(qreal uptime);
+
+    qint32 connectionCount() const;
+    void setConnectionCount(qint32 connectionCount);
+
 signals:
 
 
@@ -166,15 +217,19 @@ private:
     qint64 _driveCapacity = 0;
     qint64 _driveUsage = 0;
     qint64 _driveFree = 0;
-    qint64 _memoryCapacity = 0;
-    qint64 _memoryUsage = 0;
-
-    qint16 _cpuCount = 0;
-
-    QList<qreal> _cpuUsages;
 
     QString _hostname;
 
+    //Filled by machine.proc_stats
+    QList<MoonrakerStatsEntry> _moonrakerStats;
+    QMap<QString, NetworkStatsEntry> _networkStats;
+    ThrottleState _throttleState;
+    MemoryStats _memoryStats;
+
+    qreal _uptime = 0;
+    qint32 _connectionCount = 0;
+
+    //Filled by machine.system_info
     CpuInfo _cpuInfo;
     SdInfo _sdInfo;
     DistributionInfo _distributionInfo;

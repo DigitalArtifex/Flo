@@ -86,11 +86,10 @@ public:
     virtual void machineShutdown();
     virtual void machineReboot();
     virtual void machineSystemInfo();
-
-    //Service Management
-    virtual void serviceRestart(QString service);
-    virtual void serviceStop(QString service);
-    virtual void serviceStart(QString service);
+    virtual void machineServiceRestart(QString service);
+    virtual void machineServiceStop(QString service);
+    virtual void machineServiceStart(QString service);
+    virtual void machineProcStats();
 
     virtual void sendGcode(QString gcode);
 
@@ -173,6 +172,11 @@ signals:
     void serverGCodeStoreResponse(GCodeStore store);
     void serverLogsRolloverSuccess();
 
+    //Machine Signals
+    void machineServiceRestarted(QString service);
+    void machineServiceStopped(QString service);
+    void machineServiceStarted(QString service);
+
 protected slots:
     //Socket slots
     virtual void on_moonrakerSocket_readyRead();
@@ -204,11 +208,10 @@ protected slots:
     virtual void on_machineShutdown(KlipperResponse response);
     virtual void on_machineReboot(KlipperResponse response);
     virtual void on_machineSystemInfo(KlipperResponse response);
-
-    //Service Management
-    virtual void on_serviceRestart(KlipperResponse response);
-    virtual void on_serviceStop(KlipperResponse response);
-    virtual void on_serviceStart(KlipperResponse response);
+    virtual void on_machineServiceRestart(KlipperResponse response);
+    virtual void on_machineServiceStop(KlipperResponse response);
+    virtual void on_machineServiceStart(KlipperResponse response);
+    virtual void on_machineProcStats(KlipperResponse response);
 
     virtual void on_sendGcode(KlipperResponse response);
 
@@ -238,6 +241,8 @@ protected:
     virtual void addState(ConsoleState state);
     virtual void removeState(ConsoleState state);
 
+    char _eof = (char)0x03;
+
     Printer* _printer;
 
     QByteArray _dataBuffer;
@@ -263,6 +268,7 @@ protected:
     bool _isMoonrakerConnected = false;
 
     int _startupState = 0;
+    qint64 _waitForOkId = 0;
 
     ConnectionLocation _connectionLoaction = LocationLocal;
 
