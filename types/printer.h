@@ -22,6 +22,7 @@
 #include "printerdefinition.h"
 #include "gcodestore.h"
 #include "clientidentifier.h"
+#include "endstopstatus.h"
 
 class Printer: public QObject
 {
@@ -35,7 +36,8 @@ public:
         LocationRemoteHttp
     };
 
-    enum Status {
+    enum Status
+    {
         Ready = 0x00000001,
         Error = 0x00000010,
         Printing = 0x00010000,
@@ -121,6 +123,8 @@ public:
 
     ClientIdentifier clientIdentifier() const;
 
+    EndstopStatus endstopStatus() const;
+
 signals:
     void systemUpdate(Printer *printer);
     void printerUpdate(Printer *printer);
@@ -186,6 +190,8 @@ private:
 
     GCodeStore _gCodeStore;
     ClientIdentifier _clientIdentifier;
+
+    EndstopStatus _endstopStatus;
 };
 
 typedef QList<Printer*> PrinterList;

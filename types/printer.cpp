@@ -324,6 +324,11 @@ void Printer::on_console_startup()
     emit startup(this);
 }
 
+EndstopStatus Printer::endstopStatus() const
+{
+    return _endstopStatus;
+}
+
 ClientIdentifier Printer::clientIdentifier() const
 {
     return _clientIdentifier;

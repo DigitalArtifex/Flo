@@ -16,6 +16,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
+#include <QTimer>
 #include <QtConcurrent/QtConcurrent>
 
 #include "../klipperfile.h"
@@ -84,6 +85,7 @@ public:
     //Machine Management
     virtual void machineShutdown();
     virtual void machineReboot();
+    virtual void machineSystemInfo();
 
     //Service Management
     virtual void serviceRestart(QString service);
@@ -98,6 +100,8 @@ public:
     virtual void restartFirmware();
     virtual void printerObjectsList();
     virtual void printerSubscribe();
+    virtual void printerEmergencyStop();
+    virtual void printerQueryEndstops();
 
     //Server Management
     virtual void serverInfo();
@@ -132,6 +136,10 @@ public:
 
     QGCodeMacroList gcodeMacros() const;
 
+    QStringList moonrakerComponents() const;
+
+    QStringList moonrakerFailedComponents() const;
+
 signals:
     void startup();
 
@@ -145,6 +153,10 @@ signals:
     void systemUpdate();
     void printerUpdate();
     void printerOnline();
+    /*!
+     * \brief Triggered on successful emergency stop
+     */
+    void printerEmergencyStopped();
 
     void klipperConnected();
     void klipperError(QString error, QString message);
@@ -162,8 +174,16 @@ signals:
     void serverLogsRolloverSuccess();
 
 protected slots:
+    //Socket slots
     virtual void on_moonrakerSocket_readyRead();
     virtual void on_messageReady();
+
+    //Timer slots
+    virtual void on_klipperRestartTimer_timeout();
+
+    /*
+     * Klipper/Moonraker slots
+     */
 
     //File Management
     virtual void on_deleteFile(KlipperResponse response);
@@ -183,6 +203,7 @@ protected slots:
     //Machine Management
     virtual void on_machineShutdown(KlipperResponse response);
     virtual void on_machineReboot(KlipperResponse response);
+    virtual void on_machineSystemInfo(KlipperResponse response);
 
     //Service Management
     virtual void on_serviceRestart(KlipperResponse response);
@@ -197,6 +218,8 @@ protected slots:
     virtual void on_restartFirmware(KlipperResponse response);
     virtual void on_printerObjectsList(KlipperResponse response);
     virtual void on_printerSubscribe(KlipperResponse response);
+    virtual void on_printerEmergencyStop(KlipperResponse response);
+    virtual void on_printerQueryEndstops(KlipperResponse response);
 
     //Server Management
     virtual void on_serverInfo(KlipperResponse response);
@@ -223,12 +246,16 @@ protected:
     QQueue<StartupFunction> _startupSequence;
     QMap<QString, ParserFunction> _parserMap;
     QMap<int, KlipperMessage> _klipperMessageBuffer;
+
     QStringList _subscriptionObjects;
     QStringList _macroObjects;
+    QStringList _moonrakerComponents;
+    QStringList _moonrakerFailedComponents;
 
     QGCodeMacroList _gcodeMacros;
 
     QString _moonrakerLocation;
+    QString _moonrakerVersion;
 
     ConsoleState _state;
 
@@ -240,6 +267,8 @@ protected:
     ConnectionLocation _connectionLoaction = LocationLocal;
 
     QAbstractSocket *_moonrakerSocket = nullptr;
+
+    QTimer *_klipperRestartTimer = nullptr;
 };
 
 #endif // QABSTRACTKLIPPERCONSOLE_H

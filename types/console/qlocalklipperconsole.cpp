@@ -14,6 +14,7 @@ QLocalKlipperConsole::QLocalKlipperConsole(Printer *printer, QObject *parent)
     //Startup commands to get base information
     _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::clientIdentifier);
     _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::serverInfo);
+    _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::machineSystemInfo);
     _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::serverConfig);
     _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::serverFileRoots);
     _startupSequence.enqueue((StartupFunction)&QLocalKlipperConsole::printerInfo);

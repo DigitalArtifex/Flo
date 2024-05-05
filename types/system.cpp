@@ -3,7 +3,10 @@
 System::System(QObject *parent)
     : QObject{parent}
 {
+}
 
+System::~System()
+{
 }
 
 void System::setCpuCount(qint16 count)
@@ -15,11 +18,6 @@ void System::setCpuList(QList<qreal> cpus)
 {
     _cpuUsages.clear();
     _cpuUsages.append(cpus);
-}
-
-void System::setCpuInfo(QString info)
-{
-    _cpuInfo = info;
 }
 
 int System::cpuCount()
@@ -37,11 +35,6 @@ qreal System::cpuLoad()
     load /= _cpuCount;
 
     return load;
-}
-
-QString System::cpuInfo()
-{
-    return _cpuInfo;
 }
 
 void System::setMemoryUsage(qint64 memory)
@@ -107,4 +100,89 @@ qint64 System::driveFree() const
 void System::setDriveFree(qint64 driveFree)
 {
     _driveFree = driveFree;
+}
+
+QStringList System::availableServices() const
+{
+    return _availableServices;
+}
+
+void System::setAvailableServices(const QStringList &availableServices)
+{
+    _availableServices = availableServices;
+}
+
+QMap<QString, System::ServiceState> System::serviceStates() const
+{
+    return _serviceStates;
+}
+
+QString System::pythonVersion() const
+{
+    return _pythonVersion;
+}
+
+void System::setPythonVersion(const QString &pythonVersion)
+{
+    _pythonVersion = pythonVersion;
+}
+
+System::CpuInfo System::cpuInfo() const
+{
+    return _cpuInfo;
+}
+
+void System::setCpuInfo(CpuInfo cpuInfo)
+{
+    _cpuInfo = cpuInfo;
+}
+
+System::DistributionInfo System::distributionInfo() const
+{
+    return _distributionInfo;
+}
+
+void System::setDistributionInfo(const DistributionInfo &distributionInfo)
+{
+    _distributionInfo = distributionInfo;
+}
+
+System::VirtualizationState System::virtualizationState() const
+{
+    return _virtualizationState;
+}
+
+void System::setVirtualizationState(const VirtualizationState &virtualizationState)
+{
+    _virtualizationState = virtualizationState;
+}
+
+QMap<QString, System::NetworkInterface> System::networkInterfaces() const
+{
+    return _networkInterfaces;
+}
+
+void System::setNetworkInterfaces(const QMap<QString, NetworkInterface> &networkInterfaces)
+{
+    _networkInterfaces = networkInterfaces;
+}
+
+QMap<QString, System::CanBusDevice> System::canBus() const
+{
+    return _canBus;
+}
+
+void System::setCanBus(const QMap<QString, CanBusDevice> &canBus)
+{
+    _canBus = canBus;
+}
+
+System::SdInfo System::sdInfo() const
+{
+    return _sdInfo;
+}
+
+void System::setSdInfo(const SdInfo &sdInfo)
+{
+    _sdInfo = sdInfo;
 }

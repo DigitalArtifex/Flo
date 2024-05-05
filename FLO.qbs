@@ -134,6 +134,8 @@ QtApplication {
         "types/console/qabstractklipperconsole.h",
         "types/console/qlocalklipperconsole.cpp",
         "types/console/qlocalklipperconsole.h",
+        "types/endstopstatus.cpp",
+        "types/endstopstatus.h",
         "types/extruder.cpp",
         "types/extruder.h",
         "types/fan.cpp",

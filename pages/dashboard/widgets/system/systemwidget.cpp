@@ -95,7 +95,7 @@ void SystemWidget::on_printer_systemUpdate(Printer *printer)
     ui->driveCapacityLabel->setText(driveCapacityString);
 
     ui->hostnameLabel->setText(QString("Hostname: ") + printer->system()->hostname());
-    ui->cpuInfoLabel->setText(_printer->system()->cpuInfo());
+    ui->cpuInfoLabel->setText(_printer->system()->cpuInfo().description);
 }
 
 void SystemWidget::on_printer_klipperDisconnected(Printer *printer)
@@ -111,9 +111,11 @@ void SystemWidget::on_printer_klipperConnected(Printer *printer)
 void SystemWidget::on_loadingAnimation_finished()
 {
     _loadingGif->stop();
+
     delete _loadingGif;
     delete _loadingLabel;
     delete _loadingAnimation;
+
     _loadingLabel = nullptr;
     _loadingGif = nullptr;
     _loadingAnimation = nullptr;
