@@ -2287,8 +2287,8 @@ void QAbstractKlipperConsole::on_serverFilesMetadata(KlipperResponse response)
         metadata.estimatedTime = result["estimated_time"].toInt();
         metadata.firstLayerBedTemp = result["first_layer_bed_temp"].toDouble();
         metadata.firstLayerExtruderTemp = result["first_layer_extr_temp"].toDouble();
-        metadata.filename = result["gcode_start_byte"].toString();
-        metadata.filename = result["gcode_end_byte"].toString();
+        metadata.gcodeStartByte = result["gcode_start_byte"].toInt();
+        metadata.gcodeEndByte = result["gcode_end_byte"].toInt();
         metadata.filename = result["filename"].toString();
 
         QJsonArray thumbnailArray = result["thumbnails"].toArray();

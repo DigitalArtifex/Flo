@@ -40,7 +40,7 @@ public:
         qint32 jobId = 0;
         qint64 estimatedTime = 0;
         qint64 gcodeStartByte = 0;
-        qint64 qcodeEndByte = 0;
+        qint64 gcodeEndByte = 0;
         qint64 size = 0;
 
         QString filename;
