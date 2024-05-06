@@ -110,6 +110,7 @@ public:
     virtual void serverInfo();
     virtual void serverConfig();
     virtual void serverFileRoots();
+    virtual void serverFilesMetadata(QString fileName);
     virtual void serverTemperatureStore();
     virtual void serverGcodeStore();
     virtual void serverLogsRollover();
@@ -175,6 +176,7 @@ signals:
     //Server signals
     void serverGCodeStoreResponse(GCodeStore store);
     void serverLogsRolloverSuccess();
+    void serverMetadataResult(KlipperFile::Metadata metadata);
 
     //Machine Signals
     void machineServiceRestarted(QString service);
@@ -240,6 +242,7 @@ protected slots:
     virtual void on_serverGCodeStore(KlipperResponse response);
     virtual void on_serverLogsRollover(KlipperResponse response);
     virtual void on_serverWebsocketId(KlipperResponse response);
+    virtual void on_serverFilesMetadata(KlipperResponse response);
 
     //Client Management
     virtual void on_clientIdentifier(KlipperResponse response);

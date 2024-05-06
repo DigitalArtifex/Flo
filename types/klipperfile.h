@@ -8,7 +8,6 @@
 class KlipperFile
 {
     Q_GADGET
-    QMap<QString,QVariant> _metadata;
 public:
     enum FileType {
         GCode,
@@ -17,11 +16,46 @@ public:
         Directory
     };
 
+    //File metadata
+    struct Metadata
+    {
+        struct Thumbnail
+        {
+            qint32 width = 0;
+            qint32 height = 0;
+            qint64 size = 0;
+
+            QString relativePath;
+        };
+
+        qreal printStartTime = 0;
+        qreal modified = 0;
+        qreal layerHeight = 0;
+        qreal firstLayerHeight = 0;
+        qreal firstLayerBedTemp = 0;
+        qreal firstLayerExtruderTemp = 0;
+        qreal objectHeight = 0;
+        qreal filamentTotal = 0;
+
+        qint32 jobId = 0;
+        qint64 estimatedTime = 0;
+        qint64 gcodeStartByte = 0;
+        qint64 qcodeEndByte = 0;
+        qint64 size = 0;
+
+        QString filename;
+        QString slicer;
+        QString slicerVersion;
+
+        QList<Thumbnail> thumbnails;
+    };
+
     QString fileLocation();
 
     KlipperFile(FileType type = GCode);
 
-    QMap<QString,QVariant> metadata();
+    Metadata metadata;
+
     double dateModified = 0;
     double fileSize = 0;
     QString root;

@@ -25,6 +25,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("server.websocket.id")] = (ParserFunction)&QAbstractKlipperConsole::on_serverWebsocketId;
     _parserMap[QString("server.logs.rollover")] = (ParserFunction)&QAbstractKlipperConsole::on_serverLogsRollover;
     _parserMap[QString("server.files.list")] = (ParserFunction)&QAbstractKlipperConsole::on_getFileList;
+    _parserMap[QString("server.files.metadata")] = (ParserFunction)&QAbstractKlipperConsole::on_serverFilesMetadata;
 
     _parserMap[QString("machine.system_info")] = (ParserFunction)&QAbstractKlipperConsole::on_machineSystemInfo;
     _parserMap[QString("machine.services.restart")] = (ParserFunction)&QAbstractKlipperConsole::on_machineServiceRestart;
@@ -35,7 +36,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("machine.peripherals.usb")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsUSB;
     _parserMap[QString("machine.peripherals.serial")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsSerial;
     _parserMap[QString("machine.peripherals.video")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsVideo;
-    _parserMap[QString("machine.peripherals.canbus")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsCanBus;
+    _parserMap[QString("machine.peripherals.canbus")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsCanbus;
 
     //Startup commands to get base information
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::clientIdentifier);
@@ -631,6 +632,21 @@ void QAbstractKlipperConsole::serverFileRoots()
     QJsonObject paramsObject;
 
     messageObject["method"] = "server.files.roots";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverFilesMetadata(QString fileName)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["filename"] = fileName;
+    messageObject["params"] = paramsObject;
+    messageObject["method"] = "server.files.metadata";
 
     message.setDocument(messageObject);
 
@@ -2248,6 +2264,48 @@ void QAbstractKlipperConsole::on_serverWebsocketId(KlipperResponse response)
 
         if(result.contains("websocket_id"))
             _printer->clientIdentifier().setWebsocketId(result["websocket_id"].toInt());
+    }
+}
+
+void QAbstractKlipperConsole::on_serverFilesMetadata(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+        KlipperFile::Metadata metadata;
+
+        metadata.printStartTime = result["print_start_time"].toDouble();
+        metadata.jobId = result["job_id"].toInt();
+        metadata.size = result["size"].toInt();
+        metadata.modified = result["modified"].toDouble();
+        metadata.slicer = result["slicer"].toString();
+        metadata.slicerVersion = result["slicer_version"].toString();
+        metadata.layerHeight = result["layer_height"].toDouble();
+        metadata.firstLayerHeight = result["first_layer_height"].toDouble();
+        metadata.objectHeight = result["object_height"].toDouble();
+        metadata.filamentTotal = result["filament_total"].toDouble();
+        metadata.estimatedTime = result["estimated_time"].toInt();
+        metadata.firstLayerBedTemp = result["first_layer_bed_temp"].toDouble();
+        metadata.firstLayerExtruderTemp = result["first_layer_extr_temp"].toDouble();
+        metadata.filename = result["gcode_start_byte"].toString();
+        metadata.filename = result["gcode_end_byte"].toString();
+        metadata.filename = result["filename"].toString();
+
+        QJsonArray thumbnailArray = result["thumbnails"].toArray();
+
+        for(int i = 0; i < thumbnailArray.count(); i++)
+        {
+            KlipperFile::Metadata::Thumbnail thumbnail;
+
+            thumbnail.height = result["height"].toInt();
+            thumbnail.width = result["width"].toInt();
+            thumbnail.size = result["size"].toInt();
+            thumbnail.relativePath = result["relative_path"].toString();
+
+            metadata.thumbnails.append(thumbnail);
+        }
+
+        emit serverMetadataResult(metadata);
     }
 }
 
