@@ -89,6 +89,10 @@ public:
     virtual void machineServiceRestart(QString service);
     virtual void machineServiceStop(QString service);
     virtual void machineServiceStart(QString service);
+    virtual void machinePeripheralsUSB();
+    virtual void machinePeripheralsSerial();
+    virtual void machinePeripheralsVideo();
+    virtual void machinePeripheralsCanbus(qint32 canBus);
     virtual void machineProcStats();
 
     virtual void sendGcode(QString gcode);
@@ -212,6 +216,10 @@ protected slots:
     virtual void on_machineServiceStop(KlipperResponse response);
     virtual void on_machineServiceStart(KlipperResponse response);
     virtual void on_machineProcStats(KlipperResponse response);
+    virtual void on_machinePeripheralsUSB(KlipperResponse response);
+    virtual void on_machinePeripheralsSerial(KlipperResponse response);
+    virtual void on_machinePeripheralsVideo(KlipperResponse response);
+    virtual void on_machinePeripheralsCanbus(KlipperResponse response);
 
     virtual void on_sendGcode(KlipperResponse response);
 

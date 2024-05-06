@@ -153,6 +153,99 @@ public:
         QStringList flags;
     };
 
+    /*!
+     * \brief Filled by machine.peripherals.usb
+     */
+    struct UsbPeripheral
+    {
+        qint32 busNumber = 0;
+        qint32 deviceNumber = 0;
+
+        QString location;
+        QString vendorId;
+        QString productId;
+        QString manufacturer;
+        QString product;
+        QString className;
+        QString subclassName;
+        QString protocol;
+        QString description;
+    };
+
+    /*!
+     * \brief Filled by machine.peripherals.serial
+     */
+    struct SerialPeripheral
+    {
+        QString type;
+        QString path;
+        QString name;
+        QString driver;
+        QString hardwarePath;
+        QString pathById;
+        QString usbLocation;
+    };
+
+    /*!
+     * \brief Filled by machine.peripherals.serial
+     */
+    struct V412Device
+    {
+        struct Mode
+        {
+            QString description;
+            QString format;
+
+            QStringList flags;
+            QStringList resolutions;
+        };
+
+        QString name;
+        QString path;
+        QString cameraName;
+        QString driver;
+        QString altName;
+        QString hardwareBus;
+        QString version;
+        QString hardwarePath;
+        QString pathById;
+        QString usbLocation;
+
+        QStringList capabilities;
+        QList<Mode> modes;
+    };
+
+    /*!
+     * \brief Filled by machine.peripherals.serial
+     */
+    struct LibcameraDevice
+    {
+        struct Mode
+        {
+            QString format;
+            QStringList resolutions;
+        };
+
+        QString id;
+        QString model;
+
+        QList<Mode> modes;
+    };
+
+    /*!
+     * \brief Filled by machine.peripherals.canbus
+     */
+    struct CanBus
+    {
+        struct Interface
+        {
+            QString uuid;
+            QString application;
+        };
+
+        QList<Interface> interfaces;
+    };
+
     explicit System(QObject *parent = nullptr);
     ~System();
 
@@ -210,37 +303,60 @@ public:
     qint32 connectionCount() const;
     void setConnectionCount(qint32 connectionCount);
 
+    QList<UsbPeripheral> usbPeripherals() const;
+
+    QList<SerialPeripheral> serialPeripherals() const;
+
+    QList<V412Device> v412Devices() const;
+
+    QList<LibcameraDevice> libcameraDevices() const;
+
+    QMap<qint32, CanBus> canBusses() const;
+
 signals:
 
 
 private:
-    qint64 _driveCapacity = 0;
-    qint64 _driveUsage = 0;
-    qint64 _driveFree = 0;
+    qint64                           _driveCapacity = 0;
+    qint64                           _driveUsage = 0;
+    qint64                           _driveFree = 0;
 
-    QString _hostname;
+    QString                          _hostname;
 
     //Filled by machine.proc_stats
-    QList<MoonrakerStatsEntry> _moonrakerStats;
+    QList<MoonrakerStatsEntry>       _moonrakerStats;
     QMap<QString, NetworkStatsEntry> _networkStats;
-    ThrottleState _throttleState;
-    MemoryStats _memoryStats;
+    ThrottleState                    _throttleState;
+    MemoryStats                      _memoryStats;
 
-    qreal _uptime = 0;
-    qint32 _connectionCount = 0;
+    qreal                            _uptime = 0;
+    qint32                           _connectionCount = 0;
 
     //Filled by machine.system_info
-    CpuInfo _cpuInfo;
-    SdInfo _sdInfo;
-    DistributionInfo _distributionInfo;
-    VirtualizationState _virtualizationState;
-    QMap<QString, NetworkInterface> _networkInterfaces;
-    QMap<QString, CanBusDevice> _canBus;
+    CpuInfo                          _cpuInfo;
+    SdInfo                           _sdInfo;
+    DistributionInfo                 _distributionInfo;
+    VirtualizationState              _virtualizationState;
+    QMap<QString, NetworkInterface>  _networkInterfaces;
+    QMap<QString, CanBusDevice>      _canBus;
 
-    QStringList _availableServices;
-    QMap<QString,ServiceState> _serviceStates;
+    QStringList                      _availableServices;
+    QMap<QString,ServiceState>       _serviceStates;
 
-    QString _pythonVersion;
+    //Filled by machine.peripherals.usb
+    QList<UsbPeripheral>             _usbPeripherals;
+
+    //Filled by machine.peripherals.serial
+    QList<SerialPeripheral>          _serialPeripherals;
+
+    //Filled by machine.peripherals.video
+    QList<V412Device>                _v412Devices;
+    QList<LibcameraDevice>           _libcameraDevices;
+
+    //Filled by machine.peripherals.canbus
+    QMap<qint32,CanBus>              _canBusses;
+
+    QString                          _pythonVersion;
 };
 
 #endif // SYSTEM_H

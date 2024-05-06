@@ -32,12 +32,18 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("machine.services.start")] = (ParserFunction)&QAbstractKlipperConsole::on_machineServiceStart;
     _parserMap[QString("machine.proc_stats")] = (ParserFunction)&QAbstractKlipperConsole::on_machineProcStats;
     _parserMap[QString("notify_proc_stat_update")] = (ParserFunction)&QAbstractKlipperConsole::on_machineProcStats;
+    _parserMap[QString("machine.peripherals.usb")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsUSB;
+    _parserMap[QString("machine.peripherals.serial")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsSerial;
+    _parserMap[QString("machine.peripherals.video")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsVideo;
+    _parserMap[QString("machine.peripherals.canbus")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsCanBus;
 
     //Startup commands to get base information
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::clientIdentifier);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverInfo);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineSystemInfo);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineProcStats);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machinePeripheralsUSB);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machinePeripheralsSerial);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverConfig);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverFileRoots);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerInfo);
@@ -401,6 +407,66 @@ void QAbstractKlipperConsole::machineServiceStart(QString service)
     sendCommand(message);
 }
 
+void QAbstractKlipperConsole::machinePeripheralsUSB()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["params"] = paramsObject;
+    messageObject["method"] = "machine.peripherals.usb";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machinePeripheralsSerial()
+{
+
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["params"] = paramsObject;
+    messageObject["method"] = "machine.peripherals.serial";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machinePeripheralsVideo()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["params"] = paramsObject;
+    messageObject["method"] = "machine.peripherals.video";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machinePeripheralsCanbus(qint32 canBus)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    QString canBusName = QString("can") + QString::number(canBus);
+
+    paramsObject["interface"] = canBusName;
+    messageObject["params"] = paramsObject;
+    messageObject["method"] = "machine.peripherals.canbus";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
 void QAbstractKlipperConsole::machineProcStats()
 {
     KlipperMessage message;
@@ -724,7 +790,7 @@ void QAbstractKlipperConsole::on_messageReady()
     if(responseData == QByteArray("ok"))
     {
         origin = _klipperMessageBuffer[response["id"].toInt()];
-        response["origin"] = origin.document();
+        response["request"] = origin.document();
         response["method"] = origin["method"];
         response.origin = (KlipperResponse::ResponseOrigin)_klipperMessageBuffer[response["id"].toInt()].origin;
     }
@@ -740,7 +806,7 @@ void QAbstractKlipperConsole::on_messageReady()
         if(!response.rootObject.contains("method"))
         {
             origin = _klipperMessageBuffer[response["id"].toInt()];
-            response["origin"] = origin.document();
+            response["request"] = origin.document();
             response["method"] = origin["method"];
             response.origin = (KlipperResponse::ResponseOrigin)_klipperMessageBuffer[response["id"].toInt()].origin;
             _klipperMessageBuffer.remove(response["id"].toInt());
@@ -870,7 +936,7 @@ void QAbstractKlipperConsole::on_getFileList(KlipperResponse response)
 {
     if(response["result"].isObject())
     {
-        QJsonObject originObject = response["origin"].toObject();
+        QJsonObject originObject = response["request"].toObject();
         QJsonObject result = response["result"].toObject();
         QJsonObject rootInfo = result["root_info"].toObject();
         QJsonArray files = result["files"].toArray();
@@ -1376,6 +1442,202 @@ void QAbstractKlipperConsole::on_machineProcStats(KlipperResponse response)
         _printer->system()->setThrottleState(throttleState);
 
         emit systemUpdate();
+    }
+}
+
+void QAbstractKlipperConsole::on_machinePeripheralsUSB(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        if(result["usb_devices"].isArray())
+        {
+            QJsonArray usbArray = result["usb_devices"].toArray();
+            _printer->system()->usbPeripherals().clear();
+
+            for(int i = 0; i < usbArray.count(); i++)
+            {
+                QJsonObject usbDeviceObject = usbArray[i].toObject();
+                System::UsbPeripheral usbDevice;
+
+                usbDevice.deviceNumber = usbDeviceObject["device_num"].toInt();
+                usbDevice.busNumber = usbDeviceObject["bus_num"].toInt();
+
+                usbDevice.location = usbDeviceObject["vendor_id"].toString();
+                usbDevice.productId = usbDeviceObject["product_id"].toString();
+                usbDevice.manufacturer = usbDeviceObject["manufacturer"].toString();
+                usbDevice.product = usbDeviceObject["product"].toString();
+                usbDevice.className = usbDeviceObject["class"].toString();
+                usbDevice.subclassName = usbDeviceObject["subclass"].toString();
+                usbDevice.protocol = usbDeviceObject["protocol"].toString();
+                usbDevice.description = usbDeviceObject["description"].toString();
+
+
+                _printer->system()->usbPeripherals().append(usbDevice);
+            }
+        }
+
+        emit systemUpdate();
+    }
+}
+
+void QAbstractKlipperConsole::on_machinePeripheralsSerial(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        if(result["serial_devices"].isArray())
+        {
+            QJsonArray usbArray = result["usb_devices"].toArray();
+            _printer->system()->usbPeripherals().clear();
+
+            for(int i = 0; i < usbArray.count(); i++)
+            {
+                QJsonObject usbDeviceObject = usbArray[i].toObject();
+                System::SerialPeripheral serialDevice;
+
+                serialDevice.type = usbDeviceObject["device_type"].toString();
+                serialDevice.path = usbDeviceObject["device_path"].toString();
+                serialDevice.name = usbDeviceObject["device_name"].toString();
+                serialDevice.driver = usbDeviceObject["driver_name"].toString();
+                serialDevice.hardwarePath = usbDeviceObject["path_by_hardware"].toString();
+                serialDevice.pathById = usbDeviceObject["path_by_id"].toString();
+                serialDevice.usbLocation = usbDeviceObject["usb_location"].toString();
+
+                _printer->system()->serialPeripherals().append(serialDevice);
+            }
+        }
+
+        emit systemUpdate();
+    }
+}
+
+void QAbstractKlipperConsole::on_machinePeripheralsVideo(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        if(result["v412_devices"].isArray())
+        {
+            QJsonArray v412DeviceArray = result["v412_devices"].toArray();
+            _printer->system()->v412Devices().clear();
+
+            for(int i = 0; i < v412DeviceArray.count(); i++)
+            {
+                QJsonObject deviceObject = v412DeviceArray[i].toObject();
+                System::V412Device v412Device;
+
+                v412Device.name = deviceObject["device_name"].toString();
+                v412Device.path = deviceObject["device_path"].toString();
+                v412Device.cameraName = deviceObject["camera_name"].toString();
+                v412Device.driver = deviceObject["driver_name"].toString();
+                v412Device.altName = deviceObject["alt_name"].toString();
+                v412Device.hardwareBus = deviceObject["hardware_bus"].toString();
+                v412Device.version = deviceObject["version"].toString();
+                v412Device.hardwarePath = deviceObject["path_by_hardware"].toString();
+                v412Device.pathById = deviceObject["path_by_id"].toString();
+                v412Device.usbLocation = deviceObject["usb_location"].toString();
+
+                if(deviceObject["modes"].isArray())
+                {
+                    QJsonArray modes = deviceObject["modes"].toArray();
+
+                    for(int m = 0; m < modes.count(); m++)
+                    {
+                        QJsonObject modeObject = modes[i].toObject();
+                        QJsonArray modeFlagArray = modeObject["flags"].toArray();
+                        QJsonArray resolutionArray = modeObject["resolutions"].toArray();
+                        System::V412Device::Mode mode;
+
+                        mode.description = modeObject["description"].toString();
+                        mode.format = modeObject["format"].toString();
+
+                        for(int r = 0; r < resolutionArray.count(); r++)
+                            mode.resolutions += resolutionArray[r].toString();
+
+                        for(int f = 0; f < modeFlagArray.count(); f++)
+                            mode.flags += modeFlagArray[f].toString();
+                    }
+                }
+
+                if(deviceObject["capabilities"].isArray())
+                {
+                    QJsonArray capabilities = deviceObject["capabilities"].toArray();
+
+                    for(int c = 0; c < capabilities.count(); c++)
+                        v412Device.capabilities += capabilities[c].toString();
+                }
+
+                _printer->system()->v412Devices().append(v412Device);
+            }
+        }
+
+        if(result["libcamera_devices"].isArray())
+        {
+            QJsonArray cameraArray = result["libcamera_devices"].toArray();
+            _printer->system()->libcameraDevices().clear();
+
+            for(int i = 0; i < cameraArray.count(); i++)
+            {
+                QJsonObject cameraObject = cameraArray[i].toObject();
+                QJsonArray modesArray = cameraObject["modes"].toArray();
+                System::LibcameraDevice camera;
+
+                camera.id = cameraObject["libcamera_id"].toString();
+                camera.model = cameraObject["model"].toString();
+
+                for(int m = 0; m < modesArray.count(); m++)
+                {
+                    QJsonObject modeObject = modesArray[i].toObject();
+                    QJsonArray resolutionArray = modeObject["resolutions"].toArray();
+                    System::LibcameraDevice::Mode mode;
+
+                    mode.format = modeObject["format"].toString();
+
+                    for(int r = 0; r < resolutionArray.count(); r++)
+                        mode.resolutions += resolutionArray[r].toString();
+                }
+
+                _printer->system()->libcameraDevices().append(camera);
+            }
+        }
+
+        emit systemUpdate();
+    }
+}
+
+void QAbstractKlipperConsole::on_machinePeripheralsCanbus(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject request = response["request"].toObject();
+        QJsonObject params = request["params"].toObject();
+        QJsonObject result = response["result"].toObject();
+
+        QString interfaceName = params["interface"].toString();
+        interfaceName.remove("can");
+
+        qint32 interfaceNumber = interfaceName.toInt();
+
+        if(result["can_uuids"].isArray())
+        {
+            QJsonArray canArray = result["can_uuids"].toArray();
+            System::CanBus canBus;
+
+            for(int i = 0; i < canArray.count(); i++)
+            {
+                QJsonObject canObject = canArray[i].toObject();
+                System::CanBus::Interface interface;
+
+                interface.application = canObject["application"].toString();
+                interface.uuid = canObject["uuid"].toString();
+            }
+
+            _printer->system()->canBusses().insert(interfaceNumber, canBus);
+        }
     }
 }
 

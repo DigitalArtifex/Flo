@@ -183,3 +183,28 @@ void System::setConnectionCount(qint32 connectionCount)
 {
     _connectionCount = connectionCount;
 }
+
+QList<System::UsbPeripheral> System::usbPeripherals() const
+{
+    return _usbPeripherals;
+}
+
+QList<System::SerialPeripheral> System::serialPeripherals() const
+{
+    return _serialPeripherals;
+}
+
+QList<System::V412Device> System::v412Devices() const
+{
+    return _v412Devices;
+}
+
+QList<System::LibcameraDevice> System::libcameraDevices() const
+{
+    return _libcameraDevices;
+}
+
+QMap<qint32, System::CanBus> System::canBusses() const
+{
+    return _canBusses;
+}
