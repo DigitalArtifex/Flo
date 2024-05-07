@@ -40,6 +40,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("machine.peripherals.serial")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsSerial;
     _parserMap[QString("machine.peripherals.video")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsVideo;
     _parserMap[QString("machine.peripherals.canbus")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsCanbus;
+    _parserMap[QString("machine.update.status")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateStatus;
 
     _parserMap[QString("access.login")] = (ParserFunction)&QAbstractKlipperConsole::on_accessLogin;
     _parserMap[QString("access.logout")] = (ParserFunction)&QAbstractKlipperConsole::on_accessLogout;
@@ -488,6 +489,20 @@ void QAbstractKlipperConsole::machineProcStats()
 
     messageObject["params"] = paramsObject;
     messageObject["method"] = "machine.services.start";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machineUpdateStatus()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    messageObject["params"] = paramsObject;
+    messageObject["method"] = "machine.update.status";
 
     message.setDocument(messageObject);
 
@@ -1859,9 +1874,20 @@ void QAbstractKlipperConsole::on_machinePeripheralsCanbus(KlipperResponse respon
     }
 }
 
+void QAbstractKlipperConsole::on_machineUpdateStatus(KlipperResponse response)
+{
+    if(response[QString("result")].isObject())
+    {
+        QJsonObject result = response[QString("result")].toObject();
+    }
+}
+
 void QAbstractKlipperConsole::on_sendGcode(KlipperResponse response)
 {
-
+    if(response[QString("result")].isObject())
+    {
+        QJsonObject result = response[QString("result")].toObject();
+    }
 }
 
 void QAbstractKlipperConsole::on_printerInfo(KlipperResponse response)
@@ -2687,6 +2713,34 @@ void QAbstractKlipperConsole::on_accessCreateUser(KlipperResponse response)
         _printer->system()->setAccessDetails(accessDetails);
 
         accessGetUser();
+
+        emit accessUserCreated(accessDetails.user);
+    }
+}
+
+void QAbstractKlipperConsole::on_accessDeleteUser(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+        System::User user;
+
+        user.username = result["username"].toString();
+        user.source = result["source"].toString();
+
+        for(int i = 0; i < _printer->system()->userList().count(); i++)
+        {
+            System::User checkedUser = _printer->system()->userList().at(i);
+
+            if(user.username == checkedUser.username)
+            {
+                _printer->system()->userList().remove(i);
+
+                emit accessUserDeleted(user);
+
+                break;
+            }
+        }
     }
 }
 
@@ -2706,6 +2760,8 @@ void QAbstractKlipperConsole::on_accessUsersList(KlipperResponse response)
             user.source = userObject["source"].toString();
             user.createdOn = userObject["created_on"].toDouble();
         }
+
+        emit accessUsersListed();
     }
 }
 
@@ -2721,6 +2777,8 @@ void QAbstractKlipperConsole::on_accessUserPasswordReset(KlipperResponse respons
         accessDetails.user.createdOn = result["created_on"].toDouble();
 
         _printer->system()->setAccessDetails(accessDetails);
+
+        emit accessUserPasswordResetSuccessful();
     }
 }
 

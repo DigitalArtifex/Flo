@@ -96,6 +96,7 @@ public:
     virtual void machinePeripheralsVideo();
     virtual void machinePeripheralsCanbus(qint32 canBus);
     virtual void machineProcStats();
+    virtual void machineUpdateStatus();
 
     virtual void sendGcode(QString gcode);
 
@@ -204,6 +205,9 @@ signals:
     //Access signals
     void accessUserLoggedIn();
     void accessUserLoggedOut();
+    void accessUsersListed();
+    void accessUserCreated(const System::User &user);
+    void accessUserDeleted(const System::User &user);
     void accessUserPasswordResetSuccessful();
 
 protected slots:
@@ -245,6 +249,7 @@ protected slots:
     virtual void on_machinePeripheralsSerial(KlipperResponse response);
     virtual void on_machinePeripheralsVideo(KlipperResponse response);
     virtual void on_machinePeripheralsCanbus(KlipperResponse response);
+    virtual void on_machineUpdateStatus(KlipperResponse response);
 
     virtual void on_sendGcode(KlipperResponse response);
 

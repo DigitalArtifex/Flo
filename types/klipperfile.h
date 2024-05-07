@@ -62,6 +62,5 @@ public:
     QString path;
     QString name;
     FileType type;
-    QVariant operator[](QString key);
 };
 #endif // KLIPPERFILE_H
