@@ -311,6 +311,70 @@ public:
         bool dismissed = false;
     };
 
+    /*!
+     * \brief Filled by server.announcements.list
+     */
+    struct UpdateState
+    {
+        struct CommitState
+        {
+            QString sha;
+            QString author;
+            QString date;
+            QString subject;
+            QString message;
+            QString tag;
+        };
+
+        struct SystemState
+        {
+            qint32 packageCount = 0;
+            QStringList packages;
+        };
+
+        struct PackageState
+        {
+            bool debugEnabled = false;
+            bool isValid = false;
+            bool isDirty = false;
+            bool corrupt = false;
+            bool detached = false;
+            bool pristine = false;
+
+            QString channel;
+            QString configuredType;
+            QString detectedType;
+            QString remoteAlias;
+            QString branch;
+            QString owner;
+            QString repoName;
+            QString version;
+            QString rollbackVersion;
+            QString remoteVersion;
+            QString currentHash;
+            QString remoteHash;
+            QString fullVersionString;
+            QString recoveryUrl;
+            QString remoteUrl;
+
+            QStringList warnings;
+            QStringList anomalies;
+            QStringList infoTags;
+            QStringList gitMessages;
+
+            QList<CommitState> commitsBehind;
+        };
+
+        bool busy = false;
+
+        qint32 githubRateLimit = 0;
+        qint32 githubRequestsRemaining = 0;
+        qint32 githubLimitResetTime = 0;
+
+        SystemState systemState;
+        QMap<QString, PackageState> packageStates;
+    };
+
     explicit System(QObject *parent = nullptr);
     ~System();
 
@@ -387,6 +451,9 @@ public:
 
     QList<Announcement> announcements() const;
 
+    UpdateState updateState() const;
+    void setUpdateState(const UpdateState &updateState);
+
 signals:
 
 
@@ -433,6 +500,8 @@ private:
 
     AccessDetails                    _accessDetails;
     QList<User>                      _userList;
+
+    UpdateState                      _updateState;
 
     QList<Announcement>              _announcements;
 

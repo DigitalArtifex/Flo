@@ -43,6 +43,11 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("machine.peripherals.video")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsVideo;
     _parserMap[QString("machine.peripherals.canbus")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsCanbus;
     _parserMap[QString("machine.update.status")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateStatus;
+    _parserMap[QString("machine.update.full")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateFull;
+    _parserMap[QString("machine.update.moonraker")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateMoonraker;
+    _parserMap[QString("machine.update.klipper")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateKlipper;
+    _parserMap[QString("machine.update.client")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateClient;
+    _parserMap[QString("machine.update.system")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateSystem;
 
     _parserMap[QString("access.login")] = (ParserFunction)&QAbstractKlipperConsole::on_accessLogin;
     _parserMap[QString("access.logout")] = (ParserFunction)&QAbstractKlipperConsole::on_accessLogout;
@@ -59,6 +64,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineProcStats);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machinePeripheralsUSB);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machinePeripheralsSerial);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineUpdateStatus);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverConfig);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverFileRoots);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverWebcamList);
@@ -391,7 +397,6 @@ void QAbstractKlipperConsole::machineServiceRestart(QString service)
 
 void QAbstractKlipperConsole::machineServiceStop(QString service)
 {
-
     KlipperMessage message;
     QJsonObject messageObject = message.document();
     QJsonObject paramsObject;
@@ -500,14 +505,144 @@ void QAbstractKlipperConsole::machineProcStats()
 
 void QAbstractKlipperConsole::machineUpdateStatus()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
     QJsonObject paramsObject;
+    paramsObject["refresh"] = true;
 
-    messageObject["params"] = paramsObject;
+    QJsonObject messageObject;
     messageObject["method"] = "machine.update.status";
+    messageObject["params"] = paramsObject;
 
+    KlipperMessage message;
     message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machineUpdateFull()
+{
+    //Generate the root json object
+    QJsonObject messageObject;
+    messageObject["method"] = "machine.update.full";
+
+    //Add it as the message document to be converted to RPC later
+    KlipperMessage message;
+    message.setDocument(messageObject);
+
+    //Method only returns ok
+    _waitForOkId = message.id;
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machineUpdateMoonraker()
+{
+    //Generate the root json object
+    QJsonObject messageObject;
+    messageObject["method"] = "machine.update.moonraker";
+
+    //Add it as the message document to be converted to RPC later
+    KlipperMessage message;
+    message.setDocument(messageObject);
+
+    //Method only returns ok
+    _waitForOkId = message.id;
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machineUpdateKlipper()
+{
+    //Generate the root json object
+    QJsonObject messageObject;
+    messageObject["method"] = "machine.update.klipper";
+
+    //Add it as the message document to be converted to RPC later
+    KlipperMessage message;
+    message.setDocument(messageObject);
+
+    //Method only returns ok
+    _waitForOkId = message.id;
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machineUpdateClient(QString client)
+{
+    //Generate params json
+    QJsonObject paramsObject;
+    paramsObject["client_name"] = client;
+
+    //Generate the root json object
+    QJsonObject messageObject;
+    messageObject["method"] = "machine.update.client";
+    messageObject["params"] = paramsObject;
+
+    //Add it as the message document to be converted to RPC later
+    KlipperMessage message;
+    message.setDocument(messageObject);
+
+    //Method only returns ok
+    _waitForOkId = message.id;
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machineUpdateSystem()
+{
+
+    //Generate the root json object
+    QJsonObject messageObject;
+    messageObject["method"] = "machine.update.system";
+
+    //Add it as the message document to be converted to RPC later
+    KlipperMessage message;
+    message.setDocument(messageObject);
+
+    //Method only returns ok
+    _waitForOkId = message.id;
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machineUpdateRecover(QString name, bool hardRecover)
+{
+    //Generate params json
+    QJsonObject paramsObject;
+    paramsObject["name"] = name;
+    paramsObject["hard"] = hardRecover;
+
+    //Generate the root json object
+    QJsonObject messageObject;
+    messageObject["method"] = "machine.update.recover";
+    messageObject["params"] = paramsObject;
+
+    //Add it as the message document to be converted to RPC later
+    KlipperMessage message;
+    message.setDocument(messageObject);
+
+    //Method only returns ok
+    _waitForOkId = message.id;
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machineUpdateRollback(QString name)
+{
+    //Generate params json
+    QJsonObject paramsObject;
+    paramsObject["name"] = name;
+
+    //Generate the root json object
+    QJsonObject messageObject;
+    messageObject["method"] = "machine.update.rollback";
+    messageObject["params"] = paramsObject;
+
+    //Add it as the message document to be converted to RPC later
+    KlipperMessage message;
+    message.setDocument(messageObject);
+
+    //Method only returns ok
+    _waitForOkId = message.id;
 
     sendCommand(message);
 }
@@ -1928,8 +2063,145 @@ void QAbstractKlipperConsole::on_machineUpdateStatus(KlipperResponse response)
 {
     if(response[QString("result")].isObject())
     {
+        //Get the base update state
         QJsonObject result = response[QString("result")].toObject();
+        System::UpdateState updateState;
+
+        updateState.busy = result["busy"].toBool();
+        updateState.githubLimitResetTime = result["github_limit_reset_time"].toInt();
+        updateState.githubRateLimit = result["github_rate_limit"].toInt();
+        updateState.githubRequestsRemaining = result["github_requests_remaining"].toInt();
+
+        //Grab the version info
+        QJsonObject versionObject = result["version_info"].toObject();
+        QStringList keys = versionObject.keys();
+
+        foreach(QString key, keys)
+        {
+            //System version info
+            if(key == QString("system"))
+            {
+                QJsonObject systemObject = versionObject[key].toObject();
+                QJsonArray packageArray = systemObject["package_list"].toArray();
+
+                updateState.systemState.packageCount = systemObject["package_count"].toInt();
+
+                for(int i = 0; i < packageArray.count(); i++)
+                    updateState.systemState.packages += packageArray[i].toString();
+            }
+            //Package states
+            else
+            {
+                QJsonObject packageObject = versionObject[key].toObject();
+
+                QJsonArray commitsArray = packageObject["commits_behind"].toArray();
+                QJsonArray tagsArray = packageObject["info_tags"].toArray();
+                QJsonArray gitArray = packageObject["git_messages"].toArray();
+                QJsonArray warningArray = packageObject["warnings"].toArray();
+                QJsonArray anomaliesArray = packageObject["anomalies"].toArray();
+
+                //Package information
+                System::UpdateState::PackageState packageState;
+
+                //Strings
+                packageState.channel = packageObject["channel"].toString();
+                packageState.configuredType = packageObject["configured_type"].toString();
+                packageState.detectedType = packageObject["detected_type"].toString();
+                packageState.remoteAlias = packageObject["remote_alias"].toString();
+                packageState.branch = packageObject["branch"].toString();
+                packageState.owner = packageObject["owner"].toString();
+                packageState.repoName = packageObject["repo_name"].toString();
+                packageState.version = packageObject["version"].toString();
+                packageState.remoteVersion = packageObject["remote_version"].toString();
+                packageState.rollbackVersion = packageObject["rollback_version"].toString();
+                packageState.currentHash = packageObject["current_hash"].toString();
+                packageState.remoteHash = packageObject["remote_hash"].toString();
+                packageState.fullVersionString = packageObject["full_version_string"].toString();
+                packageState.recoveryUrl = packageObject["recovery_url"].toString();
+                packageState.remoteUrl = packageObject["remote_url"].toString();
+
+                //Bools
+                packageState.debugEnabled = packageObject["debug_enabled"].toBool();
+                packageState.isValid = packageObject["is_valid"].toBool();
+                packageState.corrupt = packageObject["corrupt"].toBool();
+                packageState.isDirty = packageObject["is_dirty"].toBool();
+                packageState.detached = packageObject["detached"].toBool();
+                packageState.pristine = packageObject["pristine"].toBool();
+
+                //Tags
+                for(int i = 0; i < tagsArray.count(); i++)
+                    packageState.infoTags += tagsArray[i].toString();
+
+                //Git messages
+                for(int i = 0; i < gitArray.count(); i++)
+                    packageState.gitMessages += gitArray[i].toString();
+
+                //Warning messages
+                for(int i = 0; i < warningArray.count(); i++)
+                    packageState.warnings += warningArray[i].toString();
+
+                //Anomalies messages
+                for(int i = 0; i < anomaliesArray.count(); i++)
+                    packageState.anomalies += anomaliesArray[i].toString();
+
+                //Commits behind information
+                for(int i = 0; i < commitsArray.count(); i++)
+                {
+                    QJsonObject commitObject = commitsArray[i].toObject();
+                    System::UpdateState::CommitState commit;
+
+                    commit.sha = commitObject["sha"].toString();
+                    commit.author = commitObject["author"].toString();
+                    commit.date = commitObject["date"].toString();
+                    commit.subject = commitObject["subject"].toString();
+                    commit.message = commitObject["message"].toString();
+                    commit.tag = commitObject["tag"].toString();
+
+                    packageState.commitsBehind += commit;
+                }
+
+                //Add to packages map
+                updateState.packageStates.insert(key, packageState);
+            }
+        }
+
+        emit machineUpdateStatusReceived();
     }
+}
+
+void QAbstractKlipperConsole::on_machineUpdateFull(KlipperResponse response)
+{
+    emit machineUpdatedFull();
+}
+
+void QAbstractKlipperConsole::on_machineUpdateMoonraker(KlipperResponse response)
+{
+    emit machineUpdatedMoonraker();
+}
+
+void QAbstractKlipperConsole::on_machineUpdateKlipper(KlipperResponse response)
+{
+    emit machineUpdatedKlipper();
+}
+
+void QAbstractKlipperConsole::on_machineUpdateClient(KlipperResponse response)
+{
+    emit machineUpdatedClient();
+}
+
+void QAbstractKlipperConsole::on_machineUpdateSystem(KlipperResponse response)
+{
+    emit machineUpdatedSystem();
+}
+
+void QAbstractKlipperConsole::on_machineUpdateRecover(KlipperResponse response)
+{
+    emit machineUpdateRecovered();
+}
+
+void QAbstractKlipperConsole::on_machineUpdateRollback(KlipperResponse response)
+{
+    emit machineUpdateRollbackComplete();
 }
 
 void QAbstractKlipperConsole::on_sendGcode(KlipperResponse response)

@@ -97,6 +97,13 @@ public:
     virtual void machinePeripheralsCanbus(qint32 canBus);
     virtual void machineProcStats();
     virtual void machineUpdateStatus();
+    virtual void machineUpdateFull();
+    virtual void machineUpdateMoonraker();
+    virtual void machineUpdateKlipper();
+    virtual void machineUpdateClient(QString client);
+    virtual void machineUpdateSystem();
+    virtual void machineUpdateRecover(QString name, bool hardRecover = false);
+    virtual void machineUpdateRollback(QString name);
 
     virtual void sendGcode(QString gcode);
 
@@ -122,7 +129,7 @@ public:
     virtual void serverWebcamCreate(System::Webcam webcam);
     virtual void serverWebcamUpdate(System::Webcam webcam);
     virtual void serverWebcamDelete(System::Webcam webcam);
-    virtual void serverAnnouncementList(bool includeDismissed = false);
+    virtual void serverAnnouncementsList(bool includeDismissed = false);
     virtual void serverAnnouncementsUpdate();
     virtual void serverAnnouncementDismiss(QString entryId, qint64 waketime = 0);
 
@@ -206,6 +213,14 @@ signals:
     void machineServiceRestarted(QString service);
     void machineServiceStopped(QString service);
     void machineServiceStarted(QString service);
+    void machineUpdateStatusReceived();
+    void machineUpdateRecovered();
+    void machineUpdateRollbackComplete();
+    void machineUpdatedFull();
+    void machineUpdatedMoonraker();
+    void machineUpdatedKlipper();
+    void machineUpdatedClient();
+    void machineUpdatedSystem();
 
     //Access signals
     void accessUserLoggedIn();
@@ -255,6 +270,13 @@ protected slots:
     virtual void on_machinePeripheralsVideo(KlipperResponse response);
     virtual void on_machinePeripheralsCanbus(KlipperResponse response);
     virtual void on_machineUpdateStatus(KlipperResponse response);
+    virtual void on_machineUpdateFull(KlipperResponse response);
+    virtual void on_machineUpdateMoonraker(KlipperResponse response);
+    virtual void on_machineUpdateKlipper(KlipperResponse response);
+    virtual void on_machineUpdateClient(KlipperResponse response);
+    virtual void on_machineUpdateSystem(KlipperResponse response);
+    virtual void on_machineUpdateRecover(KlipperResponse response);
+    virtual void on_machineUpdateRollback(KlipperResponse response);
 
     virtual void on_sendGcode(KlipperResponse response);
 

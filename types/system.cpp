@@ -233,3 +233,13 @@ QList<System::Announcement> System::announcements() const
 {
     return _announcements;
 }
+
+System::UpdateState System::updateState() const
+{
+    return _updateState;
+}
+
+void System::setUpdateState(const UpdateState &updateState)
+{
+    _updateState = updateState;
+}
