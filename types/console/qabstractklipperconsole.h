@@ -26,6 +26,8 @@
 #include "../gcodestore.h"
 #include "../gcodemacro.h"
 
+#include "../system.h"
+
 class QAbstractKlipperConsole;
 class Printer;
 
@@ -115,9 +117,22 @@ public:
     virtual void serverGcodeStore();
     virtual void serverLogsRollover();
     virtual void serverWebsocketId();
+    virtual void serverWebcamList();
+    virtual void serverWebcamCreate(System::Webcam webcam);
+    virtual void serverWebcamUpdate(System::Webcam webcam);
+    virtual void serverWebcamDelete(System::Webcam webcam);
 
     //Client Management
     virtual void clientIdentifier();
+
+    //Access Management
+    virtual void accessLogin(QString username, QString password, QString source = QString("moonraker"));
+    virtual void accessLogout();
+    virtual void accessGetUser();
+    virtual void accessCreateUser(QString username, QString password);
+    virtual void accessDeleteUser(QString username);
+    virtual void accessUsersList();
+    virtual void accessUserPasswordReset(QString password, QString newPassword);
 
     virtual ConnectionLocation connectionLoaction() const;
     virtual void setConnectionLoaction(ConnectionLocation connectionLoaction);
@@ -177,11 +192,19 @@ signals:
     void serverGCodeStoreResponse(GCodeStore store);
     void serverLogsRolloverSuccess();
     void serverMetadataResult(KlipperFile::Metadata metadata);
+    void serverWebcamsListed();
+    void serverWebcamCreated(System::Webcam webcam);
+    void serverWebcamDeleted(System::Webcam webcam);
 
     //Machine Signals
     void machineServiceRestarted(QString service);
     void machineServiceStopped(QString service);
     void machineServiceStarted(QString service);
+
+    //Access signals
+    void accessUserLoggedIn();
+    void accessUserLoggedOut();
+    void accessUserPasswordResetSuccessful();
 
 protected slots:
     //Socket slots
@@ -243,6 +266,18 @@ protected slots:
     virtual void on_serverLogsRollover(KlipperResponse response);
     virtual void on_serverWebsocketId(KlipperResponse response);
     virtual void on_serverFilesMetadata(KlipperResponse response);
+    virtual void on_serverWebcamList(KlipperResponse response);
+    virtual void on_serverWebcamCreate(KlipperResponse response);
+    virtual void on_serverWebcamDelete(KlipperResponse response);
+
+    //Access Management
+    virtual void on_accessLogin(KlipperResponse response);
+    virtual void on_accessLogout(KlipperResponse response);
+    virtual void on_accessGetUser(KlipperResponse response);
+    virtual void on_accessCreateUser(KlipperResponse response);
+    virtual void on_accessDeleteUser(KlipperResponse response);
+    virtual void on_accessUsersList(KlipperResponse response);
+    virtual void on_accessUserPasswordReset(KlipperResponse response);
 
     //Client Management
     virtual void on_clientIdentifier(KlipperResponse response);
@@ -261,6 +296,7 @@ protected:
     QQueue<QByteArray> _messageDataQueue;
     QQueue<StartupFunction> _startupSequence;
     QMap<QString, ParserFunction> _parserMap;
+    QMap<QString, ParserFunction> _actionMap;
     QMap<int, KlipperMessage> _klipperMessageBuffer;
 
     QStringList _subscriptionObjects;

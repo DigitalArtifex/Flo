@@ -26,6 +26,9 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("server.logs.rollover")] = (ParserFunction)&QAbstractKlipperConsole::on_serverLogsRollover;
     _parserMap[QString("server.files.list")] = (ParserFunction)&QAbstractKlipperConsole::on_getFileList;
     _parserMap[QString("server.files.metadata")] = (ParserFunction)&QAbstractKlipperConsole::on_serverFilesMetadata;
+    _parserMap[QString("server.webcams.list")] = (ParserFunction)&QAbstractKlipperConsole::on_serverWebcamList;
+    _parserMap[QString("server.webcams.post_item")] = (ParserFunction)&QAbstractKlipperConsole::on_serverWebcamCreate;
+    _parserMap[QString("server.webcams.delete_item")] = (ParserFunction)&QAbstractKlipperConsole::on_serverWebcamDelete;
 
     _parserMap[QString("machine.system_info")] = (ParserFunction)&QAbstractKlipperConsole::on_machineSystemInfo;
     _parserMap[QString("machine.services.restart")] = (ParserFunction)&QAbstractKlipperConsole::on_machineServiceRestart;
@@ -38,6 +41,14 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("machine.peripherals.video")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsVideo;
     _parserMap[QString("machine.peripherals.canbus")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsCanbus;
 
+    _parserMap[QString("access.login")] = (ParserFunction)&QAbstractKlipperConsole::on_accessLogin;
+    _parserMap[QString("access.logout")] = (ParserFunction)&QAbstractKlipperConsole::on_accessLogout;
+    _parserMap[QString("access.get_user")] = (ParserFunction)&QAbstractKlipperConsole::on_accessGetUser;
+    _parserMap[QString("access.post_user")] = (ParserFunction)&QAbstractKlipperConsole::on_accessCreateUser;
+    _parserMap[QString("access.delete_user")] = (ParserFunction)&QAbstractKlipperConsole::on_accessDeleteUser;
+    _parserMap[QString("access.users.list")] = (ParserFunction)&QAbstractKlipperConsole::on_accessUsersList;
+    _parserMap[QString("access.user.password")] = (ParserFunction)&QAbstractKlipperConsole::on_accessUserPasswordReset;
+
     //Startup commands to get base information
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::clientIdentifier);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverInfo);
@@ -47,6 +58,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machinePeripheralsSerial);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverConfig);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverFileRoots);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverWebcamList);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerInfo);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerObjectsList);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerSubscribe);
@@ -705,6 +717,92 @@ void QAbstractKlipperConsole::serverWebsocketId()
     sendCommand(message);
 }
 
+void QAbstractKlipperConsole::serverWebcamList()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    messageObject["method"] = "server.webcams.list";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverWebcamCreate(System::Webcam webcam)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["name"] = webcam.name;
+    paramsObject["location"] = webcam.location;
+    paramsObject["service"] = webcam.service;
+    paramsObject["enabled"] = webcam.enabled;
+    paramsObject["icon"] = webcam.iconString;
+    paramsObject["target_fps"] = webcam.targetFps;
+    paramsObject["target_fps_idle"] = webcam.targetFpsIdle;
+    paramsObject["stream_url"] = webcam.streamUrl;
+    paramsObject["snapshot_url"] = webcam.snapshotUrl;
+    paramsObject["flip_horizontal"] = webcam.flipHorizontal;
+    paramsObject["flip_vertical"] = webcam.flipVertical;
+    paramsObject["rotation"] = webcam.rotation;
+    paramsObject["aspect_ratio"] = webcam.aspectRatio;
+    paramsObject["source"] = webcam.source;
+
+    messageObject["method"] = "server.webcams.post_item";
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverWebcamUpdate(System::Webcam webcam)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["name"] = webcam.name;
+    paramsObject["location"] = webcam.location;
+    paramsObject["service"] = webcam.service;
+    paramsObject["enabled"] = webcam.enabled;
+    paramsObject["icon"] = webcam.iconString;
+    paramsObject["target_fps"] = webcam.targetFps;
+    paramsObject["target_fps_idle"] = webcam.targetFpsIdle;
+    paramsObject["stream_url"] = webcam.streamUrl;
+    paramsObject["snapshot_url"] = webcam.snapshotUrl;
+    paramsObject["flip_horizontal"] = webcam.flipHorizontal;
+    paramsObject["flip_vertical"] = webcam.flipVertical;
+    paramsObject["rotation"] = webcam.rotation;
+    paramsObject["aspect_ratio"] = webcam.aspectRatio;
+    paramsObject["source"] = webcam.source;
+    paramsObject["uid"] = webcam.uid;
+
+    messageObject["method"] = "server.webcams.post_item";
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverWebcamDelete(System::Webcam webcam)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["uid"] = webcam.uid;
+
+    messageObject["method"] = "server.webcams.delete_item";
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
 void QAbstractKlipperConsole::clientIdentifier()
 {
     KlipperMessage message;
@@ -718,6 +816,110 @@ void QAbstractKlipperConsole::clientIdentifier()
 
     messageObject["method"] = "server.connection.identify";
     messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::accessLogin(QString username, QString password, QString source)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["username"] = username;
+    paramsObject["password"] = password;
+    paramsObject["source"] = source;
+
+    messageObject["params"] = paramsObject;
+    messageObject["method"] = "access.login";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::accessLogout()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+
+    messageObject["method"] = "access.logout";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::accessGetUser()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+
+    messageObject["method"] = "access.get_user";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::accessCreateUser(QString username, QString password)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["username"] = username;
+    paramsObject["password"] = password;
+
+    messageObject["params"] = paramsObject;
+    messageObject["method"] = "access.post_user";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::accessDeleteUser(QString username)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["username"] = username;
+
+    messageObject["params"] = paramsObject;
+    messageObject["method"] = "access.delete_user";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::accessUsersList()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+
+    messageObject["method"] = "access.users.list";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::accessUserPasswordReset(QString password, QString newPassword)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["new_password"] = newPassword;
+    paramsObject["password"] = password;
+
+    messageObject["params"] = paramsObject;
+    messageObject["method"] = "access.user.password";
 
     message.setDocument(messageObject);
 
@@ -2306,6 +2508,219 @@ void QAbstractKlipperConsole::on_serverFilesMetadata(KlipperResponse response)
         }
 
         emit serverMetadataResult(metadata);
+    }
+}
+
+void QAbstractKlipperConsole::on_serverWebcamList(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+        QJsonArray webcamArray = result["webcams"].toArray();
+
+        _printer->system()->webcams().clear();
+
+        for(int i = 0; i < webcamArray.count(); i++)
+        {
+            QJsonObject webcamObject = webcamArray[i].toObject();
+            System::Webcam webcam;
+
+            webcam.name = webcamObject["name"].toString();
+            webcam.location = webcamObject["location"].toString();
+            webcam.service = webcamObject["service"].toString();
+            webcam.enabled = webcamObject["enabled"].toBool();
+            webcam.iconString = webcamObject["icon"].toString();
+            webcam.targetFps = webcamObject["target_fps"].toInt();
+            webcam.targetFpsIdle = webcamObject["target_fps_idle"].toInt();
+            webcam.streamUrl = webcamObject["stream_url"].toString();
+            webcam.snapshotUrl = webcamObject["snapshot_url"].toString();
+            webcam.flipHorizontal = webcamObject["flip_horizontal"].toBool();
+            webcam.flipVertical = webcamObject["flip_vertical"].toBool();
+            webcam.rotation = webcamObject["aspect_ratio"].toInt();
+            webcam.aspectRatio = webcamObject["aspect_ratio"].toString();
+            webcam.source = webcamObject["source"].toString();
+            webcam.uid = webcamObject["uid"].toString();
+
+            _printer->system()->webcams().append(webcam);
+        }
+    }
+}
+
+void QAbstractKlipperConsole::on_serverWebcamCreate(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+        QJsonObject webcamObject = result["webcam"].toObject();
+        System::Webcam webcam;
+
+        webcam.name = webcamObject["name"].toString();
+        webcam.location = webcamObject["location"].toString();
+        webcam.service = webcamObject["service"].toString();
+        webcam.enabled = webcamObject["enabled"].toBool();
+        webcam.iconString = webcamObject["icon"].toString();
+        webcam.targetFps = webcamObject["target_fps"].toInt();
+        webcam.targetFpsIdle = webcamObject["target_fps_idle"].toInt();
+        webcam.streamUrl = webcamObject["stream_url"].toString();
+        webcam.snapshotUrl = webcamObject["snapshot_url"].toString();
+        webcam.flipHorizontal = webcamObject["flip_horizontal"].toBool();
+        webcam.flipVertical = webcamObject["flip_vertical"].toBool();
+        webcam.rotation = webcamObject["aspect_ratio"].toInt();
+        webcam.aspectRatio = webcamObject["aspect_ratio"].toString();
+        webcam.source = webcamObject["source"].toString();
+        webcam.uid = webcamObject["uid"].toString();
+
+        bool found = false;
+
+        for(int i = 0; i < _printer->system()->webcams().count(); i++)
+        {
+            System::Webcam listedCamera = _printer->system()->webcams().at(i);
+
+            if(webcam.uid == listedCamera.uid)
+            {
+                found = true;
+                _printer->system()->webcams().replace(i, webcam);
+                break;
+            }
+        }
+
+        if(!found)
+        {
+            _printer->system()->webcams().append(webcam);
+            emit serverWebcamCreated(webcam);
+        }
+        else
+            emit serverWebcamsListed();
+    }
+}
+
+void QAbstractKlipperConsole::on_serverWebcamDelete(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+        QJsonObject webcamObject = result["webcam"].toObject();
+        System::Webcam webcam;
+
+        webcam.name = webcamObject["name"].toString();
+        webcam.location = webcamObject["location"].toString();
+        webcam.service = webcamObject["service"].toString();
+        webcam.enabled = webcamObject["enabled"].toBool();
+        webcam.iconString = webcamObject["icon"].toString();
+        webcam.targetFps = webcamObject["target_fps"].toInt();
+        webcam.targetFpsIdle = webcamObject["target_fps_idle"].toInt();
+        webcam.streamUrl = webcamObject["stream_url"].toString();
+        webcam.snapshotUrl = webcamObject["snapshot_url"].toString();
+        webcam.flipHorizontal = webcamObject["flip_horizontal"].toBool();
+        webcam.flipVertical = webcamObject["flip_vertical"].toBool();
+        webcam.rotation = webcamObject["aspect_ratio"].toInt();
+        webcam.aspectRatio = webcamObject["aspect_ratio"].toString();
+        webcam.source = webcamObject["source"].toString();
+        webcam.uid = webcamObject["uid"].toString();
+
+        emit serverWebcamDeleted(webcam);
+    }
+}
+
+void QAbstractKlipperConsole::on_accessLogin(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        System::AccessDetails accessDetails;
+        accessDetails.isLoggedIn = true;
+        accessDetails.token = result["token"].toString();
+        accessDetails.refreshToken = result["refresh_token"].toString();
+
+        accessDetails.user.username = result["username"].toString();
+        accessDetails.user.source = result["source"].toString();
+
+        _printer->system()->setAccessDetails(accessDetails);
+    }
+}
+
+void QAbstractKlipperConsole::on_accessLogout(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        System::AccessDetails accessDetails = _printer->system()->accessDetails();
+        accessDetails.isLoggedIn = false;
+        accessDetails.refreshToken = QString();
+        accessDetails.token = QString();
+
+        _printer->system()->setAccessDetails(accessDetails);
+    }
+}
+
+void QAbstractKlipperConsole::on_accessGetUser(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+        System::AccessDetails accessDetails = _printer->system()->accessDetails();
+
+        accessDetails.user.username = result["username"].toString();
+        accessDetails.user.source = result["source"].toString();
+        accessDetails.user.createdOn = result["created_on"].toDouble();
+
+        _printer->system()->setAccessDetails(accessDetails);
+    }
+}
+
+void QAbstractKlipperConsole::on_accessCreateUser(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        System::AccessDetails accessDetails;
+        accessDetails.isLoggedIn = true;
+        accessDetails.token = result["token"].toString();
+        accessDetails.refreshToken = result["refresh_token"].toString();
+
+        accessDetails.user.username = result["username"].toString();
+        accessDetails.user.source = result["source"].toString();
+
+        _printer->system()->setAccessDetails(accessDetails);
+
+        accessGetUser();
+    }
+}
+
+void QAbstractKlipperConsole::on_accessUsersList(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+        QJsonArray userArray = result["users"].toArray();
+
+        for(int i = 0; i < userArray.count(); i++)
+        {
+            QJsonObject userObject = userArray[i].toObject();
+
+            System::User user;
+            user.username = userObject["username"].toString();
+            user.source = userObject["source"].toString();
+            user.createdOn = userObject["created_on"].toDouble();
+        }
+    }
+}
+
+void QAbstractKlipperConsole::on_accessUserPasswordReset(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+        System::AccessDetails accessDetails = _printer->system()->accessDetails();
+
+        accessDetails.user.username = result["username"].toString();
+        accessDetails.user.source = result["source"].toString();
+        accessDetails.user.createdOn = result["created_on"].toDouble();
+
+        _printer->system()->setAccessDetails(accessDetails);
     }
 }
 

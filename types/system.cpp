@@ -208,3 +208,23 @@ QMap<qint32, System::CanBus> System::canBusses() const
 {
     return _canBusses;
 }
+
+System::AccessDetails System::accessDetails() const
+{
+    return _accessDetails;
+}
+
+void System::setAccessDetails(const AccessDetails &accessDetails)
+{
+    _accessDetails = accessDetails;
+}
+
+QList<System::User> System::userList() const
+{
+    return _userList;
+}
+
+QList<System::Webcam> System::webcams() const
+{
+    return _webcams;
+}

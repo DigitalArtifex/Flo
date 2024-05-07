@@ -246,6 +246,51 @@ public:
         QList<Interface> interfaces;
     };
 
+    /*!
+     * \brief Filled by machine.peripherals.canbus
+     */
+    struct User
+    {
+        QString username;
+        QString source;
+
+        qreal createdOn;
+    };
+
+    struct AccessDetails
+    {
+        bool isLoggedIn = false;
+
+        QString token;
+        QString refreshToken;
+
+        User user;
+    };
+
+    /*!
+     * \brief Filled by server.webcams.list
+     */
+    struct Webcam
+    {
+        QString name;
+        QString location;
+        QString service;
+        QString iconString;
+        QString streamUrl;
+        QString snapshotUrl;
+        QString aspectRatio;
+        QString source;
+        QString uid;
+
+        qint16 targetFps = 0;
+        qint16 targetFpsIdle = 0;
+        qint16 rotation = 0;
+
+        bool enabled = false;
+        bool flipVertical = false;
+        bool flipHorizontal = false;
+    };
+
     explicit System(QObject *parent = nullptr);
     ~System();
 
@@ -313,6 +358,13 @@ public:
 
     QMap<qint32, CanBus> canBusses() const;
 
+    AccessDetails accessDetails() const;
+    void setAccessDetails(const AccessDetails &accessDetails);
+
+    QList<User> userList() const;
+
+    QList<Webcam> webcams() const;
+
 signals:
 
 
@@ -352,9 +404,13 @@ private:
     //Filled by machine.peripherals.video
     QList<V412Device>                _v412Devices;
     QList<LibcameraDevice>           _libcameraDevices;
+    QList<Webcam>                    _webcams;
 
     //Filled by machine.peripherals.canbus
     QMap<qint32,CanBus>              _canBusses;
+
+    AccessDetails                    _accessDetails;
+    QList<User>                      _userList;
 
     QString                          _pythonVersion;
 };
