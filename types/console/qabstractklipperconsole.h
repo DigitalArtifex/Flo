@@ -122,6 +122,9 @@ public:
     virtual void serverWebcamCreate(System::Webcam webcam);
     virtual void serverWebcamUpdate(System::Webcam webcam);
     virtual void serverWebcamDelete(System::Webcam webcam);
+    virtual void serverAnnouncementList(bool includeDismissed = false);
+    virtual void serverAnnouncementsUpdate();
+    virtual void serverAnnouncementDismiss(QString entryId, qint64 waketime = 0);
 
     //Client Management
     virtual void clientIdentifier();
@@ -196,6 +199,8 @@ signals:
     void serverWebcamsListed();
     void serverWebcamCreated(System::Webcam webcam);
     void serverWebcamDeleted(System::Webcam webcam);
+    void serverAnnouncementsListed();
+    void serverAnnouncementDismissed(QString entryId);
 
     //Machine Signals
     void machineServiceRestarted(QString service);
@@ -274,6 +279,9 @@ protected slots:
     virtual void on_serverWebcamList(KlipperResponse response);
     virtual void on_serverWebcamCreate(KlipperResponse response);
     virtual void on_serverWebcamDelete(KlipperResponse response);
+    virtual void on_serverAnnouncementsList(KlipperResponse response);
+    virtual void on_serverAnnouncementsUpdate(KlipperResponse response);
+    virtual void on_serverAnnouncementDismissed(KlipperResponse response);
 
     //Access Management
     virtual void on_accessLogin(KlipperResponse response);

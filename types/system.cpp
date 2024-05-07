@@ -228,3 +228,8 @@ QList<System::Webcam> System::webcams() const
 {
     return _webcams;
 }
+
+QList<System::Announcement> System::announcements() const
+{
+    return _announcements;
+}

@@ -29,6 +29,8 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("server.webcams.list")] = (ParserFunction)&QAbstractKlipperConsole::on_serverWebcamList;
     _parserMap[QString("server.webcams.post_item")] = (ParserFunction)&QAbstractKlipperConsole::on_serverWebcamCreate;
     _parserMap[QString("server.webcams.delete_item")] = (ParserFunction)&QAbstractKlipperConsole::on_serverWebcamDelete;
+    _parserMap[QString("server.announcements.list")] = (ParserFunction)&QAbstractKlipperConsole::on_serverAnnouncementsList;
+    _parserMap[QString("server.announcements.update")] = (ParserFunction)&QAbstractKlipperConsole::on_serverAnnouncementsUpdate;
 
     _parserMap[QString("machine.system_info")] = (ParserFunction)&QAbstractKlipperConsole::on_machineSystemInfo;
     _parserMap[QString("machine.services.restart")] = (ParserFunction)&QAbstractKlipperConsole::on_machineServiceRestart;
@@ -60,6 +62,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverConfig);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverFileRoots);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverWebcamList);
+    _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverAnnouncementsUpdate);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerInfo);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerObjectsList);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerSubscribe);
@@ -811,6 +814,53 @@ void QAbstractKlipperConsole::serverWebcamDelete(System::Webcam webcam)
     paramsObject["uid"] = webcam.uid;
 
     messageObject["method"] = "server.webcams.delete_item";
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverAnnouncementsList(bool includeDismissed)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["include_dismissed"] = includeDismissed;
+
+    messageObject["method"] = "server.announcements.list";
+    messageObject["params"] = paramsObject;
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverAnnouncementsUpdate()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+
+    messageObject["method"] = "server.announcements.update";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverAnnouncementDismiss(QString entryId, qint64 waketime)
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+    QJsonObject paramsObject;
+
+    paramsObject["entry_id"] = entryId;
+
+    if(waketime > 0)
+        paramsObject["wake_time"] = waketime;
+
+    messageObject["method"] = "server.announcements.dismiss";
     messageObject["params"] = paramsObject;
 
     message.setDocument(messageObject);
@@ -2645,6 +2695,73 @@ void QAbstractKlipperConsole::on_serverWebcamDelete(KlipperResponse response)
         webcam.uid = webcamObject["uid"].toString();
 
         emit serverWebcamDeleted(webcam);
+    }
+}
+
+void QAbstractKlipperConsole::on_serverAnnouncementsList(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+        QJsonArray announcementArray = result["entries"].toArray();
+
+        _printer->system()->announcements().clear();
+
+        for(int i = 0; i < announcementArray.count(); i++)
+        {
+            QJsonObject announcementObject = announcementArray[i].toObject();
+            System::Announcement announcement;
+
+            announcement.entryId = announcementObject["entry_id"].toString();
+            announcement.url = announcementObject["url"].toString();
+            announcement.title = announcementObject["title"].toString();
+            announcement.description = announcementObject["description"].toString();
+            announcement.priority = announcementObject["priority"].toString();
+            announcement.date = announcementObject["date"].toDouble();
+            announcement.dismissed = announcementObject["dismissed"].toBool();
+            announcement.dateDismissed = announcementObject["date_dismissed"].toDouble();
+            announcement.dateDismissedWake = announcementObject["dismiss_wake"].toDouble();
+            announcement.source = announcementObject["source"].toString();
+            announcement.feed = announcementObject["feed"].toString();
+
+            _printer->system()->announcements().append(announcement);
+        }
+
+        emit serverAnnouncementsListed();
+    }
+}
+
+void QAbstractKlipperConsole::on_serverAnnouncementsUpdate(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+
+        if(result["modified"].toBool() || _printer->system()->announcements().isEmpty())
+            on_serverAnnouncementsList(response);
+    }
+}
+
+void QAbstractKlipperConsole::on_serverAnnouncementDismissed(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+        QString entryId = result["entry_id"].toString();
+
+        for(int i = 0; i < _printer->system()->announcements().count(); i++)
+        {
+            System::Announcement announcement = _printer->system()->announcements().at(i);
+
+            if(entryId == announcement.entryId)
+            {
+                _printer->system()->announcements().remove(i);
+
+                emit serverAnnouncementDismissed(entryId);
+
+                break;
+            }
+        }
     }
 }
 

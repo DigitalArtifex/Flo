@@ -291,6 +291,26 @@ public:
         bool flipHorizontal = false;
     };
 
+    /*!
+     * \brief Filled by server.announcements.list
+     */
+    struct Announcement
+    {
+        QString entryId;
+        QString url;
+        QString title;
+        QString description;
+        QString priority;
+        QString feed;
+        QString source;
+
+        qreal date = 0;
+        qreal dateDismissed = 0;
+        qreal dateDismissedWake = 0;
+
+        bool dismissed = false;
+    };
+
     explicit System(QObject *parent = nullptr);
     ~System();
 
@@ -365,6 +385,8 @@ public:
 
     QList<Webcam> webcams() const;
 
+    QList<Announcement> announcements() const;
+
 signals:
 
 
@@ -411,6 +433,8 @@ private:
 
     AccessDetails                    _accessDetails;
     QList<User>                      _userList;
+
+    QList<Announcement>              _announcements;
 
     QString                          _pythonVersion;
 };
