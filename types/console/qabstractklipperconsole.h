@@ -116,22 +116,40 @@ public:
     virtual void printerEmergencyStop();
     virtual void printerQueryEndstops();
 
-    //Server Management
+    /*
+     * Server Management
+     */
+
+    //File management
     virtual void serverInfo();
     virtual void serverConfig();
     virtual void serverFileRoots();
     virtual void serverFilesMetadata(QString fileName);
+
+    //Store management
     virtual void serverTemperatureStore();
     virtual void serverGcodeStore();
     virtual void serverLogsRollover();
     virtual void serverWebsocketId();
+
+    //Webcam Management
     virtual void serverWebcamList();
     virtual void serverWebcamCreate(System::Webcam webcam);
     virtual void serverWebcamUpdate(System::Webcam webcam);
     virtual void serverWebcamDelete(System::Webcam webcam);
+
+    //Announcement Management
     virtual void serverAnnouncementsList(bool includeDismissed = false);
     virtual void serverAnnouncementsUpdate();
     virtual void serverAnnouncementDismiss(QString entryId, qint64 waketime = 0);
+
+    //Job queue Management
+    virtual void serverJobQueueStatus();
+    virtual void serverJobQueueStart();
+    virtual void serverJobQueuePause();
+    virtual void serverJobQueueJump(QString id);
+    virtual void serverJobQueueAdd(QStringList filenames);
+    virtual void serverJobQueueDelete(QStringList ids);
 
     //Client Management
     virtual void clientIdentifier();
@@ -304,6 +322,7 @@ protected slots:
     virtual void on_serverAnnouncementsList(KlipperResponse response);
     virtual void on_serverAnnouncementsUpdate(KlipperResponse response);
     virtual void on_serverAnnouncementDismissed(KlipperResponse response);
+    virtual void on_serverJobQueueStatus(KlipperResponse response);
 
     //Access Management
     virtual void on_accessLogin(KlipperResponse response);

@@ -32,6 +32,14 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _parserMap[QString("server.announcements.list")] = (ParserFunction)&QAbstractKlipperConsole::on_serverAnnouncementsList;
     _parserMap[QString("server.announcements.update")] = (ParserFunction)&QAbstractKlipperConsole::on_serverAnnouncementsUpdate;
 
+    //Job queue management
+    _parserMap[QString("server.job_queue.status")] = (ParserFunction)&QAbstractKlipperConsole::on_serverJobQueueStatus;
+    _parserMap[QString("server.job_queue.post_job")] = (ParserFunction)&QAbstractKlipperConsole::on_serverJobQueueStatus;
+    _parserMap[QString("server.job_queue.pause")] = (ParserFunction)&QAbstractKlipperConsole::on_serverJobQueueStatus;
+    _parserMap[QString("server.job_queue.delete_job")] = (ParserFunction)&QAbstractKlipperConsole::on_serverJobQueueStatus;
+    _parserMap[QString("server.job_queue.start")] = (ParserFunction)&QAbstractKlipperConsole::on_serverJobQueueStatus;
+    _parserMap[QString("server.job_queue.jump")] = (ParserFunction)&QAbstractKlipperConsole::on_serverJobQueueStatus;
+
     _parserMap[QString("machine.system_info")] = (ParserFunction)&QAbstractKlipperConsole::on_machineSystemInfo;
     _parserMap[QString("machine.services.restart")] = (ParserFunction)&QAbstractKlipperConsole::on_machineServiceRestart;
     _parserMap[QString("machine.services.stop")] = (ParserFunction)&QAbstractKlipperConsole::on_machineServiceStop;
@@ -998,6 +1006,91 @@ void QAbstractKlipperConsole::serverAnnouncementDismiss(QString entryId, qint64 
     messageObject["method"] = "server.announcements.dismiss";
     messageObject["params"] = paramsObject;
 
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverJobQueueStatus()
+{
+    KlipperMessage message;
+    QJsonObject messageObject = message.document();
+
+    messageObject["method"] = "server.job_queue.status";
+
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverJobQueueStart()
+{
+    QJsonObject messageObject;
+    messageObject["method"] = "server.job_queue.start";
+
+    KlipperMessage message;
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverJobQueuePause()
+{
+    QJsonObject messageObject;
+    messageObject["method"] = "server.job_queue.pause";
+
+    KlipperMessage message;
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverJobQueueAdd(QStringList filenames)
+{
+    QJsonArray paramsArray;
+    paramsArray = QJsonArray::fromStringList(filenames);
+
+    QJsonObject paramsObject;
+    paramsObject["filenames"] = paramsArray;
+
+    QJsonObject messageObject;
+    messageObject["method"] = "server.job_queue.post_job";
+    messageObject["params"] = paramsObject;
+
+    KlipperMessage message;
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverJobQueueJump(QString id)
+{
+    QJsonObject paramsObject;
+    paramsObject["job_id"] = id;
+
+    QJsonObject messageObject;
+    messageObject["method"] = "server.job_queue.jump";
+    messageObject["params"] = paramsObject;
+
+    KlipperMessage message;
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverJobQueueDelete(QStringList ids)
+{
+    QJsonArray paramsArray;
+    paramsArray = QJsonArray::fromStringList(ids);
+
+    QJsonObject paramsObject;
+    paramsObject["job_ids"] = paramsArray;
+
+    QJsonObject messageObject;
+    messageObject["method"] = "server.job_queue.delete_job";
+    messageObject["params"] = paramsObject;
+
+    KlipperMessage message;
     message.setDocument(messageObject);
 
     sendCommand(message);
@@ -3034,6 +3127,49 @@ void QAbstractKlipperConsole::on_serverAnnouncementDismissed(KlipperResponse res
                 break;
             }
         }
+    }
+}
+
+void QAbstractKlipperConsole::on_serverJobQueueStatus(KlipperResponse response)
+{
+    if(response["result"].isObject())
+    {
+        QJsonObject result = response["result"].toObject();
+        QJsonArray jobArray = result["queued_jobs"].toArray();
+
+        System::JobQueue queue = _printer->system()->jobQueue();
+
+        for(int i = 0; i < jobArray.count(); i++)
+        {
+            QJsonObject jobObject = jobArray[i].toObject();
+
+            System::JobQueue::Job job;
+            job.filename = jobObject["filename"].toString();
+            job.id = jobObject["job_id"].toString();
+            job.timeAdded = jobObject["time_added"].toDouble();
+            job.timeInQueue = jobObject["time_in_queue"].toDouble();
+
+            queue.queue.append(job);
+        }
+
+        if(result["queue_state"].toString() == QString("loading"))
+            queue.queueState = System::JobQueue::Loading;
+
+        else if(result["queue_state"].toString() == QString("paused"))
+            queue.queueState = System::JobQueue::Paused;
+
+        else if(result["queue_state"].toString() == QString("starting"))
+            queue.queueState = System::JobQueue::Starting;
+
+        else if(result["queue_state"].toString() == QString("ready"))
+            queue.queueState = System::JobQueue::Ready;
+
+        else
+            queue.queueState = System::JobQueue::Error;
+
+        _printer->system()->setJobQueue(queue);
+
+        emit systemUpdate();
     }
 }
 

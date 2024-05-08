@@ -243,3 +243,13 @@ void System::setUpdateState(const UpdateState &updateState)
 {
     _updateState = updateState;
 }
+
+System::JobQueue System::jobQueue() const
+{
+    return _jobQueue;
+}
+
+void System::setJobQueue(const JobQueue &jobQueue)
+{
+    _jobQueue = jobQueue;
+}

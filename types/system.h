@@ -375,6 +375,30 @@ public:
         QMap<QString, PackageState> packageStates;
     };
 
+    struct JobQueue
+    {
+        enum QueueState
+        {
+            Ready,
+            Paused,
+            Loading,
+            Starting,
+            Error
+        };
+
+        struct Job
+        {
+            QString filename;
+            QString id;
+
+            qreal timeAdded;
+            qreal timeInQueue;
+        };
+
+        QList<Job> queue;
+        QueueState queueState = Error;
+    };
+
     explicit System(QObject *parent = nullptr);
     ~System();
 
@@ -454,6 +478,10 @@ public:
     UpdateState updateState() const;
     void setUpdateState(const UpdateState &updateState);
 
+    JobQueue jobQueue() const;
+
+    void setJobQueue(const JobQueue &jobQueue);
+
 signals:
 
 
@@ -502,6 +530,8 @@ private:
     QList<User>                      _userList;
 
     UpdateState                      _updateState;
+
+    JobQueue                         _jobQueue;
 
     QList<Announcement>              _announcements;
 
