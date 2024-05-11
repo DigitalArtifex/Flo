@@ -4,9 +4,11 @@
 #include <QObject>
 #include <QDateTime>
 
-class Bed
+#include <QPair>
+
+class Q3DPrintBed : public QObject
 {
-    Q_GADGET
+    Q_OBJECT
 public:
     enum Type
     {
@@ -14,7 +16,25 @@ public:
         NonHeated
     };
 
-    Bed(Type type = NonHeated);
+    struct Mesh
+    {
+        struct Limit
+        {
+            qreal x;
+            qreal y;
+        };
+
+        QString profileName;
+        QStringList profiles;
+
+        Limit minimum;
+        Limit maximum;
+
+        QList<QList<qreal>> matrix;
+        QList<QList<qreal>> probed;
+    };
+
+    Q3DPrintBed(Type type = NonHeated, QObject *parent = nullptr);
 
     long timeRunning();
     qreal currentTemp() const;
@@ -29,6 +49,12 @@ public:
     qreal watts() const;
     void setWatts(qreal watts);
 
+    Mesh bedMesh() const;
+    void setBedMesh(const Mesh &bedMesh);
+
+signals:
+    void meshUpdated(Q3DPrintBed *bed);
+
 private:
     qreal _currentTemp = 0;
     qreal _targetTemp = 0;
@@ -36,6 +62,8 @@ private:
     qreal _watts = 0;
 
     QDateTime _startTime;
+
+    Mesh _bedMesh;
 };
 
 #endif // BED_H

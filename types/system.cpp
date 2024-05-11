@@ -253,3 +253,13 @@ void System::setJobQueue(const JobQueue &jobQueue)
 {
     _jobQueue = jobQueue;
 }
+
+System::VirtualSDCard System::virtualSDCard() const
+{
+    return _virtualSDCard;
+}
+
+void System::setVirtualSDCard(const VirtualSDCard &virtualSDCard)
+{
+    _virtualSDCard = virtualSDCard;
+}

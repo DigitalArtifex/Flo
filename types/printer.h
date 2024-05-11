@@ -15,12 +15,14 @@
 #include "printjob.h"
 #include "chamber.h"
 
+#include "qsteppermotor.h"
+
 //#include "../klipperconsole.h"
 #include "console/qabstractklipperconsole.h"
 #include "console/qlocalklipperconsole.h"
 
 #include "printerdefinition.h"
-#include "gcodestore.h"
+#include "gcode/qgcodestore.h"
 #include "clientidentifier.h"
 #include "endstopstatus.h"
 
@@ -46,13 +48,25 @@ public:
         Offline = 0x10000000
     };
 
+    struct ProbeData
+    {
+        QString name;
+
+        bool isManual = false;
+        bool lastQuery = false;
+
+        qreal zPosition = 0;
+        qreal zPositionLower = 0;
+        qreal zPositionUpper = 0;
+    };
+
     Printer(QString name = QString("printer"), QString id = QString(""));
     Printer(PrinterDefinition definition, QObject *parent = nullptr);
     ~Printer();
 
     Toolhead *toolhead();
     Extruder *extruder(int index);
-    Bed *bed();
+    Q3DPrintBed *bed();
     Fan *fan();
     System *system();
 
@@ -97,33 +111,43 @@ public:
 
     PrintJob *currentJob();
 
-    QString gcodesLocation() const;
+    QString gcodesLocation() ;
     void setGcodesLocation(const QString &gcodesLocation);
 
-    QString configLocation() const;
+    QString configLocation() ;
     void setConfigLocation(const QString &configLocation);
 
-    QString instanceLocation() const;
+    QString instanceLocation() ;
     void setInstanceLocation(const QString &instanceLocation);
 
-    QString apiKey() const;
+    QString apiKey() ;
     void setApiKey(const QString &apiKey);
 
     void getFiles(QString root, QString directory);
 
-    QMap<QString, qreal> powerProfile() const;
+    QMap<QString, qreal> powerProfile() ;
 
-    Chamber *chamber() const;
+    Chamber *chamber() ;
     void setChamber(Chamber *chamber);
 
-    bool isAutoConnect() const;
-    bool isDefaultPrinter() const;
+    bool isAutoConnect() ;
+    bool isDefaultPrinter() ;
 
-    GCodeStore gCodeStore() const;
+    GCodeStore gCodeStore() ;
 
-    ClientIdentifier clientIdentifier() const;
+    ClientIdentifier clientIdentifier() ;
 
-    EndstopStatus endstopStatus() const;
+    EndstopStatus endstopStatus() ;
+
+    QGCodeMove gcodeMove() ;
+
+    QMap<QString, QStepperMotor*> &stepperMotors();
+
+    ProbeData probeData() ;
+    void setProbeData(const ProbeData &probeData);
+
+    QMap<QString, Fan *> &fans() ;
+    void setFans(const QMap<QString, Fan *> &fans);
 
 signals:
     void systemUpdate(Printer *printer);
@@ -140,6 +164,8 @@ signals:
 
     void directoryListing(QString root, QString directory, QList<KlipperFile> files, Printer *printer);
 
+    void gcodeMove(Printer *printer, QGCodeMove move);
+
 private slots:
     void on_klipperConnected();
     void on_klipperDisconnected();
@@ -153,11 +179,14 @@ private slots:
     void on_console_directoryListing(QString root, QString directory, QList<KlipperFile> files);
     void on_console_startup();
 
+    virtual void on_console_gcodeMove(QGCodeMove &move);
+
 private:
     Toolhead *_toolhead = nullptr;
-    Bed *_bed = nullptr;
+    Q3DPrintBed *_bed = nullptr;
     Chamber *_chamber = nullptr;
     Fan *_partsFan = nullptr;
+
     QMap<QString,qreal> _powerProfile;
     QString _name;
     QString _id;
@@ -188,10 +217,17 @@ private:
     System *_system;
     PrintJob *_printJob;
 
-    GCodeStore _gCodeStore;
-    ClientIdentifier _clientIdentifier;
+    GCodeStore                               _gCodeStore;
+    QGCodeMove                               _gcodeMove;
+    ClientIdentifier                         _clientIdentifier;
 
-    EndstopStatus _endstopStatus;
+    EndstopStatus                            _endstopStatus;
+
+    QMap<QString,QStepperMotor*>             _stepperMotors;
+
+    ProbeData                                _probeData;
+
+    QMap<QString,Fan*>                       _fans;
 };
 
 typedef QList<Printer*> PrinterList;

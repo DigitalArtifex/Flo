@@ -1,8 +1,18 @@
 #include "fan.h"
 
-Fan::Fan()
+Fan::Fan(Printer *printer)
+{
+    _printer = printer;
+}
+
+Fan::~Fan()
 {
 
+}
+
+qreal Fan::speed() const
+{
+    return _speed;
 }
 
 void Fan::setSpeed(qreal speed)
@@ -10,9 +20,9 @@ void Fan::setSpeed(qreal speed)
     _speed = speed;
 }
 
-qreal Fan::speed()
+qreal Fan::rpm() const
 {
-    return _speed;
+    return _rpm;
 }
 
 void Fan::setRpm(qreal rpm)
@@ -20,7 +30,12 @@ void Fan::setRpm(qreal rpm)
     _rpm = rpm;
 }
 
-qreal Fan::rpm()
+Printer *Fan::printer() const
 {
-    return _rpm;
+    return _printer;
+}
+
+void Fan::setPrinter(Printer *printer)
+{
+    _printer = printer;
 }

@@ -7,7 +7,7 @@
 
 #include <cmath>
 
-BedMeshWidget::~BedMeshWidget()
+Q3DPrintBedMeshWidget::~Q3DPrintBedMeshWidget()
 {
     // Make sure the context is current when deleting the texture
     // and the buffers.
@@ -17,20 +17,20 @@ BedMeshWidget::~BedMeshWidget()
     doneCurrent();
 }
 
-void BedMeshWidget::setupUI()
+void Q3DPrintBedMeshWidget::setupUI()
 {
 
 }
 
 //! [0]
-void BedMeshWidget::mousePressEvent(QMouseEvent *e)
+void Q3DPrintBedMeshWidget::mousePressEvent(QMouseEvent *e)
 {
     // Save mouse press position
     _rotating = true;
     _mousePosition = QVector2D(e->position());
 }
 
-void BedMeshWidget::mouseReleaseEvent(QMouseEvent *e)
+void Q3DPrintBedMeshWidget::mouseReleaseEvent(QMouseEvent *e)
 {
     /*
     // Mouse release position - mouse press position
@@ -53,7 +53,7 @@ void BedMeshWidget::mouseReleaseEvent(QMouseEvent *e)
     angularSpeed = 0;
 }
 
-void BedMeshWidget::mouseMoveEvent(QMouseEvent *e)
+void Q3DPrintBedMeshWidget::mouseMoveEvent(QMouseEvent *e)
 {
     if(_rotating)
     {
@@ -85,7 +85,7 @@ void BedMeshWidget::mouseMoveEvent(QMouseEvent *e)
 //! [0]
 
 //! [1]
-void BedMeshWidget::timerEvent(QTimerEvent *)
+void Q3DPrintBedMeshWidget::timerEvent(QTimerEvent *)
 {
     if(_rotating)
     {
@@ -106,7 +106,7 @@ void BedMeshWidget::timerEvent(QTimerEvent *)
 }
 //! [1]
 
-void BedMeshWidget::initializeGL()
+void Q3DPrintBedMeshWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
@@ -127,7 +127,7 @@ void BedMeshWidget::initializeGL()
 }
 
 //! [3]
-void BedMeshWidget::initShaders()
+void Q3DPrintBedMeshWidget::initShaders()
 {
     // Compile vertex shader
     if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vshader.glsl"))
@@ -148,7 +148,7 @@ void BedMeshWidget::initShaders()
 //! [3]
 
 //! [4]
-void BedMeshWidget::initTextures()
+void Q3DPrintBedMeshWidget::initTextures()
 {
     // Load cube.png image
     texture = new QOpenGLTexture(QImage(":/cube.png").mirrored());
@@ -166,7 +166,7 @@ void BedMeshWidget::initTextures()
 //! [4]
 
 //! [5]
-void BedMeshWidget::resizeGL(int w, int h)
+void Q3DPrintBedMeshWidget::resizeGL(int w, int h)
 {
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
@@ -182,7 +182,7 @@ void BedMeshWidget::resizeGL(int w, int h)
 }
 //! [5]
 
-void BedMeshWidget::paintGL()
+void Q3DPrintBedMeshWidget::paintGL()
 {
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -215,7 +215,7 @@ void BedMeshWidget::paintGL()
     geometries->drawCubeGeometry(&program);
 }
 
-BedMeshWidget::BedMeshWidget(QWidget *parent)
+Q3DPrintBedMeshWidget::Q3DPrintBedMeshWidget(QWidget *parent)
 {
 
 }

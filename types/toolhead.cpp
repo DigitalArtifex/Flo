@@ -1,8 +1,8 @@
 #include "toolhead.h"
 
-Toolhead::Toolhead()
+Toolhead::Toolhead(Printer *printer)
 {
-    _fan = new Fan();
+    _fan = new Fan(printer);
 }
 
 void Toolhead::addExtruder(Extruder *extruder)
@@ -15,7 +15,7 @@ Extruder *Toolhead::extruder(int index)
     int currentIndex = _extruders.count() - 1;
 
     if(index > currentIndex)
-        addExtruder(new Extruder());
+        addExtruder(new Extruder(_printer));
 
     return _extruders[index];
 }
@@ -177,4 +177,14 @@ qint32 Toolhead::stalls() const
 void Toolhead::setStalls(qint32 stalls)
 {
     _stalls = stalls;
+}
+
+Printer *Toolhead::printer() const
+{
+    return _printer;
+}
+
+void Toolhead::setPrinter(Printer *printer)
+{
+    _printer = printer;
 }

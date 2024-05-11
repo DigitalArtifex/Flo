@@ -1,51 +1,64 @@
 #include "bed.h"
 
-Bed::Bed(Type type)
+Q3DPrintBed::Q3DPrintBed(Type type, QObject *parent)
+    : QObject(parent)
 {
 
 }
 
-long Bed::timeRunning()
+long Q3DPrintBed::timeRunning()
 {
     return _startTime.secsTo(QDateTime::currentDateTime());
 }
 
-qreal Bed::currentTemp() const
+qreal Q3DPrintBed::currentTemp() const
 {
     return _currentTemp;
 }
 
-void Bed::setCurrentTemp(qreal currentTemp)
+void Q3DPrintBed::setCurrentTemp(qreal currentTemp)
 {
     _currentTemp = currentTemp;
 }
 
-qreal Bed::targetTemp() const
+qreal Q3DPrintBed::targetTemp() const
 {
     return _targetTemp;
 }
 
-void Bed::setTargetTemp(qreal targetTemp)
+void Q3DPrintBed::setTargetTemp(qreal targetTemp)
 {
     _targetTemp = targetTemp;
 }
 
-qreal Bed::power() const
+qreal Q3DPrintBed::power() const
 {
     return _power;
 }
 
-void Bed::setPower(qreal power)
+void Q3DPrintBed::setPower(qreal power)
 {
     _power = power;
 }
 
-qreal Bed::watts() const
+qreal Q3DPrintBed::watts() const
 {
     return _watts;
 }
 
-void Bed::setWatts(qreal watts)
+void Q3DPrintBed::setWatts(qreal watts)
 {
     _watts = watts;
+}
+
+Q3DPrintBed::Mesh Q3DPrintBed::bedMesh() const
+{
+    return _bedMesh;
+}
+
+void Q3DPrintBed::setBedMesh(const Mesh &bedMesh)
+{
+    _bedMesh = bedMesh;
+
+    emit meshUpdated(this);
 }

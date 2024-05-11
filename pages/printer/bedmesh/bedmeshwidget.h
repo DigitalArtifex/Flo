@@ -17,12 +17,12 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 
-class BedMeshWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class Q3DPrintBedMeshWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    explicit BedMeshWidget(QWidget *parent = nullptr);
-    ~BedMeshWidget();
+    explicit Q3DPrintBedMeshWidget(QWidget *parent = nullptr);
+    ~Q3DPrintBedMeshWidget();
 
 signals:
 

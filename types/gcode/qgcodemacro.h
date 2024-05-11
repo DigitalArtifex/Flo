@@ -1,5 +1,5 @@
-#ifndef GCODEMACRO_H
-#define GCODEMACRO_H
+#ifndef QGCODEMACRO_H
+#define QGCODEMACRO_H
 
 #include <QObject>
 #include <QList>
@@ -17,4 +17,4 @@ public:
 
 typedef QList<QGCodeMacro> QGCodeMacroList;
 
-#endif // GCODEMACRO_H
+#endif // QGCODEMACRO_H

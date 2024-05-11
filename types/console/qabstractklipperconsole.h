@@ -23,8 +23,10 @@
 #include "../klippermessage.h"
 #include "../klipperresponse.h"
 
-#include "../gcodestore.h"
-#include "../gcodemacro.h"
+#include "../gcode/qgcodestore.h"
+#include "../gcode/qgcodemacro.h"
+#include "../gcode/qgcodecommand.h"
+#include "../gcode/qgcodemove.h"
 
 #include "../system.h"
 
@@ -188,6 +190,8 @@ public:
 
     QStringList moonrakerFailedComponents() const;
 
+    QGCodeCommandList gcodeCommands() const;
+
 signals:
     void startup();
 
@@ -206,6 +210,8 @@ signals:
      */
     void printerEmergencyStopped();
 
+    void printerGCodeMove(QGCodeMove move);
+
     void klipperConnected();
     void klipperError(QString error, QString message);
     void klipperDisconnected();
@@ -219,6 +225,8 @@ signals:
 
     //Server signals
     void serverGCodeStoreResponse(GCodeStore store);
+    void serverGCodesUpdated();
+    void serverGCodeMacrosUpdated();
     void serverLogsRolloverSuccess();
     void serverMetadataResult(KlipperFile::Metadata metadata);
     void serverWebcamsListed();
@@ -226,6 +234,7 @@ signals:
     void serverWebcamDeleted(System::Webcam webcam);
     void serverAnnouncementsListed();
     void serverAnnouncementDismissed(QString entryId);
+    void serverJobQueueStatusUpdate();
 
     //Machine Signals
     void machineServiceRestarted(QString service);
@@ -359,6 +368,7 @@ protected:
     QStringList _moonrakerFailedComponents;
 
     QGCodeMacroList _gcodeMacros;
+    QGCodeCommandList _gcodeCommands;
 
     QString _moonrakerLocation;
     QString _moonrakerVersion;

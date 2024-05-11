@@ -1,9 +1,10 @@
 #include "extruder.h"
 
-Extruder::Extruder(Position offset)
+Extruder::Extruder(Printer *printer, Position offset)
 {
     _offset = offset;
-    _fan = new Fan();
+    _fan = new Fan(printer);
+    _printer = printer;
 }
 
 void Extruder::setOffset(Position offset)
@@ -99,4 +100,14 @@ void Extruder::setWatts(qreal watts)
 TemperatureStore Extruder::temperatureStore() const
 {
     return _temperatureStore;
+}
+
+Printer *Extruder::printer() const
+{
+    return _printer;
+}
+
+void Extruder::setPrinter(Printer *printer)
+{
+    _printer = printer;
 }

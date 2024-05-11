@@ -138,6 +138,11 @@ void QAbstractKlipperConsole::removeState(ConsoleState state)
     _state = (ConsoleState)(_state & (~state));
 }
 
+QGCodeCommandList QAbstractKlipperConsole::gcodeCommands() const
+{
+    return _gcodeCommands;
+}
+
 QStringList QAbstractKlipperConsole::moonrakerFailedComponents() const
 {
     return _moonrakerFailedComponents;
@@ -1324,13 +1329,6 @@ void QAbstractKlipperConsole::on_messageReady()
         }
     }
 
-    QFile file(QDir::homePath() + QDir::separator() + QString("poop2.test"));
-    if(file.open(QFile::ReadWrite | QFile::Append))
-    {
-        file.write(responseDocument.toJson());
-        file.close();
-    }
-
     //For some reason I am getting params returned for status updates.
     //I dont think this is supposed to happen according to the docs.
     if(response.rootObject.contains("params") && !response.rootObject.contains("result"))
@@ -2436,7 +2434,7 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         }
     }
 
-    //Parse toolhead status
+    //Parse fan status
     if(response["result"].toObject().contains("fan"))
     {
         QJsonObject fan = response["result"].toObject()["fan"].toObject();
@@ -2610,7 +2608,9 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
             _printer->currentJob()->setState(printStats["state"].toString());
     }
 
-    foreach (QString object, _macroObjects) {
+    //Parse known G-Code Macros
+    foreach (QString object, _macroObjects)
+    {
         if(result.contains(QString("gcode_macro ") + object.toLower()))
         {
             QJsonObject entryObject = result[QString("gcode_macro ") + object.toLower()].toObject();
@@ -2628,12 +2628,294 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
 
             _gcodeMacros += macro;
         }
+
+        emit serverGCodeMacrosUpdated();
+    }
+
+    if(result.contains(QString("gcode")))
+    {
+        QJsonObject gcodeObject = result["gcode"].toObject();
+        QJsonObject commandsObject = gcodeObject["commands"].toObject();
+        QStringList keys = commandsObject.keys();
+
+        _gcodeCommands.clear();
+
+        foreach (QString key, keys)
+        {
+            QJsonObject commandObject = commandsObject[key].toObject();
+
+            QGCodeCommand command;
+            command.command = key;
+            command.help = commandObject["help"].toString();
+
+            _gcodeCommands.append(command);
+        }
+
+        emit serverGCodesUpdated();
+    }
+
+    if(result.contains(QString("gcode_move")))
+    {
+        QJsonObject gcodeObject = result["gcode_move"].toObject();
+
+        QGCodeMove move;
+        move.absoluteCoordinates = gcodeObject["absolute_coordinates"].toBool();
+        move.absoluteExtrude = gcodeObject["absolute_extrude"].toBool();
+        move.extrusionFactor = gcodeObject["extrude_factor"].toDouble();
+        move.speed = gcodeObject["speed"].toDouble();
+        move.speedFactor = gcodeObject["speed_factor"].toDouble();
+
+        //Gcode position
+        QJsonArray gcodePositionArray = gcodeObject["gcode_position"].toArray();
+
+        for(int i = 0; i < gcodePositionArray.count(); i++)
+        {
+            //0 = X, 1 = Y, 2 = Z, 3 = E, 4+ = E#
+            if(i == 0)
+                move.gcodePosition["x"] = gcodePositionArray[i].toDouble();
+            else if(i == 1)
+                move.gcodePosition["y"] = gcodePositionArray[i].toDouble();
+            else if(i == 2)
+                move.gcodePosition["z"] = gcodePositionArray[i].toDouble();
+            else if(i == 3)
+                move.gcodePosition["e"] = gcodePositionArray[i].toDouble();
+            else if(i > 3)
+            {
+                qint16 extruderNum = (i - 3);
+                QString extruderName = QString("e") + QString::number(extruderNum);
+                move.gcodePosition[extruderName] = gcodePositionArray[i].toDouble();
+            }
+        }
+
+        //Homing Origin position
+        QJsonArray homingPositionArray = gcodeObject["homing_origin"].toArray();
+
+        for(int i = 0; i < homingPositionArray.count(); i++)
+        {
+            //0 = X, 1 = Y, 2 = Z, 3 = E, 4+ = E#
+            if(i == 0)
+                move.homingOrigin["x"] = homingPositionArray[i].toDouble();
+            else if(i == 1)
+                move.homingOrigin["y"] = homingPositionArray[i].toDouble();
+            else if(i == 2)
+                move.homingOrigin["z"] = homingPositionArray[i].toDouble();
+            else if(i == 3)
+                move.homingOrigin["e"] = homingPositionArray[i].toDouble();
+            else if(i > 3)
+            {
+                qint16 extruderNum = (i - 3);
+                QString extruderName = QString("e") + QString::number(extruderNum);
+                move.homingOrigin[extruderName] = homingPositionArray[i].toDouble();
+            }
+        }
+
+        //Position
+        QJsonArray positionArray = gcodeObject["position"].toArray();
+
+        for(int i = 0; i < positionArray.count(); i++)
+        {
+            //0 = X, 1 = Y, 2 = Z, 3 = E, 4+ = E#
+            if(i == 0)
+                move.position["x"] = positionArray[i].toDouble();
+            else if(i == 1)
+                move.position["y"] = positionArray[i].toDouble();
+            else if(i == 2)
+                move.position["z"] = positionArray[i].toDouble();
+            else if(i == 3)
+                move.position["e"] = positionArray[i].toDouble();
+            else if(i > 3)
+            {
+                qint16 extruderNum = (i - 3);
+                QString extruderName = QString("e") + QString::number(extruderNum);
+                move.position[extruderName] = positionArray[i].toDouble();
+            }
+        }
+
+        emit printerGCodeMove(move);
+    }
+
+    //Parse bed mesh data
+    if(result.contains(QString("bed_mesh")))
+    {
+        Q3DPrintBed::Mesh bedMesh;
+
+        QJsonObject bedMeshObject = result["bed_mesh"].toObject();
+        QJsonArray meshMaxArray = bedMeshObject["mesh_max"].toArray();
+        QJsonArray meshMinArray = bedMeshObject["mesh_min"].toArray();
+
+        bedMesh.maximum.x = meshMaxArray[0].toDouble();
+        bedMesh.maximum.y = meshMaxArray[1].toDouble();
+
+        bedMesh.minimum.x = meshMinArray[0].toDouble();
+        bedMesh.minimum.y = meshMinArray[1].toDouble();
+
+        //Parse the 2D array of probed values
+        QJsonArray probedArray = bedMeshObject["probed_matrix"].toArray();
+        bedMesh.probed.resize(probedArray.count());
+
+        for(int i = 0; i < probedArray.count(); i++)
+        {
+            QJsonArray probedEntriesArray = probedArray[i].toArray();
+            bedMesh.probed[i].resize(probedEntriesArray.count());
+
+            for(int e = 0; e < probedEntriesArray.count(); e++)
+            {
+                bedMesh.probed[i][e] = probedEntriesArray[e].toDouble();
+            }
+        }
+
+        //Parse the 2D array of calculated values
+        QJsonArray matrixArray = bedMeshObject["mesh_matrix"].toArray();
+        bedMesh.matrix.resize(matrixArray.count());
+
+        for(int i = 0; i < matrixArray.count(); i++)
+        {
+            QJsonArray matrixEntriesArray = matrixArray[i].toArray();
+            bedMesh.matrix[i].resize(matrixEntriesArray.count());
+
+            for(int e = 0; e < matrixEntriesArray.count(); e++)
+            {
+                bedMesh.matrix[i][e] = matrixEntriesArray[e].toDouble();
+            }
+        }
+
+        //Parse profile data
+        QJsonArray profilesArray = bedMeshObject["profiles"].toArray();
+        bedMesh.profileName = bedMeshObject["profile_name"].toString();
+
+        for(int i = 0; i < profilesArray.count(); i++)
+            bedMesh.profiles += profilesArray[i].toString();
+
+        _printer->bed()->setBedMesh(bedMesh);
+    }
+
+    //Parse stepper motor activity
+    if(result.contains(QString("stepper_enable")))
+    {
+        QJsonObject stepperEnabledObject = result["stepper_enable"].toObject();
+        QJsonObject steppersObject = stepperEnabledObject["steppers"].toObject();
+        QStringList keys = steppersObject.keys();
+
+        foreach(QString key, keys)
+        {
+            if(!_printer->stepperMotors().contains(key))
+                _printer->stepperMotors().insert(key, new QStepperMotor(_printer));
+
+            _printer->stepperMotors()[key]->setEnabled(steppersObject[key].toBool());
+        }
+    }
+
+    //Parse probe status
+    if(result.contains(QString("manual_probe")))
+    {
+        QJsonObject probeObject = result["manual_probe"].toObject();
+
+        Printer::ProbeData probeData = _printer->probeData();
+
+        if(probeObject.contains("is_active"))
+            probeData.isManual = probeObject["is_active"].toBool();
+
+        if(probeObject.contains("z_position"))
+            probeData.zPosition = probeObject["z_position"].toDouble();
+
+        if(probeObject.contains("z_position_lower"))
+            probeData.zPositionLower = probeObject["z_position_lower"].toDouble();
+
+        if(probeObject.contains("z_position_upper"))
+            probeData.zPositionUpper = probeObject["z_position_upper"].toDouble();
+
+        probeData.name = "Manual Probe";
+
+        _printer->setProbeData(probeData);
+    }
+    if(result.contains(QString("probe")))
+    {
+        QJsonObject probeObject = result["probe"].toObject();
+
+        Printer::ProbeData probeData = _printer->probeData();
+
+        if(probeObject.contains("last_query"))
+            probeData.lastQuery = probeObject["last_query"].toBool();
+
+        if(probeObject.contains("last_z_result"))
+            probeData.zPosition = probeObject["last_z_result"].toDouble();
+
+        if(probeObject.contains("name"))
+            probeData.name = probeObject["name"].toString();
+
+        _printer->setProbeData(probeData);
+    }
+
+    //Parse virtual SD card status
+    if(result.contains(QString("virtual_sdcard")))
+    {
+        QJsonObject virtualSDObject = result["virtual_sdcard"].toObject();
+
+        System::VirtualSDCard virtualSDCard = _printer->system()->virtualSDCard();
+
+        if(virtualSDObject.contains("file_path"))
+            virtualSDCard.filePath = virtualSDObject["file_path"].toString();
+
+        if(virtualSDObject.contains("file_position"))
+            virtualSDCard.filePosition = virtualSDObject["file_position"].toInt();
+
+        if(virtualSDObject.contains("file_size"))
+            virtualSDCard.fileSize = virtualSDObject["file_size"].toInt();
+
+        if(virtualSDObject.contains("is_active"))
+            virtualSDCard.active = virtualSDObject["is_active"].toBool();
+
+        if(virtualSDObject.contains("progress"))
+            virtualSDCard.progress = virtualSDObject["progress"].toDouble();
+
+        _printer->system()->setVirtualSDCard(virtualSDCard);
+    }
+
+    //Parse declared fan objects
+    foreach(QString key, _subscriptionObjects)
+    {
+        //Check for heater_fan objects
+        if(key.startsWith(QString("heater_fan")))
+        {
+            if(result.contains(key))
+            {
+                if(!_printer->fans().contains(key))
+                    _printer->fans()[key] = new Fan(_printer);
+
+                QJsonObject fanObject = result[key].toObject();
+
+                if(fanObject.contains(QString("rpm")))
+                    _printer->fans()[key]->setRpm(fanObject["rpm"].toDouble());
+
+                if(fanObject.contains(QString("speed")))
+                    _printer->fans()[key]->setSpeed(fanObject["speed"].toDouble());
+
+            }
+        }
+
+        //Check for controller_fan objects
+        else if(key.startsWith(QString("controller_fan")))
+        {
+            if(result.contains(key))
+            {
+                if(!_printer->fans().contains(key))
+                    _printer->fans()[key] = new Fan(_printer);
+
+                QJsonObject fanObject = result[key].toObject();
+
+                if(fanObject.contains(QString("rpm")))
+                    _printer->fans()[key]->setRpm(fanObject["rpm"].toDouble());
+
+                if(fanObject.contains(QString("speed")))
+                    _printer->fans()[key]->setSpeed(fanObject["speed"].toDouble());
+
+            }
+        }
     }
 
     if(!hasState(Connected))
     {
         addState(Connected);
-
         emit printerOnline();
     }
 

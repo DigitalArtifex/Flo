@@ -6,11 +6,13 @@
 #include "fan.h"
 #include "temperaturestore.h"
 
+class Printer;
+
 class Extruder
 {
     Q_GADGET
 public:
-    Extruder(Position offset = Position());
+    Extruder(Printer *printer, Position offset = Position());
 
     void setOffset(Position offset);
     void setOffset(qreal x, qreal y, qreal z);
@@ -41,6 +43,9 @@ public:
 
     TemperatureStore temperatureStore() const;
 
+    Printer *printer() const;
+    void setPrinter(Printer *printer);
+
 private:
     Position _offset;
     Fan *_fan;
@@ -53,6 +58,9 @@ private:
     bool _canExtrude = false;
 
     TemperatureStore _temperatureStore;
+
+    //Parent printer object
+    Printer *_printer = nullptr;
 };
 
 #endif // EXTRUDER_H

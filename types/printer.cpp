@@ -20,12 +20,12 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
     _apiKey = definition.apiKey;
     _powerProfile = definition.powerProfile;
 
-    _toolhead = new Toolhead();
-    _bed = new Bed();
+    _toolhead = new Toolhead(this);
+    _bed = new Q3DPrintBed();
     _bed->setWatts(_powerProfile["bed"]);
     _chamber = new Chamber();
     _chamber->setWatts(_powerProfile["chamber"]);
-    _partsFan = new Fan();
+    _partsFan = new Fan(this);
 
     if(_connectionLocation == LocationLocal)
         _console = new QLocalKlipperConsole(this, parent);
@@ -260,7 +260,7 @@ PrintJob *Printer::currentJob()
     return _printJob;
 }
 
-Bed *Printer::bed()
+Q3DPrintBed *Printer::bed()
 {
     return _bed;
 }
@@ -324,32 +324,67 @@ void Printer::on_console_startup()
     emit startup(this);
 }
 
-EndstopStatus Printer::endstopStatus() const
+void Printer::on_console_gcodeMove(QGCodeMove &move)
+{
+    emit gcodeMove(this, move);
+}
+
+QMap<QString, Fan *> &Printer::fans()
+{
+    return _fans;
+}
+
+void Printer::setFans(const QMap<QString, Fan *> &fans)
+{
+    _fans = fans;
+}
+
+Printer::ProbeData Printer::probeData()
+{
+    return _probeData;
+}
+
+void Printer::setProbeData(const ProbeData &probeData)
+{
+    _probeData = probeData;
+}
+
+QMap<QString, QStepperMotor *> &Printer::stepperMotors()
+{
+    return _stepperMotors;
+}
+
+QGCodeMove Printer::gcodeMove()
+{
+    return _gcodeMove;
+}
+
+EndstopStatus Printer::endstopStatus()
 {
     return _endstopStatus;
 }
 
-ClientIdentifier Printer::clientIdentifier() const
+ClientIdentifier Printer::clientIdentifier()
 {
     return _clientIdentifier;
 }
 
-GCodeStore Printer::gCodeStore() const
+GCodeStore Printer::gCodeStore()
 {
     return _gCodeStore;
 }
 
-bool Printer::isAutoConnect() const
+bool Printer::isAutoConnect()
 {
     return _autoConnect;
 }
 
-bool Printer::isDefaultPrinter() const
+bool Printer::isDefaultPrinter()
 {
     return _defaultPrinter;
 }
 
-Chamber *Printer::chamber() const
+Chamber *Printer::chamber()
 {
     return _chamber;
 }
@@ -359,12 +394,12 @@ void Printer::setChamber(Chamber *chamber)
     _chamber = chamber;
 }
 
-QMap<QString, qreal> Printer::powerProfile() const
+QMap<QString, qreal> Printer::powerProfile()
 {
     return _powerProfile;
 }
 
-QString Printer::apiKey() const
+QString Printer::apiKey()
 {
     return _apiKey;
 }
@@ -382,7 +417,7 @@ void Printer::getFiles(QString root, QString directory)
         _console->getFileList(root + QString("/") + directory);
 }
 
-QString Printer::instanceLocation() const
+QString Printer::instanceLocation()
 {
     return _instanceLocation;
 }
@@ -396,7 +431,7 @@ void Printer::setInstanceLocation(const QString &instanceLocation)
     _moonrakerLocation = instanceLocation + QString("comms") + QDir::separator() + QString("moonraker.sock");
 }
 
-QString Printer::configLocation() const
+QString Printer::configLocation()
 {
     return _configLocation;
 }
@@ -406,7 +441,7 @@ void Printer::setConfigLocation(const QString &configLocation)
     _configLocation = configLocation;
 }
 
-QString Printer::gcodesLocation() const
+QString Printer::gcodesLocation()
 {
     return _gcodesLocation;
 }

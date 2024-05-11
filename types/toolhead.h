@@ -7,11 +7,13 @@
 #include "extruder.h"
 #include "position.h"
 
+class Printer;
+
 class Toolhead
 {
     Q_GADGET
 public:
-    Toolhead();
+    Toolhead(Printer *printer);
 
     void addExtruder(Extruder *extruder);
 
@@ -61,6 +63,9 @@ public:
     qint32 stalls() const;
     void setStalls(qint32 stalls);
 
+    Printer *printer() const;
+    void setPrinter(Printer *printer);
+
 private:
     Position _position;
     Position _destination;
@@ -77,6 +82,8 @@ private:
     qint32 _maxVelocity = 0;
     qint32 _maxAccelerationToDeceleration = 0;
     qint32 _stalls = 0;
+
+    Printer *_printer = nullptr;
 };
 
 #endif // TOOLHEAD_H

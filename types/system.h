@@ -399,6 +399,18 @@ public:
         QueueState queueState = Error;
     };
 
+    struct VirtualSDCard
+    {
+        QString filePath;
+
+        qint64 fileSize;
+        qint64 filePosition;
+
+        bool active = false;
+
+        qreal progress = 0;
+    };
+
     explicit System(QObject *parent = nullptr);
     ~System();
 
@@ -482,6 +494,9 @@ public:
 
     void setJobQueue(const JobQueue &jobQueue);
 
+    VirtualSDCard virtualSDCard() const;
+    void setVirtualSDCard(const VirtualSDCard &virtualSDCard);
+
 signals:
 
 
@@ -534,6 +549,8 @@ private:
     JobQueue                         _jobQueue;
 
     QList<Announcement>              _announcements;
+
+    VirtualSDCard                    _virtualSDCard;
 
     QString                          _pythonVersion;
 };

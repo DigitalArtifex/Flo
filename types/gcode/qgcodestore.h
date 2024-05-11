@@ -1,5 +1,5 @@
-#ifndef GCODESTORE_H
-#define GCODESTORE_H
+#ifndef QGCODESTORE_H
+#define QGCODESTORE_H
 
 #include <QObject>
 
@@ -19,4 +19,4 @@ public:
 
 typedef QList<GCodeStoreValue> GCodeStore;
 
-#endif // GCODESTORE_H
+#endif // QGCODESTORE_H

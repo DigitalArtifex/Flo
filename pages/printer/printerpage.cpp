@@ -36,7 +36,7 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
     _configBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->settingsTab->layout()->addWidget(_configBrowser);
 
-    _bedMeshWidget = new BedMeshWidget(ui->bedMeshTab);
+    _bedMeshWidget = new Q3DPrintBedMeshWidget(ui->bedMeshTab);
     _bedMeshWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->bedMeshTab->layout()->addWidget(_bedMeshWidget);
 

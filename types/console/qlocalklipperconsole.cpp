@@ -36,13 +36,6 @@ void QLocalKlipperConsole::sendCommand(KlipperMessage message)
         qDebug() << QString("Failed to write data") << length << document.length();
     }
 
-    QFile file(QDir::homePath() + QDir::separator() + QString("poop.test"));
-    if(file.open(QFile::ReadWrite | QFile::Append))
-    {
-        file.write(message.toRpc(QJsonDocument::Indented));
-        file.close();
-    }
-
     emit commandSent(message);
 }
 

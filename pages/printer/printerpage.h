@@ -49,7 +49,7 @@ private:
 
     FileBrowser *_fileBrowser = nullptr;
     FileBrowser *_configBrowser = nullptr;
-    BedMeshWidget *_bedMeshWidget = nullptr;
+    Q3DPrintBedMeshWidget *_bedMeshWidget = nullptr;
     PrinterOfflineScreen *_printerOfflineScreen = nullptr;
     PrinterTerminal *_terminal = nullptr;
 
