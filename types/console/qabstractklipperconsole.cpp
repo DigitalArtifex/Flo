@@ -2391,6 +2391,179 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
 {
     QJsonObject result = response["result"].toObject();
 
+    //First parse the config file object to construct all printer details
+    //    as set in the config
+    if(result.contains(QString("configfile")))
+    {
+        QJsonObject configFileObject = result["configfile"].toObject();
+
+        //Most of the config file is useless at the beta stage
+        //    a lot of these will be blank
+        if(configFileObject.contains(QString("config")))
+        {
+            QJsonObject configObject = configFileObject["config"].toObject();
+        }
+        if(configFileObject.contains(QString("settings")))
+        {
+            QJsonObject settingsObject = configFileObject["settings"].toObject();
+
+            if(settingsObject.contains(QString("bed_mesh")))
+            {
+                QJsonObject bedMeshObject = settingsObject["bed_mesh"].toObject();
+
+                Q3DPrintBed::Mesh bedMesh = _printer->bed()->bedMesh();
+
+                if(bedMeshObject.contains("adaptive_margin"))
+                    bedMesh.adaptiveMargin = bedMeshObject["adaptive_margin"].toDouble();
+
+                if(bedMeshObject.contains("algorithm"))
+                    bedMesh.algorithm = bedMeshObject["algorithm"].toString();
+
+                if(bedMeshObject.contains("bicubic_tension"))
+                    bedMesh.tension = bedMeshObject["bicubic_tension"].toDouble();
+
+                if(bedMeshObject.contains("fade_end"))
+                    bedMesh.fadeEnd = bedMeshObject["fade_end"].toDouble();
+
+                if(bedMeshObject.contains("fade_start"))
+                    bedMesh.fadeStart = bedMeshObject["fade_start"].toDouble();
+
+                if(bedMeshObject.contains("fade_target"))
+                    bedMesh.fadeTarget = bedMeshObject["fade_target"].toDouble();
+
+                if(bedMeshObject.contains("horizontal_move_z"))
+                    bedMesh.horizontalMoveZ = bedMeshObject["horizontal_move_z"].toDouble();
+
+                if(bedMeshObject.contains("move_check_distance"))
+                    bedMesh.moveCheckDistance = bedMeshObject["move_check_distance"].toDouble();
+
+                if(bedMeshObject.contains("speed"))
+                    bedMesh.speed = bedMeshObject["speed"].toDouble();
+
+                if(bedMeshObject.contains("split_delta_z"))
+                    bedMesh.splitDeltaZ = bedMeshObject["split_delta_z"].toDouble();
+
+                //Parse limits
+                QJsonArray meshMaxArray = bedMeshObject["mesh_max"].toArray();
+                QJsonArray meshMinArray = bedMeshObject["mesh_min"].toArray();
+                QJsonArray probeCountArray = bedMeshObject["probe_count"].toArray();
+
+                bedMesh.maximum.x = meshMaxArray[0].toDouble();
+                bedMesh.maximum.y = meshMaxArray[1].toDouble();
+
+                bedMesh.minimum.x = meshMinArray[0].toDouble();
+                bedMesh.minimum.y = meshMinArray[1].toDouble();
+
+                bedMesh.probeCount.x = probeCountArray[0].toDouble();
+                bedMesh.probeCount.y = probeCountArray[1].toDouble();
+
+                _printer->bed()->setBedMesh(bedMesh);
+            }
+
+            //Parse printer settings
+            if(settingsObject.contains(QString("printer")))
+            {
+                QJsonObject printerObject = settingsObject["printer"].toObject();
+
+                if(printerObject.contains("kinematics"))
+                    _printer->setKinematics(printerObject["kinematics"].toString());
+
+                if(printerObject.contains("max_accel"))
+                    _printer->setMaxAcceleration(printerObject["max_accel"].toDouble());
+
+                if(printerObject.contains("max_velocity"))
+                    _printer->setMaxVelocity(printerObject["max_velocity"].toDouble());
+
+                if(printerObject.contains("max_z_accel"))
+                    _printer->setMaxZAcceleration(printerObject["max_z_accel"].toDouble());
+
+                if(printerObject.contains("max_z_velocity"))
+                    _printer->setMaxZVelocity(printerObject["max_z_velocity"].toDouble());
+
+                if(printerObject.contains("square_corner_velocity"))
+                    _printer->setSquareCornerVelocity(printerObject["square_corner_velocity"].toDouble());
+            }
+
+            //Parse MCU settings
+            if(settingsObject.contains(QString("mcu")))
+            {
+                QJsonObject mcuObject = settingsObject["mcu"].toObject();
+                System::MCU mcu = _printer->system()->mcu();
+
+                if(mcuObject.contains("baud"))
+                    mcu.baudRate = mcuObject["baud"].toInt();
+
+                if(mcuObject.contains("max_stepper_error"))
+                    mcu.maxStepperError = mcuObject["max_stepper_error"].toDouble();
+
+                if(mcuObject.contains("max_velocity"))
+                    mcu.baudRate = mcuObject["baud"].toInt();
+            }
+
+            //Parse Safe Z Home settings
+            if(settingsObject.contains(QString("safe_z_home")))
+            {
+                QJsonObject safeZObject = settingsObject["safe_z_home"].toObject();
+                System::SafeZHome zHome = _printer->system()->safeZHome();
+
+                if(safeZObject.contains(QString("home_xy_position")))
+                {
+                    QJsonArray homePositionArray = safeZObject["home_xy_position"].toArray();
+
+                    if(homePositionArray.count() >= 2)
+                    {
+                        zHome.homeXPosition = homePositionArray[0].toDouble();
+                        zHome.homeYPosition = homePositionArray[1].toDouble();
+                    }
+                }
+
+                zHome.moveToPrevious = safeZObject["move_to_previous"].toBool();
+
+                zHome.speed = safeZObject["speed"].toDouble();
+                zHome.zHopSpeed = safeZObject["z_hop"].toDouble();
+                zHome.zHop = safeZObject["z_hop_speed"].toDouble();
+
+                _printer->system()->setSafeZHome(zHome);
+            }
+
+            //Parse adjustment screw settings
+            if(settingsObject.contains(QString("screws_tilt_adjust")))
+            {
+                QJsonObject screwsTiltObject = settingsObject["screws_tilt_adjust"].toObject();
+
+                QString thread = screwsTiltObject["screw_thread"].toString();
+                qreal speed = screwsTiltObject["speed"].toDouble();
+
+                for(int i = 1; ; i++)
+                {
+                    QString screwString = QString("screw") + QString::number(i);
+                    QString screwNameString = screwString + QString("_name");
+
+                    if(!screwsTiltObject.contains(screwString))
+                        break;
+
+                    QJsonArray screwArray = screwsTiltObject[screwString].toArray();
+
+                    Q3DPrintBed::AdjustmentScrew *adjustmentScrew = _printer->bed()->adjustmentScrew(screwString);
+
+                    if(adjustmentScrew == nullptr)
+                        adjustmentScrew = new Q3DPrintBed::AdjustmentScrew();
+
+                    adjustmentScrew->name = screwsTiltObject[screwNameString].toString();
+
+                    qreal tilt0 = screwArray[0].toDouble();
+                    qreal tilt1 = screwArray[1].toDouble();
+
+                    adjustmentScrew->tiltAdjust = QPair<qreal,qreal>(tilt0, tilt1);
+                    adjustmentScrew->speed = speed;
+                    adjustmentScrew->thread = thread;
+
+                    _printer->bed()->setAdjustmentScrew(screwString, adjustmentScrew);
+                }
+            }
+        }
+    }
+
     //Parse extruders
     for(int index = 0; true; index++)
     {
@@ -2805,7 +2978,7 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         }
     }
 
-    //Parse probe status
+    //Parse manual probe status
     if(result.contains(QString("manual_probe")))
     {
         QJsonObject probeObject = result["manual_probe"].toObject();
@@ -2828,6 +3001,8 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
 
         _printer->setProbeData(probeData);
     }
+
+    //Parse probe status
     if(result.contains(QString("probe")))
     {
         QJsonObject probeObject = result["probe"].toObject();
@@ -2910,6 +3085,56 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
                     _printer->fans()[key]->setSpeed(fanObject["speed"].toDouble());
 
             }
+        }
+    }
+
+    //Parse adjustment screw settings
+    if(result.contains(QString("screws_tilt_adjust")))
+    {
+        QJsonObject screwsTiltObject = result["screws_tilt_adjust"].toObject();
+        QJsonObject screwsTiltResultsObject = screwsTiltObject["results"].toObject();
+
+        if(screwsTiltResultsObject.contains(QString("error")))
+            _printer->bed()->setAdjustmentScrewsError(screwsTiltResultsObject["error"].toBool());
+
+        if(screwsTiltResultsObject.contains(QString("max_deviation")))
+            _printer->bed()->setAdjustmentScrewsMaxDeviation(screwsTiltResultsObject["max_deviation"].toDouble());
+
+        for(int i = 1; ; i++)
+        {
+            QString screwString = QString("screw") + QString::number(i);
+
+            if(!screwsTiltResultsObject.contains(screwString))
+                break;
+
+            QJsonObject screwObject = screwsTiltResultsObject[screwString].toObject();
+
+            Q3DPrintBed::AdjustmentScrew *adjustmentScrew = _printer->bed()->adjustmentScrew(screwString);
+
+            if(adjustmentScrew == nullptr)
+                adjustmentScrew = new Q3DPrintBed::AdjustmentScrew();
+
+            if(screwObject.contains(QString("adjust")))
+                adjustmentScrew->adjustment.amount = screwObject["adjust"].toString();
+
+            if(screwObject.contains(QString("is_base")))
+                adjustmentScrew->adjustment.isBase = screwObject["is_base"].toBool();
+
+            if(screwObject.contains(QString("sign")))
+            {
+                QString sign = screwObject["sign"].toString();
+                adjustmentScrew->adjustment.sign = sign;
+
+                if(sign == QString("CW"))
+                    adjustmentScrew->adjustment.direction = Q3DPrintBed::AdjustmentScrew::Adjustment::Clockwise;
+                else if(sign == QString("CCW"))
+                    adjustmentScrew->adjustment.direction = Q3DPrintBed::AdjustmentScrew::Adjustment::CounterClockwise;
+            }
+
+            if(screwObject.contains(QString("z")))
+                adjustmentScrew->adjustment.z = screwObject["z"].toDouble();
+
+            _printer->bed()->setAdjustmentScrew(screwString, adjustmentScrew);
         }
     }
 

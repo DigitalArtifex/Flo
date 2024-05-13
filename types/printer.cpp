@@ -329,6 +329,66 @@ void Printer::on_console_gcodeMove(QGCodeMove &move)
     emit gcodeMove(this, move);
 }
 
+qreal Printer::squareCornerVelocity() const
+{
+    return _squareCornerVelocity;
+}
+
+void Printer::setSquareCornerVelocity(qreal squareCornerVelocity)
+{
+    _squareCornerVelocity = squareCornerVelocity;
+}
+
+qreal Printer::maxZVelocity() const
+{
+    return _maxZVelocity;
+}
+
+void Printer::setMaxZVelocity(qreal maxZVelocity)
+{
+    _maxZVelocity = maxZVelocity;
+}
+
+qreal Printer::maxZAcceleration() const
+{
+    return _maxZAcceleration;
+}
+
+void Printer::setMaxZAcceleration(qreal maxZAcceleration)
+{
+    _maxZAcceleration = maxZAcceleration;
+}
+
+qreal Printer::maxVelocity() const
+{
+    return _maxVelocity;
+}
+
+void Printer::setMaxVelocity(qreal maxVelocity)
+{
+    _maxVelocity = maxVelocity;
+}
+
+qreal Printer::maxAcceleration() const
+{
+    return _maxAcceleration;
+}
+
+void Printer::setMaxAcceleration(qreal maxAcceleration)
+{
+    _maxAcceleration = maxAcceleration;
+}
+
+QString Printer::kinematics() const
+{
+    return _kinematics;
+}
+
+void Printer::setKinematics(const QString &kinematics)
+{
+    _kinematics = kinematics;
+}
+
 QMap<QString, Fan *> &Printer::fans()
 {
     return _fans;

@@ -149,6 +149,24 @@ public:
     QMap<QString, Fan *> &fans() ;
     void setFans(const QMap<QString, Fan *> &fans);
 
+    QString kinematics() const;
+    void setKinematics(const QString &kinematics);
+
+    qreal maxAcceleration() const;
+    void setMaxAcceleration(qreal maxAcceleration);
+
+    qreal maxVelocity() const;
+    void setMaxVelocity(qreal maxVelocity);
+
+    qreal maxZAcceleration() const;
+    void setMaxZAcceleration(qreal maxZAcceleration);
+
+    qreal maxZVelocity() const;
+    void setMaxZVelocity(qreal maxZVelocity);
+
+    qreal squareCornerVelocity() const;
+    void setSquareCornerVelocity(qreal squareCornerVelocity);
+
 signals:
     void systemUpdate(Printer *printer);
     void printerUpdate(Printer *printer);
@@ -182,40 +200,48 @@ private slots:
     virtual void on_console_gcodeMove(QGCodeMove &move);
 
 private:
-    Toolhead *_toolhead = nullptr;
-    Q3DPrintBed *_bed = nullptr;
-    Chamber *_chamber = nullptr;
-    Fan *_partsFan = nullptr;
+    Toolhead                                *_toolhead = nullptr;
+    Q3DPrintBed                             *_bed = nullptr;
+    Chamber                                 *_chamber = nullptr;
+    Fan                                     *_partsFan = nullptr;
 
-    QMap<QString,qreal> _powerProfile;
-    QString _name;
-    QString _id;
-    QString _firmwareVersion;
-    QString _statusMessage;
-    QString _moonrakerLocation;
-    QString _klipperLocation;
-    QString _gcodesLocation;
-    QString _configLocation;
-    QString _instanceLocation;
-    QString _configFile;
-    QString _apiKey;
+    QMap<QString,qreal>                      _powerProfile;
 
-    QTimer *_connectionTimer = nullptr;
+    QString                                  _name;
+    QString                                  _id;
+    QString                                  _firmwareVersion;
+    QString                                  _statusMessage;
+    QString                                  _moonrakerLocation;
+    QString                                  _klipperLocation;
+    QString                                  _gcodesLocation;
+    QString                                  _configLocation;
+    QString                                  _instanceLocation;
+    QString                                  _configFile;
+    QString                                  _apiKey;
+    QString                                  _kinematics;
 
-    bool _autoConnect = true;
-    bool _defaultPrinter = false;
+    qreal                                    _maxAcceleration = 0;
+    qreal                                    _maxVelocity = 0;
+    qreal                                    _maxZAcceleration = 0;
+    qreal                                    _maxZVelocity = 0;
+    qreal                                    _squareCornerVelocity = 0;
 
-    KlipperFile _currentFile;
-    QDateTime _printStarted;
-    QDateTime _printEnding;
+    QTimer                                  *_connectionTimer = nullptr;
 
-    Status _status = Offline;
+    bool                                     _autoConnect = true;
+    bool                                     _defaultPrinter = false;
+
+    KlipperFile                              _currentFile;
+    QDateTime                                _printStarted;
+    QDateTime                                _printEnding;
+
+    Status                                   _status = Offline;
     ConnectionLocation _connectionLocation = LocationLocal;
 
-    QAbstractKlipperConsole *_console = nullptr;
+    QAbstractKlipperConsole                 *_console = nullptr;
 
-    System *_system;
-    PrintJob *_printJob;
+    System                                  *_system;
+    PrintJob                                *_printJob;
 
     GCodeStore                               _gCodeStore;
     QGCodeMove                               _gcodeMove;
@@ -228,6 +254,7 @@ private:
     ProbeData                                _probeData;
 
     QMap<QString,Fan*>                       _fans;
+
 };
 
 typedef QList<Printer*> PrinterList;

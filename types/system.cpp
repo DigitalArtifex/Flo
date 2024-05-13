@@ -263,3 +263,23 @@ void System::setVirtualSDCard(const VirtualSDCard &virtualSDCard)
 {
     _virtualSDCard = virtualSDCard;
 }
+
+System::MCU System::mcu() const
+{
+    return _mcu;
+}
+
+void System::setMcu(const MCU &mcu)
+{
+    _mcu = mcu;
+}
+
+System::SafeZHome System::safeZHome() const
+{
+    return _safeZHome;
+}
+
+void System::setSafeZHome(const SafeZHome &safeZHome)
+{
+    _safeZHome = safeZHome;
+}

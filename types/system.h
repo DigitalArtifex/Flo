@@ -411,6 +411,31 @@ public:
         qreal progress = 0;
     };
 
+    /*!
+     * \brief The MCU class
+     */
+    struct MCU
+    {
+        qint64 baudRate = 0;
+        qreal maxStepperError = 0;
+
+        QString serial;
+    };
+
+    /*!
+     * \brief The SafeZHome class
+     */
+    struct SafeZHome
+    {
+        qreal homeXPosition = 0;
+        qreal homeYPosition = 0;
+        qreal speed = 0;
+        qreal zHop = 0;
+        qreal zHopSpeed = 0;
+
+        bool moveToPrevious = false;
+    };
+
     explicit System(QObject *parent = nullptr);
     ~System();
 
@@ -497,6 +522,12 @@ public:
     VirtualSDCard virtualSDCard() const;
     void setVirtualSDCard(const VirtualSDCard &virtualSDCard);
 
+    MCU mcu() const;
+    void setMcu(const MCU &mcu);
+
+    SafeZHome safeZHome() const;
+    void setSafeZHome(const SafeZHome &safeZHome);
+
 signals:
 
 
@@ -553,6 +584,8 @@ private:
     VirtualSDCard                    _virtualSDCard;
 
     QString                          _pythonVersion;
+    MCU                              _mcu;
+    SafeZHome                        _safeZHome;
 };
 
 #endif // SYSTEM_H
