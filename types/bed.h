@@ -6,9 +6,14 @@
 
 #include <QPair>
 
+class Printer;
+
 class Q3DPrintBed : public QObject
 {
     Q_OBJECT
+
+    friend class QAbstractKlipperConsole;
+    friend class Printer;
 public:
     enum Type
     {
@@ -64,7 +69,7 @@ public:
             QString amount;
             QString sign;
 
-            Direction direction;
+            Direction direction = Clockwise;
 
             bool isBase = false;
 
@@ -81,55 +86,85 @@ public:
         Adjustment adjustment;
     };
 
-    Q3DPrintBed(Type type = NonHeated, QObject *parent = nullptr);
+    Q3DPrintBed(Printer *printer, Type type = NonHeated, QObject *parent = nullptr);
 
     long timeRunning();
     qreal currentTemp() const;
-    void setCurrentTemp(qreal currentTemp);
 
     qreal targetTemp() const;
-    void setTargetTemp(qreal targetTemp);
 
     qreal power() const;
-    void setPower(qreal power);
 
     qreal watts() const;
-    void setWatts(qreal watts);
 
     Mesh bedMesh() const;
-    void setBedMesh(const Mesh &bedMesh);
 
     AdjustmentScrew *adjustmentScrew(QString &key) const;
-    void setAdjustmentScrew(QString &key, AdjustmentScrew *screw);
 
     bool tiltAdjustError() const;
-    void setTiltAdjustError(bool tiltAdjustError);
 
     bool adjustmentScrewsError() const;
-    void setAdjustmentScrewsError(bool adjustmentScrewsError);
 
     qreal adjustmentScrewsMaxDeviation() const;
-    void setAdjustmentScrewsMaxDeviation(qreal adjustmentScrewsMaxDeviations);
+
+    QMap<QString, AdjustmentScrew *> adjustmentScrews() const;
+
+    bool hasAdjustmentScrewResult() const;
+
+    void calibrateAdjustmentScrews();
+    void calibrateBedMesh();
+
+    Printer *printer() const;
+    void setPrinter(Printer *printer);
+
+    void setWatts(qreal watts);
+
+    Type type() const;
 
 signals:
     void meshUpdated(Q3DPrintBed *bed);
     void adjustmentScrewsUpdated(Q3DPrintBed *bed);
+    void updated(Q3DPrintBed *bed);
+    void calibrating();
 
 private:
+    //called by friend classes
+    void emitUpdate();
+
     qreal _currentTemp = 0;
     qreal _targetTemp = 0;
     qreal _power = 0;
     qreal _watts = 0;
+    qreal _inlineResistor = 0;
+    qreal _maxPower = 0;
+    qreal _maxTemp= 0;
+    qreal _minTemp = 0;
+    qreal _pidKD = 0;
+    qreal _pidKI = 0;
+    qreal _pidKP = 0;
+    qreal _pullupResistor = 0;
+    qreal _pwmCycleTime = 0;
+    qreal _smoothTime = 0;
 
     QDateTime _startTime;
 
     Mesh _bedMesh;
 
     QMap<QString, AdjustmentScrew*> _adjustmentScrews;
-    bool                            _adjustmentScrewsError;
-    qreal                           _adjustmentScrewsMaxDeviation;
+    bool                            _adjustmentScrewsError = false;
+    bool                            _hasAdjustmentScrewResult = false;
+    qreal                           _adjustmentScrewsMaxDeviation = 0;
 
-    bool                            _tiltAdjustError;
+    bool                            _tiltAdjustError = false;
+
+    Printer                        *_printer = nullptr;
+
+    QString                         _control;
+    QString                         _heaterPin;
+    QString                         _sensorPin;
+    QString                         _sensorType;
+
+    Type                            _type = NonHeated;
 };
 
 #endif // BED_H

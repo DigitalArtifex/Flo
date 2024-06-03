@@ -248,6 +248,32 @@
 		{
 			"name": "printjob-error-icon",
 			"icon": "icons8-error-64.png" 
+		},
+		{
+			"name": "counter-clockwise-icon",
+			"icon": "icons8-rotate-left-64.png" 
+		},
+		{
+			"name": "clockwise-icon",
+			"icon": "icons8-rotate-right-64.png" 
+		},
+		{
+			"name": "home-icon",
+			"icon": "icons8-home-50.png" 
+		},
+		{
+			"name": "no-data-icon",
+			"icon": "icons8-no-data-availible-96.png" 
+		},
+		{
+			"name": "add-icon",
+			"icon": "icons8-add-64.png" 
+		},
+		{
+			"name": "remove-icon",
+			"icon": "icons8-remove-50.png" 
 		}
+
+		
 	]
 }

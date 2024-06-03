@@ -95,13 +95,11 @@ void QAnimatedListWidget::removeItem(QAnimatedListItem *item)
     {
         _scrollAreaContents->layout()->removeWidget(item);
 
-        if(isItemInViewport(item))
-        {
-            connect(item, SIGNAL(animationOut_finished(QAnimatedListItem*)), this, SLOT(on_listItem_animationOut_finished(QAnimatedListItem*)));
-            item->animateOut();
-        }
-        else
-            on_listItem_animationOut_finished(item);
+        if(!isItemInViewport(item))
+            item->setDuration(1);
+
+        connect(item, SIGNAL(animationOut_finished(QAnimatedListItem*)), this, SLOT(on_listItem_animationOut_finished(QAnimatedListItem*)));
+        item->animateOut();
     }
 }
 
@@ -194,7 +192,7 @@ void QAnimatedListWidget::setEmptyIcon(const QIcon &icon)
 void QAnimatedListWidget::on_listItem_animationOut_finished(QAnimatedListItem *item)
 {
     _items.removeAll(item);
-    delete item;
+    item->deleteLater();
 
     if(_items.isEmpty() && !_emptyListItem)
     {

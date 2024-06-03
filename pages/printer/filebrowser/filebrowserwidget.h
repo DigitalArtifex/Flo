@@ -11,7 +11,13 @@ class FileBrowserWidget : public QAnimatedListWidget
 {
     Q_OBJECT
 public:
-    FileBrowserWidget(QWidget *parent = nullptr);
+    enum DisplayMode
+    {
+        Page,
+        Widget
+    };
+
+    FileBrowserWidget(QWidget *parent = nullptr, DisplayMode mode = Page);
 
     void addFile(KlipperFile file);
     void setFiles(const QList<KlipperFile> &files);
@@ -19,6 +25,7 @@ public:
     FileBrowserItem *selectedItem();
 
 private:
+    DisplayMode _displayMode = Page;
 };
 
 #endif // FILEBROWSERWIDGET_H

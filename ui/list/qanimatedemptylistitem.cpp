@@ -53,3 +53,9 @@ void QAnimatedEmptyListItem::setIcon(const QPixmap &pixmap)
 {
     _iconLabel->setPixmap(pixmap);
 }
+
+void QAnimatedEmptyListItem::setIcon(const QString &iconName)
+{
+    QPixmap pixmap = Settings::getThemeIcon(iconName).pixmap(64,64);
+    _iconLabel->setPixmap(pixmap);
+}

@@ -16,7 +16,14 @@ class FileBrowserItem : public QAnimatedListItem
 {
     Q_OBJECT
 public:
-    FileBrowserItem(KlipperFile file, QWidget *parent);
+
+    enum DisplayMode
+    {
+        Page,
+        Widget
+    };
+
+    FileBrowserItem(KlipperFile file, QWidget *parent, DisplayMode mode = Page);
     ~FileBrowserItem();
 
     KlipperFile file() const;
@@ -48,6 +55,8 @@ private:
 
     QGridLayout *_layout = nullptr;
     QSpacerItem *_spacer = nullptr;
+
+    DisplayMode _displayMode = Page;
 };
 
 #endif // FILEBROWSERITEM_H

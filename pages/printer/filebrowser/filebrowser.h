@@ -25,7 +25,13 @@ class FileBrowser : public QWidget
 {
     Q_OBJECT
 public:
-    FileBrowser(Printer *printer, QString root, QWidget *parent = nullptr);
+    enum Mode
+    {
+        Page,
+        Widget
+    };
+
+    FileBrowser(Printer *printer, QString root, QWidget *parent = nullptr, Mode mode = Page);
     ~FileBrowser();
 
     Printer *printer() const;
@@ -93,6 +99,8 @@ private:
     FileEditor *_editor = nullptr;
 
     FileBrowserOverlay *_overlay = nullptr;
+
+    Mode _mode = Page;
 };
 
 #endif // FILEBROWSER_H

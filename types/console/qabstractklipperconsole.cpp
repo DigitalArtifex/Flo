@@ -80,6 +80,8 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerInfo);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerObjectsList);
     _startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerSubscribe);
+
+    loadKlipperCommands();
 }
 
 QAbstractKlipperConsole::~QAbstractKlipperConsole()
@@ -141,6 +143,77 @@ void QAbstractKlipperConsole::removeState(ConsoleState state)
 QGCodeCommandList QAbstractKlipperConsole::gcodeCommands() const
 {
     return _gcodeCommands;
+}
+
+bool QAbstractKlipperConsole::isKlipperCommand(QString command)
+{
+    return _klipperCommands.contains(command.toUpper());
+}
+
+QStringList QAbstractKlipperConsole::klipperCommands()
+{
+    return _klipperCommands.keys();
+}
+
+QAbstractKlipperConsole::KlipperCommand QAbstractKlipperConsole::klipperCommand(QString command)
+{
+    return _klipperCommands[command];
+}
+
+void QAbstractKlipperConsole::loadKlipperCommands()
+{
+    QFile commandsFile(QString(":/data/klipper_commands.json"));
+
+    if(!commandsFile.open(QFile::ReadOnly))
+    {
+        qDebug() << QString("Could not open resource");
+        return;
+    }
+
+    //Read the data from the resource
+    QByteArray data = commandsFile.readAll();
+
+    //Construct the document object
+    QJsonDocument document;
+    QJsonParseError documentError;
+
+    document = QJsonDocument::fromJson(data, &documentError);
+
+    //Check for errors
+    if(documentError.error != QJsonParseError::NoError)
+    {
+        qDebug() << QString("Could not parse resource");
+        return;
+    }
+
+    //Get klipper commands object
+    QJsonObject rootObject = document["klipper_commands"].toObject();
+    QStringList rootKeys = rootObject.keys();
+
+    foreach(QString key, rootKeys)
+    {
+        //Parse through the objects of the section
+        QJsonArray array = rootObject[key].toArray();
+
+        for(int i = 0; i < array.count(); i++)
+        {
+            if(array[i].isObject())
+            {
+                QJsonObject commandObject = array[i].toObject();
+
+                KlipperCommand command;
+                command.command = commandObject["command"].toString();
+                command.help = commandObject["help"].toString();
+
+                QJsonArray parametersArray = commandObject["parameters"].toArray();
+
+                for(int p = 0; p < parametersArray.count(); p++)
+                    command.parameters += parametersArray[p].toString();
+
+                _klipperCommands.insert(command.command.toUpper(), command);
+            }
+        }
+    }
 }
 
 QStringList QAbstractKlipperConsole::moonrakerFailedComponents() const
@@ -602,7 +675,6 @@ void QAbstractKlipperConsole::machineUpdateClient(QString client)
 
 void QAbstractKlipperConsole::machineUpdateSystem()
 {
-
     //Generate the root json object
     QJsonObject messageObject;
     messageObject["method"] = "machine.update.system";
@@ -660,9 +732,10 @@ void QAbstractKlipperConsole::machineUpdateRollback(QString name)
     sendCommand(message);
 }
 
-void QAbstractKlipperConsole::sendGcode(QString gcode)
+void QAbstractKlipperConsole::sendGcode(QString gcode, KlipperMessage::MessageOrigin origin)
 {
     KlipperMessage message;
+    message.origin = origin;
     QJsonObject messageObject = message.document();
     QJsonObject paramsObject;
 
@@ -1226,12 +1299,12 @@ void QAbstractKlipperConsole::accessUserPasswordReset(QString password, QString 
 
 QAbstractKlipperConsole::ConnectionLocation QAbstractKlipperConsole::connectionLoaction() const
 {
-
+    return _connectionLoaction;
 }
 
 void QAbstractKlipperConsole::setConnectionLoaction(ConnectionLocation connectionLoaction)
 {
-
+    _connectionLoaction = connectionLoaction;
 }
 
 void QAbstractKlipperConsole::setMoonrakerSocket(QAbstractSocket *moonrakerSocket)
@@ -2457,7 +2530,7 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
                 bedMesh.probeCount.x = probeCountArray[0].toDouble();
                 bedMesh.probeCount.y = probeCountArray[1].toDouble();
 
-                _printer->bed()->setBedMesh(bedMesh);
+                _printer->bed()->_bedMesh = bedMesh;
             }
 
             //Parse printer settings
@@ -2534,6 +2607,8 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
                 QString thread = screwsTiltObject["screw_thread"].toString();
                 qreal speed = screwsTiltObject["speed"].toDouble();
 
+                _printer->bed()->_adjustmentScrews.clear();
+
                 for(int i = 1; ; i++)
                 {
                     QString screwString = QString("screw") + QString::number(i);
@@ -2558,13 +2633,364 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
                     adjustmentScrew->speed = speed;
                     adjustmentScrew->thread = thread;
 
-                    _printer->bed()->setAdjustmentScrew(screwString, adjustmentScrew);
+                    _printer->bed()->_adjustmentScrews[screwString] = adjustmentScrew;
+                }
+            }
+
+            if(settingsObject.contains(QString("heater_bed")))
+            {
+                QJsonObject heaterBed = settingsObject[QString("heater_bed")].toObject();
+
+                _printer->bed()->_type = Q3DPrintBed::Heated;
+
+                if(heaterBed.contains("control"))
+                {
+                    QString control = heaterBed["control"].toString();
+                    _printer->bed()->_control = control;
+                }
+
+                if(heaterBed.contains("heater_pin"))
+                {
+                    QString pin = heaterBed["heater_pin"].toString();
+                    _printer->bed()->_heaterPin = pin;
+                }
+
+                if(heaterBed.contains("inline_resistor"))
+                {
+                    qreal resistor = heaterBed["inline_resistor"].toDouble();
+                    _printer->bed()->_inlineResistor = resistor;
+                }
+
+                if(heaterBed.contains("max_power"))
+                {
+                    qreal power = heaterBed["max_power"].toDouble();
+                    _printer->bed()->_maxPower = power;
+                }
+
+                if(heaterBed.contains("max_temp"))
+                {
+                    qreal temp = heaterBed["max_temp"].toDouble();
+                    _printer->bed()->_maxTemp = temp;
+                }
+
+                if(heaterBed.contains("min_temp"))
+                {
+                    qreal temp = heaterBed["min_temp"].toDouble();
+                    _printer->bed()->_minTemp = temp;
+                }
+
+                if(heaterBed.contains("pid_kd"))
+                {
+                    qreal pid = heaterBed["pid_kd"].toDouble();
+                    _printer->bed()->_pidKD = pid;
+                }
+
+                if(heaterBed.contains("pid_ki"))
+                {
+                    qreal pid = heaterBed["pid_ki"].toDouble();
+                    _printer->bed()->_pidKI = pid;
+                }
+
+                if(heaterBed.contains("pid_kp"))
+                {
+                    qreal pid = heaterBed["pid_kp"].toDouble();
+                    _printer->bed()->_pidKP = pid;
+                }
+
+                if(heaterBed.contains("pressure_advance_smooth_time"))
+                {
+                    qreal smoothing = heaterBed["pressure_advance_smooth_time"].toDouble();
+                    _printer->bed()->_smoothTime = smoothing;
+                }
+
+                if(heaterBed.contains("pullup_resistor"))
+                {
+                    qreal resistor = heaterBed["pullup_resistor"].toDouble();
+                    _printer->bed()->_pullupResistor = resistor;
+                }
+
+                if(heaterBed.contains("pwm_cycle_time"))
+                {
+                    qreal cycle = heaterBed["pwm_cycle_time"].toDouble();
+                    _printer->bed()->_pwmCycleTime = cycle;
+                }
+
+                if(heaterBed.contains("sensor_pin"))
+                {
+                    QString pin = heaterBed["sensor_pin"].toString();
+                    _printer->bed()->_sensorPin = pin;
+                }
+
+                if(heaterBed.contains("sensor_type"))
+                {
+                    QString type = heaterBed["sensor_type"].toString();
+                    _printer->bed()->_sensorType = type;
+                }
+
+                if(heaterBed.contains("smooth_time"))
+                {
+                    qreal smoothing = heaterBed["smooth_time"].toDouble();
+                    _printer->bed()->_smoothTime = smoothing;
+                }
+            }
+
+            //Parse extruders settings
+            for(int index = 0; true; index++)
+            {
+                QString extruderName = QString("extruder") + ((index > 0) ? QString::number(index) : QString(""));
+
+                if(!settingsObject.contains(extruderName))
+                    break;
+
+                _printer->extruder(index)->_watts = _printer->powerProfile()[extruderName];
+                _printer->extruder(index)->_name = extruderName;
+
+                QJsonObject extruder = settingsObject[extruderName].toObject();
+
+                if(extruder.contains("control"))
+                {
+                    QString control = extruder["control"].toString();
+                    _printer->extruder(index)->_control = control;
+                }
+
+                if(extruder.contains("dir_pin"))
+                {
+                    QString pin = extruder["dir_pin"].toString();
+                    _printer->extruder(index)->_dirPin = pin;
+                }
+
+                if(extruder.contains("enable_pin"))
+                {
+                    QString pin = extruder["enable_pin"].toString();
+                    _printer->extruder(index)->_enablePin = pin;
+                }
+
+                if(extruder.contains("filament_diameter"))
+                {
+                    qreal diameter = extruder["filament_diameter"].toDouble();
+                    _printer->extruder(index)->_filamentDiameter = diameter;
+                }
+
+                if(extruder.contains("full_steps_per_rotation"))
+                {
+                    qint32 steps = extruder["full_steps_per_rotation"].toInt();
+                    _printer->extruder(index)->_fullStepsPerRotation = steps;
+                }
+
+                if(extruder.contains("gear_ratio"))
+                {
+                    QJsonArray ratioArray = extruder["gear_ratio"].toArray();
+
+                    if(ratioArray.count() >= 2)
+                    {
+                        QPair<qint32,qint32> ratio
+                            (
+                                ratioArray[0].toInt(),
+                                ratioArray[1].toInt()
+                            );
+
+                        _printer->extruder(index)->_gearRatio = ratio;
+                    }
+                }
+
+                if(extruder.contains("heater_pin"))
+                {
+                    QString pin = extruder["heater_pin"].toString();
+                    _printer->extruder(index)->_heaterPin = pin;
+                }
+
+                if(extruder.contains("inline_resistor"))
+                {
+                    qreal resistor = extruder["inline_resistor"].toDouble();
+                    _printer->extruder(index)->_inlineResistor = resistor;
+                }
+
+                if(extruder.contains("instantaneous_corner_velocity"))
+                {
+                    qreal velocity = extruder["instantaneous_corner_velocity"].toDouble();
+                    _printer->extruder(index)->_instantCornerVelocity = velocity;
+                }
+
+                if(extruder.contains("max_extrude_cross_section"))
+                {
+                    qreal velocity = extruder["max_extrude_cross_section"].toDouble();
+                    _printer->extruder(index)->_maxExtrudeCrossSection = velocity;
+                }
+
+                if(extruder.contains("max_extrude_only_accel"))
+                {
+                    qreal acceleration = extruder["max_extrude_only_accel"].toDouble();
+                    _printer->extruder(index)->_maxExtrudeOnlyAcceleration = acceleration;
+                }
+
+                if(extruder.contains("max_extrude_only_distance"))
+                {
+                    qreal distance = extruder["max_extrude_only_distance"].toDouble();
+                    _printer->extruder(index)->_maxExtrudeOnlyDistance = distance;
+                }
+
+                if(extruder.contains("max_extrude_only_velocity"))
+                {
+                    qreal velocity = extruder["max_extrude_only_velocity"].toDouble();
+                    _printer->extruder(index)->_maxExtrudeOnlyVelocity = velocity;
+                }
+
+                if(extruder.contains("max_power"))
+                {
+                    qreal power = extruder["max_power"].toDouble();
+                    _printer->extruder(index)->_maxPower = power;
+                }
+
+                if(extruder.contains("max_temp"))
+                {
+                    qreal temp = extruder["max_temp"].toDouble();
+                    _printer->extruder(index)->_maxTemp = temp;
+                }
+
+                if(extruder.contains("microsteps"))
+                {
+                    qint32 microsteps = extruder["microsteps"].toInt();
+                    _printer->extruder(index)->_microsteps = microsteps;
+                }
+
+                if(extruder.contains("min_extrude_temp"))
+                {
+                    qreal temp = extruder["min_extrude_temp"].toDouble();
+                    _printer->extruder(index)->_minExtrudeTemp = temp;
+                }
+
+                if(extruder.contains("min_temp"))
+                {
+                    qreal temp = extruder["min_temp"].toDouble();
+                    _printer->extruder(index)->_minTemp = temp;
+                }
+
+                if(extruder.contains("nozzle_diameter"))
+                {
+                    qreal diameter = extruder["nozzle_diameter"].toDouble();
+                    _printer->extruder(index)->_nozzleDiameter = diameter;
+                }
+
+                if(extruder.contains("pid_kd"))
+                {
+                    qreal pid = extruder["pid_kd"].toDouble();
+                    _printer->extruder(index)->_pidKD = pid;
+                }
+
+                if(extruder.contains("pid_ki"))
+                {
+                    qreal pid = extruder["pid_ki"].toDouble();
+                    _printer->extruder(index)->_pidKI = pid;
+                }
+
+                if(extruder.contains("pid_kp"))
+                {
+                    qreal pid = extruder["pid_kp"].toDouble();
+                    _printer->extruder(index)->_pidKP = pid;
+                }
+
+                if(extruder.contains("pressure_advance"))
+                {
+                    qreal advance = extruder["pressure_advance"].toDouble();
+                    _printer->extruder(index)->_pressureAdvance = advance;
+                }
+
+                if(extruder.contains("pressure_advance_smooth_time"))
+                {
+                    qreal smoothing = extruder["pressure_advance_smooth_time"].toDouble();
+                    _printer->extruder(index)->_smoothTime = smoothing;
+                }
+
+                if(extruder.contains("pullup_resistor"))
+                {
+                    qreal resistor = extruder["pullup_resistor"].toDouble();
+                    _printer->extruder(index)->_pullupResistor = resistor;
+                }
+
+                if(extruder.contains("pwm_cycle_time"))
+                {
+                    qreal cycle = extruder["pwm_cycle_time"].toDouble();
+                    _printer->extruder(index)->_pwmCycle = cycle;
+                }
+
+                if(extruder.contains("rotation_distance"))
+                {
+                    qreal distance = extruder["rotation_distance"].toDouble();
+                    _printer->extruder(index)->_rotationDistance = distance;
+                }
+
+                if(extruder.contains("sensor_pin"))
+                {
+                    QString pin = extruder["sensor_pin"].toString();
+                    _printer->extruder(index)->_sensorPin = pin;
+                }
+
+                if(extruder.contains("sensor_type"))
+                {
+                    QString type = extruder["sensor_type"].toString();
+                    _printer->extruder(index)->_sensorType = type;
+                }
+
+                if(extruder.contains("smooth_time"))
+                {
+                    qreal smoothing = extruder["smooth_time"].toDouble();
+                    _printer->extruder(index)->_smoothTime = smoothing;
+                }
+
+                if(extruder.contains("step_pin"))
+                {
+                    QString pin = extruder["step_pin"].toString();
+                    _printer->extruder(index)->_stepPin = pin;
+                }
+            }
+
+            //Parse declared fan settings
+            foreach(QString key, _subscriptionObjects)
+            {
+                //Check for heater_fan objects
+                if(key.startsWith(QString("heater_fan")))
+                {
+                    if(settingsObject.contains(key))
+                    {
+                        if(!_printer->fans().contains(key))
+                            _printer->fans()[key] = new Fan(_printer);
+
+                        QJsonObject fanObject = settingsObject[key].toObject();
+
+                        if(fanObject.contains(QString("heater")))
+                        {
+                            QJsonArray heatersArray = fanObject["heater"].toArray();
+
+                            for(int i = 0; i < heatersArray.count(); i++)
+                            {
+                                QString heater = heatersArray[i].toString();
+
+                                if(heater.toLower().startsWith("extruder"))
+                                {
+                                    Extruder *extruder = _printer->toolhead()->extruderByName(heater);
+
+                                    if(extruder)
+                                    {
+                                        extruder->_fan = _printer->fans()[key];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //Check for controller_fan objects
+                else if(key.startsWith(QString("controller_fan")))
+                {
                 }
             }
         }
     }
 
     //Parse extruders
+    bool extruderUpdated = false;
+    bool extrudersUpdated = false;
+
     for(int index = 0; true; index++)
     {
         QString extruderName = QString("extruder") + ((index > 0) ? QString::number(index) : QString(""));
@@ -2572,40 +2998,67 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         if(!response["result"].toObject().contains(extruderName))
             break;
 
-        _printer->extruder(index)->setWatts(_printer->powerProfile()[extruderName]);
+        extruderUpdated = false;
+
+        _printer->extruder(index)->_watts = _printer->powerProfile()[extruderName];
+        _printer->extruder(index)->_name = extruderName;
 
         QJsonObject extruder = response["result"].toObject()[extruderName].toObject();
         if(extruder.contains("temperature"))
         {
             qreal temp = extruder["temperature"].toDouble();
-            _printer->extruder(index)->setCurrentTemp(temp);
+            _printer->extruder(index)->_currentTemp = temp;
+
+            extrudersUpdated = true;
+            extruderUpdated = true;
         }
         if(extruder.contains("target"))
         {
             qreal temp = extruder["target"].toDouble();
-            _printer->extruder(index)->setTargetTemp(temp);
+            _printer->extruder(index)->_targetTemp = temp;
+
+            extrudersUpdated = true;
+            extruderUpdated = true;
         }
         if(extruder.contains("pressure_advance"))
         {
             qreal advance = extruder["pressure_advance"].toDouble();
-            _printer->extruder(index)->setPressureAdvance(advance);
+            _printer->extruder(index)->_pressureAdvance = advance;
+
+            extrudersUpdated = true;
+            extruderUpdated = true;
         }
         if(extruder.contains("smooth_time"))
         {
             qreal smoothing = extruder["smooth_time"].toDouble();
-            _printer->extruder(index)->setSmoothTime(smoothing);
+            _printer->extruder(index)->_smoothTime = smoothing;
+
+            extrudersUpdated = true;
+            extruderUpdated = true;
         }
         if(extruder.contains("power"))
         {
             qreal power = extruder["power"].toDouble();
-            _printer->extruder(index)->setPower(power);
+            _printer->extruder(index)->_power = power;
+
+            extrudersUpdated = true;
+            extruderUpdated = true;
         }
         if(extruder.contains("can_extrude"))
         {
             bool canExtrude = extruder["can_extrude"].toBool();
-            _printer->extruder(index)->setCanExtrude(canExtrude);
+            _printer->extruder(index)->_canExtrude = canExtrude;
+
+            extrudersUpdated = true;
+            extruderUpdated = true;
         }
+
+        if(extruderUpdated)
+            _printer->extruder(index)->emitUpdate();
     }
+
+    if(extrudersUpdated)
+        emit extrudersUpdate();
 
     //Parse fan status
     if(response["result"].toObject().contains("fan"))
@@ -2627,30 +3080,33 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
     if(response["result"].toObject().contains("toolhead"))
     {
         QJsonObject toolhead = response["result"].toObject()["toolhead"].toObject();
+
         if(toolhead.contains("axis_maximum"))
         {
             if(toolhead["axis_maximum"].isArray())
             {
-                qreal x,y,z;
+                qreal x,y,z,e;
                 QJsonArray maxPos = toolhead["axis_maximum"].toArray();
                 x = maxPos[0].toDouble();
                 y = maxPos[1].toDouble();
                 z = maxPos[2].toDouble();
+                e = maxPos[3].toDouble();
 
-                _printer->toolhead()->setMaxPosition(x,y,z);
+                _printer->toolhead()->_maxPosition = Position(x,y,z,e);
             }
         }
         if(toolhead.contains("axis_minimum"))
         {
             if(toolhead["axis_minimum"].isArray())
             {
-                qreal x,y,z;
+                qreal x,y,z,e;
                 QJsonArray maxPos = toolhead["axis_minimum"].toArray();
                 x = maxPos[0].toDouble();
                 y = maxPos[1].toDouble();
                 z = maxPos[2].toDouble();
+                e = maxPos[3].toDouble();
 
-                _printer->toolhead()->setMinPosition(x,y,z);
+                _printer->toolhead()->_minPosition = Position(x,y,z,e);
             }
         }
         if(toolhead.contains("position"))
@@ -2664,7 +3120,7 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
                 z = maxPos[2].toDouble();
                 e = maxPos[3].toDouble();
 
-                _printer->toolhead()->setDestination(Position(x,y,z,e));
+                _printer->toolhead()->_destination = (Position(x,y,z,e));
             }
         }
         if(toolhead.contains("homed_axes"))
@@ -2673,67 +3129,78 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
             {
                 QString homed = toolhead["homed_axes"].toString();
 
-                _printer->toolhead()->setXHomed(homed.contains(QString("x")));
-                _printer->toolhead()->setYHomed(homed.contains(QString("y")));
-                _printer->toolhead()->setZHomed(homed.contains(QString("z")));
+                _printer->toolhead()->_xHomed = (homed.contains(QString("x")));
+                _printer->toolhead()->_yHomed = (homed.contains(QString("y")));
+                _printer->toolhead()->_zHomed = (homed.contains(QString("z")));
             }
         }
         if(toolhead.contains("estimated_print_time"))
         {
-            //in seconds?
             double time = toolhead["estimated_print_time"].toDouble();
             QDateTime date = QDateTime::currentDateTime().addSecs(time);
-            _printer->setPrintEndTime(date);
+            _printer->_printEnding = (date);
         }
         if(toolhead.contains("extruder"))
         {
             //string
-            toolhead.isEmpty();
+            QString extruder = toolhead["extruder"].toString();
+            _printer->toolhead()->_currentExtruderName = extruder;
         }
         if(toolhead.contains("max_accel"))
         {
-            _printer->toolhead()->setMaxAcceleration(toolhead["max_accel"].toInt());
+            _printer->toolhead()->_maxAcceleration = (toolhead["max_accel"].toInt());
         }
         if(toolhead.contains("max_accel_to_decel"))
         {
-            _printer->toolhead()->setMaxAccelerationToDeceleration(toolhead["max_accel_to_decel"].toInt());
+            _printer->toolhead()->_maxAccelerationToDeceleration = (toolhead["max_accel_to_decel"].toInt());
         }
         if(toolhead.contains("max_velocity"))
         {
-            _printer->toolhead()->setMaxVelocity(toolhead["max_velocity"].toInt());
+            _printer->toolhead()->_maxVelocity = (toolhead["max_velocity"].toInt());
         }
         if(toolhead.contains("print_time"))
         {
+            _printer->_printTime = toolhead["max_velocity"].toInt();
         }
         if(toolhead.contains("square_corner_velocity"))
         {
-            //double
+            _printer->toolhead()->_squareCornerVelocity = toolhead["square_corner_velocity"].toDouble();
         }
         if(toolhead.contains("stalls"))
         {
-            _printer->toolhead()->setStalls(toolhead["stalls"].toInt());
+            _printer->toolhead()->_stalls = (toolhead["stalls"].toInt());
         }
+
+        _printer->toolhead()->emitUpdate();
     }
 
     //Parse heatbed status
     if(response["result"].toObject().contains("heater_bed"))
     {
         QJsonObject heater = response["result"].toObject()["heater_bed"].toObject();
+        bool updated = false;
+
         if(heater.contains("temperature"))
         {
             double temp = heater["temperature"].toDouble();
-            _printer->bed()->setCurrentTemp(temp);
+            _printer->bed()->_currentTemp = (temp);
+            updated = true;
         }
         if(heater.contains("target"))
         {
             double temp = heater["target"].toDouble();
-            _printer->bed()->setTargetTemp(temp);
+            _printer->bed()->_targetTemp = (temp);
+            updated = true;
         }
         if(heater.contains("power"))
         {
             double power = heater["power"].toDouble();
-            _printer->bed()->setPower(power);
+            _printer->bed()->_power = (power);
+            updated = true;
         }
+
+        if(updated)
+            _printer->bed()->emitUpdate();
     }
 
     if(response["result"].toObject().contains("motion_report"))
@@ -2837,6 +3304,10 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         move.extrusionFactor = gcodeObject["extrude_factor"].toDouble();
         move.speed = gcodeObject["speed"].toDouble();
         move.speedFactor = gcodeObject["speed_factor"].toDouble();
+
+        //Set the extrusion factor on the current extruder
+        _printer->toolhead()->currentExtruder()->_extrusionFactor = move.extrusionFactor;
+        _printer->toolhead()->currentExtruder()->emitUpdate();
 
         //Gcode position
         QJsonArray gcodePositionArray = gcodeObject["gcode_position"].toArray();
@@ -2959,7 +3430,7 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         for(int i = 0; i < profilesArray.count(); i++)
             bedMesh.profiles += profilesArray[i].toString();
 
-        _printer->bed()->setBedMesh(bedMesh);
+        _printer->bed()->_bedMesh = (bedMesh);
     }
 
     //Parse stepper motor activity
@@ -3095,10 +3566,15 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         QJsonObject screwsTiltResultsObject = screwsTiltObject["results"].toObject();
 
         if(screwsTiltResultsObject.contains(QString("error")))
-            _printer->bed()->setAdjustmentScrewsError(screwsTiltResultsObject["error"].toBool());
+            _printer->bed()->_adjustmentScrewsError = (screwsTiltResultsObject["error"].toBool());
 
         if(screwsTiltResultsObject.contains(QString("max_deviation")))
-            _printer->bed()->setAdjustmentScrewsMaxDeviation(screwsTiltResultsObject["max_deviation"].toDouble());
+            _printer->bed()->_adjustmentScrewsMaxDeviation = (screwsTiltResultsObject["max_deviation"].toDouble());
+
+        if(screwsTiltResultsObject.keys().count() > 0)
+            _printer->bed()->_hasAdjustmentScrewResult = (true);
+        else
+            _printer->bed()->_hasAdjustmentScrewResult = (false);
 
         for(int i = 1; ; i++)
         {
@@ -3134,7 +3610,7 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
             if(screwObject.contains(QString("z")))
                 adjustmentScrew->adjustment.z = screwObject["z"].toDouble();
 
-            _printer->bed()->setAdjustmentScrew(screwString, adjustmentScrew);
+            _printer->bed()->_adjustmentScrews[screwString] = adjustmentScrew;
         }
     }
 
@@ -3218,6 +3694,19 @@ void QAbstractKlipperConsole::on_serverInfo(KlipperResponse response)
         }
         else
         {
+            if(!_klipperRestartTimer)
+            {
+                _klipperRestartTimer = new QTimer();
+
+                connect(_klipperRestartTimer, SIGNAL(timeout()), this, SLOT(on_klipperRestartTimer_timeout()));
+
+                _klipperRestartTimer->setInterval(1000);
+                _klipperRestartTimer->setSingleShot(false);
+                _klipperRestartTimer->start();
+            }
+
+            removeState(Connected);
+
             emit klipperDisconnected();
             emit klipperError(QString("Klipper Disconnected"), QString("Lost connection with Klipper"));
         }

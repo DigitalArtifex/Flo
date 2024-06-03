@@ -8,6 +8,7 @@ QMap<QString,QIcon> Settings::iconMap;
 PrinterDefinitionList Settings::_printers;
 Settings *Settings::_instance = nullptr;
 QString Settings::_currentTheme = "";
+QString Settings::_digitalFontFamily = "";
 
 void Settings::loadThemes()
 {
@@ -63,6 +64,9 @@ void Settings::loadThemes()
 
 void Settings::load()
 {
+    int id = QFontDatabase::addApplicationFont(":/fonts/digital-7(mono).ttf");
+    _digitalFontFamily = QFontDatabase::applicationFontFamilies(id).at(0);
+
     qDebug() << "Settings File";
     QString settingsFileLocation = QDir::homePath() + QDir::separator() + QString(".local") +
                                    QDir::separator() + QString("share") + QDir::separator() +
@@ -413,4 +417,9 @@ Settings *Settings::instance()
 QString Settings::currentTheme()
 {
     return _currentTheme;
+}
+
+QString Settings::digitalFontFamily()
+{
+    return _digitalFontFamily;
 }

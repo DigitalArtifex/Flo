@@ -230,7 +230,8 @@ void QWidgetAnimation::setDuration(qint32 newDuration)
 
 void QWidgetAnimation::on_animationsFinished()
 {
-    _target->setGraphicsEffect(0);
+    if(_target)
+        _target->setGraphicsEffect(0);
 
     delete _animations;
 

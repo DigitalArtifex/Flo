@@ -22,6 +22,7 @@ public:
 
     void addMessage(KlipperMessage message);
     void addResponse(KlipperResponse response);
+    void addErrorMessage(QString title, QString message);
 
 protected:
     QMap<qint64, PrinterTerminalItem*> _itemMap;

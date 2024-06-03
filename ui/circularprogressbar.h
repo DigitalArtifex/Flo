@@ -5,6 +5,8 @@
 #include <QWidget>
 #include <QPainter>
 #include <QPainterPath>
+#include <QFont>
+#include <QFontDatabase>
 
 
 class CircularProgressBar : public QWidget {
@@ -15,11 +17,22 @@ class CircularProgressBar : public QWidget {
     qreal current = 0;
 
 public:
-    CircularProgressBar(QWidget * parent = 0) : QWidget(parent)
+    enum Mode
     {
+        Percent,
+        Temperature,
+        Value
+    };
+
+    CircularProgressBar(QWidget * parent = 0, Mode mode = Percent) : QWidget(parent)
+    {
+        _mode = mode;
         setMinimumSize(104, 104);
         setMaximumSize(104, 104);
         progress = 0.285;
+
+        int id = QFontDatabase::addApplicationFont(":/fonts/digital-7(mono).ttf");
+        _fontFamily = QFontDatabase::applicationFontFamilies(id).at(0);
     }
     void setMinimum(qreal min);
     void setMaximum(qreal max);
@@ -32,6 +45,10 @@ public:
         update();
     }
     void paintEvent(QPaintEvent *event);
+
+private:
+    Mode _mode = Percent;
+    QString _fontFamily;
 };
 
 #endif // CIRCULARPROGRESSBAR_H

@@ -7,15 +7,16 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
     ui(new Ui::PrinterPage)
 {
     ui->setupUi(this);
-    setupUiClasses();
 
-    _bedTemperatureBar = new CircularProgressBar(this);
+    _centerLayout = new QFlowLayout(ui->centerWidget);
+    _centerLayout->setContentsMargins(QMargins(0,0,0,0));
+    ui->centerWidget->setLayout(_centerLayout);
+
     _chamberTemperatureBar = new CircularProgressBar(this);
     //_extruderTemperatureBar = new CircularProgressBar(this);
 
     ui->chamberLayout->addWidget(_chamberTemperatureBar);
     ui->chamberWidget->setHidden(true);
-    ui->bedLayout->addWidget(_bedTemperatureBar);
 
     ui->tabWidget->setTabVisible(0, false);
     ui->tabWidget->setTabVisible(1, false);
@@ -23,6 +24,20 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
     ui->tabWidget->setTabVisible(3, false);
     ui->tabWidget->setTabVisible(4, false);
     ui->tabWidget->setCurrentIndex(0);
+
+    ui->restartFirmwareButton->setHidden(true);
+    ui->cancelPrintButton->setHidden(true);
+    ui->fileLabel->setHidden(true);
+    ui->etaLabel->setHidden(true);
+    ui->printStatsLine->setHidden(true);
+    ui->printSpeedLabel->setHidden(true);
+    ui->printSpeedSlider->setHidden(true);
+    ui->printSpeedSpacer->changeSize(0,0);
+    ui->printSpeedSpinBox->setHidden(true);
+    ui->printProgress->setHidden(true);
+
+    _centerLayoutBottomSpacer = new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::Preferred);
+    _centerLayout->addItem(_centerLayoutBottomSpacer);
 
     _terminal = new PrinterTerminal(printer, this);
     _terminal->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -44,14 +59,21 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
     _printerOfflineScreen->setGeometry(QRect(0,0,width(),height()));
     _printerOfflineScreen->raise();
 
+    QRegularExpression distanceExpression("\\d+\\.\\d+\\s*", QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionValidator *distanceValidator = new QRegularExpressionValidator(distanceExpression);
+    ui->posIncrementSelect->setValidator(distanceValidator);
+
     setPrinter(printer);
 
+    _printerBedWidget = new PrinterBedWidget(_printer->bed(), this);
+    _centerLayout->addWidget(_printerBedWidget);
+
+    setupUiClasses();
     setStyleSheet(Settings::currentTheme());
 }
 
 PrinterPage::~PrinterPage()
 {
-    delete _bedTemperatureBar;
     delete _chamberTemperatureBar;
     delete _fileBrowser;
     delete _configBrowser;
@@ -71,11 +93,20 @@ void PrinterPage::addExtruder(Extruder *extruder, QString name)
 
     _extruderMap[index] = new ExtruderWidget(this);
     _extruderMap[index]->setExtruder(extruder);
-    ui->extruderTabWidget->addTab(_extruderMap[index], name);
+
+    if(_printerBedWidget)
+        _centerLayout->removeWidget(_printerBedWidget);
+
+    _centerLayout->addWidget(_extruderMap[index]);
+
+    if(_printerBedWidget)
+        _centerLayout->addWidget(_printerBedWidget);
 }
 
 void PrinterPage::setStyleSheet(QString styleSheet)
 {
+    QFrame::setStyleSheet(styleSheet);
+
     for(int i = 0; i < _extruderMap.count(); i++)
     {
         _extruderMap[i]->setStyleSheet(styleSheet);
@@ -84,13 +115,18 @@ void PrinterPage::setStyleSheet(QString styleSheet)
     QPixmap pixmap = Settings::getThemeIcon(QString("printer")).pixmap(50,50);
     ui->printerIconLabel->setPixmap(pixmap);
 
+    ui->xHomeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
+    ui->yHomeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
+    ui->zHomeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
+
     if(_fileBrowser)
         _fileBrowser->setStyleSheet(styleSheet);
 
     if(_printerOfflineScreen)
         _printerOfflineScreen->setStyleSheet(styleSheet);
 
-    QFrame::setStyleSheet(styleSheet);
+    if(_printerBedWidget)
+        _printerBedWidget->setStyleSheet(styleSheet);
 }
 
 void PrinterPage::setupUiClasses()
@@ -99,19 +135,60 @@ void PrinterPage::setupUiClasses()
     ui->pageContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
     this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
     ui->tabWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
-    ui->bedWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
     ui->chamberWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
     ui->toolheadWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
     ui->fanFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
     ui->currentPositionFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
     ui->destinationPositionFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
     ui->settingsFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
-    ui->extruderTabWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+}
+
+void PrinterPage::addFanLabels(Fan *fan, QString name)
+{
+    QString formattedName = name;
+
+    if(formattedName.startsWith(QString("controller_fan ")))
+    {
+        formattedName = formattedName.remove(QString("controller_fan "));
+        formattedName.replace(QString("_"), QString(" "));
+    }
+
+    if(formattedName.startsWith(QString("heater_fan ")))
+    {
+        formattedName = formattedName.remove(QString("heater_fan "));
+        formattedName.replace(QString("_"), QString(" "));
+    }
+
+    QStringList parts = formattedName.split(' ', Qt::SkipEmptyParts);
+
+    for (int i = 0; i < parts.size(); ++i)
+        parts[i].replace(0, 1, parts[i][0].toUpper());
+
+    formattedName = parts.join(' ') + QString(":");
+
+    QLabel *nameLabel = new QLabel(ui->fanFrame);
+    nameLabel->setProperty("component", name);
+    nameLabel->setText(formattedName);
+
+    QLabel *valueLabel = new QLabel(ui->fanFrame);
+    valueLabel->setProperty("component", name + QString("_value"));
+    valueLabel->setText(QString::number((double)fan->speed() * 100) + QString("%"));
+
+    QGridLayout *layout = (QGridLayout*)ui->fanFrame->layout();
+    int row = layout->rowCount();
+
+    layout->addWidget(nameLabel, row, 0);
+    layout->addWidget(valueLabel, row, 1);
 }
 
 void PrinterPage::on_xPosDecreaseButton_clicked()
 {
+    QString valueString = ui->posIncrementSelect->currentText();
+    valueString.remove(QString("mm"));
 
+    qreal amount = valueString.toDouble();
+
+    _printer->toolhead()->moveX(amount * -1);
 }
 
 void PrinterPage::on_terminalButton_toggled(bool checked)
@@ -151,29 +228,18 @@ void PrinterPage::on_settingsButton_toggled(bool checked)
 void PrinterPage::on_printerUpdate(Printer *printer)
 {
 
-    if(_extruderMap.count() == 0)
+    if(!_overviewBrowser)
     {
-        for(int i = 0; i < printer->extruderCount(); i++)
+        _overviewBrowser = new FileBrowser(printer, QString("gcodes"), ui->fileGroupBox, FileBrowser::Widget);
+        _overviewBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        ui->fileGroupBox->layout()->addWidget(_overviewBrowser);
+    }
+
+    if(_extruderMap.count() < printer->extruderCount())
+    {
+        for(int i = _extruderMap.count(); i < printer->extruderCount(); i++)
             addExtruder(printer->extruder(i));
     }
-
-    for(int i = 0; i < _extruderMap.count(); i++)
-    {
-        _extruderMap[i]->update();
-        /*_extruderMap[i]->setCurrentTemp(printer->extruder(i)->currentTemp());
-        _extruderMap[i]->setTargetTemp(printer->extruder(i)->targetTemp());
-        _extruderMap[i]->setPower(printer->extruder(i)->power());
-        _extruderMap[i]->setPressureAdvance(printer->extruder(i)->pressureAdvance());*/
-    }
-
-    /*ui->extruderPressureAdvanceEdit->setText(QString::number(printer->extruder(0)->pressureAdvance()));
-    ui->extruderSmoothTimeEdit->setText(QString::number(printer->extruder(0)->smoothTime()));
-    //ui->extruderPo->setText(QString::number(power));
-    ui->materialWidget->setEnabled(printer->extruder(0)->canExtrude());*/
-
-    _bedTemperatureBar->setProgress(printer->bed()->currentTemp());
-    ui->bedTargetTempLabel->setText(QString::number(printer->bed()->targetTemp()) + QString("C"));
-    ui->bedPowerLabel->setText(QString::number(printer->bed()->power()) + QString(""));
 
     ui->xLabel->setText(QString("X: ") + QString::number(printer->toolhead()->position().x()));
     ui->yLabel->setText(QString("Y: ") + QString::number(printer->toolhead()->position().y()));
@@ -204,6 +270,18 @@ void PrinterPage::on_printerUpdate(Printer *printer)
 
         pixmap = Settings::getThemeIcon(QString("printer-ready-icon")).pixmap(50,50);
         ui->printerIconLabel->setPixmap(pixmap);
+
+        ui->restartFirmwareButton->setHidden(true);
+        ui->cancelPrintButton->setHidden(true);
+        ui->fileLabel->setHidden(true);
+        ui->etaLabel->setHidden(true);
+        ui->printStatsLine->setHidden(true);
+        ui->printSpeedLabel->setHidden(true);
+        ui->printSpeedSlider->setHidden(true);
+        ui->printSpeedSpacer->changeSize(0,0, QSizePolicy::Expanding, QSizePolicy::Expanding);
+        ui->printSpeedSpinBox->setHidden(true);
+        ui->printProgress->setHidden(true);
+
         break;
     case Printer::Error:
         status = QString("Error");
@@ -216,6 +294,18 @@ void PrinterPage::on_printerUpdate(Printer *printer)
             split.removeLast();
             ui->statusMessageLabel->setText(split.join(QString("\n")));
         }
+
+        ui->restartFirmwareButton->setHidden(false);
+        ui->restartFirmwareButton->setEnabled(true);
+        ui->cancelPrintButton->setHidden(true);
+        ui->fileLabel->setHidden(true);
+        ui->etaLabel->setHidden(true);
+        ui->printStatsLine->setHidden(true);
+        ui->printSpeedLabel->setHidden(true);
+        ui->printSpeedSlider->setHidden(true);
+        ui->printSpeedSpacer->changeSize(0,0);
+        ui->printSpeedSpinBox->setHidden(true);
+        ui->printProgress->setHidden(true);
 
         _printerOfflineScreen->lower();
         _printerOfflineScreen->setHidden(true);
@@ -230,6 +320,17 @@ void PrinterPage::on_printerUpdate(Printer *printer)
 
         pixmap = Settings::getThemeIcon(QString("printer-cancelled-icon")).pixmap(50,50);
         ui->printerIconLabel->setPixmap(pixmap);
+
+        ui->restartFirmwareButton->setHidden(true);
+        ui->cancelPrintButton->setHidden(true);
+        ui->fileLabel->setHidden(true);
+        ui->etaLabel->setHidden(true);
+        ui->printStatsLine->setHidden(true);
+        ui->printSpeedLabel->setHidden(true);
+        ui->printSpeedSlider->setHidden(true);
+        ui->printSpeedSpacer->changeSize(0,0, QSizePolicy::Expanding, QSizePolicy::Expanding);
+        ui->printSpeedSpinBox->setHidden(true);
+        ui->printProgress->setHidden(true);
         break;
     case Printer::Printing:
         status = QString("Printing");
@@ -238,6 +339,18 @@ void PrinterPage::on_printerUpdate(Printer *printer)
 
         pixmap = Settings::getThemeIcon(QString("printer-printing-icon")).pixmap(50,50);
         ui->printerIconLabel->setPixmap(pixmap);
+
+        ui->restartFirmwareButton->setHidden(true);
+        ui->cancelPrintButton->setHidden(false);
+        ui->fileLabel->setHidden(false);
+        ui->etaLabel->setHidden(false);
+        ui->printStatsLine->setHidden(false);
+        ui->printSpeedLabel->setHidden(false);
+        ui->printSpeedSlider->setHidden(false);
+        ui->printSpeedSpacer->changeSize(0,0, QSizePolicy::Expanding, QSizePolicy::Ignored);
+        ui->printSpeedSpinBox->setHidden(false);
+        ui->printProgress->setHidden(false);
+
         break;
     case Printer::Paused:
         status = QString("Paused");
@@ -254,6 +367,17 @@ void PrinterPage::on_printerUpdate(Printer *printer)
 
         pixmap = Settings::getThemeIcon(QString("printer-offline-icon")).pixmap(50,50);
         ui->printerIconLabel->setPixmap(pixmap);
+
+        ui->restartFirmwareButton->setHidden(true);
+        ui->cancelPrintButton->setHidden(true);
+        ui->fileLabel->setHidden(true);
+        ui->etaLabel->setHidden(true);
+        ui->printStatsLine->setHidden(true);
+        ui->printSpeedLabel->setHidden(true);
+        ui->printSpeedSlider->setHidden(true);
+        ui->printSpeedSpacer->changeSize(0,0);
+        ui->printSpeedSpinBox->setHidden(true);
+        ui->printProgress->setHidden(true);
         break;
     default:
         status = QString("Unknown");
@@ -262,15 +386,26 @@ void PrinterPage::on_printerUpdate(Printer *printer)
 
         pixmap = Settings::getThemeIcon(QString("printer-offline-icon")).pixmap(50,50);
         ui->printerIconLabel->setPixmap(pixmap);
+
+        ui->restartFirmwareButton->setHidden(true);
+        ui->cancelPrintButton->setHidden(true);
+        ui->fileLabel->setHidden(true);
+        ui->etaLabel->setHidden(true);
+        ui->printStatsLine->setHidden(true);
+        ui->printSpeedLabel->setHidden(true);
+        ui->printSpeedSlider->setHidden(true);
+        ui->printSpeedSpacer->changeSize(0,0);
+        ui->printSpeedSpinBox->setHidden(true);
+        ui->printProgress->setHidden(true);
         break;
     }
 
     if(_printer->status() != Printer::Error)
         ui->statusMessageLabel->setText(_printer->statusMessage());
 
-    ui->printStatusLabel->setText(QString("State: ") + status);
+    ui->printerStatusLabel->setText(status);
 
-    if(printer->status() != Printer::Printing)
+    if(printer->status() == Printer::Ready)
     {
         ui->xPosDecreaseButton->setEnabled(printer->toolhead()->isXHomed());
         ui->xPosIncreaseButton->setEnabled(printer->toolhead()->isXHomed());
@@ -281,15 +416,60 @@ void PrinterPage::on_printerUpdate(Printer *printer)
     }
     else
     {
-        ui->xPosDecreaseButton->setEnabled(false);
-        ui->xPosIncreaseButton->setEnabled(false);
-        ui->yPosDecreaseButton->setEnabled(false);
-        ui->yPosIncreaseButton->setEnabled(false);
-        ui->zPosDecreaseButton->setEnabled(false);
-        ui->zPosIncreaseButton->setEnabled(false);
+        setPrintActionsEnabled(false);
     }
 
-    //ui->pa->setText(QString::number(printer->toolhead()->fan()->speed()));
+    ui->partsFanLabel->setText(QString::number((double)printer->toolhead()->fan()->speed() * 100) + QString("%"));
+
+    QList<QLabel*> labels = ui->fanFrame->findChildren<QLabel*>();
+
+    QMap<QString, Fan*> printerFans = _printer->fans();
+    QStringList printerFanNames = printerFans.keys();
+
+    foreach(QString name, printerFanNames)
+    {
+        bool found = false;
+
+        foreach(QLabel *label, labels)
+        {
+            if(label->property("component").isValid())
+            {
+                QString componentName = name + QString("_value");
+
+                if(label->property("component") == componentName)
+                {
+                    label->setText(QString::number((double)printerFans[name]->speed() * 100) + QString("%"));
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if(!found)
+            addFanLabels(printerFans[name], name);
+    }
+
+    if(!_printer->toolhead()->isXHomed())
+        ui->xHomeButton->setEnabled(true);
+    else
+        ui->xHomeButton->setEnabled(false);
+
+    if(!_printer->toolhead()->isYHomed())
+        ui->yHomeButton->setEnabled(true);
+    else
+        ui->yHomeButton->setEnabled(false);
+
+    if(!_printer->toolhead()->isZHomed())
+        ui->zHomeButton->setEnabled(true);
+    else
+        ui->zHomeButton->setEnabled(false);
+
+    if(!_printer->toolhead()->isHomed())
+        ui->homeToolheadButton->setEnabled(true);
+    else
+        ui->homeToolheadButton->setEnabled(false);
+
+    style()->polish(this);
 }
 
 Printer *PrinterPage::printer() const
@@ -300,9 +480,33 @@ Printer *PrinterPage::printer() const
 void PrinterPage::setPrinter(Printer *printer)
 {
     if(_printer)
+    {
         disconnect(_printer, SIGNAL(printerUpdate(Printer*)), this, SLOT(on_printerUpdate(Printer*)));
 
+        QList<QLabel*> labels = ui->fanFrame->findChildren<QLabel*>();
+
+        foreach(QLabel *label, labels)
+        {
+            if(label->property("component").isValid())
+            {
+                ui->fanFrame->layout()->removeWidget(label);
+                label->deleteLater();
+            }
+        }
+    }
+
+    if(_printerBedWidget)
+        _printerBedWidget->setPrinterBed(printer->bed());
+
     _printer = printer;
+
+    QMap<QString, Fan*> printerFans = _printer->fans();
+    QStringList printerFanNames = printerFans.keys();
+
+
+    foreach(QString name, printerFanNames)
+        addFanLabels(printerFans[name], name);
+
     connect(_printer, SIGNAL(printerUpdate(Printer*)), this, SLOT(on_printerUpdate(Printer*)));
 }
 
@@ -310,3 +514,106 @@ void PrinterPage::resizeEvent(QResizeEvent *event)
 {
     _printerOfflineScreen->setGeometry(QRect(0,0,width(),height()));
 }
+
+void PrinterPage::setPrintActionsEnabled(bool enabled)
+{
+    ui->xPosDecreaseButton->setEnabled(enabled);
+    ui->xPosIncreaseButton->setEnabled(enabled);
+    ui->yPosDecreaseButton->setEnabled(enabled);
+    ui->yPosIncreaseButton->setEnabled(enabled);
+    ui->zPosDecreaseButton->setEnabled(enabled);
+    ui->zPosIncreaseButton->setEnabled(enabled);
+}
+
+void PrinterPage::on_homeToolheadButton_clicked()
+{
+    _printer->console()->sendGcode(QString("G28"));
+}
+
+void PrinterPage::on_restartFirmwareButton_clicked()
+{
+    _printer->console()->restartFirmware();
+}
+
+void PrinterPage::on_posIncrementSelect_currentTextChanged(const QString &arg1)
+{
+    if(!arg1.contains("mm", Qt::CaseInsensitive))
+    {
+        if(ui->posIncrementSelect->hasFocus())
+        {
+            int pos = arg1.length();
+
+            ui->posIncrementSelect->setCurrentText(arg1 + QString("mm"));
+            ui->posIncrementSelect->lineEdit()->setCursorPosition(pos);
+        }
+        else
+            ui->posIncrementSelect->setCurrentText(arg1 + QString("mm"));
+    }
+}
+
+void PrinterPage::on_xPosIncreaseButton_clicked()
+{
+    QString valueString = ui->posIncrementSelect->currentText();
+    valueString.remove(QString("mm"));
+
+    qreal amount = valueString.toDouble();
+
+    _printer->toolhead()->moveX(amount);
+}
+
+void PrinterPage::on_yPosDecreaseButton_clicked()
+{
+    QString valueString = ui->posIncrementSelect->currentText();
+    valueString.remove(QString("mm"));
+
+    qreal amount = valueString.toDouble();
+
+    _printer->toolhead()->moveY(amount * -1);
+}
+
+void PrinterPage::on_yPosIncreaseButton_clicked()
+{
+    QString valueString = ui->posIncrementSelect->currentText();
+    valueString.remove(QString("mm"));
+
+    qreal amount = valueString.toDouble();
+
+    _printer->toolhead()->moveY(amount);
+}
+
+void PrinterPage::on_zPosDecreaseButton_clicked()
+{
+    QString valueString = ui->posIncrementSelect->currentText();
+    valueString.remove(QString("mm"));
+
+    qreal amount = valueString.toDouble();
+
+    _printer->toolhead()->moveZ(amount * -1);
+}
+
+void PrinterPage::on_zPosIncreaseButton_clicked()
+{
+    QString valueString = ui->posIncrementSelect->currentText();
+    valueString.remove(QString("mm"));
+
+    qreal amount = valueString.toDouble();
+
+    _printer->toolhead()->moveZ(amount);
+}
+
+void PrinterPage::on_xHomeButton_clicked()
+{
+    _printer->toolhead()->homeX();
+}
+
+void PrinterPage::on_yHomeButton_clicked()
+{
+    _printer->toolhead()->homeY();
+}
+
+
+void PrinterPage::on_zHomeButton_clicked()
+{
+    _printer->toolhead()->homeZ();
+}
+

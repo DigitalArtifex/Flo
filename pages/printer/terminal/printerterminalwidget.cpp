@@ -9,15 +9,18 @@ PrinterTerminalWidget::PrinterTerminalWidget(QWidget *parent)
 
 void PrinterTerminalWidget::addMessage(KlipperMessage message)
 {
-    PrinterTerminalItem *item = new PrinterTerminalItem(this);
-    item->setMessage(message);
-    item->setOpacityIn(1);
-    item->setOpacityOut(0);
-    item->setDuration(100);
+    if(message.origin == KlipperMessage::User)
+    {
+        PrinterTerminalItem *item = new PrinterTerminalItem(this);
+        item->setMessage(message);
+        item->setOpacityIn(1);
+        item->setOpacityOut(0);
+        item->setDuration(100);
 
-    _itemMap[message.id] = item;
+        _itemMap[message.id] = item;
 
-    addItem(item);
+        addItem(item);
+    }
 }
 
 void PrinterTerminalWidget::addResponse(KlipperResponse response)
@@ -26,4 +29,15 @@ void PrinterTerminalWidget::addResponse(KlipperResponse response)
     {
         _itemMap[response.id()]->setResponse(response);
     }
+}
+
+void PrinterTerminalWidget::addErrorMessage(QString title, QString message)
+{
+    PrinterTerminalItem *item = new PrinterTerminalItem(this);
+    item->setErrorMessage(title, message);
+    item->setOpacityIn(1);
+    item->setOpacityOut(0);
+    item->setDuration(100);
+
+    addItem(item);
 }

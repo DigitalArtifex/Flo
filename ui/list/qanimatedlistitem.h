@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QMouseEvent>
 #include <QStyle>
+#include <QElapsedTimer>
 
 #include "../qwidgetanimation.h"
 
@@ -58,9 +59,12 @@ signals:
     void selected(QAnimatedListItem *item);
     void deselected(QAnimatedListItem *item);
     void longPressed(QAnimatedListItem *item);
+    void doubleClicked(QAnimatedListItem *item);
 
 private slots:
     virtual void on_clickTimer_timeout();
+
+    virtual void mouseDoubleClickEvent(QMouseEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
@@ -74,6 +78,7 @@ private:
     bool _longPressed = false;
 
     QTimer *_clickTimer = nullptr;
+
     QWidgetAnimation *_animationIn = nullptr;
     QWidgetAnimation *_animationOut = nullptr;
     QWidgetAnimation *_animationFinal = nullptr;
@@ -93,6 +98,7 @@ private:
     qint32 _heightOut = 0;
     qint32 _widthIn = 0;
     qint32 _widthOut = 0;
+    qint32 _clickCount = 0;
 
     QWidget *_widget = nullptr;
 };

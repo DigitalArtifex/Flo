@@ -45,6 +45,16 @@ void PrinterTerminalItem::setupUi()
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessage"));
 }
 
+bool PrinterTerminalItem::isErrorMessage() const
+{
+    return _isErrorMessage;
+}
+
+void PrinterTerminalItem::setIsErrorMessage(bool isErrorMessage)
+{
+    _isErrorMessage = isErrorMessage;
+}
+
 KlipperResponse PrinterTerminalItem::response() const
 {
     return _response;
@@ -73,6 +83,21 @@ void PrinterTerminalItem::setResponse(const KlipperResponse &response)
     style()->polish(this);
 }
 
+void PrinterTerminalItem::setErrorMessage(QString title, QString message)
+{
+    _messageMethodLabel->setText(title);
+
+    _responseMessageLabel->setText(message);
+    _responseMessageLabel->setWordWrap(true);
+
+    _messageTimestampLabel->setText(_message.timestamp.toString(QString("hh:mm:ss")));
+    _messageTimestampLabel->setMaximumWidth(200);
+
+    _isErrorMessage = true;
+
+    setProperty("status", QVariant::fromValue<QString>("error"));
+}
+
 KlipperMessage PrinterTerminalItem::message() const
 {
     return _message;
@@ -82,7 +107,17 @@ void PrinterTerminalItem::setMessage(const KlipperMessage &message)
 {
     _message = message;
 
+    QString method = _message.document()["method"].toString();
+
     _messageTimestampLabel->setText(_message.timestamp.toString(QString("hh:mm:ss")));
-    _messageMethodLabel->setText(_message.document()["method"].toString());
+
+    if(method == QString("printer.gcode.script"))
+    {
+        QJsonObject paramsObject = _message.document()["params"].toObject();
+        _messageMethodLabel->setText(paramsObject["script"].toString());
+    }
+    else
+        _messageMethodLabel->setText(method);
+
     _responseMessageLabel->setText(QString("Awaiting response.."));
 }

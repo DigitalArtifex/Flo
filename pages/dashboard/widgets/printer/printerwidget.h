@@ -48,6 +48,8 @@ private slots:
 
     void on_loadingAnimation_finished();
 
+    void on_restartFirmwareButton_clicked();
+
 private:
     void showLoadingScreen();
     void hideLoadingScreen();

@@ -21,7 +21,7 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
     _powerProfile = definition.powerProfile;
 
     _toolhead = new Toolhead(this);
-    _bed = new Q3DPrintBed();
+    _bed = new Q3DPrintBed(this);
     _bed->setWatts(_powerProfile["bed"]);
     _chamber = new Chamber();
     _chamber->setWatts(_powerProfile["chamber"]);
@@ -36,7 +36,8 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
     for(int i = 0; i < definition.extruderCount; i++)
     {
         QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
-        _toolhead->extruder(i)->setWatts(definition.powerProfile[extruderName]);
+        _toolhead->extruder(i)->_extruderNumber = i;
+        _toolhead->extruder(i)->_watts = definition.powerProfile[extruderName];
     }
 
     _console->setMoonrakerLocation(_moonrakerLocation);
@@ -217,7 +218,7 @@ void Printer::update(PrinterDefinition definition)
     for(int i = 0; i < _toolhead->extruderCount(); i++)
     {
         QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
-        _toolhead->extruder(i)->setWatts(definition.powerProfile[extruderName]);
+        _toolhead->extruder(i)->_watts = definition.powerProfile[extruderName];
     }
 
     if(_moonrakerLocation != definition.moonrakerLocation)

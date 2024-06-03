@@ -78,7 +78,7 @@ void EditPrinterDialog::apply()
                 int extruder = edits[c]->property("extruder").toInt();
                 qreal extruderPower = edits[c]->text().toFloat();
 
-                _printer->toolhead()->extruder(extruder)->setWatts(extruderPower);
+                _printer->toolhead()->setExtruderMaxWatts(extruder,extruderPower);
             }
         }
     }

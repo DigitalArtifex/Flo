@@ -9,15 +9,16 @@
 
 class Printer;
 
-class Toolhead
+class Toolhead : public QObject
 {
-    Q_GADGET
+    Q_OBJECT
+
+    friend class QAbstractKlipperConsole;
+    friend class Printer;
 public:
-    Toolhead(Printer *printer);
+    Toolhead(Printer *printer, QObject *parent = nullptr);
 
     void addExtruder(Extruder *extruder);
-
-    Extruder *extruder(int index);
     Fan *fan();
     Position position();
     Position destination();
@@ -25,29 +26,65 @@ public:
     void setPosition(Position position);
     void setPosition(qreal x, qreal y, qreal z);
 
-    void setDestination(Position position);
-    void setDestination(qreal x, qreal y, qreal z);
-
-    void setMaxPosition(Position position);
-    void setMaxPosition(qreal x, qreal y, qreal z);
     Position maxPosition();
-
-    void setMinPosition(Position position);
-    void setMinPosition(qreal x, qreal y, qreal z);
     Position minPosition();
 
-    void setZHomed(bool homed);
+    /*!
+     * \brief Home X Axis
+     */
+    void homeX();
+
+    /*!
+     * \brief Home Y Axis
+     */
+    void homeY();
+
+    /*!
+     * \brief Home Z Axis
+     */
+    void homeZ();
+
     bool isZHomed();
-
-    void setYHomed(bool homed);
     bool isYHomed();
-
-    void setXHomed(bool homed);
     bool isXHomed();
-
     bool isHomed();
 
+    /*!
+     * \brief Moves the X axis
+     *
+     * Moves the axis by the specified amount. If speed is 0 the default speed in klipper is used
+     *
+     * \param amount
+     * \param speed
+     */
+    void moveX(qreal amount, qreal speed = 0);
+
+    /*!
+     * \brief Moves the Y axis
+     *
+     * Moves the axis by the specified amount. If speed is 0 the default speed in klipper is used
+     *
+     * \param amount
+     * \param speed
+     */
+    void moveY(qreal amount, qreal speed = 0);
+
+    /*!
+     * \brief Moves the Z axis
+     *
+     * Moves the axis by the specified amount. If speed is 0 the default speed in klipper is used
+     *
+     * \param amount
+     * \param speed
+     */
+    void moveZ(qreal amount, qreal speed = 0);
+
+    void homeAll();
+
     int extruderCount();
+    Extruder *currentExtruder();
+    Extruder *extruderByName(QString name);
+    Extruder *extruder(int index);
 
     QString homedAxes();
 
@@ -61,27 +98,43 @@ public:
     void setMaxAccelerationToDeceleration(qint32 maxAccelerationToDeceleration);
 
     qint32 stalls() const;
-    void setStalls(qint32 stalls);
 
     Printer *printer() const;
     void setPrinter(Printer *printer);
 
+    void setExtruderMaxWatts(qint32 extruder, qreal watts);
+
+signals:
+    void homing();
+    void homed();
+    void updated();
+
 private:
+    void emitUpdate();
+
     Position _position;
     Position _destination;
     Position _maxPosition;
     Position _minPosition;
     Fan *_fan;
     QMap<int, Extruder*> _extruders;
+    QString _currentExtruderName;
 
     bool _zHomed = false;
     bool _yHomed = false;
     bool _xHomed = false;
+    bool _isHoming = false;
+    bool _isXHoming = false;
+    bool _isYHoming = false;
+    bool _isZHoming = false;
 
     qint32 _maxAcceleration = 0;
     qint32 _maxVelocity = 0;
     qint32 _maxAccelerationToDeceleration = 0;
     qint32 _stalls = 0;
+    qint32 _checks = 0;
+
+    qreal _squareCornerVelocity = 0;
 
     Printer *_printer = nullptr;
 };

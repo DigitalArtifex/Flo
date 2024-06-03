@@ -57,6 +57,14 @@ public:
         Offline =       0x10000000
     };
 
+    struct KlipperCommand
+    {
+        QString command;
+        QString help;
+
+        QStringList parameters;
+    };
+
     explicit QAbstractKlipperConsole(Printer *printer, QObject *parent = nullptr);
     ~QAbstractKlipperConsole();
 
@@ -107,7 +115,7 @@ public:
     virtual void machineUpdateRecover(QString name, bool hardRecover = false);
     virtual void machineUpdateRollback(QString name);
 
-    virtual void sendGcode(QString gcode);
+    virtual void sendGcode(QString gcode, KlipperMessage::MessageOrigin origin = KlipperMessage::System);
 
     //Printer Management
     virtual void printerInfo();
@@ -192,6 +200,13 @@ public:
 
     QGCodeCommandList gcodeCommands() const;
 
+    bool isKlipperCommand(QString command);
+    QStringList klipperCommands();
+    KlipperCommand klipperCommand(QString command);
+
+protected:
+    void loadKlipperCommands();
+
 signals:
     void startup();
 
@@ -202,9 +217,12 @@ signals:
     void commandUnlock();
     void fileListReceived(QList<KlipperFile> files);
     void directoryListing(QString root, QString directory, QList<KlipperFile> files);
+    void printerOnline();
+
+    //Update signals
     void systemUpdate();
     void printerUpdate();
-    void printerOnline();
+    void extrudersUpdate();
     /*!
      * \brief Triggered on successful emergency stop
      */
@@ -361,6 +379,7 @@ protected:
     QMap<QString, ParserFunction> _parserMap;
     QMap<QString, ParserFunction> _actionMap;
     QMap<int, KlipperMessage> _klipperMessageBuffer;
+    QMap<QString, KlipperCommand> _klipperCommands;
 
     QStringList _subscriptionObjects;
     QStringList _macroObjects;

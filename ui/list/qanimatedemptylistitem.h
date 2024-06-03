@@ -20,6 +20,7 @@ public:
 
     virtual void setText(const QString &text);
     virtual void setIcon(const QPixmap &pixmap);
+    virtual void setIcon(const QString &iconName);
 
 private:
 

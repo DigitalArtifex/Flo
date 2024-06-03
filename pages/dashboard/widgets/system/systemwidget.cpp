@@ -11,7 +11,8 @@ SystemWidget::SystemWidget(QWidget *parent) :
 
     _systemCpuLoadProgressBar = new CircularProgressBar(this);
     _systemMemoryLoadProgressBar = new CircularProgressBar(this);
-    _systemTemperatureProgressBar = new CircularProgressBar(this);
+    _systemTemperatureProgressBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
+
     ui->systemMemoryLoadLayout->addWidget(_systemMemoryLoadProgressBar);
     ui->systemCpuLoadLayout->addWidget(_systemCpuLoadProgressBar);
     ui->systemTemperatureLayout->addWidget(_systemTemperatureProgressBar);
@@ -74,6 +75,9 @@ void SystemWidget::on_printer_systemUpdate(Printer *printer)
     memoryAvailableString += availableLabel;
     ui->memoryAvailableLabel->setText(memoryAvailableString);
 
+
+    //Need to find a different way to determine drive space
+    /*
     QString driveFreeString("Drive Free: ");
     QString driveFreeValueString;
     qreal driveFree = printer->system()->driveFree();
@@ -87,7 +91,6 @@ void SystemWidget::on_printer_systemUpdate(Printer *printer)
     convertDriveBytes(driveUsed, driveUsedValueString);
     driveUsedString = driveUsedString + QString::number(driveUsed) + driveUsedValueString;
     ui->driveUsedLabel->setText(driveUsedString);
-
     QString driveCapacityString("Drive Capacity: ");
     QString driveCapacityValueString;
     qreal driveCapacity = printer->system()->driveCapacity();
@@ -97,6 +100,7 @@ void SystemWidget::on_printer_systemUpdate(Printer *printer)
 
     ui->hostnameLabel->setText(QString("Hostname: ") + printer->system()->hostname());
     ui->cpuInfoLabel->setText(_printer->system()->cpuInfo().description);
+    */
 }
 
 void SystemWidget::on_printer_klipperDisconnected(Printer *printer)

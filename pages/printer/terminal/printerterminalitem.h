@@ -24,6 +24,11 @@ public:
     KlipperResponse response() const;
     void setResponse(const KlipperResponse &response);
 
+    void setErrorMessage(QString title, QString message);
+
+    bool isErrorMessage() const;
+    void setIsErrorMessage(bool isErrorMessage);
+
 protected:
     virtual void setupUi();
 
@@ -37,6 +42,8 @@ private:
     QLabel *_messageTimestampLabel = nullptr;
     QLabel *_messageMethodLabel = nullptr;
     QLabel *_responseMessageLabel = nullptr;
+
+    bool _isErrorMessage = false;
 };
 
 #endif // PRINTERTERMINALITEM_H

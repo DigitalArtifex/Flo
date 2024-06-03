@@ -93,14 +93,61 @@ void PrinterTerminal::setupUi()
 
 void PrinterTerminal::sendCommand()
 {
-    QString command = _commandEdit->toPlainText();
+    QString commandString = _commandEdit->toPlainText();
     _commandEdit->clear();
 
     QRegularExpression gcodeExpression("^\\s*[g|G|m|M]\\d+", QRegularExpression::MultilineOption);
-    QRegularExpressionMatchIterator match = gcodeExpression.globalMatch(command);
+    QRegularExpressionMatchIterator match = gcodeExpression.globalMatch(commandString);
 
+    QStringList segmentedCommand = commandString.split(QString(" "), Qt::SkipEmptyParts);
+
+    //Check if its a gcode
     if(match.hasNext())
-        _printer->console()->sendGcode(command);
+        _printer->console()->sendGcode(commandString, KlipperMessage::User);
+
+    //Check if its a klipper command instead
+    else if(!segmentedCommand.isEmpty() && _printer->console()->isKlipperCommand(segmentedCommand[0]))
+    {
+        QAbstractKlipperConsole::KlipperCommand command = _printer->console()->klipperCommand(segmentedCommand[0]);
+
+        //Check for command validity
+        //Start with a valid state for commands with no parameters
+        bool valid = true;
+        QStringList missingParameters;
+
+        //Iterate through required parameters
+        foreach(QString parameter, command.parameters)
+        {
+            bool found = false;
+
+            for(int i = 1; i < segmentedCommand.count(); i++)
+            {
+                QStringList segmentedParameter = parameter.split(QString("="), Qt::SkipEmptyParts);
+
+                if(segmentedParameter[0].toUpper() == parameter.toUpper())
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if(!found)
+            {
+                valid = false;
+                missingParameters += parameter;
+            }
+        }
+
+        if(valid)
+            _printer->console()->sendGcode(commandString, KlipperMessage::User);
+        else
+        {
+            QString message = QString("Missing parameters: ") + missingParameters.join(QString(", "));
+            message += QString("\n\n") + QString("Help: ") + command.help + QString("\n");
+
+            _terminal->addErrorMessage(command.command, message);
+        }
+    }
     else
-        _printer->console()->sendCommand(command);
+        _printer->console()->sendCommand(commandString, KlipperMessage::User);
 }

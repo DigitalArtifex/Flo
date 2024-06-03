@@ -1,9 +1,13 @@
 #include "bed.h"
+#include "printer.h"
 
-Q3DPrintBed::Q3DPrintBed(Type type, QObject *parent)
+Q3DPrintBed::Q3DPrintBed(Printer *printer, Type type, QObject *parent)
     : QObject(parent)
 {
+    _printer = printer;
 
+    if(type == NonHeated)
+        _watts = 0;
 }
 
 long Q3DPrintBed::timeRunning()
@@ -16,29 +20,14 @@ qreal Q3DPrintBed::currentTemp() const
     return _currentTemp;
 }
 
-void Q3DPrintBed::setCurrentTemp(qreal currentTemp)
-{
-    _currentTemp = currentTemp;
-}
-
 qreal Q3DPrintBed::targetTemp() const
 {
     return _targetTemp;
 }
 
-void Q3DPrintBed::setTargetTemp(qreal targetTemp)
-{
-    _targetTemp = targetTemp;
-}
-
 qreal Q3DPrintBed::power() const
 {
     return _power;
-}
-
-void Q3DPrintBed::setPower(qreal power)
-{
-    _power = power;
 }
 
 qreal Q3DPrintBed::watts() const
@@ -49,18 +38,13 @@ qreal Q3DPrintBed::watts() const
 void Q3DPrintBed::setWatts(qreal watts)
 {
     _watts = watts;
+
+    emit updated(this);
 }
 
 Q3DPrintBed::Mesh Q3DPrintBed::bedMesh() const
 {
     return _bedMesh;
-}
-
-void Q3DPrintBed::setBedMesh(const Mesh &bedMesh)
-{
-    _bedMesh = bedMesh;
-
-    emit meshUpdated(this);
 }
 
 /*!
@@ -76,19 +60,9 @@ Q3DPrintBed::AdjustmentScrew *Q3DPrintBed::adjustmentScrew(QString &key) const
         return nullptr;
 }
 
-void Q3DPrintBed::setAdjustmentScrew(QString &key, AdjustmentScrew *screw)
-{
-    _adjustmentScrews[key] = screw;
-}
-
 bool Q3DPrintBed::tiltAdjustError() const
 {
     return _tiltAdjustError;
-}
-
-void Q3DPrintBed::setTiltAdjustError(bool tiltAdjustError)
-{
-    _tiltAdjustError = tiltAdjustError;
 }
 
 bool Q3DPrintBed::adjustmentScrewsError() const
@@ -96,17 +70,53 @@ bool Q3DPrintBed::adjustmentScrewsError() const
     return _adjustmentScrewsError;
 }
 
-void Q3DPrintBed::setAdjustmentScrewsError(bool adjustmentScrewsError)
-{
-    _adjustmentScrewsError = adjustmentScrewsError;
-}
-
 qreal Q3DPrintBed::adjustmentScrewsMaxDeviation() const
 {
     return _adjustmentScrewsMaxDeviation;
 }
 
-void Q3DPrintBed::setAdjustmentScrewsMaxDeviation(qreal adjustmentScrewsMaxDeviations)
+QMap<QString, Q3DPrintBed::AdjustmentScrew*> Q3DPrintBed::adjustmentScrews() const
 {
-    _adjustmentScrewsMaxDeviation = adjustmentScrewsMaxDeviations;
+    return _adjustmentScrews;
+}
+
+bool Q3DPrintBed::hasAdjustmentScrewResult() const
+{
+    return _hasAdjustmentScrewResult;
+}
+
+void Q3DPrintBed::calibrateAdjustmentScrews()
+{
+    emit calibrating();
+
+    QString gcode("SCREWS_TILT_CALCULATE");
+    _printer->console()->sendGcode(gcode);
+}
+
+void Q3DPrintBed::calibrateBedMesh()
+{
+    emit calibrating();
+
+    QString gcode("BED_MESH_CALIBRATE");
+    _printer->console()->sendGcode(gcode);
+}
+
+Printer *Q3DPrintBed::printer() const
+{
+    return _printer;
+}
+
+void Q3DPrintBed::setPrinter(Printer *printer)
+{
+    _printer = printer;
+}
+
+void Q3DPrintBed::emitUpdate()
+{
+    emit updated(this);
+}
+
+Q3DPrintBed::Type Q3DPrintBed::type() const
+{
+    return _type;
 }

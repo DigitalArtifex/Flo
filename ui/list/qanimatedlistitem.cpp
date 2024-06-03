@@ -116,7 +116,9 @@ void QAnimatedListItem::setSelected(bool select, bool trigger)
         if(select)
             emit(selected(this));
         else
+        {
             emit(deselected(this));
+        }
     }
 }
 
@@ -142,17 +144,26 @@ void QAnimatedListItem::on_clickTimer_timeout()
         _longPressed = true;
 }
 
+void QAnimatedListItem::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    setSelected(true);
+    emit doubleClicked(this);
+}
+
 void QAnimatedListItem::mousePressEvent(QMouseEvent *event)
 {
     QWidget::mousePressEvent(event);
 
     if(event->button() == Qt::LeftButton)
     {
+
         _clickTimer = new QTimer(this);
+        connect(_clickTimer, SIGNAL(timeout()), this, SLOT(on_clickTimer_timeout()));
+
         _clickTimer->setInterval(500);
         _clickTimer->setSingleShot(true);
-        connect(_clickTimer, SIGNAL(timeout()), this, SLOT(on_clickTimer_timeout()));
         _clickTimer->start();
+
         setProperty("pressed", true);
         _pressed = true;
         style()->polish(this);
@@ -168,10 +179,8 @@ void QAnimatedListItem::mouseReleaseEvent(QMouseEvent *event)
         this->setProperty("pressed", false);
         this->style()->polish(this);
 
-        if(this->_clickTimer != nullptr)
+        if(_clickTimer)
         {
-            _clickTimer->stop();
-            disconnect(_clickTimer, SIGNAL(timeout()), this, SLOT(on_clickTimer_timeout()));
             delete _clickTimer;
             _clickTimer = nullptr;
         }

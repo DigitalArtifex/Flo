@@ -1,6 +1,6 @@
 #include "circularprogressbar.h"
 
-
+#include "../system/settings.h"
 
 void CircularProgressBar::setMinimum(qreal min)
 {
@@ -72,26 +72,36 @@ void CircularProgressBar::paintEvent(QPaintEvent *event)
     //pen2.setDashOffset(2.2);
     p.strokePath(path2, pen2);
 
-    int fontScale = (12 * (width() / minimumWidth()));
+    int fontScale = (14 * (width() / minimumWidth()));
     //fontScale = 24;
 
-    QFont font;
-    QString text = QString::number(progress * 100.00, 'f', 2);
-
-    font.setFamily(font.defaultFamily());
+    QFont font(Settings::digitalFontFamily());
     font.setPointSize(fontScale);
-    p.setFont(font);
 
     //Change point to pixels
-    fontScale *= 1.33;
+    fontScale /= 1.33;
+
+    QString text;
+
+    if(_mode == Percent)
+        text = QString::number(progress * 100.00, 'f', 2) + QString("%");
+    else if(_mode == Temperature)
+        text = QString::number(current, 'f', 2) + QString("°");
+    else
+        text = QString::number(current, 'f', 2);
 
     qreal x = 0, y = 0;
     //Get true center
     x = width() / 2;
-    x -= (fontScale * text.length()) / 2;
+    x -= ((fontScale * text.length()) / 2);
+
+    if(_mode != Temperature)
+        x -= 3;
 
     y = (height()/2);
     //y += (fontScale / 2);
+
+    p.setFont(font);
     p.drawText(QPoint(x,y),text);
 }
 

@@ -30,6 +30,8 @@ class Printer: public QObject
 {
 
     Q_OBJECT
+
+    friend class QAbstractKlipperConsole;
 public:
     enum ConnectionLocation
     {
@@ -225,6 +227,7 @@ private:
     qreal                                    _maxZAcceleration = 0;
     qreal                                    _maxZVelocity = 0;
     qreal                                    _squareCornerVelocity = 0;
+    qreal                                    _printTime = 0;
 
     QTimer                                  *_connectionTimer = nullptr;
 

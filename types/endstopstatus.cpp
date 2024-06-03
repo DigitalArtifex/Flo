@@ -1,7 +1,9 @@
 #include "endstopstatus.h"
 
 EndstopStatus::EndstopStatus(QObject *parent)
-{}
+{
+
+}
 
 bool EndstopStatus::x() const
 {

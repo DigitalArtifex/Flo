@@ -267,6 +267,11 @@ QScrollArea
   background-color: #141414;
 }
 
+.LoadingOverlayFrame
+{
+  background-color: #1a87c5;
+}
+
 .PageContainer
 {
   border: 2px solid white;

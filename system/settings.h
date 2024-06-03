@@ -17,6 +17,8 @@
 
 #include <QIcon>
 
+#include <QFontDatabase>
+
 #include "../types/printer.h"
 
 class Settings
@@ -53,10 +55,14 @@ public:
 
     static QString currentTheme();
 
+    static QString digitalFontFamily();
+
 private:
     static Settings *_instance;
     static PrinterDefinitionList _printers;
     static QString _currentTheme;
+
+    static QString _digitalFontFamily;
 };
 
 #endif // SETTINGS_H

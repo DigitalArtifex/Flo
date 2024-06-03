@@ -4,10 +4,11 @@
         <file>images/loading.gif</file>
         <file>images/loading 2.gif</file>
         <file>images/loading_widget.gif</file>
+        <file>images/loading_small_1a87c5.gif</file>
     </qresource>
-    <qresource prefix="/fonts">
-        <file>fonts/segmono_boot.ttf</file>
-        <file>fonts/segoen_slboot.ttf</file>
-        <file>fonts/segoe_slboot.ttf</file>
+    <qresource prefix="/fonts"/>
+    <qresource prefix="/">
+        <file>data/klipper_commands.json</file>
+        <file>fonts/digital-7(mono).ttf</file>
     </qresource>
 </RCC>

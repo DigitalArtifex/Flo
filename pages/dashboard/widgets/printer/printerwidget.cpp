@@ -247,3 +247,11 @@ void PrinterWidget::on_loadingAnimation_finished()
     on_printer_update(_printer);
 }
 
+
+void PrinterWidget::on_restartFirmwareButton_clicked()
+{
+    ui->restartKlipperButton->setEnabled(false);
+    ui->restartFirmwareButton->setEnabled(false);
+    _printer->console()->restartFirmware();
+}
+
