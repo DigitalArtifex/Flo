@@ -1,6 +1,8 @@
 #include "extruderwidget.h"
 #include "ui_extruderwidget.h"
 
+#include "../../../../system/settings.h"
+
 ExtruderWidget::ExtruderWidget(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::ExtruderWidget)
@@ -10,6 +12,7 @@ ExtruderWidget::ExtruderWidget(QWidget *parent) :
     ui->progressBarLayout->addWidget(_temperatureProgressBar);
 
     setUiClasses();
+    setIcons();
 }
 
 ExtruderWidget::~ExtruderWidget()
@@ -35,11 +38,40 @@ void ExtruderWidget::setUiClasses()
     ui->extruderWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
 
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+
+    style()->polish(this);
 }
 
 void ExtruderWidget::setStyleSheet(QString &styleSheet)
 {
     QFrame::setStyleSheet(styleSheet);
+
+    setIcons();
+
+    style()->polish(this);
+}
+
+void ExtruderWidget::setIcons()
+{
+    QPixmap pixmap = Settings::getThemeIcon("extruder-icon").pixmap(28,28);
+    ui->extruderIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon("temperature-icon").pixmap(18,18);
+    ui->targetTemperatureIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon("pressure-advance-icon").pixmap(18,18);
+    ui->pressureAdvanceIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon("smooth-time-icon").pixmap(18,18);
+    ui->smoothTimeIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon("extrusion-factor-icon").pixmap(18,18);
+    ui->extrusionFactorIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon("material-icon").pixmap(18,18);
+    ui->materialFrameIconLabel->setPixmap(pixmap);
+
+    style()->polish(this);
 }
 
 void ExtruderWidget::on_extrsuionFactorSlider_valueChanged(int value)
@@ -103,7 +135,7 @@ void ExtruderWidget::on_console_extrudersUpdate()
     if(!ui->extrusionFactorSpinBox->hasFocus() && !_extrusionFactorEdited)
         ui->extrusionFactorSpinBox->setValue(_extruder->extrusionFactor());
 
-    ui->dashboardExtruderTargetTempLabel->setText(QString::number(_extruder->targetTemp()) + QString("°C"));
+    ui->dashboardExtruderTargetTempLabel->setText(QString::number(_extruder->targetTemp()) + QString("°"));
     _temperatureProgressBar->setProgress(_extruder->currentTemp());
     _temperatureProgressBar->setMaximum(_extruder->maxTemp());
     ui->materialWidget->setEnabled(_extruder->canExtrude());

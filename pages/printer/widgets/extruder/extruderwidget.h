@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QFrame>
+#include <QStyle>
 #include "../../../../ui/circularprogressbar.h"
 #include "../../../../types/extruder.h"
 #include "../../../../types/printer.h"
@@ -26,6 +27,7 @@ public:
     void setUiClasses();
 
     virtual void setStyleSheet(QString &styleSheet);
+    virtual void setIcons();
 
 private slots:
     void on_extrsuionFactorSlider_valueChanged(int value);

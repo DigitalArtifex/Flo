@@ -37,7 +37,7 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
     ui->printProgress->setHidden(true);
 
     _centerLayoutBottomSpacer = new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::Preferred);
-    _centerLayout->addItem(_centerLayoutBottomSpacer);
+    _centerLayout->setContentsMargins(0,0,0,0);
 
     _terminal = new PrinterTerminal(printer, this);
     _terminal->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -110,14 +110,16 @@ void PrinterPage::setStyleSheet(QString styleSheet)
     for(int i = 0; i < _extruderMap.count(); i++)
     {
         _extruderMap[i]->setStyleSheet(styleSheet);
+        qDebug() << "Setting extruder style";
     }
 
     QPixmap pixmap = Settings::getThemeIcon(QString("printer")).pixmap(50,50);
     ui->printerIconLabel->setPixmap(pixmap);
 
-    ui->xHomeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
-    ui->yHomeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
-    ui->zHomeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
+    ui->xHomeButton->setIcon(Settings::getThemeIcon(QString("home-x-icon")));
+    ui->yHomeButton->setIcon(Settings::getThemeIcon(QString("home-y-icon")));
+    ui->zHomeButton->setIcon(Settings::getThemeIcon(QString("home-z-icon")));
+    ui->homeToolheadButton->setIcon(Settings::getThemeIcon(QString("home-all-icon")));
 
     if(_fileBrowser)
         _fileBrowser->setStyleSheet(styleSheet);
@@ -127,20 +129,53 @@ void PrinterPage::setStyleSheet(QString styleSheet)
 
     if(_printerBedWidget)
         _printerBedWidget->setStyleSheet(styleSheet);
+
+    ui->zOffsetDownButton->setIcon(Settings::getThemeIcon("move-down-icon"));
+    ui->zOffsetUpButton->setIcon(Settings::getThemeIcon("move-up-icon"));
+
+    pixmap = Settings::getThemeIcon(QString("location-icon")).pixmap(18,18);
+    //ui->positionIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon(QString("height-icon")).pixmap(18,18);
+    ui->zOffsetIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon(QString("control-icon")).pixmap(18,18);
+    ui->controlIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon(QString("toolhead-icon")).pixmap(28,28);
+    ui->toolheadIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon(QString("cooler-icon")).pixmap(28,28);
+    ui->fanIconLabel->setPixmap(pixmap);
+
+    style()->polish(this);
 }
 
 void PrinterPage::setupUiClasses()
 {
     ui->actionBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageActionBar"));
     ui->pageContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
-    this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
     ui->tabWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
     ui->chamberWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
     ui->toolheadWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
     ui->fanFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
     ui->currentPositionFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
-    ui->destinationPositionFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
+    ui->zOffsetGroupBox->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
+    ui->toolheadControlGroupBox->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
     ui->settingsFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+
+    ui->zOffsetUpButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarLeft"));
+    ui->zOffsetUp005->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
+    ui->zOffsetUp01->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
+    ui->zOffsetUp025->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
+    ui->zOffsetUp05->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarRight"));
+
+    ui->zOffsetDownButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarLeft"));
+    ui->zOffsetDown005->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
+    ui->zOffsetDown01->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
+    ui->zOffsetDown025->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
+    ui->zOffsetDown05->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarRight"));
 }
 
 void PrinterPage::addFanLabels(Fan *fan, QString name)
@@ -166,19 +201,25 @@ void PrinterPage::addFanLabels(Fan *fan, QString name)
 
     formattedName = parts.join(' ') + QString(":");
 
-    QLabel *nameLabel = new QLabel(ui->fanFrame);
+    QLabel *nameLabel = new QLabel(ui->fanFrameCentralWidget);
     nameLabel->setProperty("component", name);
     nameLabel->setText(formattedName);
 
-    QLabel *valueLabel = new QLabel(ui->fanFrame);
+    QLabel *valueLabel = new QLabel(ui->fanFrameCentralWidget);
     valueLabel->setProperty("component", name + QString("_value"));
     valueLabel->setText(QString::number((double)fan->speed() * 100) + QString("%"));
 
-    QGridLayout *layout = (QGridLayout*)ui->fanFrame->layout();
+    QLabel *iconLabel = new QLabel(ui->fanFrameCentralWidget);
+    iconLabel->setProperty("component", name + QString("_icon"));
+    iconLabel->setFixedSize(20,20);
+    iconLabel->setPixmap(Settings::getThemeIcon("fan-icon").pixmap(16,16));
+
+    QGridLayout *layout = (QGridLayout*)ui->fanFrameCentralWidget->layout();
     int row = layout->rowCount();
 
-    layout->addWidget(nameLabel, row, 0);
-    layout->addWidget(valueLabel, row, 1);
+    layout->addWidget(iconLabel, row, 0);
+    layout->addWidget(nameLabel, row, 1);
+    layout->addWidget(valueLabel, row, 2);
 }
 
 void PrinterPage::on_xPosDecreaseButton_clicked()
@@ -245,16 +286,11 @@ void PrinterPage::on_printerUpdate(Printer *printer)
     ui->yLabel->setText(QString("Y: ") + QString::number(printer->toolhead()->position().y()));
     ui->zLabel->setText(QString("Z: ") + QString::number(printer->toolhead()->position().z()));
 
-    ui->xDestinationLabel->setText(QString("X: ") + QString::number(printer->toolhead()->destination().x()));
-    ui->yDestinationLabel->setText(QString("Y: ") + QString::number(printer->toolhead()->destination().y()));
-    ui->zDestination->setText(QString("Z: ") + QString::number(printer->toolhead()->destination().z()));
+    ui->xDestinationSpinBox->setValue((printer->toolhead()->destination().x()));
+    ui->yDestinationSpinBox->setValue((printer->toolhead()->destination().y()));
+    ui->zDestinationSpinBox->setValue((printer->toolhead()->destination().z()));
 
     ui->etaLabel->setText(QString("ETA: ") + printer->printEndTime().toString());
-
-    if(printer->toolhead()->homedAxes().isEmpty())
-        ui->homedLabel->setText(QString("none"));
-    else
-        ui->homedLabel->setText(printer->toolhead()->homedAxes());
 
     ui->statusMessageLabel->setText(QString(""));
 
@@ -421,7 +457,16 @@ void PrinterPage::on_printerUpdate(Printer *printer)
 
     ui->partsFanLabel->setText(QString::number((double)printer->toolhead()->fan()->speed() * 100) + QString("%"));
 
-    QList<QLabel*> labels = ui->fanFrame->findChildren<QLabel*>();
+    QPixmap partFanIcon;
+
+    if(printer->toolhead()->fan()->speed() > 0.00)
+        partFanIcon = Settings::getThemeIcon("fan-on-icon").pixmap(16,16);
+    else
+        partFanIcon = Settings::getThemeIcon("fan-icon").pixmap(16,16);
+
+    ui->partsFanIconLabel->setPixmap(partFanIcon);
+
+    QList<QLabel*> labels = ui->fanFrameCentralWidget->findChildren<QLabel*>();
 
     QMap<QString, Fan*> printerFans = _printer->fans();
     QStringList printerFanNames = printerFans.keys();
@@ -435,12 +480,23 @@ void PrinterPage::on_printerUpdate(Printer *printer)
             if(label->property("component").isValid())
             {
                 QString componentName = name + QString("_value");
+                QString componentIcon = name + QString("_icon");
 
                 if(label->property("component") == componentName)
                 {
                     label->setText(QString::number((double)printerFans[name]->speed() * 100) + QString("%"));
                     found = true;
-                    break;
+                }
+                else if(label->property("component") == componentIcon)
+                {
+                    QPixmap fanIcon;
+
+                    if(printerFans[name]->speed() > 0.00)
+                        fanIcon = Settings::getThemeIcon("fan-on-icon").pixmap(16,16);
+                    else
+                        fanIcon = Settings::getThemeIcon("fan-icon").pixmap(16,16);
+
+                    label->setPixmap(fanIcon);
                 }
             }
         }
@@ -483,13 +539,13 @@ void PrinterPage::setPrinter(Printer *printer)
     {
         disconnect(_printer, SIGNAL(printerUpdate(Printer*)), this, SLOT(on_printerUpdate(Printer*)));
 
-        QList<QLabel*> labels = ui->fanFrame->findChildren<QLabel*>();
+        QList<QLabel*> labels = ui->fanFrameCentralWidget->findChildren<QLabel*>();
 
         foreach(QLabel *label, labels)
         {
             if(label->property("component").isValid())
             {
-                ui->fanFrame->layout()->removeWidget(label);
+                ui->fanFrameCentralWidget->layout()->removeWidget(label);
                 label->deleteLater();
             }
         }

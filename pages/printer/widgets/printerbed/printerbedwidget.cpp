@@ -38,9 +38,9 @@ void PrinterBedWidget::on_printerBed_update(Q3DPrintBed *printBed)
 {
     _bedTemperatureBar->setProgress(printBed->currentTemp());
 
-    ui->bedTargetTempLabel->setText(QString::number(printBed->targetTemp()) + QString("°C"));
+    ui->bedTargetTempLabel->setText(QString::number(printBed->targetTemp()) + QString("°"));
     ui->bedPowerLabel->setText(QString::number(printBed->power()) + QString(""));
-    ui->bedTemperatureLabel->setText(QString::number(printBed->currentTemp()) + QString("°C"));
+    ui->bedTemperatureLabel->setText(QString::number(printBed->currentTemp()) + QString("°"));
 }
 
 void PrinterBedWidget::on_printerOnline(Printer *printer)
