@@ -37,6 +37,15 @@ void ExtruderWidget::setUiClasses()
     ui->materialWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
     ui->extruderWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
 
+    ui->titleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar"));
+    ui->titleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
+
+    ui->materialTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar"));
+    ui->materialTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
+
+    ui->settingsTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar"));
+    ui->settingsTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
+
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
 
     style()->polish(this);
@@ -70,6 +79,9 @@ void ExtruderWidget::setIcons()
 
     pixmap = Settings::getThemeIcon("material-icon").pixmap(18,18);
     ui->materialFrameIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon("settings-icon").pixmap(18,18);
+    ui->settingsFrameIcon->setPixmap(pixmap);
 
     style()->polish(this);
 }

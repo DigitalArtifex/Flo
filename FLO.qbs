@@ -5,6 +5,7 @@ QtApplication {
     Depends { name: "Qt.network" }
     Depends { name: "Qt.charts" }
     Depends { name: "Qt.multimedia" }
+    Depends { name: "Qt.multimediawidgets" }
 
     cpp.defines: [
         // You can make your code fail to compile if it uses deprecated APIs.
@@ -108,6 +109,10 @@ QtApplication {
         "pages/printer/widgets/printerbed/printerbedwidget.ui",
         "pages/printer/widgets/printerfan/printerfanwidget.cpp",
         "pages/printer/widgets/printerfan/printerfanwidget.h",
+        "pages/printer/widgets/printerwebcam/empty/emptyprinterwebcamframe.cpp",
+        "pages/printer/widgets/printerwebcam/empty/emptyprinterwebcamframe.h",
+        "pages/printer/widgets/printerwebcam/printerwebcamwidget.cpp",
+        "pages/printer/widgets/printerwebcam/printerwebcamwidget.h",
         "pages/settings/add_printer/addbedpage.cpp",
         "pages/settings/add_printer/addbedpage.h",
         "pages/settings/add_printer/addbedpage.ui",
@@ -206,6 +211,8 @@ QtApplication {
         "ui/popup.ui",
         "ui/qanimatedwidget.cpp",
         "ui/qanimatedwidget.h",
+        "ui/qwebcamframe.cpp",
+        "ui/qwebcamframe.h",
         "ui/qwidgetanimation.cpp",
         "ui/qwidgetanimation.h",
         "ui/widgetanimation.cpp",

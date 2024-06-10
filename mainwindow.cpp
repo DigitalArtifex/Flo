@@ -276,6 +276,8 @@ void MainWindow::on_nextPage_animationIn_finished()
     for(int i = 0; i < _printerButtons.count(); i++)
         _printerButtons[i]->setEnabled(true);
 
+
+
     style()->polish(this);
 }
 

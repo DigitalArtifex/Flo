@@ -30,6 +30,8 @@ public:
 
     virtual void setPrintActionsEnabled(bool enabled);
 
+    virtual void setIcons();
+
 protected slots:
     void on_printerBed_update(Q3DPrintBed *printBed);
     void on_printerOnline(Printer* printer);

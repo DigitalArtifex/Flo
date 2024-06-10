@@ -7,6 +7,7 @@
         <file>images/loading_small_1a87c5.gif</file>
         <file>images/icons8-chevron-down-64.png</file>
         <file>images/icons8-chevron-up-64.png</file>
+        <file>images/icons8-chevron-down-16.png</file>
     </qresource>
     <qresource prefix="/fonts"/>
     <qresource prefix="/">

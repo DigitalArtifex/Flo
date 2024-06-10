@@ -3,7 +3,11 @@
 
 #include <QObject>
 #include <QFrame>
+#include <QLabel>
 #include <QGridLayout>
+#include <QPixmap>
+#include <QPainter>
+#include <QResizeEvent>
 
 #include "qwidgetanimation.h"
 
@@ -34,6 +38,9 @@ public:
     void setWidthOut(qint32 widthOut);
 
     virtual void setStyleSheet(QString styleSheet);
+
+protected:
+    virtual void resizeEvent(QResizeEvent *event);
 
 signals:
     void animatedIn();
@@ -68,6 +75,7 @@ private:
     qint32 _widthOut = 0;
 
     QWidget *_widget = nullptr;
+    QLabel *_snapshotLabel = nullptr;
 };
 
 #endif // QANIMATEDWIDGET_H

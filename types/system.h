@@ -7,6 +7,8 @@
 class System : public QObject
 {
     Q_OBJECT
+
+    friend class QAbstractKlipperConsole;
 public:
 
     /*!

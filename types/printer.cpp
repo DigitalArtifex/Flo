@@ -330,6 +330,11 @@ void Printer::on_console_gcodeMove(QGCodeMove &move)
     emit gcodeMove(this, move);
 }
 
+void Printer::emitUpdate()
+{
+    emit printerUpdate(this);
+}
+
 qreal Printer::squareCornerVelocity() const
 {
     return _squareCornerVelocity;

@@ -148,11 +148,18 @@ void FileBrowser::setupUi()
 
     if(_mode == Page)
         _layout->addWidget(_sideBar, 1, 1, 1, 1);
+    else
+    {
+        _upDirectoryButton->setFixedSize(32,32);
+        _newFolderButton->setFixedSize(32,32);
+        _uploadFileButton->setFixedSize(32,32);
+        _downloadFolderButton->setFixedSize(32,32);
+        _refreshButton->setFixedSize(32,32);
+
+        _actionBarLayout->setContentsMargins(4,4,4,4);
+    }
 
     setLayout(_layout);
-
-    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
-    _actionBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageActionBar"));
 
     if(_sideBar)
         _sideBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageSideBar"));
@@ -165,19 +172,24 @@ void FileBrowser::setupUi()
 
     if(_mode == Page)
     {
+        setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+        _actionBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageActionBar"));
+
         if(_rootDirectory != QString("gcodes"))
             _printFileButton->setHidden(true);
         else
             _printFileButton->setHidden(false);
-    }
 
-    if(_mode == Page)
-    {
         _editor = new FileEditor(_printer, this);
         _overlay = new FileBrowserOverlay(this);
         _overlay->setGeometry(0,0,width(),height());
         _overlay->raise();
         _overlay->setHidden(false);
+    }
+    else
+    {
+        setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+        _actionBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar"));
     }
 }
 

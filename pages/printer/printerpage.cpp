@@ -37,7 +37,7 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
     ui->printProgress->setHidden(true);
 
     _centerLayoutBottomSpacer = new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::Preferred);
-    _centerLayout->setContentsMargins(0,0,0,0);
+    _centerLayout->setContentsMargins(9,0,0,0);
 
     _terminal = new PrinterTerminal(printer, this);
     _terminal->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -67,6 +67,9 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
 
     _printerBedWidget = new PrinterBedWidget(_printer->bed(), this);
     _centerLayout->addWidget(_printerBedWidget);
+
+    _webcamWidget = new PrinterWebcamWidget(_printer, ui->webcamContentWidget);
+    ui->webcamContentWidget->layout()->addWidget(_webcamWidget);
 
     setupUiClasses();
     setStyleSheet(Settings::currentTheme());
@@ -113,13 +116,21 @@ void PrinterPage::setStyleSheet(QString styleSheet)
         qDebug() << "Setting extruder style";
     }
 
-    QPixmap pixmap = Settings::getThemeIcon(QString("printer")).pixmap(50,50);
-    ui->printerIconLabel->setPixmap(pixmap);
+    QPixmap pixmap = Settings::getThemeIcon(QString("printer")).pixmap(28,28);
+    ui->statusIconLabel->setPixmap(pixmap);
 
     ui->xHomeButton->setIcon(Settings::getThemeIcon(QString("home-x-icon")));
     ui->yHomeButton->setIcon(Settings::getThemeIcon(QString("home-y-icon")));
     ui->zHomeButton->setIcon(Settings::getThemeIcon(QString("home-z-icon")));
     ui->homeToolheadButton->setIcon(Settings::getThemeIcon(QString("home-all-icon")));
+
+    ui->xPosDecreaseButton->setIcon(Settings::getThemeIcon(QString("minus-icon")));
+    ui->yPosDecreaseButton->setIcon(Settings::getThemeIcon(QString("minus-icon")));
+    ui->zPosDecreaseButton->setIcon(Settings::getThemeIcon(QString("minus-icon")));
+
+    ui->xPosIncreaseButton->setIcon(Settings::getThemeIcon(QString("add-icon")));
+    ui->yPosIncreaseButton->setIcon(Settings::getThemeIcon(QString("add-icon")));
+    ui->zPosIncreaseButton->setIcon(Settings::getThemeIcon(QString("add-icon")));
 
     if(_fileBrowser)
         _fileBrowser->setStyleSheet(styleSheet);
@@ -134,7 +145,7 @@ void PrinterPage::setStyleSheet(QString styleSheet)
     ui->zOffsetUpButton->setIcon(Settings::getThemeIcon("move-up-icon"));
 
     pixmap = Settings::getThemeIcon(QString("location-icon")).pixmap(18,18);
-    //ui->positionIconLabel->setPixmap(pixmap);
+    ui->positionIconLabel->setPixmap(pixmap);
 
     pixmap = Settings::getThemeIcon(QString("height-icon")).pixmap(18,18);
     ui->zOffsetIconLabel->setPixmap(pixmap);
@@ -147,6 +158,12 @@ void PrinterPage::setStyleSheet(QString styleSheet)
 
     pixmap = Settings::getThemeIcon(QString("cooler-icon")).pixmap(28,28);
     ui->fanIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon(QString("webcam-icon")).pixmap(28,28);
+    ui->webcamIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon(QString("printer-icon")).pixmap(28,28);
+    ui->statusIconLabel->setPixmap(pixmap);
 
     style()->polish(this);
 }
@@ -163,7 +180,33 @@ void PrinterPage::setupUiClasses()
     ui->currentPositionFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
     ui->zOffsetGroupBox->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
     ui->toolheadControlGroupBox->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
+
+    ui->pageOverview->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageOverview"));
+
     ui->settingsFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+    ui->fileGroupBox->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+    ui->webcamGroupBox->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+
+    ui->positionTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar"));
+    ui->positionTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
+
+    ui->zOffsetTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar"));
+    ui->zOffsetTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
+
+    ui->controlTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar"));
+    ui->controlTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
+
+    ui->printStatusTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar"));
+    ui->printStatusTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
+
+    ui->toolheadTItleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar"));
+    ui->toolheadTItleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
+
+    ui->webcamTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar"));
+    ui->webcamTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
+
+    ui->fanFrameTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar"));
+    ui->fanFrameTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
 
     ui->zOffsetUpButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarLeft"));
     ui->zOffsetUp005->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
@@ -176,6 +219,18 @@ void PrinterPage::setupUiClasses()
     ui->zOffsetDown01->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
     ui->zOffsetDown025->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
     ui->zOffsetDown05->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarRight"));
+
+    ui->xPosDecreaseButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarLeft"));
+    ui->xHomeButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
+    ui->xPosIncreaseButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarRight"));
+
+    ui->yPosDecreaseButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarLeft"));
+    ui->yHomeButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
+    ui->yPosIncreaseButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarRight"));
+
+    ui->zPosDecreaseButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarLeft"));
+    ui->zHomeButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
+    ui->zPosIncreaseButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarRight"));
 }
 
 void PrinterPage::addFanLabels(Fan *fan, QString name)
@@ -286,9 +341,14 @@ void PrinterPage::on_printerUpdate(Printer *printer)
     ui->yLabel->setText(QString("Y: ") + QString::number(printer->toolhead()->position().y()));
     ui->zLabel->setText(QString("Z: ") + QString::number(printer->toolhead()->position().z()));
 
-    ui->xDestinationSpinBox->setValue((printer->toolhead()->destination().x()));
-    ui->yDestinationSpinBox->setValue((printer->toolhead()->destination().y()));
-    ui->zDestinationSpinBox->setValue((printer->toolhead()->destination().z()));
+    if(!xPosEditing && !ui->xDestinationSpinBox->hasFocus())
+        ui->xDestinationSpinBox->setValue((printer->toolhead()->destination().x()));
+
+    if(!yPosEditing && !ui->yDestinationSpinBox->hasFocus())
+        ui->yDestinationSpinBox->setValue((printer->toolhead()->destination().y()));
+
+    if(!zPosEditing && !ui->zDestinationSpinBox->hasFocus())
+        ui->zDestinationSpinBox->setValue((printer->toolhead()->destination().z()));
 
     ui->etaLabel->setText(QString("ETA: ") + printer->printEndTime().toString());
 
@@ -304,8 +364,8 @@ void PrinterPage::on_printerUpdate(Printer *printer)
         _printerOfflineScreen->lower();
         _printerOfflineScreen->setHidden(true);
 
-        pixmap = Settings::getThemeIcon(QString("printer-ready-icon")).pixmap(50,50);
-        ui->printerIconLabel->setPixmap(pixmap);
+        pixmap = Settings::getThemeIcon(QString("printer-ready-icon")).pixmap(28,28);
+        ui->statusIconLabel->setPixmap(pixmap);
 
         ui->restartFirmwareButton->setHidden(true);
         ui->cancelPrintButton->setHidden(true);
@@ -346,16 +406,18 @@ void PrinterPage::on_printerUpdate(Printer *printer)
         _printerOfflineScreen->lower();
         _printerOfflineScreen->setHidden(true);
 
-        pixmap = Settings::getThemeIcon(QString("printer-error-icon")).pixmap(50,50);
-        ui->printerIconLabel->setPixmap(pixmap);
+        pixmap = Settings::getThemeIcon(QString("printer-error-icon")).pixmap(28,28);
+        ui->statusIconLabel->setPixmap(pixmap);
+
+        ui->restartFirmwareButton->setEnabled(true);
         break;
     case Printer::Cancelled:
         status = QString("Cancelled");
         _printerOfflineScreen->lower();
         _printerOfflineScreen->setHidden(true);
 
-        pixmap = Settings::getThemeIcon(QString("printer-cancelled-icon")).pixmap(50,50);
-        ui->printerIconLabel->setPixmap(pixmap);
+        pixmap = Settings::getThemeIcon(QString("printer-cancelled-icon")).pixmap(28,28);
+        ui->statusIconLabel->setPixmap(pixmap);
 
         ui->restartFirmwareButton->setHidden(true);
         ui->cancelPrintButton->setHidden(true);
@@ -373,8 +435,8 @@ void PrinterPage::on_printerUpdate(Printer *printer)
         _printerOfflineScreen->lower();
         _printerOfflineScreen->setHidden(true);
 
-        pixmap = Settings::getThemeIcon(QString("printer-printing-icon")).pixmap(50,50);
-        ui->printerIconLabel->setPixmap(pixmap);
+        pixmap = Settings::getThemeIcon(QString("printer-printing-icon")).pixmap(28,28);
+        ui->statusIconLabel->setPixmap(pixmap);
 
         ui->restartFirmwareButton->setHidden(true);
         ui->cancelPrintButton->setHidden(false);
@@ -393,16 +455,16 @@ void PrinterPage::on_printerUpdate(Printer *printer)
         _printerOfflineScreen->lower();
         _printerOfflineScreen->setHidden(true);
 
-        pixmap = Settings::getThemeIcon(QString("printer-paused-icon")).pixmap(50,50);
-        ui->printerIconLabel->setPixmap(pixmap);
+        pixmap = Settings::getThemeIcon(QString("printer-paused-icon")).pixmap(28,28);
+        ui->statusIconLabel->setPixmap(pixmap);
         break;
     case Printer::Offline:
         status = QString("Offline");
         _printerOfflineScreen->raise();
         _printerOfflineScreen->setHidden(false);
 
-        pixmap = Settings::getThemeIcon(QString("printer-offline-icon")).pixmap(50,50);
-        ui->printerIconLabel->setPixmap(pixmap);
+        pixmap = Settings::getThemeIcon(QString("printer-offline-icon")).pixmap(28,28);
+        ui->statusIconLabel->setPixmap(pixmap);
 
         ui->restartFirmwareButton->setHidden(true);
         ui->cancelPrintButton->setHidden(true);
@@ -420,8 +482,8 @@ void PrinterPage::on_printerUpdate(Printer *printer)
         _printerOfflineScreen->raise();
         _printerOfflineScreen->setHidden(false);
 
-        pixmap = Settings::getThemeIcon(QString("printer-offline-icon")).pixmap(50,50);
-        ui->printerIconLabel->setPixmap(pixmap);
+        pixmap = Settings::getThemeIcon(QString("printer-offline-icon")).pixmap(28,28);
+        ui->statusIconLabel->setPixmap(pixmap);
 
         ui->restartFirmwareButton->setHidden(true);
         ui->cancelPrintButton->setHidden(true);
@@ -525,6 +587,13 @@ void PrinterPage::on_printerUpdate(Printer *printer)
     else
         ui->homeToolheadButton->setEnabled(false);
 
+    qDebug() << _printer->system()->webcams().count();
+
+    if(_printer->system()->webcams().count() > 0)
+    {
+
+    }
+
     style()->polish(this);
 }
 
@@ -581,6 +650,11 @@ void PrinterPage::setPrintActionsEnabled(bool enabled)
     ui->zPosIncreaseButton->setEnabled(enabled);
 }
 
+void PrinterPage::showEvent(QShowEvent *event)
+{
+    QFrame::showEvent(event);
+}
+
 void PrinterPage::on_homeToolheadButton_clicked()
 {
     _printer->console()->sendGcode(QString("G28"));
@@ -589,6 +663,7 @@ void PrinterPage::on_homeToolheadButton_clicked()
 void PrinterPage::on_restartFirmwareButton_clicked()
 {
     _printer->console()->restartFirmware();
+    ui->restartFirmwareButton->setEnabled(false);
 }
 
 void PrinterPage::on_posIncrementSelect_currentTextChanged(const QString &arg1)
@@ -671,5 +746,26 @@ void PrinterPage::on_yHomeButton_clicked()
 void PrinterPage::on_zHomeButton_clicked()
 {
     _printer->toolhead()->homeZ();
+}
+
+
+void PrinterPage::on_xDestinationSpinBox_valueChanged(double arg1)
+{
+    if(ui->xDestinationSpinBox->hasFocus() && arg1 != _printer->toolhead()->position().x())
+        xPosEditing = true;
+}
+
+
+void PrinterPage::on_yDestinationSpinBox_valueChanged(double arg1)
+{
+    if(ui->yDestinationSpinBox->hasFocus() && arg1 != _printer->toolhead()->position().y())
+        yPosEditing = true;
+}
+
+
+void PrinterPage::on_zDestinationSpinBox_valueChanged(double arg1)
+{
+    if(ui->zDestinationSpinBox->hasFocus() && arg1 != _printer->toolhead()->position().z())
+        zPosEditing = true;
 }
 

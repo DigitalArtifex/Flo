@@ -1,6 +1,8 @@
 #include "printerbedwidget.h"
 #include "ui_printerbedwidget.h"
 
+#include "../../../../system/settings.h"
+
 PrinterBedWidget::PrinterBedWidget(Q3DPrintBed *printerBed, QWidget *parent)
     : QFrame(parent)
     , ui(new Ui::PrinterBedWidget)
@@ -9,8 +11,8 @@ PrinterBedWidget::PrinterBedWidget(Q3DPrintBed *printerBed, QWidget *parent)
 
     setPrinterBed(printerBed);
 
-    QGridLayout *layout = new QGridLayout(ui->adjustmentScrewBox);
-    ui->adjustmentScrewBox->setLayout(layout);
+    QGridLayout *layout = new QGridLayout(ui->adjustmentScrewFrame);
+    ui->adjustmentScrewFrame->setLayout(layout);
 
     _bedTemperatureBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
     _bedTemperatureBar->setMaximum(150);
@@ -18,14 +20,19 @@ PrinterBedWidget::PrinterBedWidget(Q3DPrintBed *printerBed, QWidget *parent)
     ui->bedLayout->addWidget(_bedTemperatureBar);
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
     ui->bedInfoWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
-    ui->adjustmentScrewBox->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
-    ui->bedMeshGroupBox->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
+    ui->adjustmentScrewFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
+    ui->bedMeshFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
+    ui->titleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar" << "PrinterSubWidget"));
+    ui->bedMeshTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar" << "PrinterSubWidget"));
+    ui->adjustmentFrameTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar" << "PrinterSubWidget"));
 
-    _bedMeshFrame = new BedMeshFrame(_printerBed, ui->bedMeshGroupBox);
-    ui->bedMeshGroupBox->layout()->addWidget(_bedMeshFrame);
+    _bedMeshFrame = new BedMeshFrame(_printerBed, ui->bedMeshContent);
+    ui->bedMeshContent->layout()->addWidget(_bedMeshFrame);
 
-    _adjustmentScrewFrame = new AdjustmentScrewFrame(_printerBed, ui->adjustmentScrewBox);
-    ui->adjustmentScrewBox->layout()->addWidget(_adjustmentScrewFrame);
+    _adjustmentScrewFrame = new AdjustmentScrewFrame(_printerBed, ui->adjustmentScrewFrame);
+    ui->adjustmentScrewContent->layout()->addWidget(_adjustmentScrewFrame);
+
+    setIcons();
 }
 
 PrinterBedWidget::~PrinterBedWidget()
@@ -71,4 +78,16 @@ void PrinterBedWidget::setPrinterBed(Q3DPrintBed *printerBed)
 
 void PrinterBedWidget::setPrintActionsEnabled(bool enabled)
 {
+}
+
+void PrinterBedWidget::setIcons()
+{
+    QPixmap pixmap = Settings::getThemeIcon(QString("bed-icon")).pixmap(28,28);
+    ui->iconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon(QString("bed-mesh-icon")).pixmap(18,18);
+    ui->bedMeshIconLabel->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon(QString("adjustment-screw-icon")).pixmap(18,18);
+    ui->adjustmentScrewIcon->setPixmap(pixmap);
 }

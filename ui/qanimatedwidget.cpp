@@ -3,6 +3,14 @@
 QAnimatedWidget::QAnimatedWidget(QWidget *parent)
     : QFrame{parent}
 {
+    _layout = new QGridLayout(this);
+    _layout->setSpacing(0);
+    _layout->setContentsMargins(0,0,0,0);
+
+    _snapshotLabel = new QLabel(this);
+    _snapshotLabel->resize(size());
+    _snapshotLabel->hide();
+
     _animationFinal = new QWidgetAnimation(this, parent);
     _animationIn = new QWidgetAnimation(this, parent);
     _animationOut = new QWidgetAnimation(this, parent);
@@ -23,8 +31,11 @@ QAnimatedWidget::~QAnimatedWidget()
     if(_animationOut)
         delete _animationOut;
 
+    if(_snapshotLabel)
+        delete _snapshotLabel;
+
     if(_widget)
-        delete _widget;
+        _widget->deleteLater();
 
     if(_layout)
         delete _layout;
@@ -66,6 +77,28 @@ void QAnimatedWidget::animateIn()
     {
         _animationIn->setStartWidth(_widthOut);
         _animationIn->setEndWidth(_widthIn);
+    }
+
+    //switch to a snapshot of the actual widget to prevent performance issues
+    QPixmap snapshot(size());
+    QPainter painter(&snapshot);
+
+    painter.setCompositionMode(QPainter::CompositionMode_Destination);
+    painter.fillRect(snapshot.rect(), Qt::transparent);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+
+    if(_widget)
+        _widget->render(&painter, QPoint(), QRegion(), QWidget::DrawWindowBackground | QWidget::IgnoreMask | QWidget::DrawChildren);
+
+    _snapshotLabel->setPixmap(snapshot);
+    _snapshotLabel->resize(size());
+    _snapshotLabel->show();
+
+    //hide after showing the snapshot to prevent flicker
+    if(_widget)
+    {
+        _widget->hide();
+        _layout->removeWidget(_widget);
     }
 
     _animationIn->setDuration(_duration);
@@ -110,6 +143,28 @@ void QAnimatedWidget::animateOut()
         _animationOut->setEndWidth(_widthOut);
     }
 
+    //switch to a snapshot of the actual widget to prevent performance issues
+    QPixmap snapshot(size());
+    QPainter painter(&snapshot);
+
+    painter.setCompositionMode(QPainter::CompositionMode_Destination);
+    painter.fillRect(snapshot.rect(), Qt::transparent);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+
+    if(_widget)
+        _widget->render(&painter, QPoint(), QRegion(), QWidget::DrawWindowBackground | QWidget::IgnoreMask | QWidget::DrawChildren);
+
+    _snapshotLabel->setPixmap(snapshot);
+    _snapshotLabel->resize(size());
+    _snapshotLabel->show();
+
+    //hide after showing the snapshot to prevent flicker
+    if(_widget)
+    {
+        _widget->hide();
+        _layout->removeWidget(_widget);
+    }
+
     _animationOut->setDuration(_duration);
     _animationOut->start();
 }
@@ -121,13 +176,6 @@ QWidget *QAnimatedWidget::widget() const
 
 void QAnimatedWidget::setWidget(QWidget *widget)
 {
-    if(!_layout)
-    {
-        _layout = new QGridLayout(this);
-        _layout->setSpacing(0);
-        _layout->setContentsMargins(0,0,0,0);
-    }
-
     if(_widget)
     {
         _layout->removeWidget(_widget);
@@ -140,19 +188,45 @@ void QAnimatedWidget::setWidget(QWidget *widget)
 
 void QAnimatedWidget::on_animationIn_finished()
 {
+    if(_widget)
+    {
+        _layout->addWidget(_widget);
+        _widget->show();
+    }
+
+    _snapshotLabel->hide();
+
     emit animatedIn();
 }
 
 void QAnimatedWidget::on_animationOut_finished()
 {
     if(!_animationFinal)
+    {
+        if(_widget)
+        {
+            _layout->addWidget(_widget);
+            _widget->show();
+        }
+
+        _snapshotLabel->hide();
+
         emit animatedOut();
+    }
     else
         _animationFinal->start();
 }
 
 void QAnimatedWidget::on_animationFinal_finished()
 {
+    if(_widget)
+    {
+        _layout->addWidget(_widget);
+        _widget->show();
+    }
+
+    _snapshotLabel->hide();
+
     emit animatedOut();
 }
 
@@ -166,6 +240,14 @@ void QAnimatedWidget::setStyleSheet(QString styleSheet)
 {
     if(_widget)
         _widget->setStyleSheet(styleSheet);
+}
+
+void QAnimatedWidget::resizeEvent(QResizeEvent *event)
+{
+    if(_snapshotLabel)
+        _snapshotLabel->resize(event->size());
+
+    QFrame::resizeEvent(event);
 }
 
 void QAnimatedWidget::setWidthIn(qint32 widthIn)

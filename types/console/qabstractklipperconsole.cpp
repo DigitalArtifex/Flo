@@ -774,6 +774,12 @@ void QAbstractKlipperConsole::restartKlipper()
 
     message.setDocument(messageObject);
 
+    _printer->_statusMessage = QString("Restarting printer\nRestarting");
+    _printer->_status = Printer::Offline;
+    _printer->emitUpdate();
+
+    //_waitForOkId = message.id;
+
     sendCommand(message);
 }
 
@@ -786,6 +792,12 @@ void QAbstractKlipperConsole::restartFirmware()
     messageObject["method"] = "printer.firmware_restart";
 
     message.setDocument(messageObject);
+
+    _printer->_statusMessage = QString("Restarting printer\nRestarting");
+    _printer->_status = Printer::Offline;
+    _printer->emitUpdate();
+
+    //_waitForOkId = message.id;
 
     sendCommand(message);
 }
@@ -2430,7 +2442,9 @@ void QAbstractKlipperConsole::on_restartKlipper(KlipperResponse response)
 
 void QAbstractKlipperConsole::on_restartFirmware(KlipperResponse response)
 {
-
+    _printer->_status = Printer::Offline;
+    _printer->_statusMessage = QString("Firmware is restarting\nRestarting");
+    _printer->emitUpdate();
 }
 
 void QAbstractKlipperConsole::on_printerObjectsList(KlipperResponse response)
@@ -3955,7 +3969,7 @@ void QAbstractKlipperConsole::on_serverWebcamList(KlipperResponse response)
         QJsonObject result = response["result"].toObject();
         QJsonArray webcamArray = result["webcams"].toArray();
 
-        _printer->system()->webcams().clear();
+        _printer->system()->_webcams.clear();
 
         for(int i = 0; i < webcamArray.count(); i++)
         {
@@ -3978,7 +3992,7 @@ void QAbstractKlipperConsole::on_serverWebcamList(KlipperResponse response)
             webcam.source = webcamObject["source"].toString();
             webcam.uid = webcamObject["uid"].toString();
 
-            _printer->system()->webcams().append(webcam);
+            _printer->system()->_webcams.append(webcam);
         }
     }
 }

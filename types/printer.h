@@ -202,6 +202,9 @@ private slots:
     virtual void on_console_gcodeMove(QGCodeMove &move);
 
 private:
+    //For use by QAbstractKlipperConsole
+    void                                     emitUpdate();
+
     Toolhead                                *_toolhead = nullptr;
     Q3DPrintBed                             *_bed = nullptr;
     Chamber                                 *_chamber = nullptr;

@@ -6,6 +6,8 @@
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 
+#include <QShowEvent>
+
 #include "widgets/extruder/extruderwidget.h"
 #include "../../types/printer.h"
 
@@ -15,6 +17,7 @@
 #include "terminal/printerterminal.h"
 
 #include "widgets/printerbed/printerbedwidget.h"
+#include "widgets/printerwebcam/printerwebcamwidget.h"
 #include "../../ui/layouts/qflowlayout.h"
 
 namespace Ui {
@@ -38,6 +41,9 @@ public:
 
     virtual void resizeEvent(QResizeEvent *event);
     virtual void setPrintActionsEnabled(bool enabled);
+
+protected:
+    virtual void showEvent(QShowEvent *event);
 
 private slots:
     void on_xPosDecreaseButton_clicked();
@@ -64,6 +70,12 @@ private slots:
     void on_yHomeButton_clicked();
     void on_zHomeButton_clicked();
 
+    void on_xDestinationSpinBox_valueChanged(double arg1);
+
+    void on_yDestinationSpinBox_valueChanged(double arg1);
+
+    void on_zDestinationSpinBox_valueChanged(double arg1);
+
 private:
 
     CircularProgressBar *_chamberTemperatureBar;
@@ -76,6 +88,10 @@ private:
     Q3DPrintBedMeshWidget *_bedMeshWidget = nullptr;
     PrinterOfflineScreen *_printerOfflineScreen = nullptr;
     PrinterTerminal *_terminal = nullptr;
+
+    bool xPosEditing = false;
+    bool yPosEditing = false;
+    bool zPosEditing = false;
 
     QMap<int, ExtruderWidget*> _extruderMap;
 
@@ -90,6 +106,8 @@ private:
 
     QFlowLayout *_centerLayout = nullptr;
     QSpacerItem *_centerLayoutBottomSpacer = nullptr;
+
+    PrinterWebcamWidget *_webcamWidget = nullptr;
 };
 
 #endif // PRINTERPAGE_H
