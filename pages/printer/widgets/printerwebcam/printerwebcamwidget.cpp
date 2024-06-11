@@ -28,7 +28,16 @@ void PrinterWebcamWidget::setupUi()
 
     //setup primary webcam
     _webcamFrame = new QWebcamFrame(this);
-    _layout->addWidget(_webcamFrame);
+    _layout->addWidget(_webcamFrame, 0, 0, 1, 3, Qt::AlignCenter);
+
+    _webcamFrame_1 = new QWebcamFrame(this);
+    _layout->addWidget(_webcamFrame_1, 1, 0);
+
+    _webcamFrame_2 = new QWebcamFrame(this);
+    _layout->addWidget(_webcamFrame_2, 1, 1);
+
+    _webcamFrame_3 = new QWebcamFrame(this);
+    _layout->addWidget(_webcamFrame_3, 1, 2);
 
     _emptyFrame = new EmptyPrinterWebcamFrame(this);
     _emptyFrame->setFixedSize(geometry().size());
@@ -71,20 +80,26 @@ void PrinterWebcamWidget::on_printer_update(Printer *printer)
 
             else if(i == 1)
             {
-                //_webcamPlayer_1->setSource(QUrl(webcam.source));
-                //_webcamPlayer_1->play();
+                QString url = QString("http://") + _printer->system()->hostname() + webcam.streamUrl;
+
+                _webcamFrame_1->setSource(url);
+                _webcamFrame_1->play();
             }
 
             else if(i == 2)
             {
-                //_webcamPlayer_2->setSource(QUrl(webcam.source));
-                //_webcamPlayer_2->play();
+                QString url = QString("http://") + _printer->system()->hostname() + webcam.streamUrl;
+
+                _webcamFrame_2->setSource(url);
+                _webcamFrame_2->play();
             }
 
             else if(i == 3)
             {
-                //_webcamPlayer_3->setSource(QUrl(webcam.source));
-                //_webcamPlayer_3->play();
+                QString url = QString("http://") + _printer->system()->hostname() + webcam.streamUrl;
+
+                _webcamFrame_3->setSource(url);
+                _webcamFrame_3->play();
             }
         }
 
@@ -111,8 +126,16 @@ void PrinterWebcamWidget::resizeEvent(QResizeEvent *event)
     QSize size;
     qreal ratio = ((qreal)9/16);
 
-    size.setWidth(width() - 12);
-    size.setHeight(((int)((width() - 12) * ratio)));
+    size.setWidth(width() - 10);
+    size.setHeight(((int)((width() - 10) * ratio)));
 
     _webcamFrame->setFixedSize(size);
+
+    //resize for other frames (1/3)
+    size.setWidth((width() -12) / 3);
+    size.setHeight(((width() -12) / 3) * ratio);
+
+    _webcamFrame_1->setFixedSize(size);
+    _webcamFrame_2->setFixedSize(size);
+    _webcamFrame_3->setFixedSize(size);
 }

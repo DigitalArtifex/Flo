@@ -237,7 +237,7 @@ void Settings::reset()
     set("system.klipper.com_location", comLocation);
     set("system.klipper.gcode_location", gcodeLocation);
     set("system.klipper.protocol","moonraker");
-    set("system.theme", "System Default");
+    set("system.theme", "System Theme");
     set("system.theme_location", themeLocation);
 
     save();
