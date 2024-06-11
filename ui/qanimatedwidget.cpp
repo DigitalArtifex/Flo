@@ -80,17 +80,17 @@ void QAnimatedWidget::animateIn()
     }
 
     //switch to a snapshot of the actual widget to prevent performance issues
-    QPixmap snapshot(size());
-    QPainter painter(&snapshot);
+    QImage snapshot(size(), QImage::Format_ARGB32);
+    snapshot.fill(Qt::transparent);
 
-    painter.setCompositionMode(QPainter::CompositionMode_Destination);
-    painter.fillRect(snapshot.rect(), Qt::transparent);
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    QPainter painter(&snapshot);
+    painter.setRenderHints(QPainter::Antialiasing);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
     if(_widget)
-        _widget->render(&painter, QPoint(), QRegion(), QWidget::DrawWindowBackground | QWidget::IgnoreMask | QWidget::DrawChildren);
+        _widget->render(&painter, QPoint(), QRegion(), QWidget::DrawChildren);
 
-    _snapshotLabel->setPixmap(snapshot);
+    _snapshotLabel->setPixmap(QPixmap::fromImage(snapshot));
     _snapshotLabel->resize(size());
     _snapshotLabel->show();
 
@@ -144,17 +144,17 @@ void QAnimatedWidget::animateOut()
     }
 
     //switch to a snapshot of the actual widget to prevent performance issues
-    QPixmap snapshot(size());
-    QPainter painter(&snapshot);
+    QImage snapshot(size(), QImage::Format_ARGB32);
+    snapshot.fill(Qt::transparent);
 
-    painter.setCompositionMode(QPainter::CompositionMode_Destination);
-    painter.fillRect(snapshot.rect(), Qt::transparent);
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    QPainter painter(&snapshot);
+    painter.setRenderHints(QPainter::Antialiasing);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
     if(_widget)
-        _widget->render(&painter, QPoint(), QRegion(), QWidget::DrawWindowBackground | QWidget::IgnoreMask | QWidget::DrawChildren);
+        _widget->render(&painter, QPoint(), QRegion(), QWidget::DrawChildren);
 
-    _snapshotLabel->setPixmap(snapshot);
+    _snapshotLabel->setPixmap(QPixmap::fromImage(snapshot));
     _snapshotLabel->resize(size());
     _snapshotLabel->show();
 
