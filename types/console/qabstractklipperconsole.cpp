@@ -3585,11 +3585,6 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         if(screwsTiltResultsObject.contains(QString("max_deviation")))
             _printer->bed()->_adjustmentScrewsMaxDeviation = (screwsTiltResultsObject["max_deviation"].toDouble());
 
-        if(screwsTiltResultsObject.keys().count() > 0)
-            _printer->bed()->_hasAdjustmentScrewResult = (true);
-        else
-            _printer->bed()->_hasAdjustmentScrewResult = (false);
-
         for(int i = 1; ; i++)
         {
             QString screwString = QString("screw") + QString::number(i);
@@ -3626,6 +3621,13 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
 
             _printer->bed()->_adjustmentScrews[screwString] = adjustmentScrew;
         }
+
+        if(screwsTiltResultsObject.keys().count() > 0)
+            _printer->bed()->_hasAdjustmentScrewResult = true;
+        else
+            _printer->bed()->_hasAdjustmentScrewResult = false;
+
+        _printer->bed()->emitUpdate();
     }
 
     if(!hasState(Connected))

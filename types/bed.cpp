@@ -114,6 +114,9 @@ void Q3DPrintBed::setPrinter(Printer *printer)
 void Q3DPrintBed::emitUpdate()
 {
     emit updated(this);
+
+    if(_hasAdjustmentScrewResult)
+        emit adjustmentScrewsUpdated(this);
 }
 
 Q3DPrintBed::Type Q3DPrintBed::type() const
