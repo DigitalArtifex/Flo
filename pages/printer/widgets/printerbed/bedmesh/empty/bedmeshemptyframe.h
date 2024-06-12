@@ -17,14 +17,18 @@ public:
     ~BedMeshEmptyFrame();
 
 protected slots:
-    void on_printBed_updated(Q3DPrintBed *bed);
+    void on_toolhead_homing();
+    void on_toolhead_homed();
+    void on_toolhead_updated();
 
 private slots:
     void on_homeButton_clicked();
 
+    void on_calibrateButton_clicked();
+
 private:
     Ui::BedMeshEmptyFrame *ui;
-    Q3DPrintBed *_printBed = nullptr;
+    Q3DPrintBed *_printerBed = nullptr;
 };
 
 #endif // BEDMESHEMPTYFRAME_H

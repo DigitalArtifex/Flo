@@ -15,8 +15,9 @@ AdjustmentScrewEmptyFrame::AdjustmentScrewEmptyFrame(Q3DPrintBed *bed, QWidget *
     ui->homeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
 
     _printerBed = bed;
-    connect(_printerBed, SIGNAL(updated(Q3DPrintBed*)), this, SLOT(on_printerBed_updated(Q3DPrintBed*)));
     connect(_printerBed->printer()->toolhead(), SIGNAL(updated()), this, SLOT(on_toolhead_updated()));
+    connect(_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(on_toolhead_homing()));
+    connect(_printerBed->printer()->toolhead(), SIGNAL(homed()), this, SLOT(on_toolhead_homed()));
 }
 
 AdjustmentScrewEmptyFrame::~AdjustmentScrewEmptyFrame()
@@ -44,11 +45,6 @@ void AdjustmentScrewEmptyFrame::on_calibrateButton_clicked()
     _printerBed->calibrateAdjustmentScrews();
 }
 
-void AdjustmentScrewEmptyFrame::on_printerBed_updated(Q3DPrintBed *bed)
-{
-    Q_UNUSED(bed);
-}
-
 void AdjustmentScrewEmptyFrame::on_toolhead_updated()
 {
     if(_printerBed->printer()->toolhead()->isHomed())
@@ -63,9 +59,21 @@ void AdjustmentScrewEmptyFrame::on_toolhead_updated()
     }
 }
 
+void AdjustmentScrewEmptyFrame::on_toolhead_homing()
+{
+    ui->label->setText("Homing Toolhead");
+}
+
+void AdjustmentScrewEmptyFrame::on_toolhead_homed()
+{
+    ui->label->setText("No Data Found");
+}
+
 
 void AdjustmentScrewEmptyFrame::on_homeButton_clicked()
 {
+    emit calibrating();
+
     _printerBed->printer()->toolhead()->homeAll();
 }
 

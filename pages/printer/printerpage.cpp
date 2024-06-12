@@ -587,13 +587,6 @@ void PrinterPage::on_printerUpdate(Printer *printer)
     else
         ui->homeToolheadButton->setEnabled(false);
 
-    qDebug() << _printer->system()->webcams().count();
-
-    if(_printer->system()->webcams().count() > 0)
-    {
-
-    }
-
     style()->polish(this);
 }
 

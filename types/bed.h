@@ -62,14 +62,15 @@ public:
             enum Direction
             {
                 Clockwise,
-                CounterClockwise
+                CounterClockwise,
+                NotSet = -1
             };
 
             //Ratio string
             QString amount;
             QString sign;
 
-            Direction direction = Clockwise;
+            Direction direction = NotSet;
 
             bool isBase = false;
 
@@ -104,7 +105,6 @@ public:
     bool tiltAdjustError() const;
 
     bool adjustmentScrewsError() const;
-
     qreal adjustmentScrewsMaxDeviation() const;
 
     QMap<QString, AdjustmentScrew *> adjustmentScrews() const;
@@ -122,14 +122,24 @@ public:
     Type type() const;
 
 signals:
-    void meshUpdated(Q3DPrintBed *bed);
-    void adjustmentScrewsUpdated(Q3DPrintBed *bed);
+    void meshUpdated();
+    void adjustmentScrewsUpdated();
     void updated(Q3DPrintBed *bed);
-    void calibrating();
+    void adjustmentScrewsCalibrating();
+    void adjustmentScrewsCalibrated();
+    void bedMeshCalibrating();
+    void bedMeshCalibrated();
+
+
+protected slots:
+    //called by friend classes
+    void update();
+
+protected:
+    void updateAdjustmentScrews(const QMap<QString, AdjustmentScrew *> &adjustmentScrews);
+    void updateBedMesh(const Mesh mesh);
 
 private:
-    //called by friend classes
-    void emitUpdate();
 
     qreal _currentTemp = 0;
     qreal _targetTemp = 0;
@@ -153,6 +163,9 @@ private:
     QMap<QString, AdjustmentScrew*> _adjustmentScrews;
     bool                            _adjustmentScrewsError = false;
     bool                            _hasAdjustmentScrewResult = false;
+    bool                            _hasBedMeshResult = false;
+    bool                            _adjustmentScrewsCalibrating = false;
+    bool                            _bedMeshCalibrating = false;
     qreal                           _adjustmentScrewsMaxDeviation = 0;
 
     bool                            _tiltAdjustError = false;

@@ -8,6 +8,8 @@ AdjustmentScrewItemFrame::AdjustmentScrewItemFrame(QWidget *parent)
     , ui(new Ui::AdjustmentScrewItemFrame)
 {
     ui->setupUi(this);
+
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "AdjustmentScrewItem"));
 }
 
 AdjustmentScrewItemFrame::~AdjustmentScrewItemFrame()

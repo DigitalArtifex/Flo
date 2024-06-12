@@ -10,19 +10,19 @@ BedMeshFrame::BedMeshFrame(Q3DPrintBed *bed, QWidget *parent)
     ui->setupUi(this);
 
     _layout = new QGridLayout(this);
+    _layout->setContentsMargins(4,4,4,4);
+    _layout->setSpacing(4);
     ui->bedMeshFrame->setLayout(_layout);
 
     _emptyFrame = new BedMeshEmptyFrame(bed, this);
     _layout->addWidget(_emptyFrame);
 
-    ui->addProfileButton->setHidden(true);
-    ui->removeProfileButton->setHidden(true);
-    ui->profileComboBox->setHidden(true);
     ui->recalibrateButton->setHidden(true);
 
     _printerBed = bed;
     connect(_printerBed, SIGNAL(updated(Q3DPrintBed*)), this, SLOT(on_printBed_updated(Q3DPrintBed*)));
-    connect(_printerBed, SIGNAL(calibrating()), this, SLOT(on_printerBed_calibrating()));
+    connect(_printerBed, SIGNAL(bedMeshCalibrating()), this, SLOT(on_printerBed_bedMeshCalibrating()));
+    connect(_printerBed, SIGNAL(bedMeshCalibrated()), this, SLOT(on_printerBed_bedMeshCalibrated()));
     connect(_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(on_toolhead_homing()));
     connect(_printerBed->printer()->toolhead(), SIGNAL(homed()), this, SLOT(on_toolhead_homed()));
 
@@ -36,74 +36,12 @@ BedMeshFrame::~BedMeshFrame()
 
 void BedMeshFrame::setupIcons()
 {
-    ui->removeProfileButton->setIcon(Settings::getThemeIcon(QString("remove-icon")));
-    ui->addProfileButton->setIcon(Settings::getThemeIcon(QString("add-icon")));
 }
 
 void BedMeshFrame::setupUiClasses()
 {
 
 }
-
-void BedMeshFrame::on_printBed_updated(Q3DPrintBed *bed)
-{
-    Q_UNUSED(bed);
-
-    //remove results
-    QList<BedMeshItemFrame*> itemFrames = findChildren<BedMeshItemFrame*>();
-
-    foreach(BedMeshItemFrame *itemFrame, itemFrames)
-    {
-        _layout->removeWidget(itemFrame);
-        itemFrame->deleteLater();
-    }
-
-    if(_printerBed->bedMesh().matrix.count() > 0)
-    {
-
-        foreach(QList<qreal> row, _printerBed->bedMesh().matrix)
-        {
-            for(int i = 0; i < row.count(); i++)
-            {
-                //remove empty frame
-                if(_emptyFrame)
-                {
-                    _layout->removeWidget(_emptyFrame);
-                    delete _emptyFrame;
-                    _emptyFrame = nullptr;
-
-                    //unhide recalibrate ui
-                    ui->addProfileButton->setHidden(false);
-                    ui->removeProfileButton->setHidden(false);
-                    ui->profileComboBox->setHidden(false);
-                    ui->recalibrateButton->setHidden(false);
-                }
-
-                BedMeshItemFrame *itemFrame = new BedMeshItemFrame(this);
-                itemFrame->setValue(row[i]);
-
-                _layout->addWidget(itemFrame, _layout->rowCount(), i, Qt::AlignCenter);
-            }
-        }
-    }
-    //show empty frame
-    else
-    {
-        if(!_emptyFrame)
-        {
-            _emptyFrame = new BedMeshEmptyFrame(bed, this);
-            _layout->addWidget(_emptyFrame);
-
-            //unhide recalibrate ui
-            ui->addProfileButton->setHidden(true);
-            ui->removeProfileButton->setHidden(true);
-            ui->profileComboBox->setHidden(true);
-            ui->recalibrateButton->setHidden(true);
-        }
-    }
-}
-
-
 
 void BedMeshFrame::showLoadingScreen()
 {
@@ -226,4 +164,63 @@ void BedMeshFrame::on_toolhead_homing()
 void BedMeshFrame::on_toolhead_homed()
 {
     hideLoadingScreen();
+}
+
+void BedMeshFrame::on_printerBed_bedMeshCalibrated()
+{
+    //remove results
+    QList<BedMeshItemFrame*> itemFrames = findChildren<BedMeshItemFrame*>();
+
+    foreach(BedMeshItemFrame *itemFrame, itemFrames)
+    {
+        _layout->removeWidget(itemFrame);
+        itemFrame->deleteLater();
+    }
+
+    if(_printerBed->bedMesh().probed.count() > 0)
+    {
+        foreach(QList<qreal> row, _printerBed->bedMesh().probed)
+        {
+            int rowNumber = _layout->rowCount();
+
+            for(int i = 0; i < row.count(); i++)
+            {
+                //remove empty frame
+                if(_emptyFrame)
+                {
+                    _layout->removeWidget(_emptyFrame);
+                    delete _emptyFrame;
+                    _emptyFrame = nullptr;
+
+                    //unhide recalibrate ui
+                    ui->recalibrateButton->setHidden(false);
+                }
+
+                BedMeshItemFrame *itemFrame = new BedMeshItemFrame(this);
+                itemFrame->setValue(row[i]);
+
+                _layout->addWidget(itemFrame, rowNumber, i, Qt::AlignCenter);
+            }
+        }
+    }
+
+    //show empty frame
+    else
+    {
+        if(!_emptyFrame)
+        {
+            _emptyFrame = new BedMeshEmptyFrame(_printerBed, this);
+            _layout->addWidget(_emptyFrame);
+
+            //unhide recalibrate ui
+            ui->recalibrateButton->setHidden(true);
+        }
+    }
+
+    hideLoadingScreen();
+}
+
+void BedMeshFrame::on_printerBed_bedMeshCalibrating()
+{
+    showLoadingScreen();
 }

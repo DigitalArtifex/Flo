@@ -31,12 +31,14 @@ protected:
     void setupUiClasses();
 
 protected slots:
-    void on_printBed_updated(Q3DPrintBed *bed);
     void on_loadingAnimation_finished();
 
     void on_printerBed_calibrating();
     void on_toolhead_homing();
     void on_toolhead_homed();
+
+    void on_printerBed_bedMeshCalibrated();
+    void on_printerBed_bedMeshCalibrating();
 
 private:
     Ui::BedMeshFrame *ui;

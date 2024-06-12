@@ -2621,7 +2621,7 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
                 QString thread = screwsTiltObject["screw_thread"].toString();
                 qreal speed = screwsTiltObject["speed"].toDouble();
 
-                _printer->bed()->_adjustmentScrews.clear();
+                QMap<QString, Q3DPrintBed::AdjustmentScrew*> adjustmentScrews;
 
                 for(int i = 1; ; i++)
                 {
@@ -2647,8 +2647,10 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
                     adjustmentScrew->speed = speed;
                     adjustmentScrew->thread = thread;
 
-                    _printer->bed()->_adjustmentScrews[screwString] = adjustmentScrew;
+                    adjustmentScrews[screwString] = adjustmentScrew;
                 }
+
+                _printer->bed()->updateAdjustmentScrews(adjustmentScrews);
             }
 
             if(settingsObject.contains(QString("heater_bed")))
@@ -3185,7 +3187,7 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
             _printer->toolhead()->_stalls = (toolhead["stalls"].toInt());
         }
 
-        _printer->toolhead()->emitUpdate();
+        _printer->toolhead()->update();
     }
 
     //Parse heatbed status
@@ -3214,7 +3216,7 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         }
 
         if(updated)
-            _printer->bed()->emitUpdate();
+            _printer->bed()->update();
     }
 
     if(response["result"].toObject().contains("motion_report"))
@@ -3230,7 +3232,8 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
                 qreal z = position[2].toDouble();
                 qreal e = position[3].toDouble();
 
-                _printer->toolhead()->setPosition(x,y,z);
+                _printer->toolhead()->_position = Position(x,y,z);
+                _printer->toolhead()->update();
             }
         }
     }
@@ -3444,7 +3447,7 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         for(int i = 0; i < profilesArray.count(); i++)
             bedMesh.profiles += profilesArray[i].toString();
 
-        _printer->bed()->_bedMesh = (bedMesh);
+        _printer->bed()->updateBedMesh(bedMesh);
     }
 
     //Parse stepper motor activity
@@ -3585,6 +3588,8 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         if(screwsTiltResultsObject.contains(QString("max_deviation")))
             _printer->bed()->_adjustmentScrewsMaxDeviation = (screwsTiltResultsObject["max_deviation"].toDouble());
 
+        QMap<QString, Q3DPrintBed::AdjustmentScrew*> adjustmentScrews = _printer->bed()->adjustmentScrews();
+
         for(int i = 1; ; i++)
         {
             QString screwString = QString("screw") + QString::number(i);
@@ -3594,7 +3599,7 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
 
             QJsonObject screwObject = screwsTiltResultsObject[screwString].toObject();
 
-            Q3DPrintBed::AdjustmentScrew *adjustmentScrew = _printer->bed()->adjustmentScrew(screwString);
+            Q3DPrintBed::AdjustmentScrew *adjustmentScrew = adjustmentScrews[screwString];
 
             if(adjustmentScrew == nullptr)
                 adjustmentScrew = new Q3DPrintBed::AdjustmentScrew();
@@ -3619,15 +3624,10 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
             if(screwObject.contains(QString("z")))
                 adjustmentScrew->adjustment.z = screwObject["z"].toDouble();
 
-            _printer->bed()->_adjustmentScrews[screwString] = adjustmentScrew;
+            adjustmentScrews[screwString] = adjustmentScrew;
         }
 
-        if(screwsTiltResultsObject.keys().count() > 0)
-            _printer->bed()->_hasAdjustmentScrewResult = true;
-        else
-            _printer->bed()->_hasAdjustmentScrewResult = false;
-
-        _printer->bed()->emitUpdate();
+        _printer->bed()->updateAdjustmentScrews(adjustmentScrews);
     }
 
     if(!hasState(Connected))

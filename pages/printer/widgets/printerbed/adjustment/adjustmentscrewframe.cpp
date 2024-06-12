@@ -10,8 +10,9 @@ AdjustmentScrewFrame::AdjustmentScrewFrame(Q3DPrintBed *bed, QWidget *parent)
 
     setContentsMargins(0,0,0,0);
 
-    connect(_printerBed, SIGNAL(adjustmentScrewsUpdated(Q3DPrintBed*)), this, SLOT(on_printerBed_adjustmentScrewsUpdated(Q3DPrintBed*)));
-    connect(_printerBed, SIGNAL(calibrating()), this, SLOT(on_printerBed_calibrating()));
+    connect(_printerBed, SIGNAL(adjustmentScrewsCalibrated()), this, SLOT(on_printerBed_adjustmentScrewsCalibrated()));
+    connect(_printerBed, SIGNAL(adjustmentScrewsCalibrating()), this, SLOT(on_printerBed_adjustmentScrewsCalibrating()));
+
     connect(_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(on_toolhead_homing()));
     connect(_printerBed->printer()->toolhead(), SIGNAL(homed()), this, SLOT(on_toolhead_homed()));
 
@@ -170,15 +171,43 @@ void AdjustmentScrewFrame::on_printerBed_calibrating()
 
 void AdjustmentScrewFrame::on_toolhead_homing()
 {
-    showLoadingScreen();
+    setEnabled(false);
 }
 
 void AdjustmentScrewFrame::on_toolhead_homed()
 {
-    hideLoadingScreen();
+    setEnabled(true);
 }
 
-void AdjustmentScrewFrame::on_printerBed_adjustmentScrewsUpdated(Q3DPrintBed *printBed)
+void AdjustmentScrewFrame::on_recalibrateButton_clicked()
+{
+    showLoadingScreen();
+
+    QGridLayout *layout = (QGridLayout*)ui->dataFrame->layout();
+    QList<AdjustmentScrewItemFrame*> frames = findChildren<AdjustmentScrewItemFrame*>();
+
+    foreach(AdjustmentScrewItemFrame *frame, frames)
+    {
+        if(frame)
+        {
+            layout->removeWidget(frame);
+            frame->deleteLater();
+        }
+    }
+
+    ui->recalibrateButton->setEnabled(false);
+
+    if(!_emptyAdjustmentScrewFrame)
+    {
+        _emptyAdjustmentScrewFrame = new AdjustmentScrewEmptyFrame(_printerBed, ui->dataFrame);
+
+        layout->addWidget(_emptyAdjustmentScrewFrame, 0, 0, 1, layout->columnCount());
+    }
+
+    _printerBed->calibrateAdjustmentScrews();
+}
+
+void AdjustmentScrewFrame::on_printerBed_adjustmentScrewsCalibrated()
 {
     QGridLayout *layout = (QGridLayout*)ui->dataFrame->layout();
 
@@ -244,31 +273,8 @@ void AdjustmentScrewFrame::on_printerBed_adjustmentScrewsUpdated(Q3DPrintBed *pr
     hideLoadingScreen();
 }
 
-void AdjustmentScrewFrame::on_recalibrateButton_clicked()
+void AdjustmentScrewFrame::on_printerBed_adjustmentScrewsCalibrating()
 {
     showLoadingScreen();
-
-    QGridLayout *layout = (QGridLayout*)ui->dataFrame->layout();
-    QList<AdjustmentScrewItemFrame*> frames = findChildren<AdjustmentScrewItemFrame*>();
-
-    foreach(AdjustmentScrewItemFrame *frame, frames)
-    {
-        if(frame)
-        {
-            layout->removeWidget(frame);
-            frame->deleteLater();
-        }
-    }
-
-    ui->recalibrateButton->setEnabled(false);
-
-    if(!_emptyAdjustmentScrewFrame)
-    {
-        _emptyAdjustmentScrewFrame = new AdjustmentScrewEmptyFrame(_printerBed, ui->dataFrame);
-
-        layout->addWidget(_emptyAdjustmentScrewFrame, 0, 0, 1, layout->columnCount());
-    }
-
-    _printerBed->calibrateAdjustmentScrews();
 }
 

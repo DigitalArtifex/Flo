@@ -26,9 +26,12 @@ public:
     void showLoadingScreen();
     void hideLoadingScreen();
 
+signals:
+
 private slots:
     void on_recalibrateButton_clicked();
-    void on_printerBed_adjustmentScrewsUpdated(Q3DPrintBed *printBed);
+    void on_printerBed_adjustmentScrewsCalibrated();
+    void on_printerBed_adjustmentScrewsCalibrating();
     void on_loadingAnimation_finished();
 
     void on_printerBed_calibrating();

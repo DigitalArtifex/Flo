@@ -29,12 +29,13 @@ public:
     virtual void setCalibrationEnabled(bool enabled);
 
 signals:
-    void calibrateRequested();
+    void calibrating();
 
 private slots:
     void on_calibrateButton_clicked();
-    void on_printerBed_updated(Q3DPrintBed *bed);
     void on_toolhead_updated();
+    void on_toolhead_homing();
+    void on_toolhead_homed();
 
     void on_homeButton_clicked();
 

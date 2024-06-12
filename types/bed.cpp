@@ -87,7 +87,8 @@ bool Q3DPrintBed::hasAdjustmentScrewResult() const
 
 void Q3DPrintBed::calibrateAdjustmentScrews()
 {
-    emit calibrating();
+    _hasAdjustmentScrewResult = false;
+    emit adjustmentScrewsCalibrating();
 
     QString gcode("SCREWS_TILT_CALCULATE");
     _printer->console()->sendGcode(gcode);
@@ -95,7 +96,8 @@ void Q3DPrintBed::calibrateAdjustmentScrews()
 
 void Q3DPrintBed::calibrateBedMesh()
 {
-    emit calibrating();
+    _bedMeshCalibrating = true;
+    emit bedMeshCalibrating();
 
     QString gcode("BED_MESH_CALIBRATE");
     _printer->console()->sendGcode(gcode);
@@ -111,15 +113,34 @@ void Q3DPrintBed::setPrinter(Printer *printer)
     _printer = printer;
 }
 
-void Q3DPrintBed::emitUpdate()
+void Q3DPrintBed::update()
 {
     emit updated(this);
-
-    if(_hasAdjustmentScrewResult)
-        emit adjustmentScrewsUpdated(this);
 }
 
 Q3DPrintBed::Type Q3DPrintBed::type() const
 {
     return _type;
+}
+
+void Q3DPrintBed::updateAdjustmentScrews(const QMap<QString, AdjustmentScrew *> &adjustmentScrews)
+{
+    _adjustmentScrews = adjustmentScrews;
+
+    foreach(AdjustmentScrew* screw, _adjustmentScrews)
+    {
+        if(screw->adjustment.direction != AdjustmentScrew::Adjustment::NotSet)
+            _hasAdjustmentScrewResult = true;
+        else
+            _hasAdjustmentScrewResult = false;
+    }
+
+    emit adjustmentScrewsCalibrated();
+}
+
+void Q3DPrintBed::updateBedMesh(const Mesh mesh)
+{
+    _bedMesh = mesh;
+
+    emit bedMeshCalibrated();
 }

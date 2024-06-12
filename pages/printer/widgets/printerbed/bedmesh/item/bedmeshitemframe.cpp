@@ -36,7 +36,7 @@ void BedMeshItemFrame::setValue(qreal value)
     }
     else if(_value >= _thresholdHigh)
     {
-        if(_value <= (_thresholdLow - (_thresholdLow * 0.1)))
+        if(_value <= (_thresholdHigh - (_thresholdHigh * 0.1)))
             setProperty("level_very_high", true);
         else
         {
@@ -51,6 +51,8 @@ void BedMeshItemFrame::setValue(qreal value)
         setProperty("level_very_low", false);
         setProperty("level_very_high", false);
     }
+
+    ui->valueLabel->setText(QString::number(value));
 
     style()->polish(this);
 }

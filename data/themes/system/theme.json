@@ -78,6 +78,18 @@
 			"icon": "icons8-no-connection-64.png" 
 		},
 		{
+			"name": "bed-mesh-icon",
+			"icon": "icons8-mesh-64.png" 
+		},
+		{
+			"name": "bed-icon",
+			"icon": "icons8-grid-50.png" 
+		},
+		{
+			"name": "adjustment-screw-icon",
+			"icon": "icons8-threading-metal-90.png" 
+		},
+		{
 			"name": "empty-icon",
 			"icon": "icons8-empty-67.png" 
 		},
@@ -135,7 +147,7 @@
 		},
 		{
 			"name": "temperature-icon",
-			"icon": "icons8-temperature-64.png" 
+			"icon": "icons8-temperature-alt-64.png" 
 		},
 		{
 			"name": "refresh-icon",
@@ -143,7 +155,7 @@
 		},
 		{
 			"name": "webcam-icon",
-			"icon": "icons8-film-reel-64.png" 
+			"icon": "icons8-webcam-64.png" 
 		},
 		{
 			"name": "no-video-icon",
@@ -262,6 +274,22 @@
 			"icon": "icons8-home-50.png" 
 		},
 		{
+			"name": "home-all-icon",
+			"icon": "icons8-home-xyz-50.png" 
+		},
+		{
+			"name": "home-x-icon",
+			"icon": "icons8-home-x-50.png" 
+		},
+		{
+			"name": "home-y-icon",
+			"icon": "icons8-home-y-50.png" 
+		},
+		{
+			"name": "home-z-icon",
+			"icon": "icons8-home-z-50.png" 
+		},
+		{
 			"name": "no-data-icon",
 			"icon": "icons8-no-data-availible-96.png" 
 		},
@@ -270,10 +298,76 @@
 			"icon": "icons8-add-64.png" 
 		},
 		{
+			"name": "minus-icon",
+			"icon": "icons8-minus-64.png" 
+		},
+		{
 			"name": "remove-icon",
 			"icon": "icons8-remove-50.png" 
+		},
+		{
+			"name": "move-up-icon",
+			"icon": "icons8-move-up-50.png" 
+		},
+		{
+			"name": "move-down-icon",
+			"icon": "icons8-move-down-50.png" 
+		},
+		{
+			"name": "location-icon",
+			"icon": "icons8-my-location-50.png" 
+		},
+		{
+			"name": "navigation-icon",
+			"icon": "icons8-navigation-50.png" 
+		},
+		{
+			"name": "diameter-icon",
+			"icon": "icons8-diameter-90.png" 
+		},
+		{
+			"name": "height-icon",
+			"icon": "icons8-height-96.png" 
+		},
+		{
+			"name": "control-icon",
+			"icon": "icons8-control-50.png" 
+		},
+		{
+			"name": "toolhead-icon",
+			"icon": "icons8-controller-64.png" 
+		},
+		{
+			"name": "cooler-icon",
+			"icon": "icons8-cooler-50.png" 
+		},
+		{
+			"name": "extruder-icon",
+			"icon": "extruder-icon-64.png" 
+		},
+		{
+			"name": "pressure-advance-icon",
+			"icon": "icons8-pressure-50.png" 
+		},
+		{
+			"name": "smooth-time-icon",
+			"icon": "icons8-time-50.png" 
+		},
+		{
+			"name": "extrusion-factor-icon",
+			"icon": "icons8-speed-90.png" 
+		},
+		{
+			"name": "print-speed-icon",
+			"icon": "icons8-speed-50.png" 
+		},
+		{
+			"name": "material-icon",
+			"icon": "icons8-triangle-50.png" 
+		},
+		{
+			"name": "settings-icon",
+			"icon": "icons8-settings-50.png" 
 		}
-
-		
 	]
 }

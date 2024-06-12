@@ -70,10 +70,8 @@ void PrinterBedWidget::setPrinterBed(Q3DPrintBed *printerBed)
 
     _printerBed = printerBed;
 
-    connect(_printerBed, SIGNAL(updated(Q3DPrintBed*)), this, SLOT(on_printerBed_update(Q3DPrintBed*)));
-    connect(_printerBed, SIGNAL(adjustmentScrewsUpdated(Q3DPrintBed*)), this, SLOT(on_printerBed_adjustmentScrewsUpdated(Q3DPrintBed*)));
-
     connect(_printerBed->printer(), SIGNAL(printerOnline(Printer*)), this, SLOT(on_printerOnline(Printer*)));
+    connect(_printerBed, SIGNAL(updated(Q3DPrintBed*)), this, SLOT(on_printerBed_update(Q3DPrintBed*)));
 }
 
 void PrinterBedWidget::setPrintActionsEnabled(bool enabled)

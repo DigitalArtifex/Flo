@@ -13,8 +13,10 @@ BedMeshEmptyFrame::BedMeshEmptyFrame(Q3DPrintBed *bed, QWidget *parent)
     QPixmap pixmap = Settings::getThemeIcon("no-data-icon").pixmap(ui->iconLabel->size());
     ui->iconLabel->setPixmap(pixmap);
 
-    _printBed = bed;
-    connect(_printBed,SIGNAL(updated(Q3DPrintBed*)), this, SLOT(on_printBed_updated(Q3DPrintBed*)));
+    _printerBed = bed;
+    connect(_printerBed->printer()->toolhead(), SIGNAL(updated()), this, SLOT(on_toolhead_updated()));
+    connect(_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(on_toolhead_homing()));
+    connect(_printerBed->printer()->toolhead(), SIGNAL(homed()), this, SLOT(on_toolhead_homed()));
 }
 
 BedMeshEmptyFrame::~BedMeshEmptyFrame()
@@ -22,11 +24,20 @@ BedMeshEmptyFrame::~BedMeshEmptyFrame()
     delete ui;
 }
 
-void BedMeshEmptyFrame::on_printBed_updated(Q3DPrintBed *bed)
+void BedMeshEmptyFrame::on_toolhead_homing()
 {
-    Q_UNUSED(bed);
+    ui->label->setText("Homing Toolhead");
+}
 
-    if(_printBed->printer()->toolhead()->isHomed())
+void BedMeshEmptyFrame::on_toolhead_homed()
+{
+    ui->label->setText("No Data Found");
+}
+
+void BedMeshEmptyFrame::on_toolhead_updated()
+{
+
+    if(_printerBed->printer()->toolhead()->isHomed())
     {
         ui->calibrateButton->setEnabled(true);
         ui->homeButton->setEnabled(false);
@@ -40,6 +51,12 @@ void BedMeshEmptyFrame::on_printBed_updated(Q3DPrintBed *bed)
 
 void BedMeshEmptyFrame::on_homeButton_clicked()
 {
-    _printBed->printer()->toolhead()->homeAll();
+    _printerBed->printer()->toolhead()->homeAll();
+}
+
+
+void BedMeshEmptyFrame::on_calibrateButton_clicked()
+{
+    _printerBed->calibrateBedMesh();
 }
 

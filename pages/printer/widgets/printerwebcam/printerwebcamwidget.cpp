@@ -62,8 +62,6 @@ void PrinterWebcamWidget::on_printer_update(Printer *printer)
 {
     Q_UNUSED(printer);
 
-    //return;
-
     if(_printer->system()->webcams().count() > 0 && _webcamIndex == -1)
     {
         for(int i = 0; i < _printer->system()->webcams().count(); i++)

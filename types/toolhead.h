@@ -110,7 +110,7 @@ signals:
     void updated();
 
 private:
-    void emitUpdate();
+    void update();
 
     Position _position;
     Position _destination;

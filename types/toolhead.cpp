@@ -307,7 +307,7 @@ void Toolhead::setExtruderMaxWatts(qint32 extruder, qreal watts)
     _extruders[extruder]->_watts = watts;
 }
 
-void Toolhead::emitUpdate()
+void Toolhead::update()
 {
     if(_isHoming)
     {
