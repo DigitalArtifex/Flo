@@ -20,7 +20,6 @@ BedMeshFrame::BedMeshFrame(Q3DPrintBed *bed, QWidget *parent)
     ui->recalibrateButton->setHidden(true);
 
     _printerBed = bed;
-    connect(_printerBed, SIGNAL(updated(Q3DPrintBed*)), this, SLOT(on_printBed_updated(Q3DPrintBed*)));
     connect(_printerBed, SIGNAL(bedMeshCalibrating()), this, SLOT(on_printerBed_bedMeshCalibrating()));
     connect(_printerBed, SIGNAL(bedMeshCalibrated()), this, SLOT(on_printerBed_bedMeshCalibrated()));
     connect(_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(on_toolhead_homing()));

@@ -1,6 +1,8 @@
 #include "validateprinterpage.h"
 #include "ui_validateprinterpage.h"
 
+#include "../../../system/printerpool.h"
+
 ValidatePrinterPage::ValidatePrinterPage(QWidget *parent) :
     QWizardPage(parent),
     ui(new Ui::ValidatePrinterPage)
@@ -77,14 +79,19 @@ void ValidatePrinterPage::setDefinition(PrinterDefinition definition)
         }
     }
 
+    if(PrinterPool::printersAvailable() == 0)
+        definition.defaultPrinter = true;
+
     _printer = new Printer(definition);
 
     if(_printer->isAutoConnect())
     {
         ui->textEdit->append(QString("Connecting to ") + _printer->name());
+
         connect(_printer, SIGNAL(moonrakerConnected(Printer*)), this, SLOT(on_moonrakerConnected(Printer*)));
         connect(_printer, SIGNAL(printerOnline(Printer*)), this, SLOT(on_printerOnline(Printer*)));
         connect(_printer, SIGNAL(klipperConnected(Printer*)), this, SLOT(on_klipperConnected(Printer*)));
+
         _printer->console()->connectToMoonraker();
     }
     else
