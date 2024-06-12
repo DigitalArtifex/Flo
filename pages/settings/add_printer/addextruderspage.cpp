@@ -10,7 +10,6 @@ AddExtrudersPage::AddExtrudersPage(QWidget *parent)
 
 AddExtrudersPage::~AddExtrudersPage()
 {
-    ui->extruderCountSpinBox->setValue(0);
     delete ui;
 }
 
@@ -52,15 +51,17 @@ void AddExtrudersPage::apply()
 void AddExtrudersPage::on_extruderCountSpinBox_valueChanged(int arg1)
 {
     layout()->removeItem(ui->profileSpacer);
+    layout()->removeItem(ui->profileSpacer_2);
+
     if(arg1 > _extruderCount)
     {
         for(int i = _extruderCount; i < arg1; i++)
         {
-            QLabel *_extruderLabel = new QLabel(this);
+            QLabel *_extruderLabel = new QLabel();
             _extruderLabel->setProperty("extruder", i);
             _extruderLabel->setText(QString("Extruder ") + ((i > 0) ? QString::number(i) : QString("")));
 
-            QDoubleSpinBox *_extruderWattEdit = new QDoubleSpinBox(this);
+            QDoubleSpinBox *_extruderWattEdit = new QDoubleSpinBox();
             _extruderWattEdit->setProperty("extruder", i);
             _extruderWattEdit->setAlignment(Qt::AlignRight);
             _extruderWattEdit->setValue(_definition.powerProfile[(QString("extruder") + ((i > 0) ? QString::number(i) : QString("")))]);
@@ -100,8 +101,9 @@ void AddExtrudersPage::on_extruderCountSpinBox_valueChanged(int arg1)
             }
         }
     }
+
     layout()->addItem(ui->profileSpacer);
-    layout()->addItem(ui->profileSpacer);
+    layout()->addItem(ui->profileSpacer_2);
 
     _definition.extruderCount = arg1;
     _extruderCount = arg1;

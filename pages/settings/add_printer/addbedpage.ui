@@ -40,6 +40,9 @@
      <property name="enabled">
       <bool>false</bool>
      </property>
+     <property name="maximum">
+      <double>1000.000000000000000</double>
+     </property>
     </widget>
    </item>
    <item row="1" column="0" colspan="2">
@@ -50,7 +53,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Power Profile values are used in the energy tracking calculations. Set each to the maximum watts the components are rated for</string>
+      <string>Power Profile values are used in the energy tracking calculations. Set this to the maximum watts the bed is rated for</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
