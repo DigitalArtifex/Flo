@@ -18,6 +18,8 @@ QAnimatedWidget::QAnimatedWidget(QWidget *parent)
     connect(_animationIn, SIGNAL(finished()), this, SLOT(on_animationIn_finished()));
     connect(_animationFinal, SIGNAL(finished()), this, SLOT(on_animationFinal_finished()));
     connect(_animationOut, SIGNAL(finished()), this, SLOT(on_animationOut_finished()));
+
+    setLayout(_layout);
 }
 
 QAnimatedWidget::~QAnimatedWidget()

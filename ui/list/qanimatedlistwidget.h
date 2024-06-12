@@ -6,6 +6,7 @@
 #include <QList>
 #include <QSpacerItem>
 #include <QScrollBar>
+#include <QResizeEvent>
 
 #include "qanimatedlistitem.h"
 #include "qanimatedemptylistitem.h"
@@ -52,6 +53,8 @@ private slots:
     void on_item_deselected(QAnimatedListItem *item);
 
 protected:
+    virtual void resizeEvent(QResizeEvent *event);
+
     QList<QAnimatedListItem*> _items;
     QList<QAnimatedListItem*> _selectedItems;
 
