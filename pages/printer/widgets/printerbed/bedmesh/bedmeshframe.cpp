@@ -157,12 +157,12 @@ void BedMeshFrame::on_printerBed_calibrating()
 
 void BedMeshFrame::on_toolhead_homing()
 {
-    showLoadingScreen();
+    setEnabled(false);
 }
 
 void BedMeshFrame::on_toolhead_homed()
 {
-    hideLoadingScreen();
+    setEnabled(true);
 }
 
 void BedMeshFrame::on_printerBed_bedMeshCalibrated()
