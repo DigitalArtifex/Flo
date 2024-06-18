@@ -4,6 +4,8 @@
 
 :root
 {
+  --page-title-font-size: 14pt;
+
   --widget-font-size: 10pt;
   --widget-background-color: #292929;
   --widget-border-size: 2;
@@ -15,6 +17,9 @@
   --widget-titlebar-background-color-2: #303030;
 
   /* Sub Widget */
+  --subwidget-title-font-size: 10pt;
+  --subwidget-font-size: 8pt;
+  --subwidget-border-size: 2;
   --subwidget-border-color-1: #1F1F1F;
   --subwidget-border-color-2: #4b4b4b;
   --subwidget-background-color: #1F1F1F;
@@ -32,6 +37,13 @@
   --bedmesh-very-low-color: #4a048b;
   --bedmesh-high-color: #8b5504;
   --bedmesh-very-high-color: #8b1804;
+
+  /* Adjustment Screw */
+  --adjustment-screw-background-color: #04728B;
+  --adjustment-screw-low-color: #044a8b;
+  --adjustment-screw-very-low-color: #4a048b;
+  --adjustment-screw-high-color: #8b5504;
+  --adjustment-screw-very-high-color: #8b1804;
 
   /* Item Lists */
   --list-background-color: #1F1F1F;
@@ -109,7 +121,7 @@ QScrollArea
 
 .PageOverview .WidgetTitleBar
 {
-  font-size: var(--widget-font-size);
+  font-size: var(--page-title-font-size);
   background-color: var(--widget-background-color);
   border: none;
   background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--page-overview-titlebar-background-color-2), stop: 1 var(--page-overview-titlebar-background-color-1));
@@ -131,27 +143,32 @@ QScrollArea
 
 .DashboardSubWidget, .SubWidget
 {
+  font-size: var(--subwidget-font-size);
   background-color: var(--subwidget-background-color);
-  border-left: var(--widget-border-size) solid black;
-  border-top: var(--widget-border-size) solid black;
-  border-right: var(--widget-border-size) solid black;
-  border-bottom: var(--widget-border-size) solid black;
+  border-left: var(--subwidget-border-size) solid black;
+  border-top: var(--subwidget-border-size) solid black;
+  border-right: var(--subwidget-border-size) solid black;
+  border-bottom: var(--subwidget-border-size) solid black;
   border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
   border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
   border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
   border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
 }
 
+.SubWidget QLabel
+{
+  font-size: var(--subwidget-font-size);
+}
+
 .SubWidgetTitleBar
 {
-  font-size: var(--widget-font-size);
+  font-size: var(--subwidget-title-font-size);
   border: none;
   background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-titlebar-background-color-2), stop: 1 var(--subwidget-titlebar-background-color-1));
 }
 
 .PageOverview
 {
-  font-size: var(--widget-font-size);
   border: none;
   background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--page-overview-background-color-2), stop: 1 var(--page-overview-background-color-1));
 }
@@ -799,7 +816,7 @@ QComboBox::drop-down {
   border-left-style: solid; /* just a single line */
   border-top-right-radius: 3px; /* same radius as the QComboBox */
   border-bottom-right-radius: 3px;
-  background-image: url(:/images/images/icons8-chevron-down-16.png);
+  background-image: url(:/images/icons8-chevron-down-16.png);
 }
 
 QDoubleSpinBox
@@ -858,7 +875,7 @@ QDoubleSpinBox::up-button
     border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #141414, stop: 1 #4b4b4b);
     border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #3d3d3d, stop: 1 #333333);
-    border-image: url(:/images/images/icons8-chevron-up-64.png);
+    border-image: url(:/images/icons8-chevron-up-64.png);
 }
 
 QDoubleSpinBox::down-button
@@ -885,7 +902,7 @@ QDoubleSpinBox::down-button
     border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #141414, stop: 1 #4b4b4b);
     border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #3d3d3d, stop: 1 #333333);
-    border-image: url(:/images/images/icons8-chevron-down-64.png);
+    border-image: url(:/images/icons8-chevron-down-64.png);
 }
 
 QPushButton, QToolButton
@@ -1005,9 +1022,9 @@ QTabWidget[class="Page"]::pane
   border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
 }
 
-.BedMeshItem
+.AdjustmentScrewItem
 {
-  background-color: var(--bedmesh-background-color);
+  background-color: var(--adjustment-screw-background-color);
   border-left: var(--widget-border-size) solid black;
   border-top: var(--widget-border-size) solid black;
   border-right: var(--widget-border-size) solid black;
@@ -1016,4 +1033,25 @@ QTabWidget[class="Page"]::pane
   border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
   border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
   border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
+}
+
+.WebcamTitle
+{
+  subcontrol-origin:padding;
+  subcontrol-position: top left;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: rgba(255, 255, 255, 128);
+}
+
+.WebcamInfo
+{
+  subcontrol-position: bottom right;
+  background-color: rgba(255, 255, 255, 128);
+}
+
+.QMaskedButton:hover
+{
+  border: 2px solid blue;
 }
