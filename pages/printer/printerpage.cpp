@@ -8,6 +8,9 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
 {
     ui->setupUi(this);
 
+    _toolheadControlFrame = new ToolHeadControlFrame(ui->controlContents);
+    ui->controlContents->layout()->addWidget(_toolheadControlFrame);
+
     _centerLayout = new QFlowLayout(ui->centerWidget);
     _centerLayout->setContentsMargins(QMargins(0,0,0,0));
     ui->centerWidget->setLayout(_centerLayout);
@@ -119,19 +122,6 @@ void PrinterPage::setStyleSheet(QString styleSheet)
     QPixmap pixmap = Settings::getThemeIcon(QString("printer")).pixmap(28,28);
     ui->statusIconLabel->setPixmap(pixmap);
 
-    ui->xHomeButton->setIcon(Settings::getThemeIcon(QString("home-x-icon")));
-    ui->yHomeButton->setIcon(Settings::getThemeIcon(QString("home-y-icon")));
-    ui->zHomeButton->setIcon(Settings::getThemeIcon(QString("home-z-icon")));
-    ui->homeToolheadButton->setIcon(Settings::getThemeIcon(QString("home-all-icon")));
-
-    ui->xPosDecreaseButton->setIcon(Settings::getThemeIcon(QString("minus-icon")));
-    ui->yPosDecreaseButton->setIcon(Settings::getThemeIcon(QString("minus-icon")));
-    ui->zPosDecreaseButton->setIcon(Settings::getThemeIcon(QString("minus-icon")));
-
-    ui->xPosIncreaseButton->setIcon(Settings::getThemeIcon(QString("add-icon")));
-    ui->yPosIncreaseButton->setIcon(Settings::getThemeIcon(QString("add-icon")));
-    ui->zPosIncreaseButton->setIcon(Settings::getThemeIcon(QString("add-icon")));
-
     if(_fileBrowser)
         _fileBrowser->setStyleSheet(styleSheet);
 
@@ -219,18 +209,6 @@ void PrinterPage::setupUiClasses()
     ui->zOffsetDown01->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
     ui->zOffsetDown025->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
     ui->zOffsetDown05->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarRight"));
-
-    ui->xPosDecreaseButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarLeft"));
-    ui->xHomeButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
-    ui->xPosIncreaseButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarRight"));
-
-    ui->yPosDecreaseButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarLeft"));
-    ui->yHomeButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
-    ui->yPosIncreaseButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarRight"));
-
-    ui->zPosDecreaseButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarLeft"));
-    ui->zHomeButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarCenter"));
-    ui->zPosIncreaseButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ButtonBarRight"));
 }
 
 void PrinterPage::addFanLabels(Fan *fan, QString name)
@@ -505,12 +483,6 @@ void PrinterPage::on_printerUpdate(Printer *printer)
 
     if(printer->status() == Printer::Ready)
     {
-        ui->xPosDecreaseButton->setEnabled(printer->toolhead()->isXHomed());
-        ui->xPosIncreaseButton->setEnabled(printer->toolhead()->isXHomed());
-        ui->yPosDecreaseButton->setEnabled(printer->toolhead()->isYHomed());
-        ui->yPosIncreaseButton->setEnabled(printer->toolhead()->isYHomed());
-        ui->zPosDecreaseButton->setEnabled(printer->toolhead()->isZHomed());
-        ui->zPosIncreaseButton->setEnabled(printer->toolhead()->isZHomed());
     }
     else
     {
@@ -567,21 +539,6 @@ void PrinterPage::on_printerUpdate(Printer *printer)
             addFanLabels(printerFans[name], name);
     }
 
-    if(!_printer->toolhead()->isXHomed())
-        ui->xHomeButton->setEnabled(true);
-    else
-        ui->xHomeButton->setEnabled(false);
-
-    if(!_printer->toolhead()->isYHomed())
-        ui->yHomeButton->setEnabled(true);
-    else
-        ui->yHomeButton->setEnabled(false);
-
-    if(!_printer->toolhead()->isZHomed())
-        ui->zHomeButton->setEnabled(true);
-    else
-        ui->zHomeButton->setEnabled(false);
-
     if(!_printer->toolhead()->isHomed())
         ui->homeToolheadButton->setEnabled(true);
     else
@@ -635,12 +592,6 @@ void PrinterPage::resizeEvent(QResizeEvent *event)
 
 void PrinterPage::setPrintActionsEnabled(bool enabled)
 {
-    ui->xPosDecreaseButton->setEnabled(enabled);
-    ui->xPosIncreaseButton->setEnabled(enabled);
-    ui->yPosDecreaseButton->setEnabled(enabled);
-    ui->yPosIncreaseButton->setEnabled(enabled);
-    ui->zPosDecreaseButton->setEnabled(enabled);
-    ui->zPosIncreaseButton->setEnabled(enabled);
 }
 
 void PrinterPage::showEvent(QShowEvent *event)

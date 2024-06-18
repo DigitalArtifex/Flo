@@ -20,6 +20,8 @@
 #include "widgets/printerwebcam/printerwebcamwidget.h"
 #include "../../ui/layouts/qflowlayout.h"
 
+#include "widgets/toolhead/control/toolheadcontrolframe.h"
+
 namespace Ui {
 class PrinterPage;
 }
@@ -108,6 +110,8 @@ private:
     QSpacerItem *_centerLayoutBottomSpacer = nullptr;
 
     PrinterWebcamWidget *_webcamWidget = nullptr;
+
+    ToolHeadControlFrame *_toolheadControlFrame = nullptr;
 };
 
 #endif // PRINTERPAGE_H
