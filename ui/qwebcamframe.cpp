@@ -24,12 +24,38 @@ QWebcamFrame::QWebcamFrame(QWidget *parent) : QFrame(parent)
 
     _video->show();
 
+    _nameLabel = new QLabel(this);
+    _nameLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WebcamTitle"));
+    _nameLabel->setVisible(false);
+
+    _infoLabel = new QLabel(this);
+    _infoLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WebcamInfo"));
+    _infoLabel->setVisible(false);
+
+    connect(_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
+
     setLayout(_layout);
 }
 
-void QWebcamFrame::setSource(QString source)
+void QWebcamFrame::setSource(QString &source)
 {
     _player->setSource(source);
+}
+
+void QWebcamFrame::setTitle(QString &title)
+{
+    _nameLabel->setText(title);
+    _nameLabel->setVisible(true);
+}
+
+void QWebcamFrame::showInfo()
+{
+    _showInfo = true;
+}
+
+void QWebcamFrame::hideInfo()
+{
+    _showInfo = false;
 }
 
 void QWebcamFrame::play()
@@ -54,6 +80,7 @@ void QWebcamFrame::resizeEvent(QResizeEvent *event)
 {
     _scene->setSceneRect(0,0,_view->width(),_view->height());
     _scene->setBackgroundBrush(QBrush(QColor::fromRgb(0,0,0)));
+
     //get the aspect ratio for 16:9
     QSize size;
     qreal ratio = ((qreal)9/16);
@@ -64,4 +91,10 @@ void QWebcamFrame::resizeEvent(QResizeEvent *event)
     _video->setSize(size);
 
     QFrame::resizeEvent(event);
+}
+
+void QWebcamFrame::on_playbackRateChanged(qreal rate)
+{
+    QString fps = QString::number(rate);
+    _infoLabel->setText(fps);
 }

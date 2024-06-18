@@ -187,7 +187,7 @@ void SystemWidget::showLoadingScreen()
     if(_loadingAnimation != nullptr)
         delete _loadingAnimation;
 
-    _loadingGif = new QMovie(":/images/images/loading_widget.gif");
+    _loadingGif = new QMovie(":/images/loading_widget.gif");
     _loadingLabel = new QLabel(this);
     _loadingLabel->setMinimumWidth(this->width());
     _loadingLabel->setMinimumHeight(this->height());

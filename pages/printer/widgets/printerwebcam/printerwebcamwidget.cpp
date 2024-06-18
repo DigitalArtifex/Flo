@@ -71,8 +71,12 @@ void PrinterWebcamWidget::on_printer_update(Printer *printer)
             if(i == 0)
             {
                 QString url = QString("http://") + _printer->system()->hostname() + webcam.streamUrl;
+                QString fps = QString::number(webcam.targetFps);
 
                 _webcamFrame->setSource(url);
+                _webcamFrame->showInfo();
+                _webcamFrame->setTitle(webcam.name);
+
                 _webcamFrame->play();
             }
 

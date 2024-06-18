@@ -84,7 +84,7 @@ void BedMeshFrame::showLoadingScreen()
 
     _loadingFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "LoadingOverlayFrame"));
 
-    _loadingGif = new QMovie(":/images/images/loading_small_1a87c5.gif");
+    _loadingGif = new QMovie(":/images/loading_small_1a87c5.gif");
 
     _loadingLabel = new QLabel(_loadingFrame);
     _loadingLabel->setFixedSize(50,50);

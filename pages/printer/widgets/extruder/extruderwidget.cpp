@@ -109,7 +109,7 @@ void ExtruderWidget::on_extrsuionFactorSlider_valueChanged(int value)
 void ExtruderWidget::on_extrusionFactorSpinBox_valueChanged(double value)
 {
     //disconnect event to prevent looping
-    disconnect(ui->extrsuionFactorSlider, SIGNAL(valueChanged(double)), this, SLOT(on_extrsuionFactorSlider_valueChanged(double)));
+    disconnect(ui->extrsuionFactorSlider, SIGNAL(valueChanged(int)), this, SLOT(on_extrsuionFactorSlider_valueChanged(int)));
 
     //change value of slider
     ui->extrsuionFactorSlider->setValue(value * 100);
@@ -123,7 +123,7 @@ void ExtruderWidget::on_extrusionFactorSpinBox_valueChanged(double value)
     }
 
     //reconnect event
-    connect(ui->extrsuionFactorSlider, SIGNAL(valueChanged(double)), this, SLOT(on_extrsuionFactorSlider_valueChanged(double)));
+    connect(ui->extrsuionFactorSlider, SIGNAL(valueChanged(int)), this, SLOT(on_extrsuionFactorSlider_valueChanged(int)));
 }
 
 void ExtruderWidget::on_console_extrudersUpdate()
