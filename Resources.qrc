@@ -1,17 +1,38 @@
 <RCC>
-    <qresource prefix="/images">
-        <file alias="application-icon">images/flo_beta.png</file>
-        <file>images/loading.gif</file>
-        <file>images/loading 2.gif</file>
-        <file>images/loading_widget.gif</file>
-        <file>images/loading_small_1a87c5.gif</file>
-        <file>images/icons8-chevron-down-64.png</file>
-        <file>images/icons8-chevron-up-64.png</file>
-        <file>images/icons8-chevron-down-16.png</file>
-    </qresource>
+    <qresource prefix="/images"/>
     <qresource prefix="/fonts"/>
     <qresource prefix="/">
         <file>data/klipper_commands.json</file>
         <file>fonts/digital-7(mono).ttf</file>
+        <file>images/controlmask.png</file>
+        <file>images/flo_beta.png</file>
+        <file>images/icons8-chevron-down-16.png</file>
+        <file>images/icons8-chevron-down-64.png</file>
+        <file>images/icons8-chevron-up-64.png</file>
+        <file>images/loading.gif</file>
+        <file>images/loading 2.gif</file>
+        <file>images/loading_small_1a87c5.gif</file>
+        <file>images/loading_widget.gif</file>
+        <file>images/ui/toolhead/x_down_control_image.png</file>
+        <file>images/ui/toolhead/x_up_control_image.png</file>
+        <file>images/ui/toolhead/y_down_control_image.png</file>
+        <file>images/ui/toolhead/y_up_control_image.png</file>
+        <file>images/ui/toolhead/z_down_control_image.png</file>
+        <file>images/ui/toolhead/z_up_control_image.png</file>
+        <file>images/ui/toolhead/x_down_control_image_clicked.png</file>
+        <file>images/ui/toolhead/x_down_control_image_hover.png</file>
+        <file>images/ui/toolhead/x_up_control_image_clicked.png</file>
+        <file>images/ui/toolhead/x_up_control_image_hover.png</file>
+        <file>images/ui/toolhead/y_down_control_image_clicked.png</file>
+        <file>images/ui/toolhead/y_down_control_image_hover.png</file>
+        <file>images/ui/toolhead/y_up_control_image_clicked.png</file>
+        <file>images/ui/toolhead/y_up_control_image_hover.png</file>
+        <file>images/ui/toolhead/z_down_control_image_clicked.png</file>
+        <file>images/ui/toolhead/z_down_control_image_hover.png</file>
+        <file>images/ui/toolhead/z_up_control_image_clicked.png</file>
+        <file>images/ui/toolhead/z_up_control_image_hover.png</file>
+        <file>images/ui/toolhead/home_clicked.png</file>
+        <file>images/ui/toolhead/home_default.png</file>
+        <file>images/ui/toolhead/home_hover.png</file>
     </qresource>
 </RCC>
