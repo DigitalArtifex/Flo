@@ -35,11 +35,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->PageContainer->layout()->addWidget(_loadingPage);
 
     _currentPage = _loadingPage;
-    _currentPage->setOpacityIn(1);
-    _currentPage->setOpacityOut(0);
+    //_currentPage->setOpacityIn(1);
+    //_currentPage->setOpacityOut(0);
     _currentPage->setPositionIn(_pagePositionIn);
     _currentPage->setPositionOut(QPoint(_pageSize.width(), 0));
-    _currentPage->setDuration(500);
+    _currentPage->setDuration(250);
     _currentPage->animateIn();
 
     _initTimer = new QTimer(this);
@@ -93,20 +93,27 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
 
     if(page)
     {
+        int ypos = _pageSize.height() * -1;
+        ypos -= ui->menuBar->height();
+
         _nextPage = page;
-        _nextPage->setOpacityIn(1);
-        _nextPage->setOpacityOut(0);
+        //_nextPage->setOpacityIn(1);
+        //_nextPage->setOpacityOut(0);
         _nextPage->setPositionIn(_pagePositionIn);
-        _nextPage->setPositionOut(QPoint(_pageSize.width(), 0));
-        _nextPage->setDuration(500);
+        _nextPage->setPositionOut(QPoint(0, ypos));
+        _nextPage->setDuration(250);
+
+        connect(_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
+        _nextPage->setHidden(false);
+        _nextPage->animateIn();
     }
 
     if(_currentPage)
     {
         connect(_currentPage, SIGNAL(animatedOut()), this, SLOT(on_currentPage_animationOut_finished()));
 
-        _currentPage->setOpacityIn(1);
-        _currentPage->setOpacityOut(0);
+        //_currentPage->setOpacityIn(1);
+        //_currentPage->setOpacityOut(0);
         _currentPage->setPositionIn(_pagePositionIn);
         _currentPage->setPositionOut(QPoint(0, _pageSize.height()));
         _currentPage->setDuration(250);
@@ -117,9 +124,6 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
     }
     else
     {
-        connect(_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
-        _nextPage->setHidden(false);
-        _nextPage->animateIn();
     }
 }
 
@@ -252,10 +256,6 @@ void MainWindow::on_settingsMenuButton_toggled(MenuButton* button)
 void MainWindow::on_currentPage_animationOut_finished()
 {
     disconnect(_currentPage, SIGNAL(animatedOut()), this, SLOT(on_currentPage_animationOut_finished()));
-    connect(_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
-
-    _nextPage->setHidden(false);
-    _nextPage->animateIn();
 }
 
 void MainWindow::on_nextPage_animationIn_finished()

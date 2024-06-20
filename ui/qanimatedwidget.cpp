@@ -90,7 +90,10 @@ void QAnimatedWidget::animateIn()
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
     if(_widget)
+    {
+        _widget->setProperty("isAnimating", true);
         _widget->render(&painter, QPoint(), QRegion(), QWidget::DrawChildren);
+    }
 
     _snapshotLabel->setPixmap(QPixmap::fromImage(snapshot));
     _snapshotLabel->resize(size());
@@ -154,7 +157,10 @@ void QAnimatedWidget::animateOut()
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
     if(_widget)
+    {
+        _widget->setProperty("isAnimating", true);
         _widget->render(&painter, QPoint(), QRegion(), QWidget::DrawChildren);
+    }
 
     _snapshotLabel->setPixmap(QPixmap::fromImage(snapshot));
     _snapshotLabel->resize(size());
@@ -182,6 +188,7 @@ void QAnimatedWidget::setWidget(QWidget *widget)
     {
         _layout->removeWidget(_widget);
         delete _widget;
+        _widget = nullptr;
     }
 
     _widget = widget;
@@ -196,7 +203,11 @@ void QAnimatedWidget::on_animationIn_finished()
         _widget->show();
     }
 
-    _snapshotLabel->hide();
+    if(_snapshotLabel)
+        _snapshotLabel->hide();
+
+    if(_widget)
+        _widget->setProperty("isAnimating", false);
 
     emit animatedIn();
 }
@@ -205,13 +216,11 @@ void QAnimatedWidget::on_animationOut_finished()
 {
     if(!_animationFinal)
     {
-        if(_widget)
-        {
-            _layout->addWidget(_widget);
-            _widget->show();
-        }
+        if(_snapshotLabel)
+            _snapshotLabel->hide();
 
-        _snapshotLabel->hide();
+        if(_widget)
+            _widget->setProperty("isAnimating", false);
 
         emit animatedOut();
     }
@@ -221,13 +230,11 @@ void QAnimatedWidget::on_animationOut_finished()
 
 void QAnimatedWidget::on_animationFinal_finished()
 {
-    if(_widget)
-    {
-        _layout->addWidget(_widget);
-        _widget->show();
-    }
+    if(_snapshotLabel)
+        _snapshotLabel->hide();
 
-    _snapshotLabel->hide();
+    if(_widget)
+        _widget->setProperty("isAnimating", false);
 
     emit animatedOut();
 }

@@ -13,6 +13,8 @@
 #include <QLabel>
 #include <QTimer>
 
+#include <QParallelAnimationGroup>
+
 #include <QCamera>
 
 #include <QTcpSocket>
@@ -124,6 +126,7 @@ private:
 
     QAnimatedWidget *_currentPage = nullptr;
     QAnimatedWidget *_nextPage = nullptr;
+    QParallelAnimationGroup *_pageAnimationGroup;
 
 };
 #endif // MAINWINDOW_H

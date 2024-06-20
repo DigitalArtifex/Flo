@@ -8,7 +8,7 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    _toolheadControlFrame = new ToolHeadControlFrame(ui->controlContents);
+    _toolheadControlFrame = new ToolHeadControlFrame(printer->toolhead(), ui->controlContents);
     ui->controlContents->layout()->addWidget(_toolheadControlFrame);
 
     _centerLayout = new QFlowLayout(ui->centerWidget);
@@ -54,9 +54,9 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
     _configBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->settingsTab->layout()->addWidget(_configBrowser);
 
-    _bedMeshWidget = new Q3DPrintBedMeshWidget(ui->bedMeshTab);
-    _bedMeshWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->bedMeshTab->layout()->addWidget(_bedMeshWidget);
+    //_bedMeshWidget = new Q3DPrintBedMeshWidget(ui->bedMeshTab);
+    //_bedMeshWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    //ui->bedMeshTab->layout()->addWidget(_bedMeshWidget);
 
     _printerOfflineScreen = new PrinterOfflineScreen(this);
     _printerOfflineScreen->setGeometry(QRect(0,0,width(),height()));
@@ -83,7 +83,10 @@ PrinterPage::~PrinterPage()
     delete _chamberTemperatureBar;
     delete _fileBrowser;
     delete _configBrowser;
-    delete _bedMeshWidget;
+
+    if(_bedMeshWidget)
+        delete _bedMeshWidget;
+
     delete _terminal;
     delete _printerOfflineScreen;
 
@@ -255,6 +258,18 @@ void PrinterPage::addFanLabels(Fan *fan, QString name)
     layout->addWidget(valueLabel, row, 2);
 }
 
+bool PrinterPage::animating() const
+{
+    return _animating;
+}
+
+void PrinterPage::setAnimating(bool animating)
+{
+    _animating = animating;
+
+    //_webcamWidget->setProperty("isAnimating", animating);
+}
+
 void PrinterPage::on_xPosDecreaseButton_clicked()
 {
     QString valueString = ui->posIncrementSelect->currentText();
@@ -275,7 +290,10 @@ void PrinterPage::on_terminalButton_toggled(bool checked)
 void PrinterPage::on_overviewButton_toggled(bool checked)
 {
     if(checked)
+    {
         ui->tabWidget->setCurrentIndex(0);
+        _webcamWidget->show();
+    }
 }
 
 
@@ -596,7 +614,14 @@ void PrinterPage::setPrintActionsEnabled(bool enabled)
 
 void PrinterPage::showEvent(QShowEvent *event)
 {
+    //_webcamWidget->show();
     QFrame::showEvent(event);
+}
+
+void PrinterPage::hideEvent(QHideEvent *event)
+{
+    //_webcamWidget->hide();
+    QFrame::hideEvent(event);
 }
 
 void PrinterPage::on_homeToolheadButton_clicked()
@@ -691,7 +716,6 @@ void PrinterPage::on_zHomeButton_clicked()
 {
     _printer->toolhead()->homeZ();
 }
-
 
 void PrinterPage::on_xDestinationSpinBox_valueChanged(double arg1)
 {

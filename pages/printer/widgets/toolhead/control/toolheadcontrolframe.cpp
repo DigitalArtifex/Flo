@@ -1,6 +1,6 @@
 #include "toolheadcontrolframe.h"
 
-ToolHeadControlFrame::ToolHeadControlFrame(QWidget *parent) : QFrame(parent)
+ToolHeadControlFrame::ToolHeadControlFrame(Toolhead *toolhead, QWidget *parent) : QFrame(parent)
 {
     QPixmap xDownImage(":/images/ui/toolhead/x_down_control_image.png");
     QPixmap xDownClickedImage(":/images/ui/toolhead/x_down_control_image_clicked.png");
@@ -79,6 +79,31 @@ ToolHeadControlFrame::ToolHeadControlFrame(QWidget *parent) : QFrame(parent)
     _homeWidget->setFixedSize(size());
     connect(_homeWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(homeClickEvent()));
 
+    _toolhead = toolhead;
+}
+
+ToolHeadControlFrame::~ToolHeadControlFrame()
+{
+    if(_homeWidget)
+        delete _homeWidget;
+
+    if(_xDownWidget)
+        delete _xDownWidget;
+
+    if(_xUpWidget)
+        delete _xUpWidget;
+
+    if(_yUpWidget)
+        delete _yUpWidget;
+
+    if(_yDownWidget)
+        delete _yDownWidget;
+
+    if(_zUpWidget)
+        delete _zUpWidget;
+
+    if(_zDownWidget)
+        delete _zDownWidget;
 }
 
 void ToolHeadControlFrame::resizeEvent(QResizeEvent *event)
@@ -127,4 +152,15 @@ void ToolHeadControlFrame::zDownClickEvent()
 void ToolHeadControlFrame::homeClickEvent()
 {
     qDebug() << "home all clicked";
+}
+
+void ToolHeadControlFrame::toolheadUpdateEvent()
+{
+    _homeWidget->setEnabled(!_toolhead->isHomed());
+    _xDownWidget->setEnabled(_toolhead->isHomed());
+    _xUpWidget->setEnabled(_toolhead->isHomed());
+    _yDownWidget->setEnabled(_toolhead->isHomed());
+    _yUpWidget->setEnabled(_toolhead->isHomed());
+    _zDownWidget->setEnabled(_toolhead->isHomed());
+    _zUpWidget->setEnabled(_toolhead->isHomed());
 }

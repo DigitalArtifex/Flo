@@ -7,6 +7,8 @@ QMaskedButton::QMaskedButton(QWidget *parent)
 
 QMaskedButton::~QMaskedButton()
 {
+    if(_clickTimer)
+        delete _clickTimer;
 }
 
 void QMaskedButton::on_clickTimer_timeout()
@@ -33,9 +35,7 @@ void QMaskedButton::mousePressEvent(QMouseEvent *event)
         _clickTimer->setInterval(500);
         _clickTimer->setSingleShot(true);
         _clickTimer->start();
-
     }
-
 
     QWidget::mousePressEvent(event);
 }

@@ -29,7 +29,7 @@ class PrinterPage;
 class PrinterPage : public QFrame
 {
     Q_OBJECT
-
+    Q_PROPERTY(bool isAnimating READ animating WRITE setAnimating NOTIFY animatingChanged FINAL)
 public:
     explicit PrinterPage(Printer *printer, QWidget *parent = nullptr);
     ~PrinterPage();
@@ -44,8 +44,15 @@ public:
     virtual void resizeEvent(QResizeEvent *event);
     virtual void setPrintActionsEnabled(bool enabled);
 
+    bool animating() const;
+    void setAnimating(bool animating);
+
+signals:
+    void animatingChanged(bool);
+
 protected:
     virtual void showEvent(QShowEvent *event);
+    virtual void hideEvent(QHideEvent *event);
 
 private slots:
     void on_xPosDecreaseButton_clicked();
@@ -112,6 +119,8 @@ private:
     PrinterWebcamWidget *_webcamWidget = nullptr;
 
     ToolHeadControlFrame *_toolheadControlFrame = nullptr;
+
+    bool _animating = false;
 };
 
 #endif // PRINTERPAGE_H

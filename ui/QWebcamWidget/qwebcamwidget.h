@@ -1,5 +1,5 @@
-#ifndef QWEBCAMFRAME_H
-#define QWEBCAMFRAME_H
+#ifndef QWEBCAMWIDGET_H
+#define QWEBCAMWIDGET_H
 
 #include <QFrame>
 #include <QObject>
@@ -10,15 +10,20 @@
 #include <QGraphicsVideoItem>
 #include <QMediaPlayer>
 #include <QGridLayout>
+#include <QVideoWidget>
+#include <QVideoSink>
+#include <QVideoFrame>
 
 #include <QScrollBar>
 
 #include <QResizeEvent>
 
-class QWebcamFrame : public QFrame
+class QWebcamWidget : public QWidget
 {
+    Q_OBJECT
 public:
-    QWebcamFrame(QWidget *parent);
+    QWebcamWidget(QString source, QWidget *parent = nullptr);
+    ~QWebcamWidget();
 
     void setSource(QString &source);
     void setTitle(QString &title);
@@ -29,23 +34,35 @@ public:
     void pause();
     void stop();
 
+    QString source() const;
+
+    QString info() const;
+    void setInfo(const QString &info);
+
 protected:
     virtual void resizeEvent(QResizeEvent *event);
+    virtual void hideEvent(QHideEvent *event);
+    virtual void showEvent(QShowEvent *event);
 
 protected slots:
     void on_playbackRateChanged(qreal rate);
+    void videoFrameChangeEvent(QVideoFrame frame);
 
 private:
     QGridLayout *_layout = nullptr;
-    QGraphicsScene *_scene = nullptr;
-    QGraphicsView *_view = nullptr;
-    QGraphicsVideoItem *_video = nullptr;
     QMediaPlayer *_player = nullptr;
 
     QLabel *_nameLabel = nullptr;
     QLabel *_infoLabel = nullptr;
 
     bool _showInfo = false;
+
+    QLabel *_videoLabel = nullptr;
+
+    QString _source;
+    QString _info;
+
+    QVideoSink *_webcamSink = nullptr;
 };
 
-#endif // QWEBCAMFRAME_H
+#endif // QWEBCAMWIDGET_H

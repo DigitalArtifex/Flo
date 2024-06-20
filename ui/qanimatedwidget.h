@@ -21,6 +21,7 @@ public:
     virtual void animateIn();
     virtual void animateOut();
 
+
     QWidget *widget() const;
     void setWidget(QWidget *widget);
     void setGeometryIn(const QRect &geometryIn);
