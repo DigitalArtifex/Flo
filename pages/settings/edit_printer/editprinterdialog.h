@@ -42,11 +42,11 @@ private slots:
 private:
     Ui::EditPrinterDialog *ui;
 
-    int _extruderCount = 0;
+    int m_extruderCount = 0;
 
-    Printer *_printer = nullptr;
+    Printer *m_printer = nullptr;
 
-    QRegularExpression _httpExpression = QRegularExpression("^\\s*(http|https)\\:\\/\\/");
+    QRegularExpression m_httpExpression = QRegularExpression("^\\s*(http|https)\\:\\/\\/");
 };
 
 #endif // EDITPRINTERDIALOG_H

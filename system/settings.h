@@ -27,7 +27,7 @@ class Settings
     static QMap<QString,QVariant> themeSettings;
     static QMap<QString, QString> themeMap;
     static QMap<QString,QIcon> iconMap;
-    static QString _loadedTheme;
+    static QString m_loadedTheme;
 
     static void loadThemes();
 
@@ -58,11 +58,11 @@ public:
     static QString digitalFontFamily();
 
 private:
-    static Settings *_instance;
-    static PrinterDefinitionList _printers;
-    static QString _currentTheme;
+    static Settings *m_instance;
+    static PrinterDefinitionList m_printers;
+    static QString m_currentTheme;
 
-    static QString _digitalFontFamily;
+    static QString m_digitalFontFamily;
 };
 
 #endif // SETTINGS_H

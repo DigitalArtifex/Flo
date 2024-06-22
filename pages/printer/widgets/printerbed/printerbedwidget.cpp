@@ -14,10 +14,10 @@ PrinterBedWidget::PrinterBedWidget(Q3DPrintBed *printerBed, QWidget *parent)
     QGridLayout *layout = new QGridLayout(ui->adjustmentScrewFrame);
     ui->adjustmentScrewFrame->setLayout(layout);
 
-    _bedTemperatureBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
-    _bedTemperatureBar->setMaximum(150);
+    m_bedTemperatureBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
+    m_bedTemperatureBar->setMaximum(150);
 
-    ui->bedLayout->addWidget(_bedTemperatureBar);
+    ui->bedLayout->addWidget(m_bedTemperatureBar);
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
     ui->bedInfoWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
     ui->adjustmentScrewFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
@@ -26,24 +26,24 @@ PrinterBedWidget::PrinterBedWidget(Q3DPrintBed *printerBed, QWidget *parent)
     ui->bedMeshTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar" << "PrinterSubWidget"));
     ui->adjustmentFrameTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar" << "PrinterSubWidget"));
 
-    _bedMeshFrame = new BedMeshFrame(_printerBed, ui->bedMeshContent);
-    ui->bedMeshContent->layout()->addWidget(_bedMeshFrame);
+    m_bedMeshFrame = new BedMeshFrame(m_printerBed, ui->bedMeshContent);
+    ui->bedMeshContent->layout()->addWidget(m_bedMeshFrame);
 
-    _adjustmentScrewFrame = new AdjustmentScrewFrame(_printerBed, ui->adjustmentScrewFrame);
-    ui->adjustmentScrewContent->layout()->addWidget(_adjustmentScrewFrame);
+    m_adjustmentScrewFrame = new AdjustmentScrewFrame(m_printerBed, ui->adjustmentScrewFrame);
+    ui->adjustmentScrewContent->layout()->addWidget(m_adjustmentScrewFrame);
 
     setIcons();
 }
 
 PrinterBedWidget::~PrinterBedWidget()
 {
-    delete _bedTemperatureBar;
+    delete m_bedTemperatureBar;
     delete ui;
 }
 
 void PrinterBedWidget::on_printerBed_update(Q3DPrintBed *printBed)
 {
-    _bedTemperatureBar->setProgress(printBed->currentTemp());
+    m_bedTemperatureBar->setProgress(printBed->currentTemp());
 
     ui->bedTargetTempLabel->setText(QString::number(printBed->targetTemp()) + QString("°"));
     ui->bedPowerLabel->setText(QString::number(printBed->power()) + QString(""));
@@ -57,21 +57,21 @@ void PrinterBedWidget::on_printerOnline(Printer *printer)
 
 Q3DPrintBed *PrinterBedWidget::printerBed() const
 {
-    return _printerBed;
+    return m_printerBed;
 }
 
 void PrinterBedWidget::setPrinterBed(Q3DPrintBed *printerBed)
 {
-    if(_printerBed)
+    if(m_printerBed)
     {
-        disconnect(_printerBed, SIGNAL(updated(Q3DPrintBed*)), this, SLOT(on_printerBed_update(Q3DPrintBed*)));
-        disconnect(_printerBed, SIGNAL(adjustmentScrewsUpdated(Q3DPrintBed*)), this, SLOT(on_printerBed_adjustmentScrewsUpdated(Q3DPrintBed*)));
+        disconnect(m_printerBed, SIGNAL(updated(Q3DPrintBed*)), this, SLOT(on_printerBed_update(Q3DPrintBed*)));
+        disconnect(m_printerBed, SIGNAL(adjustmentScrewsUpdated(Q3DPrintBed*)), this, SLOT(on_printerBed_adjustmentScrewsUpdated(Q3DPrintBed*)));
     }
 
-    _printerBed = printerBed;
+    m_printerBed = printerBed;
 
-    connect(_printerBed->printer(), SIGNAL(printerOnline(Printer*)), this, SLOT(on_printerOnline(Printer*)));
-    connect(_printerBed, SIGNAL(updated(Q3DPrintBed*)), this, SLOT(on_printerBed_update(Q3DPrintBed*)));
+    connect(m_printerBed->printer(), SIGNAL(printerOnline(Printer*)), this, SLOT(on_printerOnline(Printer*)));
+    connect(m_printerBed, SIGNAL(updated(Q3DPrintBed*)), this, SLOT(on_printerBed_update(Q3DPrintBed*)));
 }
 
 void PrinterBedWidget::setPrintActionsEnabled(bool enabled)

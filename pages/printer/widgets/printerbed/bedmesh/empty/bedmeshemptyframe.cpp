@@ -13,10 +13,10 @@ BedMeshEmptyFrame::BedMeshEmptyFrame(Q3DPrintBed *bed, QWidget *parent)
     QPixmap pixmap = Settings::getThemeIcon("no-data-icon").pixmap(ui->iconLabel->size());
     ui->iconLabel->setPixmap(pixmap);
 
-    _printerBed = bed;
-    connect(_printerBed->printer()->toolhead(), SIGNAL(updated()), this, SLOT(on_toolhead_updated()));
-    connect(_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(on_toolhead_homing()));
-    connect(_printerBed->printer()->toolhead(), SIGNAL(homed()), this, SLOT(on_toolhead_homed()));
+    m_printerBed = bed;
+    connect(m_printerBed->printer()->toolhead(), SIGNAL(updated()), this, SLOT(on_toolhead_updated()));
+    connect(m_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(on_toolhead_homing()));
+    connect(m_printerBed->printer()->toolhead(), SIGNAL(homed()), this, SLOT(on_toolhead_homed()));
 }
 
 BedMeshEmptyFrame::~BedMeshEmptyFrame()
@@ -37,7 +37,7 @@ void BedMeshEmptyFrame::on_toolhead_homed()
 void BedMeshEmptyFrame::on_toolhead_updated()
 {
 
-    if(_printerBed->printer()->toolhead()->isHomed())
+    if(m_printerBed->printer()->toolhead()->isHomed())
     {
         ui->calibrateButton->setEnabled(true);
         ui->homeButton->setEnabled(false);
@@ -51,12 +51,12 @@ void BedMeshEmptyFrame::on_toolhead_updated()
 
 void BedMeshEmptyFrame::on_homeButton_clicked()
 {
-    _printerBed->printer()->toolhead()->homeAll();
+    m_printerBed->printer()->toolhead()->homeAll();
 }
 
 
 void BedMeshEmptyFrame::on_calibrateButton_clicked()
 {
-    _printerBed->calibrateBedMesh();
+    m_printerBed->calibrateBedMesh();
 }
 

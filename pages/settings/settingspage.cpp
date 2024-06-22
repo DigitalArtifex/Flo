@@ -10,11 +10,11 @@ SettingsPage::SettingsPage(QWidget *parent) :
     ui(new Ui::SettingsPage)
 {
     ui->setupUi(this);
-    _printerListWidget = new PrinterListWidget();
-    ui->printerListLayout->addWidget(_printerListWidget);
+    m_printerListWidget = new PrinterListWidget();
+    ui->printerListLayout->addWidget(m_printerListWidget);
     updatePrinterList();
 
-    _themeSettingsPage = new ThemeSettingsPage(this);
+    m_themeSettingsPage = new ThemeSettingsPage(this);
 
     ui->tabWidget->setTabVisible(0, false);
     ui->tabWidget->setTabVisible(1, false);
@@ -24,9 +24,9 @@ SettingsPage::SettingsPage(QWidget *parent) :
     ui->themeTab->setLayout(new QVBoxLayout());
     ui->themeTab->layout()->setContentsMargins(0,0,0,0);
     ui->themeTab->layout()->setSpacing(0);
-    ui->themeTab->layout()->addWidget(_themeSettingsPage);
+    ui->themeTab->layout()->addWidget(m_themeSettingsPage);
 
-    connect(_printerListWidget, SIGNAL(itemSelected(PrinterListItem*)), this, SLOT(on_printerListWidget_itemSelected(PrinterListItem*)));
+    connect(m_printerListWidget, SIGNAL(itemSelected(PrinterListItem*)), this, SLOT(on_printerListWidget_itemSelected(PrinterListItem*)));
 }
 
 SettingsPage::~SettingsPage()
@@ -40,37 +40,37 @@ void SettingsPage::updatePrinterList()
 
     foreach(PrinterDefinition printer, printers)
     {
-        _printerListWidget->addItem(printer);
+        m_printerListWidget->addItem(printer);
     }
 }
 
 void SettingsPage::on_addPrinterButton_clicked()
 {
-    if(_addPrinterWizard == nullptr)
+    if(m_addPrinterWizard == nullptr)
     {
-        _addPrinterWizard = new AddPrinterWizard(this);
-        connect(_addPrinterWizard, SIGNAL(finished(int)), this, SLOT(on_addPrinterWizardFinished(int)));
-        connect(_addPrinterWizard, SIGNAL(rejected()), this, SLOT(on_addPrinterWizardCancelled()));
+        m_addPrinterWizard = new AddPrinterWizard(this);
+        connect(m_addPrinterWizard, SIGNAL(finished(int)), this, SLOT(on_addPrinterWizardFinished(int)));
+        connect(m_addPrinterWizard, SIGNAL(rejected()), this, SLOT(on_addPrinterWizardCancelled()));
     }
 
-    _addPrinterWizard->show();
+    m_addPrinterWizard->show();
 }
 
 void SettingsPage::on_addPrinterWizardFinished(int result)
 {
-    PrinterDefinition definition = _addPrinterWizard->definition();
+    PrinterDefinition definition = m_addPrinterWizard->definition();
     PrinterPool::addPrinter(definition);
     updatePrinterList();
 
-    delete _addPrinterWizard;
-    _addPrinterWizard = nullptr;
+    delete m_addPrinterWizard;
+    m_addPrinterWizard = nullptr;
     emit(printerAdded(definition));
 }
 
 void SettingsPage::on_addPrinterWizardCancelled()
 {
-    delete _addPrinterWizard;
-    _addPrinterWizard = nullptr;
+    delete m_addPrinterWizard;
+    m_addPrinterWizard = nullptr;
 }
 
 void SettingsPage::on_printerListWidget_itemSelected(PrinterListItem *item)
@@ -89,11 +89,11 @@ void SettingsPage::on_printerListWidget_itemSelected(PrinterListItem *item)
 
 void SettingsPage::on_removePrinterButton_clicked()
 {
-    if(_printerListWidget->selectedItem() != nullptr)
+    if(m_printerListWidget->selectedItem() != nullptr)
     {
         ui->editPrinterButton->setEnabled(false);
         ui->removePrinterButton->setEnabled(false);
-        PrinterDefinition definition = _printerListWidget->selectedItem()->printerDefinition();
+        PrinterDefinition definition = m_printerListWidget->selectedItem()->printerDefinition();
         PrinterPool::removePrinter(definition);
     }
 }
@@ -101,17 +101,17 @@ void SettingsPage::on_removePrinterButton_clicked()
 
 void SettingsPage::on_editPrinterButton_clicked()
 {
-    if(!_editPrinterDialog)
+    if(!m_editPrinterDialog)
     {
-        _editPrinterDialog = new EditPrinterDialog();
-        connect(_addPrinterWizard, SIGNAL(finished(int)), this, SLOT(on_addPrinterWizardFinished(int)));
-        connect(_addPrinterWizard, SIGNAL(rejected()), this, SLOT(on_addPrinterWizardCancelled()));
+        m_editPrinterDialog = new EditPrinterDialog();
+        connect(m_addPrinterWizard, SIGNAL(finished(int)), this, SLOT(on_addPrinterWizardFinished(int)));
+        connect(m_addPrinterWizard, SIGNAL(rejected()), this, SLOT(on_addPrinterWizardCancelled()));
     }
 
-    Printer *printer = PrinterPool::getPrinterById(_printerListWidget->selectedItem()->printerDefinition().id);
+    Printer *printer = PrinterPool::getPrinterById(m_printerListWidget->selectedItem()->printerDefinition().id);
 
-    _editPrinterDialog->setPrinter(printer);
-    _editPrinterDialog->show();
+    m_editPrinterDialog->setPrinter(printer);
+    m_editPrinterDialog->show();
 }
 
 

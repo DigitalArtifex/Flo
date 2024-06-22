@@ -30,9 +30,9 @@ private slots:
 
 private:
     Ui::ValidatePrinterPage *ui;
-    bool _validated = false;
-    bool _printerOnline = false;
-    Printer *_printer = nullptr;
+    bool m_validated = false;
+    bool m_printerOnline = false;
+    Printer *m_printer = nullptr;
 };
 
 #endif // VALIDATEPRINTERPAGE_H

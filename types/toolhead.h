@@ -112,31 +112,31 @@ signals:
 private:
     void update();
 
-    Position _position;
-    Position _destination;
-    Position _maxPosition;
-    Position _minPosition;
-    Fan *_fan;
-    QMap<int, Extruder*> _extruders;
-    QString _currentExtruderName;
+    Position m_position;
+    Position m_destination;
+    Position m_maxPosition;
+    Position m_minPosition;
+    Fan *m_fan;
+    QMap<int, Extruder*> m_extruders;
+    QString m_currentExtruderName;
 
-    bool _zHomed = false;
-    bool _yHomed = false;
-    bool _xHomed = false;
-    bool _isHoming = false;
-    bool _isXHoming = false;
-    bool _isYHoming = false;
-    bool _isZHoming = false;
+    bool m_zHomed = false;
+    bool m_yHomed = false;
+    bool m_xHomed = false;
+    bool m_isHoming = false;
+    bool m_isXHoming = false;
+    bool m_isYHoming = false;
+    bool m_isZHoming = false;
 
-    qint32 _maxAcceleration = 0;
-    qint32 _maxVelocity = 0;
-    qint32 _maxAccelerationToDeceleration = 0;
-    qint32 _stalls = 0;
-    qint32 _checks = 0;
+    qint32 m_maxAcceleration = 0;
+    qint32 m_maxVelocity = 0;
+    qint32 m_maxAccelerationToDeceleration = 0;
+    qint32 m_stalls = 0;
+    qint32 m_checks = 0;
 
-    qreal _squareCornerVelocity = 0;
+    qreal m_squareCornerVelocity = 0;
 
-    Printer *_printer = nullptr;
+    Printer *m_printer = nullptr;
 };
 
 #endif // TOOLHEAD_H

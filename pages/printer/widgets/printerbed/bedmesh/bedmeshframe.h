@@ -43,19 +43,19 @@ protected slots:
 private:
     Ui::BedMeshFrame *ui;
 
-    QGridLayout *_layout = nullptr;
+    QGridLayout *m_layout = nullptr;
 
-    BedMeshEmptyFrame *_emptyFrame = nullptr;
+    BedMeshEmptyFrame *m_emptyFrame = nullptr;
 
-    QMovie *_loadingGif = nullptr;
-    QLabel *_loadingLabel = nullptr;
+    QMovie *m_loadingGif = nullptr;
+    QLabel *m_loadingLabel = nullptr;
 
-    QFrame *_loadingFrame = nullptr;
-    QHBoxLayout *_loadingFrameLayout = nullptr;
+    QFrame *m_loadingFrame = nullptr;
+    QHBoxLayout *m_loadingFrameLayout = nullptr;
 
-    QWidgetAnimation *_loadingAnimation = nullptr;
+    QWidgetAnimation *m_loadingAnimation = nullptr;
 
-    Q3DPrintBed *_printerBed;
+    Q3DPrintBed *m_printerBed;
 };
 
 #endif // BEDMESHFRAME_H

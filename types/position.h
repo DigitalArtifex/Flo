@@ -8,10 +8,10 @@
 class Position
 {
     Q_GADGET
-    qreal _x;
-    qreal _y;
-    qreal _z;
-    qreal _e;
+    qreal m_x;
+    qreal m_y;
+    qreal m_z;
+    qreal m_e;
 
 public:
     Position();
@@ -36,13 +36,13 @@ public:
 class Q3DPrinterPostion
 {
     Q_GADGET
-    QMap<QString, qreal> _axisPosition;
+    QMap<QString, qreal> m_axisPosition;
 public:
     Q3DPrinterPostion() { }
 
     qreal& operator[](QString key)
     {
-        return _axisPosition[key];
+        return m_axisPosition[key];
     }
 };
 

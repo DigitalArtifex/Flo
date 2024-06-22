@@ -46,11 +46,11 @@ private slots:
 private:
     Ui::SettingsPage *ui;
 
-    AddPrinterWizard *_addPrinterWizard = nullptr;
-    EditPrinterDialog *_editPrinterDialog = nullptr;
-    PrinterListWidget *_printerListWidget = nullptr;
+    AddPrinterWizard *m_addPrinterWizard = nullptr;
+    EditPrinterDialog *m_editPrinterDialog = nullptr;
+    PrinterListWidget *m_printerListWidget = nullptr;
 
-    ThemeSettingsPage *_themeSettingsPage = nullptr;
+    ThemeSettingsPage *m_themeSettingsPage = nullptr;
 };
 
 #endif // SETTINGSPAGE_H

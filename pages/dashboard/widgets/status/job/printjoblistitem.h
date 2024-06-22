@@ -40,14 +40,14 @@ protected slots:
     void on_printJob_updated(PrintJob *printJob);
 
 private:
-    PrintJob *_job;
-    QLabel *_jobNameLabel = nullptr;
-    QLabel *_printerNameLabel = nullptr;
-    QLabel *_timeRemainingLabel = nullptr;
-    QLabel *_timeRunningLabel = nullptr;
-    QLabel *_iconLabel = nullptr;
-    QWidget *_iconContainer = nullptr;
-    QProgressBar *_progressBar = nullptr;
+    PrintJob *m_job;
+    QLabel *m_jobNameLabel = nullptr;
+    QLabel *m_printerNameLabel = nullptr;
+    QLabel *m_timeRemainingLabel = nullptr;
+    QLabel *m_timeRunningLabel = nullptr;
+    QLabel *m_iconLabel = nullptr;
+    QWidget *m_iconContainer = nullptr;
+    QProgressBar *m_progressBar = nullptr;
 };
 
 #endif // PRINTJOBLISTITEM_H

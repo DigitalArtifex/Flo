@@ -33,10 +33,10 @@ private:
     void on_loadingFinished();
 
 private:
-    static PrinterPool *_printerPool;
-    static Settings *_settings;
+    static PrinterPool *m_printerPool;
+    static Settings *m_settings;
 
-    static Flo *_instance;
+    static Flo *m_instance;
 };
 
 #endif // FLO_H

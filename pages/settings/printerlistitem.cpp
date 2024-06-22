@@ -19,9 +19,9 @@ PrinterListItem::~PrinterListItem()
 
 void PrinterListItem::setPrinterDefinition(PrinterDefinition definition)
 {
-    _definition = definition;
-    ui->printerName->setText(_definition.name);
-    ui->instanceLocation->setText(_definition.instanceLocation);
+    m_definition = definition;
+    ui->printerName->setText(m_definition.name);
+    ui->instanceLocation->setText(m_definition.instanceLocation);
 
     if(definition.defaultPrinter)
         ui->defaultLabel->setText(QString("Default Printer: Yes"));
@@ -57,26 +57,26 @@ bool PrinterListItem::selected()
 
 PrinterDefinition PrinterListItem::printerDefinition()
 {
-    return _definition;
+    return m_definition;
 }
 
 void PrinterListItem::clickTimeout()
 {
-    if(this->_pressed)
-        this->_longPress = true;
+    if(this->m_pressed)
+        this->m_longPress = true;
 }
 
 void PrinterListItem::mousePressEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton)
     {
-        this->_clickTimer = new QTimer(this);
-        this->_clickTimer->setInterval(500);
-        this->_clickTimer->setSingleShot(true);
-        connect(this->_clickTimer, SIGNAL(timeout()), this, SLOT(clickTimeout()));
-        this->_clickTimer->start();
+        this->m_clickTimer = new QTimer(this);
+        this->m_clickTimer->setInterval(500);
+        this->m_clickTimer->setSingleShot(true);
+        connect(this->m_clickTimer, SIGNAL(timeout()), this, SLOT(clickTimeout()));
+        this->m_clickTimer->start();
         this->setProperty("pressed", true);
-        _pressed = true;
+        m_pressed = true;
         this->style()->polish(this);
         qDebug() << "Pressed";
     }
@@ -91,24 +91,24 @@ void PrinterListItem::mouseReleaseEvent(QMouseEvent *event)
         this->style()->polish(this);
         qDebug() << "Released";
 
-        if(this->_clickTimer != NULL)
+        if(this->m_clickTimer != NULL)
         {
-            _clickTimer->stop();
-            disconnect(this->_clickTimer, SIGNAL(timeout()), this, SLOT(clickTimeout()));
-            delete _clickTimer;
-            _clickTimer = NULL;
+            m_clickTimer->stop();
+            disconnect(this->m_clickTimer, SIGNAL(timeout()), this, SLOT(clickTimeout()));
+            delete m_clickTimer;
+            m_clickTimer = NULL;
         }
 
-        if(_pressed && !_longPress)
+        if(m_pressed && !m_longPress)
         {
-            _pressed = false;
-            _longPress = false;
+            m_pressed = false;
+            m_longPress = false;
             emit(clicked(this));
         }
-        else if(_longPress)
+        else if(m_longPress)
         {
-            _pressed = false;
-            _longPress = false;
+            m_pressed = false;
+            m_longPress = false;
             emit(longPressed(this));
         }
     }

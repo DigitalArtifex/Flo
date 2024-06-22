@@ -4,101 +4,101 @@
 FileBrowserItem::FileBrowserItem(KlipperFile file, QWidget *parent, DisplayMode mode) :
     QAnimatedListItem(parent)
 {
-    _displayMode = mode;
+    m_displayMode = mode;
     setFile(file);
     setupUi();
 }
 
 FileBrowserItem::~FileBrowserItem()
 {
-    if(_iconLabel)
-        delete _iconLabel;
+    if(m_iconLabel)
+        delete m_iconLabel;
 
-    if(_iconContainer)
-        delete _iconContainer;
+    if(m_iconContainer)
+        delete m_iconContainer;
 
-    if(_titleLabel)
-        delete _titleLabel;
+    if(m_titleLabel)
+        delete m_titleLabel;
 
-    if(_sizeLabel)
-        delete _sizeLabel;
+    if(m_sizeLabel)
+        delete m_sizeLabel;
 
-    if(_modifiedLabel)
-        delete _modifiedLabel;
+    if(m_modifiedLabel)
+        delete m_modifiedLabel;
 
-    if(_spacer)
-        delete _spacer;
+    if(m_spacer)
+        delete m_spacer;
 
-    if(_layout)
-        delete _layout;
+    if(m_layout)
+        delete m_layout;
 }
 
 KlipperFile FileBrowserItem::file() const
 {
-    return _file;
+    return m_file;
 }
 
 void FileBrowserItem::setFile(const KlipperFile &file)
 {
-    _file = file;
+    m_file = file;
 
-    if(_file.type == KlipperFile::Directory)
-        _directory = true;
+    if(m_file.type == KlipperFile::Directory)
+        m_directory = true;
 }
 
 bool FileBrowserItem::isDirectory() const
 {
-    return (_file.type == KlipperFile::Directory);
+    return (m_file.type == KlipperFile::Directory);
 }
 
 void FileBrowserItem::setupUi()
 {
-    _layout = new QGridLayout();
+    m_layout = new QGridLayout();
 
-    _iconContainer = new QWidget(this);
-    _iconContainer->setLayout(new QVBoxLayout(_iconContainer));
-    _iconContainer->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Minimum));
-    _iconContainer->layout()->setContentsMargins(0,0,0,0);
-    _layout->addWidget(_iconContainer,0,0,2,1);
+    m_iconContainer = new QWidget(this);
+    m_iconContainer->setLayout(new QVBoxLayout(m_iconContainer));
+    m_iconContainer->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Minimum));
+    m_iconContainer->layout()->setContentsMargins(0,0,0,0);
+    m_layout->addWidget(m_iconContainer,0,0,2,1);
 
-    _iconLabel = new QLabel(this);
-    _iconContainer->layout()->addWidget(_iconLabel);
+    m_iconLabel = new QLabel(this);
+    m_iconContainer->layout()->addWidget(m_iconLabel);
 
-    if(_displayMode == Page)
+    if(m_displayMode == Page)
     {
         setFixedHeight(75);
-        _iconContainer->setFixedWidth(50);
-        _iconLabel->setFixedSize(30,30);
+        m_iconContainer->setFixedWidth(50);
+        m_iconLabel->setFixedSize(30,30);
     }
 
     else
     {
         setFixedHeight(50);
-        _iconContainer->setFixedWidth(45);
-        _iconLabel->setFixedSize(30,30);
+        m_iconContainer->setFixedWidth(45);
+        m_iconLabel->setFixedSize(30,30);
     }
 
-    if(_directory)
+    if(m_directory)
     {
         QPixmap icon = Settings::getThemeIcon(QString("folder-icon")).pixmap(30,30);
-        _iconLabel->setPixmap(icon);
+        m_iconLabel->setPixmap(icon);
 
-        _titleLabel = new QLabel(this);
-        _titleLabel->setText(_file.name);
-        _layout->addWidget(_titleLabel,0,1,1,1);
+        m_titleLabel = new QLabel(this);
+        m_titleLabel->setText(m_file.name);
+        m_layout->addWidget(m_titleLabel,0,1,1,1);
     }
     else
     {
         QPixmap icon = Settings::getThemeIcon(QString("file-icon")).pixmap(30,30);
-        _iconLabel->setPixmap(icon);
+        m_iconLabel->setPixmap(icon);
 
-        _titleLabel = new QLabel(this);
-        _titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        _titleLabel->setWordWrap(true);
-        _titleLabel->setText(_file.name);
+        m_titleLabel = new QLabel(this);
+        m_titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        m_titleLabel->setWordWrap(true);
+        m_titleLabel->setText(m_file.name);
 
         QString sizeFormat = " Bytes";
-        qreal size = _file.fileSize;
+        qreal size = m_file.fileSize;
 
         if(size > 1024)
         {
@@ -112,33 +112,33 @@ void FileBrowserItem::setupUi()
             }
         }
 
-        _sizeLabel = new QLabel(this);
-        _sizeLabel->setText(QString::number(size) + sizeFormat);
+        m_sizeLabel = new QLabel(this);
+        m_sizeLabel->setText(QString::number(size) + sizeFormat);
 
         //_spacer = new QSpacerItem(10,10, QSizePolicy::Ignored, QSizePolicy::Expanding);
 
-        _modifiedLabel = new QLabel(this);
+        m_modifiedLabel = new QLabel(this);
 
-        if(_displayMode == Page)
+        if(m_displayMode == Page)
         {
-            _layout->addWidget(_titleLabel,0,1,1,3);
-            _layout->addWidget(_sizeLabel,1,1,1,1);
-            //_layout->addItem(_spacer, 1, 2, 1, 1);
-            _layout->addWidget(_modifiedLabel,1,2,1,1);
-            _modifiedLabel->setText(QDateTime::fromSecsSinceEpoch(_file.dateModified).toString());
-            _sizeLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            m_layout->addWidget(m_titleLabel,0,1,1,3);
+            m_layout->addWidget(m_sizeLabel,1,1,1,1);
+            //_layout->addItem(m_spacer, 1, 2, 1, 1);
+            m_layout->addWidget(m_modifiedLabel,1,2,1,1);
+            m_modifiedLabel->setText(QDateTime::fromSecsSinceEpoch(m_file.dateModified).toString());
+            m_sizeLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         }
 
         else
         {
-            _layout->addWidget(_titleLabel,0,1,1,1);
-            _layout->addWidget(_sizeLabel,0,2,1,1);
-            //_layout->addItem(_spacer, 0, 3, 1, 1);
-            _layout->addWidget(_modifiedLabel,0,3,1,1);
-            _modifiedLabel->setText(QDateTime::fromSecsSinceEpoch(_file.dateModified).toString("MM/dd/yy"));
-            _sizeLabel->setFixedWidth(120);
+            m_layout->addWidget(m_titleLabel,0,1,1,1);
+            m_layout->addWidget(m_sizeLabel,0,2,1,1);
+            //_layout->addItem(m_spacer, 0, 3, 1, 1);
+            m_layout->addWidget(m_modifiedLabel,0,3,1,1);
+            m_modifiedLabel->setText(QDateTime::fromSecsSinceEpoch(m_file.dateModified).toString("MM/dd/yy"));
+            m_sizeLabel->setFixedWidth(120);
         }
     }
 
-    setLayout(_layout);
+    setLayout(m_layout);
 }

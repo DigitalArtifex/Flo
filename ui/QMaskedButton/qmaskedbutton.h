@@ -39,19 +39,19 @@ signals:
     void doubleClicked(QMaskedButton *button);
 
 private:
-    bool _pressed = false;
-    bool _longPressed = false;
-    bool _hover = false;
+    bool m_pressed = false;
+    bool m_longPressed = false;
+    bool m_hover = false;
 
-    QTimer *_clickTimer = nullptr;
+    QTimer *m_clickTimer = nullptr;
 
-    QPixmap _pixmap;
-    QPixmap _hoverPixmap;
-    QPixmap _clickPixmap;
+    QPixmap m_pixmap;
+    QPixmap m_hoverPixmap;
+    QPixmap m_clickPixmap;
 
-    QBitmap _mask;
-    QBitmap _hoverMask;
-    QBitmap _clickMask;
+    QBitmap m_mask;
+    QBitmap m_hoverMask;
+    QBitmap m_clickMask;
 };
 
 #endif // QMASKEDBUTTON_H

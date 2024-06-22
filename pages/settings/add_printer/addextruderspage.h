@@ -35,9 +35,9 @@ private slots:
 private:
     Ui::AddExtrudersPage *ui;
 
-    int _extruderCount = 0;
+    int m_extruderCount = 0;
 
-    PrinterDefinition _definition;
+    PrinterDefinition m_definition;
 };
 
 #endif // ADDEXTRUDERSPAGE_H

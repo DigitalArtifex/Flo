@@ -25,7 +25,7 @@ public:
     FileBrowserItem *selectedItem();
 
 private:
-    DisplayMode _displayMode = Page;
+    DisplayMode m_displayMode = Page;
 };
 
 #endif // FILEBROWSERWIDGET_H

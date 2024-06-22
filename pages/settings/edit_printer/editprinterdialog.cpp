@@ -20,28 +20,28 @@ EditPrinterDialog::~EditPrinterDialog()
 
 Printer *EditPrinterDialog::printer() const
 {
-    return _printer;
+    return m_printer;
 }
 
 void EditPrinterDialog::setPrinter(Printer *printer)
 {
-    _printer = printer;
-    setWindowTitle(_printer->name());
+    m_printer = printer;
+    setWindowTitle(m_printer->name());
 
-    ui->extruderCountSpinBox->setValue(_printer->toolhead()->extruderCount());
+    ui->extruderCountSpinBox->setValue(m_printer->toolhead()->extruderCount());
     reset();
 }
 
 void EditPrinterDialog::reset()
 {
-    setWindowTitle(_printer->name());
+    setWindowTitle(m_printer->name());
 
-    ui->printerNameEdit->setText(_printer->name());
-    ui->printerInstanceLocationEdit->setText(_printer->instanceLocation());
-    ui->bedPowerSpinBox->setValue(_printer->bed()->watts());
+    ui->printerNameEdit->setText(m_printer->name());
+    ui->printerInstanceLocationEdit->setText(m_printer->instanceLocation());
+    ui->bedPowerSpinBox->setValue(m_printer->bed()->watts());
 
-    ui->printerAutoConnectCheckBox->setChecked(_printer->isAutoConnect());
-    ui->printerDefaultPrinterCheckBox->setChecked(_printer->isDefaultPrinter());
+    ui->printerAutoConnectCheckBox->setChecked(m_printer->isAutoConnect());
+    ui->printerDefaultPrinterCheckBox->setChecked(m_printer->isDefaultPrinter());
 
     QList<QDoubleSpinBox*> edits = ui->profileTab->findChildren<QDoubleSpinBox*>();
 
@@ -52,7 +52,7 @@ void EditPrinterDialog::reset()
             if (edits[c]->property("extruder").isValid())
             {
                 int extruder = edits[c]->property("extruder").toInt();
-                edits[c]->setValue(_printer->powerProfile()[(QString("extruder") + ((extruder > 0) ? QString::number(extruder) : QString("")))]);
+                edits[c]->setValue(m_printer->powerProfile()[(QString("extruder") + ((extruder > 0) ? QString::number(extruder) : QString("")))]);
             }
         }
     }
@@ -78,21 +78,21 @@ void EditPrinterDialog::apply()
                 int extruder = edits[c]->property("extruder").toInt();
                 qreal extruderPower = edits[c]->text().toFloat();
 
-                _printer->toolhead()->setExtruderMaxWatts(extruder,extruderPower);
+                m_printer->toolhead()->setExtruderMaxWatts(extruder,extruderPower);
             }
         }
     }
 
     if(ui->printerNameEdit->isModified())
-        _printer->setName(ui->printerNameEdit->text());
+        m_printer->setName(ui->printerNameEdit->text());
 
     if(ui->printerInstanceLocationEdit->isModified())
-        _printer->setInstanceLocation(ui->printerInstanceLocationEdit->text());
+        m_printer->setInstanceLocation(ui->printerInstanceLocationEdit->text());
 
-    _printer->bed()->setWatts(ui->bedPowerSpinBox->value());
-    _printer->setApiKey(ui->printerKeyEdit->text());
+    m_printer->bed()->setWatts(ui->bedPowerSpinBox->value());
+    m_printer->setApiKey(ui->printerKeyEdit->text());
 
-    PrinterPool::updatePrinter(_printer->definition());
+    PrinterPool::updatePrinter(m_printer->definition());
     clear();
     close();
 }
@@ -118,26 +118,26 @@ void EditPrinterDialog::on_buttonBox_clicked(QAbstractButton *button)
 
 void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
 {
-    if(arg1 > _extruderCount)
+    if(arg1 > m_extruderCount)
     {
-        for(int i = _extruderCount; i < arg1; i++)
+        for(int i = m_extruderCount; i < arg1; i++)
         {
-            QLabel *_extruderLabel = new QLabel(ui->profileTab);
-            _extruderLabel->setProperty("extruder", i);
-            _extruderLabel->setText(QString("Extruder ") + ((i > 0) ? QString::number(i) : QString("")));
+            QLabel *m_extruderLabel = new QLabel(ui->profileTab);
+            m_extruderLabel->setProperty("extruder", i);
+            m_extruderLabel->setText(QString("Extruder ") + ((i > 0) ? QString::number(i) : QString("")));
 
-            QDoubleSpinBox *_extruderWattEdit = new QDoubleSpinBox(ui->profileTab);
-            _extruderWattEdit->setProperty("extruder", i);
-            _extruderWattEdit->setAlignment(Qt::AlignRight);
-            _extruderWattEdit->setValue(_printer->powerProfile()[(QString("extruder") + ((i > 0) ? QString::number(i) : QString("")))]);
+            QDoubleSpinBox *m_extruderWattEdit = new QDoubleSpinBox(ui->profileTab);
+            m_extruderWattEdit->setProperty("extruder", i);
+            m_extruderWattEdit->setAlignment(Qt::AlignRight);
+            m_extruderWattEdit->setValue(m_printer->powerProfile()[(QString("extruder") + ((i > 0) ? QString::number(i) : QString("")))]);
 
-            ui->profileTab->layout()->addWidget(_extruderLabel);
-            ui->profileTab->layout()->addWidget(_extruderWattEdit);
+            ui->profileTab->layout()->addWidget(m_extruderLabel);
+            ui->profileTab->layout()->addWidget(m_extruderWattEdit);
         }
     }
     else
     {
-        for(int i = _extruderCount - 1; i >= arg1; i--)
+        for(int i = m_extruderCount - 1; i >= arg1; i--)
         {
             QList<QLabel*> labels = ui->profileTab->findChildren<QLabel*>();
 
@@ -170,12 +170,12 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
     ui->profileTab->layout()->removeItem(ui->profileSpacer);
     ui->profileTab->layout()->addItem(ui->profileSpacer);
     ui->profileTab->layout()->addItem(ui->profileSpacer);
-    _extruderCount = arg1;
+    m_extruderCount = arg1;
 }
 
 void EditPrinterDialog::on_printerInstanceLocationEdit_textChanged(QString text)
 {
-    if(text.contains(_httpExpression))
+    if(text.contains(m_httpExpression))
     {
         ui->printerKeyEdit->setEnabled(true);
     }

@@ -31,11 +31,11 @@ private:
     QOpenGLBuffer arrayBuf;
     QOpenGLBuffer indexBuf;
 
-    qint32 _width = 235;
-    qint32 _length = 235;
-    qint32 _thickness = 1;
-    qreal  _scaleFactor = 1000;
-    qreal  _scale = 5;
+    qint32 m_width = 235;
+    qint32 m_length = 235;
+    qint32 m_thickness = 1;
+    qreal  m_scaleFactor = 1000;
+    qreal  m_scale = 5;
 };
 
 #endif // GEOMETRYENGINE_H

@@ -22,10 +22,10 @@ void KlipperResponse::setDocument(QJsonObject document)
 
 qint64 KlipperResponse::id() const
 {
-    return _id;
+    return m_id;
 }
 
 void KlipperResponse::setId(qint64 id)
 {
-    _id = id;
+    m_id = id;
 }

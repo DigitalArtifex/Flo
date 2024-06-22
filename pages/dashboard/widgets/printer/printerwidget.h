@@ -56,11 +56,11 @@ private:
 
 private:
     Ui::PrinterWidget *ui;
-    Printer *_printer = nullptr;
-    QMovie *_loadingGif = nullptr;
-    QLabel *_loadingLabel = nullptr;
+    Printer *m_printer = nullptr;
+    QMovie *m_loadingGif = nullptr;
+    QLabel *m_loadingLabel = nullptr;
 
-    WidgetAnimation *_loadingAnimation = nullptr;
+    WidgetAnimation *m_loadingAnimation = nullptr;
 };
 
 #endif // PRINTERWIDGET_H

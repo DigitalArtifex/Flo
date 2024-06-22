@@ -26,8 +26,8 @@ void Q3DPrintBedMeshWidget::setupUI()
 void Q3DPrintBedMeshWidget::mousePressEvent(QMouseEvent *e)
 {
     // Save mouse press position
-    _rotating = true;
-    _mousePosition = QVector2D(e->position());
+    m_rotating = true;
+    m_mousePosition = QVector2D(e->position());
 }
 
 void Q3DPrintBedMeshWidget::mouseReleaseEvent(QMouseEvent *e)
@@ -49,16 +49,16 @@ void Q3DPrintBedMeshWidget::mouseReleaseEvent(QMouseEvent *e)
     // Increase angular speed
     angularSpeed += acc;*/
 
-    _rotating = false;
+    m_rotating = false;
     angularSpeed = 0;
 }
 
 void Q3DPrintBedMeshWidget::mouseMoveEvent(QMouseEvent *e)
 {
-    if(_rotating)
+    if(m_rotating)
     {
         // Mouse release position - mouse press position
-        QVector2D diff = QVector2D(e->position()) - _mousePosition;
+        QVector2D diff = QVector2D(e->position()) - m_mousePosition;
 
         // Rotation axis is perpendicular to the mouse position difference
         // vector
@@ -72,7 +72,7 @@ void Q3DPrintBedMeshWidget::mouseMoveEvent(QMouseEvent *e)
 
         // Increase angular speed
         angularSpeed += acc;
-        _mousePosition = QVector2D(e->position());
+        m_mousePosition = QVector2D(e->position());
 
         // Update rotation
         rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
@@ -87,7 +87,7 @@ void Q3DPrintBedMeshWidget::mouseMoveEvent(QMouseEvent *e)
 //! [1]
 void Q3DPrintBedMeshWidget::timerEvent(QTimerEvent *)
 {
-    if(_rotating)
+    if(m_rotating)
     {
         // Decrease angular speed (friction)
         angularSpeed *= 0.99;

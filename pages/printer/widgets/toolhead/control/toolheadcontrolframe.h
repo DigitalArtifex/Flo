@@ -10,6 +10,7 @@
 
 #include "../../../../../ui/QMaskedButton/qmaskedbutton.h"
 #include "../../../../../types/toolhead.h"
+#include "../../../../../types/printer.h"
 
 class ToolHeadControlFrame : public QFrame
 {
@@ -17,6 +18,9 @@ class ToolHeadControlFrame : public QFrame
 public:
     ToolHeadControlFrame(Toolhead *toolhead, QWidget *parent);
     ~ToolHeadControlFrame();
+
+    qreal increment() const;
+    void setIncrement(qreal increment);
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
@@ -34,15 +38,17 @@ protected slots:
 
 private:
 
-    QMaskedButton *_xUpWidget = nullptr;
-    QMaskedButton *_xDownWidget = nullptr;
-    QMaskedButton *_yUpWidget = nullptr;
-    QMaskedButton *_yDownWidget = nullptr;
-    QMaskedButton *_zUpWidget = nullptr;
-    QMaskedButton *_zDownWidget = nullptr;
-    QMaskedButton *_homeWidget = nullptr;
+    QMaskedButton *m_xUpWidget = nullptr;
+    QMaskedButton *m_xDownWidget = nullptr;
+    QMaskedButton *m_yUpWidget = nullptr;
+    QMaskedButton *m_yDownWidget = nullptr;
+    QMaskedButton *m_zUpWidget = nullptr;
+    QMaskedButton *m_zDownWidget = nullptr;
+    QMaskedButton *m_homeWidget = nullptr;
 
-    Toolhead *_toolhead = nullptr;
+    Toolhead *m_toolhead = nullptr;
+
+    qreal m_increment = 1.0;
 };
 
 #endif // TOOLHEADCONTROLFRAME_H

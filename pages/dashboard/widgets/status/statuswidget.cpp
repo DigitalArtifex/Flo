@@ -34,13 +34,13 @@ void StatusWidget::loadPrintJobs()
         /*PrintJob *job = new PrintJob();
         job->fileName = QString("No Jobs Running");
         job->printerName = QString("None");
-        _printJobList->addJob(job);*/
+        m_printJobList->addJob(job);*/
     }
     else
     {
         foreach(PrintJob *job, jobs)
         {
-            _printJobList->addJob(job);
+            m_printJobList->addJob(job);
         }
     }
 }
@@ -52,7 +52,7 @@ void StatusWidget::setStyleSheet(QString styleSheet)
     setTabIcon(1, Settings::getThemeIcon(QString("voltage-icon")));
     setTabIcon(0, Settings::getThemeIcon(QString("list-icon")));
 
-    _printJobList->setStyleSheet(styleSheet);
+    m_printJobList->setStyleSheet(styleSheet);
 }
 
 void StatusWidget::on_printerPool_jobStarted(PrintJob *job)
@@ -72,9 +72,9 @@ void StatusWidget::on_printerPool_jobUpdated(PrintJob *job)
 
 void StatusWidget::setupJobPage()
 {
-    _printJobList = new PrintJobListWidget(this);
+    m_printJobList = new PrintJobListWidget(this);
 
-    addTab(_printJobList, Settings::getThemeIcon(QString("list-icon")), QString("Jobs"));
+    addTab(m_printJobList, Settings::getThemeIcon(QString("list-icon")), QString("Jobs"));
 
     connect(PrinterPool::instance(), SIGNAL(jobStarted(PrintJob*)), this, SLOT(on_printerPool_jobStarted(PrintJob*)));
     connect(PrinterPool::instance(), SIGNAL(jobFinished(PrintJob*)), this, SLOT(on_printerPool_jobFinished(PrintJob*)));
@@ -83,12 +83,12 @@ void StatusWidget::setupJobPage()
 
 void StatusWidget::setupEnergyPage()
 {
-    _energyConsumption = new EnergyConsumptionWidget(this);
-    addTab(_energyConsumption, Settings::getThemeIcon(QString("voltage-icon")), QString("Energy Consumption"));
+    m_energyConsumption = new EnergyConsumptionWidget(this);
+    addTab(m_energyConsumption, Settings::getThemeIcon(QString("voltage-icon")), QString("Energy Consumption"));
 }
 
 void StatusWidget::setupIssuesPage()
 {
-    _issueList = new IssueListWidget(this);
-    addTab(_issueList, Settings::getThemeIcon(QString("error-icon")), QString("Issues"));
+    m_issueList = new IssueListWidget(this);
+    addTab(m_issueList, Settings::getThemeIcon(QString("error-icon")), QString("Issues"));
 }

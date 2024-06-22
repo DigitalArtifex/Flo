@@ -6,30 +6,30 @@ QStepperMotor::QStepperMotor(QObject *parent)
 
 QString QStepperMotor::name() const
 {
-    return _name;
+    return m_name;
 }
 
 void QStepperMotor::setName(const QString &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 qreal QStepperMotor::current() const
 {
-    return _current;
+    return m_current;
 }
 
 void QStepperMotor::setCurrent(qreal current)
 {
-    _current = current;
+    m_current = current;
 }
 
 void QStepperMotor::setEnabled(bool enabled)
 {
-    _enabled = enabled;
+    m_enabled = enabled;
 }
 
 bool QStepperMotor::isEnabled() const
 {
-    return _enabled;
+    return m_enabled;
 }

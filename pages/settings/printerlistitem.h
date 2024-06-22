@@ -39,11 +39,11 @@ private slots:
 
 private:
     Ui::PrinterListItem *ui;
-    PrinterDefinition _definition;
-    bool _pressed = false;
-    bool _longPress = false;
-    bool _rightClick = false;
-    QTimer *_clickTimer = NULL;
+    PrinterDefinition m_definition;
+    bool m_pressed = false;
+    bool m_longPress = false;
+    bool m_rightClick = false;
+    QTimer *m_clickTimer = NULL;
 };
 
 #endif // PRINTERLISTITEM_H

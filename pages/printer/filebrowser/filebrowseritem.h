@@ -41,22 +41,22 @@ private slots:
     virtual void setupUi();
 
 private:
-    KlipperFile _file = KlipperFile();
+    KlipperFile m_file = KlipperFile();
 
-    bool _directory = false;
+    bool m_directory = false;
 
     //UI Elements
-    QLabel *_titleLabel = nullptr;
-    QLabel *_sizeLabel = nullptr;
-    QLabel *_modifiedLabel = nullptr;
-    QLabel *_iconLabel = nullptr;
+    QLabel *m_titleLabel = nullptr;
+    QLabel *m_sizeLabel = nullptr;
+    QLabel *m_modifiedLabel = nullptr;
+    QLabel *m_iconLabel = nullptr;
 
-    QWidget *_iconContainer = nullptr;
+    QWidget *m_iconContainer = nullptr;
 
-    QGridLayout *_layout = nullptr;
-    QSpacerItem *_spacer = nullptr;
+    QGridLayout *m_layout = nullptr;
+    QSpacerItem *m_spacer = nullptr;
 
-    DisplayMode _displayMode = Page;
+    DisplayMode m_displayMode = Page;
 };
 
 #endif // FILEBROWSERITEM_H

@@ -24,13 +24,13 @@ public:
 
 private:
 
-    QLabel *_label = nullptr;
-    QLabel *_iconLabel = nullptr;
+    QLabel *m_label = nullptr;
+    QLabel *m_iconLabel = nullptr;
 
-    QSpacerItem *_topSpacer = nullptr;
-    QSpacerItem *_bottomSpacer = nullptr;
+    QSpacerItem *m_topSpacer = nullptr;
+    QSpacerItem *m_bottomSpacer = nullptr;
 
-    QGridLayout *_layout = nullptr;
+    QGridLayout *m_layout = nullptr;
 };
 
 #endif // FILEBROWSEROVERLAY_H

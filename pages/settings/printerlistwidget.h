@@ -37,9 +37,9 @@ private slots:
 
 private:
     Ui::PrinterListWidget *ui;
-    QList<PrinterListItem*> _items;
-    QSpacerItem *_spacer = nullptr;
-    PrinterListItem *_selectedItem = nullptr;
+    QList<PrinterListItem*> m_items;
+    QSpacerItem *m_spacer = nullptr;
+    PrinterListItem *m_selectedItem = nullptr;
 };
 
 #endif // PRINTERLISTWIDGET_H

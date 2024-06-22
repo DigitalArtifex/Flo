@@ -3,121 +3,121 @@
 
 Toolhead::Toolhead(Printer *printer, QObject *parent) : QObject(parent)
 {
-    _fan = new Fan(printer);
-    _printer = printer;
+    m_fan = new Fan(printer);
+    m_printer = printer;
 }
 
 void Toolhead::addExtruder(Extruder *extruder)
 {
-    _extruders[_extruders.count()] = extruder;
+    m_extruders[m_extruders.count()] = extruder;
 }
 
 Extruder *Toolhead::extruder(int index)
 {
-    int currentIndex = _extruders.count() - 1;
+    int currentIndex = m_extruders.count() - 1;
 
     if(index > currentIndex)
-        addExtruder(new Extruder(_printer));
+        addExtruder(new Extruder(m_printer));
 
-    return _extruders[index];
+    return m_extruders[index];
 }
 
 Fan *Toolhead::fan()
 {
-    return _fan;
+    return m_fan;
 }
 
 Position Toolhead::position()
 {
-    return _position;
+    return m_position;
 }
 
 Position Toolhead::destination()
 {
-    return _destination;
+    return m_destination;
 }
 
 void Toolhead::setPosition(Position position)
 {
-    _position = position;
+    m_position = position;
 }
 
 void Toolhead::setPosition(qreal x, qreal y, qreal z)
 {
-    _position = Position(x,y,z);
+    m_position = Position(x,y,z);
 }
 
 Position Toolhead::maxPosition()
 {
-    return _maxPosition;
+    return m_maxPosition;
 }
 
 Position Toolhead::minPosition()
 {
-    return _minPosition;
+    return m_minPosition;
 }
 
 void Toolhead::homeX()
 {
-    _isHoming = true;
-    _isXHoming = true;
+    m_isHoming = true;
+    m_isXHoming = true;
 
-    _xHomed = false;
+    m_xHomed = false;
 
     //G28 to home
     QString gcode("G28 X");
 
     //send the gcode
-    _printer->console()->sendGcode(gcode);
+    m_printer->console()->sendGcode(gcode);
 
     emit homing();
 }
 
 void Toolhead::homeY()
 {
-    _isHoming = true;
-    _isYHoming = true;
+    m_isHoming = true;
+    m_isYHoming = true;
 
-    _yHomed = false;
+    m_yHomed = false;
 
     //G28 to home
     QString gcode("G28 Y");
 
     //send the gcode
-    _printer->console()->sendGcode(gcode);
+    m_printer->console()->sendGcode(gcode);
 
     emit homing();
 }
 
 void Toolhead::homeZ()
 {
-    _isHoming = true;
-    _isZHoming = true;
+    m_isHoming = true;
+    m_isZHoming = true;
 
-    _zHomed = false;
+    m_zHomed = false;
 
     //G28 to home
     QString gcode("G28 Z");
 
     //send the gcode
-    _printer->console()->sendGcode(gcode);
+    m_printer->console()->sendGcode(gcode);
 
     emit homing();
 }
 
 bool Toolhead::isZHomed()
 {
-    return _zHomed;
+    return m_zHomed;
 }
 
 bool Toolhead::isYHomed()
 {
-    return _yHomed;
+    return m_yHomed;
 }
 
 bool Toolhead::isXHomed()
 {
-    return _xHomed;
+    return m_xHomed;
 }
 
 bool Toolhead::isHomed()
@@ -127,11 +127,11 @@ bool Toolhead::isHomed()
 
 void Toolhead::moveX(qreal amount, qreal speed)
 {
-    if(_xHomed)
+    if(m_xHomed)
     {
         //set to relative movement
         QString gcode("G91");
-        _printer->console()->sendGcode(gcode);
+        m_printer->console()->sendGcode(gcode);
 
         //extrude the requested amount
         gcode = QString("G1 X") + QString::number(amount);
@@ -140,17 +140,17 @@ void Toolhead::moveX(qreal amount, qreal speed)
         if(speed > 0)
             gcode += QString(" F") + QString::number(speed);
 
-        _printer->console()->sendGcode(gcode);
+        m_printer->console()->sendGcode(gcode);
     }
 }
 
 void Toolhead::moveY(qreal amount, qreal speed)
 {
-    if(_yHomed)
+    if(m_yHomed)
     {
         //set to relative movement
         QString gcode("G91");
-        _printer->console()->sendGcode(gcode);
+        m_printer->console()->sendGcode(gcode);
 
         //extrude the requested amount
         gcode = QString("G1 Y") + QString::number(amount);
@@ -159,17 +159,17 @@ void Toolhead::moveY(qreal amount, qreal speed)
         if(speed > 0)
             gcode += QString(" F") + QString::number(speed);
 
-        _printer->console()->sendGcode(gcode);
+        m_printer->console()->sendGcode(gcode);
     }
 }
 
 void Toolhead::moveZ(qreal amount, qreal speed)
 {
-    if(_zHomed)
+    if(m_zHomed)
     {
         //set to relative movement
         QString gcode("G91");
-        _printer->console()->sendGcode(gcode);
+        m_printer->console()->sendGcode(gcode);
 
         //extrude the requested amount
         gcode = QString("G1 Z") + QString::number(amount);
@@ -178,47 +178,47 @@ void Toolhead::moveZ(qreal amount, qreal speed)
         if(speed > 0)
             gcode += QString(" F") + QString::number(speed);
 
-        _printer->console()->sendGcode(gcode);
+        m_printer->console()->sendGcode(gcode);
     }
 }
 
 void Toolhead::homeAll()
 {
-    _isHoming = true;
+    m_isHoming = true;
 
-    _isXHoming = true;
-    _isYHoming = true;
-    _isZHoming = true;
+    m_isXHoming = true;
+    m_isYHoming = true;
+    m_isZHoming = true;
 
-    _xHomed = false;
-    _yHomed = false;
-    _zHomed = false;
+    m_xHomed = false;
+    m_yHomed = false;
+    m_zHomed = false;
 
     //G28 to home
     QString gcode("G28");
 
     //send the gcode
-    _printer->console()->sendGcode(gcode);
+    m_printer->console()->sendGcode(gcode);
 
     emit homing();
 }
 
 int Toolhead::extruderCount()
 {
-    return _extruders.count();
+    return m_extruders.count();
 }
 
 Extruder *Toolhead::currentExtruder()
 {
     Extruder *extruder = nullptr;
 
-    if(!_currentExtruderName.isEmpty())
+    if(!m_currentExtruderName.isEmpty())
     {
-        for(int i = 0; i < _extruders.count(); i++)
+        for(int i = 0; i < m_extruders.count(); i++)
         {
-            if(_extruders[i]->_name == _currentExtruderName)
+            if(m_extruders[i]->m_name == m_currentExtruderName)
             {
-                extruder = _extruders[i];
+                extruder = m_extruders[i];
                 break;
             }
         }
@@ -231,11 +231,11 @@ Extruder *Toolhead::extruderByName(QString name)
 {
     Extruder *extruder = nullptr;
 
-    for(int i = 0; i < _extruders.count(); i++)
+    for(int i = 0; i < m_extruders.count(); i++)
     {
-        if(_extruders[i]->_name == name)
+        if(m_extruders[i]->m_name == name)
         {
-            extruder = _extruders[i];
+            extruder = m_extruders[i];
             break;
         }
     }
@@ -247,11 +247,11 @@ QString Toolhead::homedAxes()
 {
     QString homed;
 
-    if(_xHomed)
+    if(m_xHomed)
         homed += "x";
-    if(_yHomed)
+    if(m_yHomed)
         homed += "y";
-    if(_zHomed)
+    if(m_zHomed)
         homed += "z";
 
     return homed;
@@ -259,87 +259,87 @@ QString Toolhead::homedAxes()
 
 qint32 Toolhead::maxAcceleration() const
 {
-    return _maxAcceleration;
+    return m_maxAcceleration;
 }
 
 void Toolhead::setMaxAcceleration(qint32 maxAcceleration)
 {
-    _maxAcceleration = maxAcceleration;
+    m_maxAcceleration = maxAcceleration;
 }
 
 qint32 Toolhead::maxVelocity() const
 {
-    return _maxVelocity;
+    return m_maxVelocity;
 }
 
 void Toolhead::setMaxVelocity(qint32 maxVelocity)
 {
-    _maxVelocity = maxVelocity;
+    m_maxVelocity = maxVelocity;
 }
 
 qint32 Toolhead::maxAccelerationToDeceleration() const
 {
-    return _maxAccelerationToDeceleration;
+    return m_maxAccelerationToDeceleration;
 }
 
 void Toolhead::setMaxAccelerationToDeceleration(qint32 maxAccelerationToDeceleration)
 {
-    _maxAccelerationToDeceleration = maxAccelerationToDeceleration;
+    m_maxAccelerationToDeceleration = maxAccelerationToDeceleration;
 }
 
 qint32 Toolhead::stalls() const
 {
-    return _stalls;
+    return m_stalls;
 }
 
 Printer *Toolhead::printer() const
 {
-    return _printer;
+    return m_printer;
 }
 
 void Toolhead::setPrinter(Printer *printer)
 {
-    _printer = printer;
+    m_printer = printer;
 }
 
 void Toolhead::setExtruderMaxWatts(qint32 extruder, qreal watts)
 {
-    _extruders[extruder]->_watts = watts;
+    m_extruders[extruder]->m_watts = watts;
 }
 
 void Toolhead::update()
 {
-    if(_isHoming)
+    if(m_isHoming)
     {
         bool homingComplete = false;
 
-        if(_isXHoming)
+        if(m_isXHoming)
         {
-            homingComplete = _xHomed;
-            _isXHoming = !_xHomed;
+            homingComplete = m_xHomed;
+            m_isXHoming = !m_xHomed;
         }
 
-        if(_isYHoming)
+        if(m_isYHoming)
         {
-            homingComplete = _yHomed;
-            _isYHoming = !_yHomed;
+            homingComplete = m_yHomed;
+            m_isYHoming = !m_yHomed;
         }
 
-        if(_isZHoming)
+        if(m_isZHoming)
         {
-            homingComplete = _zHomed;
-            _isZHoming = !_zHomed;
+            homingComplete = m_zHomed;
+            m_isZHoming = !m_zHomed;
         }
 
         if(homingComplete)
         {
             qDebug() << QString("homed");
 
-            _isXHoming = false;
-            _isYHoming = false;
-            _isZHoming = false;
+            m_isXHoming = false;
+            m_isYHoming = false;
+            m_isZHoming = false;
 
-            _isHoming = false;
+            m_isHoming = false;
             emit homed();
         }
     }

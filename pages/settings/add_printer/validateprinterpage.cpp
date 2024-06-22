@@ -13,12 +13,12 @@ ValidatePrinterPage::ValidatePrinterPage(QWidget *parent) :
 ValidatePrinterPage::~ValidatePrinterPage()
 {
     delete ui;
-    delete _printer;
+    delete m_printer;
 }
 
 bool ValidatePrinterPage::validatePage()
 {
-    return _validated;
+    return m_validated;
 }
 
 void ValidatePrinterPage::setDefinition(PrinterDefinition definition)
@@ -82,40 +82,40 @@ void ValidatePrinterPage::setDefinition(PrinterDefinition definition)
     if(PrinterPool::printersAvailable() == 0)
         definition.defaultPrinter = true;
 
-    _printer = new Printer(definition);
+    m_printer = new Printer(definition);
 
-    if(_printer->isAutoConnect())
+    if(m_printer->isAutoConnect())
     {
-        ui->textEdit->append(QString("Connecting to ") + _printer->name());
+        ui->textEdit->append(QString("Connecting to ") + m_printer->name());
 
-        connect(_printer, SIGNAL(moonrakerConnected(Printer*)), this, SLOT(on_moonrakerConnected(Printer*)));
-        connect(_printer, SIGNAL(printerOnline(Printer*)), this, SLOT(on_printerOnline(Printer*)));
-        connect(_printer, SIGNAL(klipperConnected(Printer*)), this, SLOT(on_klipperConnected(Printer*)));
+        connect(m_printer, SIGNAL(moonrakerConnected(Printer*)), this, SLOT(on_moonrakerConnected(Printer*)));
+        connect(m_printer, SIGNAL(printerOnline(Printer*)), this, SLOT(on_printerOnline(Printer*)));
+        connect(m_printer, SIGNAL(klipperConnected(Printer*)), this, SLOT(on_klipperConnected(Printer*)));
 
-        _printer->console()->connectToMoonraker();
+        m_printer->console()->connectToMoonraker();
     }
     else
     {
-        ui->textEdit->append(QString("Printer \'") + _printer->name() + QString("\' is ready"));
-        _validated = true;
+        ui->textEdit->append(QString("Printer \'") + m_printer->name() + QString("\' is ready"));
+        m_validated = true;
     }
 }
 
 PrinterDefinition ValidatePrinterPage::definition()
 {
-    return _printer->definition();
+    return m_printer->definition();
 }
 
 void ValidatePrinterPage::on_klipperConnected(Printer *printer)
 {
     ui->textEdit->append(QString("--Klipper Connected"));
-    _validated = true;
+    m_validated = true;
 }
 
 void ValidatePrinterPage::on_printerOnline(Printer *printer)
 {
-    ui->textEdit->append(QString("Printer ") + _printer->name() + QString(" Online"));
-    _validated = true;
+    ui->textEdit->append(QString("Printer ") + m_printer->name() + QString(" Online"));
+    m_validated = true;
 }
 
 void ValidatePrinterPage::on_moonrakerConnected(Printer *printer)

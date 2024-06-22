@@ -2,7 +2,7 @@
 
 Fan::Fan(Printer *printer)
 {
-    _printer = printer;
+    m_printer = printer;
 }
 
 Fan::~Fan()
@@ -12,30 +12,30 @@ Fan::~Fan()
 
 qreal Fan::speed() const
 {
-    return _speed;
+    return m_speed;
 }
 
 void Fan::setSpeed(qreal speed)
 {
-    _speed = speed;
+    m_speed = speed;
 }
 
 qreal Fan::rpm() const
 {
-    return _rpm;
+    return m_rpm;
 }
 
 void Fan::setRpm(qreal rpm)
 {
-    _rpm = rpm;
+    m_rpm = rpm;
 }
 
 Printer *Fan::printer() const
 {
-    return _printer;
+    return m_printer;
 }
 
 void Fan::setPrinter(Printer *printer)
 {
-    _printer = printer;
+    m_printer = printer;
 }

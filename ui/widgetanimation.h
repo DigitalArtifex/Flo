@@ -42,26 +42,26 @@ private slots:
     void on_animations_finished();
 
 private:
-    Property _property = (Property)0;
-    qreal _heightIn = 0;
-    qreal _heightOut = 0;
-    qreal _widthIn = 0;
-    qreal _widthOut = 0;
+    Property m_property = (Property)0;
+    qreal m_heightIn = 0;
+    qreal m_heightOut = 0;
+    qreal m_widthIn = 0;
+    qreal m_widthOut = 0;
 
-    QWidget *_target = nullptr;
-    QParallelAnimationGroup *_animationsIn = nullptr;
-    QParallelAnimationGroup *_animationsOut = nullptr;
-    QPropertyAnimation *_animationIn_maxHeight = nullptr;
-    QPropertyAnimation *_animationIn_minHeight = nullptr;
-    QPropertyAnimation *_animationIn_maxWidth = nullptr;
-    QPropertyAnimation *_animationIn_minWidth = nullptr;
-    QPropertyAnimation *_animationIn_opacity = nullptr;
-    QPropertyAnimation *_animationOut_maxHeight = nullptr;
-    QPropertyAnimation *_animationOut_minHeight = nullptr;
-    QPropertyAnimation *_animationOut_maxWidth = nullptr;
-    QPropertyAnimation *_animationOut_minWidth = nullptr;
-    QPropertyAnimation *_animationOut_opacity = nullptr;
-    QGraphicsOpacityEffect *_effect_opacity = nullptr;
+    QWidget *m_target = nullptr;
+    QParallelAnimationGroup *m_animationsIn = nullptr;
+    QParallelAnimationGroup *m_animationsOut = nullptr;
+    QPropertyAnimation *m_animationIn_maxHeight = nullptr;
+    QPropertyAnimation *m_animationIn_minHeight = nullptr;
+    QPropertyAnimation *m_animationIn_maxWidth = nullptr;
+    QPropertyAnimation *m_animationIn_minWidth = nullptr;
+    QPropertyAnimation *m_animationIn_opacity = nullptr;
+    QPropertyAnimation *m_animationOut_maxHeight = nullptr;
+    QPropertyAnimation *m_animationOut_minHeight = nullptr;
+    QPropertyAnimation *m_animationOut_maxWidth = nullptr;
+    QPropertyAnimation *m_animationOut_minWidth = nullptr;
+    QPropertyAnimation *m_animationOut_opacity = nullptr;
+    QGraphicsOpacityEffect *m_effect_opacity = nullptr;
 };
 
 #endif // WIDGETANIMATION_H

@@ -28,7 +28,7 @@ private slots:
 
 private:
     Ui::BedMeshEmptyFrame *ui;
-    Q3DPrintBed *_printerBed = nullptr;
+    Q3DPrintBed *m_printerBed = nullptr;
 };
 
 #endif // BEDMESHEMPTYFRAME_H

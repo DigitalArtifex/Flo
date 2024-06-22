@@ -1,15 +1,15 @@
 #include "flo.h"
 
-PrinterPool *Flo::_printerPool = nullptr;
-Settings *Flo::_settings = nullptr;
+PrinterPool *Flo::m_printerPool = nullptr;
+Settings *Flo::m_settings = nullptr;
 
-Flo *Flo::_instance = nullptr;
+Flo *Flo::m_instance = nullptr;
 
 Flo::Flo(QObject *parent)
     : QObject{parent}
 {
-    _settings = Settings::instance();
-    _printerPool = PrinterPool::instance();
+    m_settings = Settings::instance();
+    m_printerPool = PrinterPool::instance();
 }
 
 QString Flo::generatId()
@@ -19,10 +19,10 @@ QString Flo::generatId()
 
 Flo *Flo::instance()
 {
-    if(_instance == nullptr)
-        _instance = new Flo();
+    if(m_instance == nullptr)
+        m_instance = new Flo();
 
-    return _instance;
+    return m_instance;
 }
 
 void Flo::start(QObject *parent)
@@ -40,12 +40,12 @@ void Flo::start(QObject *parent)
 
 PrinterPool *Flo::printerPool()
 {
-    return _printerPool;
+    return m_printerPool;
 }
 
 Settings *Flo::settings()
 {
-    return _settings;
+    return m_settings;
 }
 
 void Flo::on_loading()

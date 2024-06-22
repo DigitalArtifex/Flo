@@ -8,8 +8,8 @@ PrinterListWidget::PrinterListWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->scrollAreaWidgetContents->setLayout(new QVBoxLayout());
-    _spacer = new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Expanding);
-    _items.clear();
+    m_spacer = new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Expanding);
+    m_items.clear();
 
     connect(PrinterPool::instance(), SIGNAL(printerAdded(Printer*)), this, SLOT(on_printerPool_printerAdded(Printer*)));
     connect(PrinterPool::instance(), SIGNAL(printerRemoved(Printer*)), this, SLOT(on_printerPool_printerRemoved(Printer*)));
@@ -24,7 +24,7 @@ void PrinterListWidget::addItem(PrinterDefinition definition)
 {
     bool found = false;
 
-    foreach(PrinterListItem *item, _items)
+    foreach(PrinterListItem *item, m_items)
     {
         if(item->printerDefinition().id == definition.id)
         {
@@ -41,41 +41,41 @@ void PrinterListWidget::addItem(PrinterDefinition definition)
 
         connect(item, SIGNAL(clicked(PrinterListItem*)), this, SLOT(on_itemClicked(PrinterListItem*)));
 
-        ui->scrollAreaWidgetContents->layout()->removeItem(_spacer);
+        ui->scrollAreaWidgetContents->layout()->removeItem(m_spacer);
         ui->scrollAreaWidgetContents->layout()->addWidget(item);
-        ui->scrollAreaWidgetContents->layout()->addItem(_spacer);
-        _items.append(item);
+        ui->scrollAreaWidgetContents->layout()->addItem(m_spacer);
+        m_items.append(item);
     }
 }
 
 PrinterListItem *PrinterListWidget::selectedItem()
 {
-    return _selectedItem;
+    return m_selectedItem;
 }
 
 void PrinterListWidget::on_itemClicked(PrinterListItem *item)
 {
-    _selectedItem = item;
+    m_selectedItem = item;
 
-    for(int i = 0; i < _items.count(); i++)
+    for(int i = 0; i < m_items.count(); i++)
     {
-        _items[i]->setSelected(false);
+        m_items[i]->setSelected(false);
     }
 
     item->setSelected(true);
 
-    emit(itemSelected(_selectedItem));
+    emit(itemSelected(m_selectedItem));
 }
 
 void PrinterListWidget::on_printerPool_printerRemoved(Printer *printer)
 {
-    for(int i = 0; i < _items.count(); i++)
+    for(int i = 0; i < m_items.count(); i++)
     {
-        if(printer->id() == _items[i]->printerDefinition().id)
+        if(printer->id() == m_items[i]->printerDefinition().id)
         {
-            PrinterListItem *item = _items[i];
-            ui->scrollAreaWidgetContents->layout()->removeWidget(_items[i]);
-            _items.removeAt(i);
+            PrinterListItem *item = m_items[i];
+            ui->scrollAreaWidgetContents->layout()->removeWidget(m_items[i]);
+            m_items.removeAt(i);
 
             delete item;
         }
@@ -94,11 +94,11 @@ void PrinterListWidget::on_printerPool_printerUpdated(Printer *printer)
 
 void PrinterListWidget::mousePressEvent(QMouseEvent *event)
 {
-    for(int i = 0; i < _items.count(); i++)
-        _items[i]->setSelected(false);
+    for(int i = 0; i < m_items.count(); i++)
+        m_items[i]->setSelected(false);
 
-    _selectedItem = nullptr;
-    emit(itemSelected(_selectedItem));
+    m_selectedItem = nullptr;
+    emit(itemSelected(m_selectedItem));
 }
 
 void PrinterListWidget::mouseReleaseEvent(QMouseEvent *event)

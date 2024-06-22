@@ -57,9 +57,9 @@ private:
     qreal angularSpeed = 0;
     QQuaternion rotation;
 
-    bool _rotating = false;
+    bool m_rotating = false;
 
-    QVector2D _mousePosition;
+    QVector2D m_mousePosition;
 };
 
 #endif // BEDMESHWIDGET_H

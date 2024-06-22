@@ -15,7 +15,7 @@ public:
     virtual QValidator::State validate(QString &text, int &pos) const;
 
 private:
-    QRegularExpression _httpExpression = QRegularExpression("^\\s*(http|https)\\:\\/\\/");
+    QRegularExpression m_httpExpression = QRegularExpression("^\\s*(http|https)\\:\\/\\/");
 };
 
 #endif // QMOONRAKERVALIDATOR_H

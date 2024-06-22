@@ -662,7 +662,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>350</width>
+               <width>375</width>
                <height>16777215</height>
               </size>
              </property>
@@ -674,7 +674,7 @@
                <number>0</number>
               </property>
               <property name="rightMargin">
-               <number>0</number>
+               <number>9</number>
               </property>
               <property name="bottomMargin">
                <number>0</number>
@@ -689,13 +689,13 @@
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>340</width>
+                  <width>360</width>
                   <height>0</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>340</width>
+                  <width>360</width>
                   <height>16777215</height>
                  </size>
                 </property>
@@ -1120,7 +1120,7 @@
                         <number>0</number>
                        </property>
                        <item row="3" column="0">
-                        <widget class="QPushButton" name="pushButton">
+                        <widget class="QPushButton" name="positionResetButton">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -1139,7 +1139,7 @@
                         </widget>
                        </item>
                        <item row="3" column="1">
-                        <widget class="QPushButton" name="pushButton_2">
+                        <widget class="QPushButton" name="positionApplyButton">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -1450,40 +1450,6 @@
                            <number>0</number>
                           </property>
                           <item row="0" column="0">
-                           <widget class="QPushButton" name="homeToolheadButton">
-                            <property name="enabled">
-                             <bool>false</bool>
-                            </property>
-                            <property name="sizePolicy">
-                             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                              <horstretch>0</horstretch>
-                              <verstretch>0</verstretch>
-                             </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                             <size>
-                              <width>40</width>
-                              <height>40</height>
-                             </size>
-                            </property>
-                            <property name="maximumSize">
-                             <size>
-                              <width>40</width>
-                              <height>40</height>
-                             </size>
-                            </property>
-                            <property name="text">
-                             <string/>
-                            </property>
-                            <property name="iconSize">
-                             <size>
-                              <width>20</width>
-                              <height>20</height>
-                             </size>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="0" column="1">
                            <widget class="QComboBox" name="posIncrementSelect">
                             <property name="minimumSize">
                              <size>
@@ -1565,13 +1531,13 @@
                <widget class="QFrame" name="fanFrame">
                 <property name="minimumSize">
                  <size>
-                  <width>320</width>
+                  <width>360</width>
                   <height>0</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>320</width>
+                  <width>360</width>
                   <height>16777215</height>
                  </size>
                 </property>
@@ -1700,7 +1666,7 @@
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>320</width>
+                  <width>360</width>
                   <height>16777215</height>
                  </size>
                 </property>

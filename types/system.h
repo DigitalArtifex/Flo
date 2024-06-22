@@ -534,60 +534,60 @@ signals:
 
 
 private:
-    qint64                           _driveCapacity = 0;
-    qint64                           _driveUsage = 0;
-    qint64                           _driveFree = 0;
+    qint64                           m_driveCapacity = 0;
+    qint64                           m_driveUsage = 0;
+    qint64                           m_driveFree = 0;
 
-    QString                          _hostname;
+    QString                          m_hostname;
 
     //Filled by machine.proc_stats
-    QList<MoonrakerStatsEntry>       _moonrakerStats;
-    QMap<QString, NetworkStatsEntry> _networkStats;
-    ThrottleState                    _throttleState;
-    MemoryStats                      _memoryStats;
+    QList<MoonrakerStatsEntry>       m_moonrakerStats;
+    QMap<QString, NetworkStatsEntry> m_networkStats;
+    ThrottleState                    m_throttleState;
+    MemoryStats                      m_memoryStats;
 
-    qreal                            _uptime = 0;
-    qint32                           _connectionCount = 0;
+    qreal                            m_uptime = 0;
+    qint32                           m_connectionCount = 0;
 
     //Filled by machine.system_info
-    CpuInfo                          _cpuInfo;
-    SdInfo                           _sdInfo;
-    DistributionInfo                 _distributionInfo;
-    VirtualizationState              _virtualizationState;
-    QMap<QString, NetworkInterface>  _networkInterfaces;
-    QMap<QString, CanBusDevice>      _canBus;
+    CpuInfo                          m_cpuInfo;
+    SdInfo                           m_sdInfo;
+    DistributionInfo                 m_distributionInfo;
+    VirtualizationState              m_virtualizationState;
+    QMap<QString, NetworkInterface>  m_networkInterfaces;
+    QMap<QString, CanBusDevice>      m_canBus;
 
-    QStringList                      _availableServices;
-    QMap<QString,ServiceState>       _serviceStates;
+    QStringList                      m_availableServices;
+    QMap<QString,ServiceState>       m_serviceStates;
 
     //Filled by machine.peripherals.usb
-    QList<UsbPeripheral>             _usbPeripherals;
+    QList<UsbPeripheral>             m_usbPeripherals;
 
     //Filled by machine.peripherals.serial
-    QList<SerialPeripheral>          _serialPeripherals;
+    QList<SerialPeripheral>          m_serialPeripherals;
 
     //Filled by machine.peripherals.video
-    QList<V412Device>                _v412Devices;
-    QList<LibcameraDevice>           _libcameraDevices;
-    QList<Webcam>                    _webcams;
+    QList<V412Device>                m_v412Devices;
+    QList<LibcameraDevice>           m_libcameraDevices;
+    QList<Webcam>                    m_webcams;
 
     //Filled by machine.peripherals.canbus
-    QMap<qint32,CanBus>              _canBusses;
+    QMap<qint32,CanBus>              m_canBusses;
 
-    AccessDetails                    _accessDetails;
-    QList<User>                      _userList;
+    AccessDetails                    m_accessDetails;
+    QList<User>                      m_userList;
 
-    UpdateState                      _updateState;
+    UpdateState                      m_updateState;
 
-    JobQueue                         _jobQueue;
+    JobQueue                         m_jobQueue;
 
-    QList<Announcement>              _announcements;
+    QList<Announcement>              m_announcements;
 
-    VirtualSDCard                    _virtualSDCard;
+    VirtualSDCard                    m_virtualSDCard;
 
-    QString                          _pythonVersion;
-    MCU                              _mcu;
-    SafeZHome                        _safeZHome;
+    QString                          m_pythonVersion;
+    MCU                              m_mcu;
+    SafeZHome                        m_safeZHome;
 };
 
 #endif // SYSTEM_H

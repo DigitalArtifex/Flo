@@ -85,42 +85,49 @@ private slots:
 
     void on_zDestinationSpinBox_valueChanged(double arg1);
 
+    void on_positionResetButton_clicked();
+
+    void on_positionApplyButton_clicked();
+
 private:
 
-    CircularProgressBar *_chamberTemperatureBar;
-    CircularProgressBar *_extruderTemperatureBar;
+    CircularProgressBar *m_chamberTemperatureBar;
+    CircularProgressBar *m_extruderTemperatureBar;
 
-    FileBrowser *_fileBrowser = nullptr;
-    FileBrowser *_overviewBrowser = nullptr;
-    FileBrowser *_configBrowser = nullptr;
+    FileBrowser *m_fileBrowser = nullptr;
+    FileBrowser *m_overviewBrowser = nullptr;
+    FileBrowser *m_configBrowser = nullptr;
 
-    Q3DPrintBedMeshWidget *_bedMeshWidget = nullptr;
-    PrinterOfflineScreen *_printerOfflineScreen = nullptr;
-    PrinterTerminal *_terminal = nullptr;
+    Q3DPrintBedMeshWidget *m_bedMeshWidget = nullptr;
+    PrinterOfflineScreen *m_printerOfflineScreen = nullptr;
+    PrinterTerminal *m_terminal = nullptr;
 
     bool xPosEditing = false;
     bool yPosEditing = false;
     bool zPosEditing = false;
 
-    QMap<int, ExtruderWidget*> _extruderMap;
+    QMap<int, ExtruderWidget*> m_extruderMap;
 
-    Printer *_printer = nullptr;
+    Printer *m_printer = nullptr;
 
-    PrinterBedWidget *_printerBedWidget = nullptr;
+    PrinterBedWidget *m_printerBedWidget = nullptr;
 
     Ui::PrinterPage *ui;
     void setupUiClasses();
 
     void addFanLabels(Fan *fan, QString name);
 
-    QFlowLayout *_centerLayout = nullptr;
-    QSpacerItem *_centerLayoutBottomSpacer = nullptr;
+    QFlowLayout *m_centerLayout = nullptr;
+    QSpacerItem *m_centerLayoutBottomSpacer = nullptr;
 
-    PrinterWebcamWidget *_webcamWidget = nullptr;
+    PrinterWebcamWidget *m_webcamWidget = nullptr;
 
-    ToolHeadControlFrame *_toolheadControlFrame = nullptr;
+    ToolHeadControlFrame *m_toolheadControlFrame = nullptr;
 
-    bool _animating = false;
+    bool m_animating = false;
+
+
+    QRegularExpression m_number_expression = QRegularExpression("\\d+");
 };
 
 #endif // PRINTERPAGE_H

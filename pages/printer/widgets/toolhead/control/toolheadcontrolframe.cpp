@@ -10,19 +10,19 @@ ToolHeadControlFrame::ToolHeadControlFrame(Toolhead *toolhead, QWidget *parent) 
     QPixmap xUpClickedImage(":/images/ui/toolhead/x_up_control_image_clicked.png");
     QPixmap xUpHoverImage(":/images/ui/toolhead/x_up_control_image_hover.png");
 
-    _xDownWidget = new QMaskedButton(this);
-    _xDownWidget->setPixmap(xDownImage);
-    _xDownWidget->setClickPixmap(xDownClickedImage);
-    _xDownWidget->setHoverPixmap(xDownHoverImage);
-    _xDownWidget->setFixedSize(size());
-    connect(_xDownWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(xDownClickEvent()));
+    m_xDownWidget = new QMaskedButton(this);
+    m_xDownWidget->setPixmap(xDownImage);
+    m_xDownWidget->setClickPixmap(xDownClickedImage);
+    m_xDownWidget->setHoverPixmap(xDownHoverImage);
+    m_xDownWidget->setFixedSize(size());
+    connect(m_xDownWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(xDownClickEvent()));
 
-    _xUpWidget = new QMaskedButton(this);
-    _xUpWidget->setPixmap(xUpImage);
-    _xUpWidget->setClickPixmap(xUpClickedImage);
-    _xUpWidget->setHoverPixmap(xUpHoverImage);
-    _xUpWidget->setFixedSize(size());
-    connect(_xUpWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(xUpClickEvent()));
+    m_xUpWidget = new QMaskedButton(this);
+    m_xUpWidget->setPixmap(xUpImage);
+    m_xUpWidget->setClickPixmap(xUpClickedImage);
+    m_xUpWidget->setHoverPixmap(xUpHoverImage);
+    m_xUpWidget->setFixedSize(size());
+    connect(m_xUpWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(xUpClickEvent()));
 
     QPixmap yDownImage(":/images/ui/toolhead/y_down_control_image.png");
     QPixmap yDownClickedImage(":/images/ui/toolhead/y_down_control_image_clicked.png");
@@ -32,19 +32,19 @@ ToolHeadControlFrame::ToolHeadControlFrame(Toolhead *toolhead, QWidget *parent) 
     QPixmap yUpClickedImage(":/images/ui/toolhead/y_up_control_image_clicked.png");
     QPixmap yUpHoverImage(":/images/ui/toolhead/y_up_control_image_hover.png");
 
-    _yDownWidget = new QMaskedButton(this);
-    _yDownWidget->setPixmap(yUpImage);
-    _yDownWidget->setClickPixmap(yUpClickedImage);
-    _yDownWidget->setHoverPixmap(yUpHoverImage);
-    _yDownWidget->setFixedSize(size());
-    connect(_yDownWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(yDownClickEvent()));
+    m_yDownWidget = new QMaskedButton(this);
+    m_yDownWidget->setPixmap(yUpImage);
+    m_yDownWidget->setClickPixmap(yUpClickedImage);
+    m_yDownWidget->setHoverPixmap(yUpHoverImage);
+    m_yDownWidget->setFixedSize(size());
+    connect(m_yDownWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(yDownClickEvent()));
 
-    _yUpWidget = new QMaskedButton(this);
-    _yUpWidget->setPixmap(yDownImage);
-    _yUpWidget->setClickPixmap(yDownClickedImage);
-    _yUpWidget->setHoverPixmap(yDownHoverImage);
-    _yUpWidget->setFixedSize(size());
-    connect(_yUpWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(yUpClickEvent()));
+    m_yUpWidget = new QMaskedButton(this);
+    m_yUpWidget->setPixmap(yDownImage);
+    m_yUpWidget->setClickPixmap(yDownClickedImage);
+    m_yUpWidget->setHoverPixmap(yDownHoverImage);
+    m_yUpWidget->setFixedSize(size());
+    connect(m_yUpWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(yUpClickEvent()));
 
     QPixmap zDownImage(":/images/ui/toolhead/z_down_control_image.png");
     QPixmap zDownClickedImage(":/images/ui/toolhead/z_down_control_image_clicked.png");
@@ -54,113 +54,172 @@ ToolHeadControlFrame::ToolHeadControlFrame(Toolhead *toolhead, QWidget *parent) 
     QPixmap zUpClickedImage(":/images/ui/toolhead/z_up_control_image_clicked.png");
     QPixmap zUpHoverImage(":/images/ui/toolhead/z_up_control_image_hover.png");
 
-    _zDownWidget = new QMaskedButton(this);
-    _zDownWidget->setPixmap(zDownImage);
-    _zDownWidget->setClickPixmap(zDownClickedImage);
-    _zDownWidget->setHoverPixmap(zDownHoverImage);
-    _zDownWidget->setFixedSize(size());
-    connect(_zDownWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(zDownClickEvent()));
+    m_zDownWidget = new QMaskedButton(this);
+    m_zDownWidget->setPixmap(zDownImage);
+    m_zDownWidget->setClickPixmap(zDownClickedImage);
+    m_zDownWidget->setHoverPixmap(zDownHoverImage);
+    m_zDownWidget->setFixedSize(size());
+    connect(m_zDownWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(zDownClickEvent()));
 
-    _zUpWidget = new QMaskedButton(this);
-    _zUpWidget->setPixmap(zUpImage);
-    _zUpWidget->setClickPixmap(zUpClickedImage);
-    _zUpWidget->setHoverPixmap(zUpHoverImage);
-    _zUpWidget->setFixedSize(size());
-    connect(_zUpWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(zUpClickEvent()));
+    m_zUpWidget = new QMaskedButton(this);
+    m_zUpWidget->setPixmap(zUpImage);
+    m_zUpWidget->setClickPixmap(zUpClickedImage);
+    m_zUpWidget->setHoverPixmap(zUpHoverImage);
+    m_zUpWidget->setFixedSize(size());
+    connect(m_zUpWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(zUpClickEvent()));
 
     QPixmap homeImage(":/images/ui/toolhead/home_default.png");
     QPixmap homeClickedImage(":/images/ui/toolhead/home_clicked.png");
     QPixmap homeHoverImage(":/images/ui/toolhead/home_hover.png");
 
-    _homeWidget = new QMaskedButton(this);
-    _homeWidget->setPixmap(homeImage);
-    _homeWidget->setClickPixmap(homeClickedImage);
-    _homeWidget->setHoverPixmap(homeHoverImage);
-    _homeWidget->setFixedSize(size());
-    connect(_homeWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(homeClickEvent()));
+    m_homeWidget = new QMaskedButton(this);
+    m_homeWidget->setPixmap(homeImage);
+    m_homeWidget->setClickPixmap(homeClickedImage);
+    m_homeWidget->setHoverPixmap(homeHoverImage);
+    m_homeWidget->setFixedSize(size());
+    connect(m_homeWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(homeClickEvent()));
 
-    _toolhead = toolhead;
+    m_toolhead = toolhead;
 }
 
 ToolHeadControlFrame::~ToolHeadControlFrame()
 {
-    if(_homeWidget)
-        delete _homeWidget;
+    if(m_homeWidget)
+        delete m_homeWidget;
 
-    if(_xDownWidget)
-        delete _xDownWidget;
+    if(m_xDownWidget)
+        delete m_xDownWidget;
 
-    if(_xUpWidget)
-        delete _xUpWidget;
+    if(m_xUpWidget)
+        delete m_xUpWidget;
 
-    if(_yUpWidget)
-        delete _yUpWidget;
+    if(m_yUpWidget)
+        delete m_yUpWidget;
 
-    if(_yDownWidget)
-        delete _yDownWidget;
+    if(m_yDownWidget)
+        delete m_yDownWidget;
 
-    if(_zUpWidget)
-        delete _zUpWidget;
+    if(m_zUpWidget)
+        delete m_zUpWidget;
 
-    if(_zDownWidget)
-        delete _zDownWidget;
+    if(m_zDownWidget)
+        delete m_zDownWidget;
 }
 
 void ToolHeadControlFrame::resizeEvent(QResizeEvent *event)
 {
-    _zUpWidget->setFixedSize(size());
-    _zDownWidget->setFixedSize(size());
-    _yUpWidget->setFixedSize(size());
-    _yDownWidget->setFixedSize(size());
-    _xUpWidget->setFixedSize(size());
-    _xDownWidget->setFixedSize(size());
-    _homeWidget->setFixedSize(size());
+    m_zUpWidget->setFixedSize(size());
+    m_zDownWidget->setFixedSize(size());
+    m_yUpWidget->setFixedSize(size());
+    m_yDownWidget->setFixedSize(size());
+    m_xUpWidget->setFixedSize(size());
+    m_xDownWidget->setFixedSize(size());
+    m_homeWidget->setFixedSize(size());
 
     QFrame::resizeEvent(event);
 }
 
 void ToolHeadControlFrame::xUpClickEvent()
 {
-    qDebug() << "x up clicked";
+    //Move toolhead if printer is online
+    if(m_toolhead->printer()->isOnline())
+    {
+        qDebug() << QString("Requesting X Axis movement of ") + QString::number(m_increment);
+        m_toolhead->moveX(m_increment);
+    }
+    else
+        qDebug() << QString("Cannot move toolhead. Printer offline.");
 }
 
 void ToolHeadControlFrame::xDownClickEvent()
 {
-    qDebug() << "x down clicked";
+    //Move toolhead if printer is online
+    if(m_toolhead->printer()->isOnline())
+    {
+        qDebug() << QString("Requesting X Axis movement of ") + QString::number(m_increment * -1);
+        m_toolhead->moveX(m_increment * -1);
+    }
+    else
+        qDebug() << QString("Cannot move toolhead. Printer offline.");
 }
 
 void ToolHeadControlFrame::yUpClickEvent()
 {
-    qDebug() << "y up clicked";
+    //Move toolhead if printer is online
+    if(m_toolhead->printer()->isOnline())
+    {
+        qDebug() << QString("Requesting Y Axis movement of ") + QString::number(m_increment);
+        m_toolhead->moveY(m_increment);
+    }
+    else
+        qDebug() << QString("Cannot move toolhead. Printer offline.");
 }
 
 void ToolHeadControlFrame::yDownClickEvent()
 {
-    qDebug() << "y down clicked";
+    //Move toolhead if printer is online
+    if(m_toolhead->printer()->isOnline())
+    {
+        qDebug() << QString("Requesting Y Axis movement of ") + QString::number(m_increment * -1);
+        m_toolhead->moveY(m_increment * -1);
+    }
+    else
+        qDebug() << QString("Cannot move toolhead. Printer offline.");
 }
 
 void ToolHeadControlFrame::zUpClickEvent()
 {
-    qDebug() << "z up clicked";
+    //Move toolhead if printer is online
+    if(m_toolhead->printer()->isOnline())
+    {
+        qDebug() << QString("Requesting Z Axis movement of ") + QString::number(m_increment);
+        m_toolhead->moveZ(m_increment);
+    }
+    else
+        qDebug() << QString("Cannot move toolhead. Printer offline.");
 }
 
 void ToolHeadControlFrame::zDownClickEvent()
 {
-    qDebug() << "z down clicked";
+    //Move toolhead if printer is online
+    if(m_toolhead->printer()->isOnline())
+    {
+        qDebug() << QString("Requesting Z Axis movement of ") + QString::number(m_increment * -1);
+        m_toolhead->moveZ(m_increment * -1);
+    }
+    else
+        qDebug() << QString("Cannot move toolhead. Printer offline.");
 }
 
 void ToolHeadControlFrame::homeClickEvent()
 {
-    qDebug() << "home all clicked";
+    //Move toolhead if printer is online
+    if(m_toolhead->printer()->isOnline())
+    {
+        qDebug() << QString("Homing toolhead");
+        m_toolhead->homeAll();
+    }
+    else
+        qDebug() << QString("Cannot move toolhead. Printer offline.");
 }
 
 void ToolHeadControlFrame::toolheadUpdateEvent()
 {
-    _homeWidget->setEnabled(!_toolhead->isHomed());
-    _xDownWidget->setEnabled(_toolhead->isHomed());
-    _xUpWidget->setEnabled(_toolhead->isHomed());
-    _yDownWidget->setEnabled(_toolhead->isHomed());
-    _yUpWidget->setEnabled(_toolhead->isHomed());
-    _zDownWidget->setEnabled(_toolhead->isHomed());
-    _zUpWidget->setEnabled(_toolhead->isHomed());
+    m_homeWidget->setEnabled(!m_toolhead->isHomed());
+    m_xDownWidget->setEnabled(m_toolhead->isHomed());
+    m_xUpWidget->setEnabled(m_toolhead->isHomed());
+    m_yDownWidget->setEnabled(m_toolhead->isHomed());
+    m_yUpWidget->setEnabled(m_toolhead->isHomed());
+    m_zDownWidget->setEnabled(m_toolhead->isHomed());
+    m_zUpWidget->setEnabled(m_toolhead->isHomed());
+}
+
+qreal ToolHeadControlFrame::increment() const
+{
+    return m_increment;
+}
+
+void ToolHeadControlFrame::setIncrement(qreal increment)
+{
+    m_increment = increment;
 }

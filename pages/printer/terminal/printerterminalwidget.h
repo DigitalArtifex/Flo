@@ -25,7 +25,7 @@ public:
     void addErrorMessage(QString title, QString message);
 
 protected:
-    QMap<qint64, PrinterTerminalItem*> _itemMap;
+    QMap<qint64, PrinterTerminalItem*> m_itemMap;
 };
 
 #endif // PRINTERTERMINALWIDGET_H

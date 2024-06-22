@@ -36,12 +36,12 @@ private slots:
 
 private:
     Ui::DashboardPage *ui;
-    QList<PrinterWidget*> _printerWidgets;
-    PrinterWidget *_selectedWidget = nullptr;
-    SystemWidget *_systemWidget = nullptr;
-    StatusWidget *_statusWidget = nullptr;
-    QFlowLayout *_layout = nullptr;
-    QTimer *_initTimer = nullptr;
+    QList<PrinterWidget*> m_printerWidgets;
+    PrinterWidget *m_selectedWidget = nullptr;
+    SystemWidget *m_systemWidget = nullptr;
+    StatusWidget *m_statusWidget = nullptr;
+    QFlowLayout *m_layout = nullptr;
+    QTimer *m_initTimer = nullptr;
 };
 
 #endif // DASHBOARDPAGE_H

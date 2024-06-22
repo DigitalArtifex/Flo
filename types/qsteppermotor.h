@@ -23,9 +23,9 @@ signals:
     void disabled(QStepperMotor *motor);
 
 private:
-    QString _name;
-    qreal _current;
-    bool _enabled;
+    QString m_name;
+    qreal m_current;
+    bool m_enabled;
 };
 
 #endif // QSTEPPERMOTOR_H

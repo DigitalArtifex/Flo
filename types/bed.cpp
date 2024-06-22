@@ -4,47 +4,47 @@
 Q3DPrintBed::Q3DPrintBed(Printer *printer, Type type, QObject *parent)
     : QObject(parent)
 {
-    _printer = printer;
+    m_printer = printer;
 
     if(type == NonHeated)
-        _watts = 0;
+        m_watts = 0;
 }
 
 long Q3DPrintBed::timeRunning()
 {
-    return _startTime.secsTo(QDateTime::currentDateTime());
+    return m_startTime.secsTo(QDateTime::currentDateTime());
 }
 
 qreal Q3DPrintBed::currentTemp() const
 {
-    return _currentTemp;
+    return m_currentTemp;
 }
 
 qreal Q3DPrintBed::targetTemp() const
 {
-    return _targetTemp;
+    return m_targetTemp;
 }
 
 qreal Q3DPrintBed::power() const
 {
-    return _power;
+    return m_power;
 }
 
 qreal Q3DPrintBed::watts() const
 {
-    return _watts;
+    return m_watts;
 }
 
 void Q3DPrintBed::setWatts(qreal watts)
 {
-    _watts = watts;
+    m_watts = watts;
 
     emit updated(this);
 }
 
 Q3DPrintBed::Mesh Q3DPrintBed::bedMesh() const
 {
-    return _bedMesh;
+    return m_bedMesh;
 }
 
 /*!
@@ -54,63 +54,63 @@ Q3DPrintBed::Mesh Q3DPrintBed::bedMesh() const
  */
 Q3DPrintBed::AdjustmentScrew *Q3DPrintBed::adjustmentScrew(QString &key) const
 {
-    if(_adjustmentScrews.contains(key))
-        return _adjustmentScrews[key];
+    if(m_adjustmentScrews.contains(key))
+        return m_adjustmentScrews[key];
     else
         return nullptr;
 }
 
 bool Q3DPrintBed::tiltAdjustError() const
 {
-    return _tiltAdjustError;
+    return m_tiltAdjustError;
 }
 
 bool Q3DPrintBed::adjustmentScrewsError() const
 {
-    return _adjustmentScrewsError;
+    return m_adjustmentScrewsError;
 }
 
 qreal Q3DPrintBed::adjustmentScrewsMaxDeviation() const
 {
-    return _adjustmentScrewsMaxDeviation;
+    return m_adjustmentScrewsMaxDeviation;
 }
 
 QMap<QString, Q3DPrintBed::AdjustmentScrew*> Q3DPrintBed::adjustmentScrews() const
 {
-    return _adjustmentScrews;
+    return m_adjustmentScrews;
 }
 
 bool Q3DPrintBed::hasAdjustmentScrewResult() const
 {
-    return _hasAdjustmentScrewResult;
+    return m_hasAdjustmentScrewResult;
 }
 
 void Q3DPrintBed::calibrateAdjustmentScrews()
 {
-    _hasAdjustmentScrewResult = false;
+    m_hasAdjustmentScrewResult = false;
     emit adjustmentScrewsCalibrating();
 
     QString gcode("SCREWS_TILT_CALCULATE");
-    _printer->console()->sendGcode(gcode);
+    m_printer->console()->sendGcode(gcode);
 }
 
 void Q3DPrintBed::calibrateBedMesh()
 {
-    _bedMeshCalibrating = true;
+    m_bedMeshCalibrating = true;
     emit bedMeshCalibrating();
 
     QString gcode("BED_MESH_CALIBRATE");
-    _printer->console()->sendGcode(gcode);
+    m_printer->console()->sendGcode(gcode);
 }
 
 Printer *Q3DPrintBed::printer() const
 {
-    return _printer;
+    return m_printer;
 }
 
 void Q3DPrintBed::setPrinter(Printer *printer)
 {
-    _printer = printer;
+    m_printer = printer;
 }
 
 void Q3DPrintBed::update()
@@ -120,19 +120,19 @@ void Q3DPrintBed::update()
 
 Q3DPrintBed::Type Q3DPrintBed::type() const
 {
-    return _type;
+    return m_type;
 }
 
 void Q3DPrintBed::updateAdjustmentScrews(const QMap<QString, AdjustmentScrew *> &adjustmentScrews)
 {
-    _adjustmentScrews = adjustmentScrews;
+    m_adjustmentScrews = adjustmentScrews;
 
-    foreach(AdjustmentScrew* screw, _adjustmentScrews)
+    foreach(AdjustmentScrew* screw, m_adjustmentScrews)
     {
         if(screw->adjustment.direction != AdjustmentScrew::Adjustment::NotSet)
-            _hasAdjustmentScrewResult = true;
+            m_hasAdjustmentScrewResult = true;
         else
-            _hasAdjustmentScrewResult = false;
+            m_hasAdjustmentScrewResult = false;
     }
 
     emit adjustmentScrewsCalibrated();
@@ -140,7 +140,7 @@ void Q3DPrintBed::updateAdjustmentScrews(const QMap<QString, AdjustmentScrew *> 
 
 void Q3DPrintBed::updateBedMesh(const Mesh mesh)
 {
-    _bedMesh = mesh;
+    m_bedMesh = mesh;
 
     emit bedMeshCalibrated();
 }

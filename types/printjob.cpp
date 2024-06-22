@@ -16,12 +16,12 @@
 
 PrintJob::PrintJob(Printer *parent)
 {
-    _parent = parent;
+    m_parent = parent;
 #ifdef DEBUG_PRINTJOB
-    _printJobTestTimer = new QTimer();
-    _printJobTestTimer->setInterval(100);
-    connect(_printJobTestTimer, SIGNAL(timeout()), this, SLOT(on_printJobTestTimer_timeout()));
-    _printJobTestTimer->start();
+    m_printJobTestTimer = new QTimer();
+    m_printJobTestTimer->setInterval(100);
+    connect(m_printJobTestTimer, SIGNAL(timeout()), this, SLOT(on_printJobTestTimer_timeout()));
+    m_printJobTestTimer->start();
 #endif
 }
 
@@ -32,7 +32,7 @@ PrintJob::~PrintJob()
 
 PrintJob::JobState PrintJob::state() const
 {
-    return _state;
+    return m_state;
 }
 
 /*!
@@ -41,8 +41,8 @@ PrintJob::JobState PrintJob::state() const
  */
 void PrintJob::setState(JobState state)
 {
-    JobState oldState = _state;
-    _state = state;
+    JobState oldState = m_state;
+    m_state = state;
 
     switch(state)
     {
@@ -110,77 +110,77 @@ void PrintJob::setState(QString state)
 
 QString PrintJob::filename() const
 {
-    return _filename;
+    return m_filename;
 }
 
 void PrintJob::setFilename(const QString &filename)
 {
-    _filename = filename;
+    m_filename = filename;
 }
 
 QString PrintJob::message() const
 {
-    return _message;
+    return m_message;
 }
 
 void PrintJob::setMessage(const QString &message)
 {
-    _message = message;
+    m_message = message;
 }
 
 qreal PrintJob::totalDuration() const
 {
-    return _totalDuration;
+    return m_totalDuration;
 }
 
 void PrintJob::setTotalDuration(qreal totalDuration)
 {
-    _totalDuration = totalDuration;
+    m_totalDuration = totalDuration;
 }
 
 qreal PrintJob::printDuration() const
 {
-    return _printDuration;
+    return m_printDuration;
 }
 
 void PrintJob::setPrintDuration(qreal printDuration)
 {
-    _printDuration = printDuration;
+    m_printDuration = printDuration;
 }
 
 qreal PrintJob::filamentUsed() const
 {
-    return _filamentUsed;
+    return m_filamentUsed;
 }
 
 void PrintJob::setFilamentUsed(qreal filamentUsed)
 {
-    _filamentUsed = filamentUsed;
+    m_filamentUsed = filamentUsed;
 }
 
 qint64 PrintJob::totalLayers() const
 {
-    return _totalLayers;
+    return m_totalLayers;
 }
 
 void PrintJob::setTotalLayers(qint64 totalLayers)
 {
-    _totalLayers = totalLayers;
+    m_totalLayers = totalLayers;
 }
 
 qint64 PrintJob::currentLayer() const
 {
-    return _currentLayer;
+    return m_currentLayer;
 }
 
 void PrintJob::setCurrentLayer(qint64 currentLayer)
 {
-    _currentLayer = currentLayer;
+    m_currentLayer = currentLayer;
 }
 
 Printer *PrintJob::parent() const
 {
-    return _parent;
+    return m_parent;
 }
 
 #ifdef DEBUG_PRINTJOB
@@ -190,7 +190,7 @@ void PrintJob::on_printJobTestTimer_timeout()
     quint32 setPoint = QRandomGenerator::global()->generate();
     bool printToggle = setPoint > lowPoint;
 
-    switch (_state)
+    switch (m_state)
     {
         case Standby:
             setFilename(QString("Test Job"));
@@ -204,7 +204,7 @@ void PrintJob::on_printJobTestTimer_timeout()
                 setState(Paused);
             else
             {
-                setCurrentLayer(currentLayer() + (_totalLayers / 100));
+                setCurrentLayer(currentLayer() + (m_totalLayers / 100));
 
                 if(currentLayer() >= totalLayers())
                     setState(Complete);

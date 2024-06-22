@@ -19,9 +19,9 @@ public:
     void setZ(bool z);
 
 private:
-    bool _x = false;
-    bool _y = false;
-    bool _z = false;
+    bool m_x = false;
+    bool m_y = false;
+    bool m_z = false;
 };
 
 #endif // ENDSTOPSTATUS_H

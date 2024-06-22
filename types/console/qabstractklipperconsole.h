@@ -368,43 +368,43 @@ protected:
     virtual void addState(ConsoleState state);
     virtual void removeState(ConsoleState state);
 
-    char _eof = (char)0x03;
+    char m_eof = (char)0x03;
 
-    Printer* _printer;
+    Printer* m_printer;
 
-    QByteArray _dataBuffer;
+    QByteArray m_dataBuffer;
 
-    QQueue<QByteArray> _messageDataQueue;
-    QQueue<StartupFunction> _startupSequence;
-    QMap<QString, ParserFunction> _parserMap;
-    QMap<QString, ParserFunction> _actionMap;
-    QMap<int, KlipperMessage> _klipperMessageBuffer;
-    QMap<QString, KlipperCommand> _klipperCommands;
+    QQueue<QByteArray> m_messageDataQueue;
+    QQueue<StartupFunction> m_startupSequence;
+    QMap<QString, ParserFunction> m_parserMap;
+    QMap<QString, ParserFunction> m_actionMap;
+    QMap<int, KlipperMessage> m_klipperMessageBuffer;
+    QMap<QString, KlipperCommand> m_klipperCommands;
 
-    QStringList _subscriptionObjects;
-    QStringList _macroObjects;
-    QStringList _moonrakerComponents;
-    QStringList _moonrakerFailedComponents;
+    QStringList m_subscriptionObjects;
+    QStringList m_macroObjects;
+    QStringList m_moonrakerComponents;
+    QStringList m_moonrakerFailedComponents;
 
-    QGCodeMacroList _gcodeMacros;
-    QGCodeCommandList _gcodeCommands;
+    QGCodeMacroList m_gcodeMacros;
+    QGCodeCommandList m_gcodeCommands;
 
-    QString _moonrakerLocation;
-    QString _moonrakerVersion;
+    QString m_moonrakerLocation;
+    QString m_moonrakerVersion;
 
-    ConsoleState _state;
+    ConsoleState m_state;
 
-    bool _isKlipperConnected = false;
-    bool _isMoonrakerConnected = false;
+    bool m_isKlipperConnected = false;
+    bool m_isMoonrakerConnected = false;
 
-    int _startupState = 0;
-    qint64 _waitForOkId = 0;
+    int m_startupState = 0;
+    qint64 m_waitForOkId = 0;
 
-    ConnectionLocation _connectionLoaction = LocationLocal;
+    ConnectionLocation m_connectionLoaction = LocationLocal;
 
-    QAbstractSocket *_moonrakerSocket = nullptr;
+    QAbstractSocket *m_moonrakerSocket = nullptr;
 
-    QTimer *_klipperRestartTimer = nullptr;
+    QTimer *m_klipperRestartTimer = nullptr;
 };
 
 #endif // QABSTRACTKLIPPERCONSOLE_H

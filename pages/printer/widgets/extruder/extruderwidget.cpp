@@ -8,8 +8,8 @@ ExtruderWidget::ExtruderWidget(QWidget *parent) :
     ui(new Ui::ExtruderWidget)
 {
     ui->setupUi(this);
-    _temperatureProgressBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
-    ui->progressBarLayout->addWidget(_temperatureProgressBar);
+    m_temperatureProgressBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
+    ui->progressBarLayout->addWidget(m_temperatureProgressBar);
 
     setUiClasses();
     setIcons();
@@ -22,8 +22,8 @@ ExtruderWidget::~ExtruderWidget()
 
 void ExtruderWidget::setExtruder(Extruder *extruder)
 {
-    _extruder = extruder;
-    connect(_extruder->printer()->console(), SIGNAL(extrudersUpdate()), this, SLOT(on_console_extrudersUpdate()));
+    m_extruder = extruder;
+    connect(m_extruder->printer()->console(), SIGNAL(extrudersUpdate()), this, SLOT(on_console_extrudersUpdate()));
 }
 
 void ExtruderWidget::update()
@@ -94,12 +94,12 @@ void ExtruderWidget::on_extrsuionFactorSlider_valueChanged(int value)
     //change value of spin box
     ui->extrusionFactorSpinBox->setValue((double)value / 100);
 
-    if(!_updating)
+    if(!m_updating)
     {
         ui->resetButton->setEnabled(true);
         ui->applyButton->setEnabled(true);
 
-        _extrusionFactorEdited = true;
+        m_extrusionFactorEdited = true;
     }
 
     //reconnect event
@@ -114,12 +114,12 @@ void ExtruderWidget::on_extrusionFactorSpinBox_valueChanged(double value)
     //change value of slider
     ui->extrsuionFactorSlider->setValue(value * 100);
 
-    if(!_updating)
+    if(!m_updating)
     {
         ui->resetButton->setEnabled(true);
         ui->applyButton->setEnabled(true);
 
-        _extrusionFactorEdited = true;
+        m_extrusionFactorEdited = true;
     }
 
     //reconnect event
@@ -129,71 +129,71 @@ void ExtruderWidget::on_extrusionFactorSpinBox_valueChanged(double value)
 void ExtruderWidget::on_console_extrudersUpdate()
 {
     //set updating flag to prevent this from registering as a change event
-    _updating = true;
+    m_updating = true;
 
     //make sure it has not been or is currently being edited
-    if(!ui->targetTempSpinBox->hasFocus() && !_targetTempEdited)
-        ui->targetTempSpinBox->setValue(_extruder->targetTemp());
+    if(!ui->targetTempSpinBox->hasFocus() && !m_targetTempEdited)
+        ui->targetTempSpinBox->setValue(m_extruder->targetTemp());
 
     //make sure it has not been or is currently being edited
-    if(!ui->pressureAdvanceSpinBox->hasFocus() && !_pressureAdvanceEdited)
-        ui->pressureAdvanceSpinBox->setValue(_extruder->pressureAdvance());
+    if(!ui->pressureAdvanceSpinBox->hasFocus() && !m_pressureAdvanceEdited)
+        ui->pressureAdvanceSpinBox->setValue(m_extruder->pressureAdvance());
 
     //make sure it has not been or is currently being edited
-    if(!ui->smoothTimeSpinBox->hasFocus() && !_smoothTimeEdited)
-        ui->smoothTimeSpinBox->setValue(_extruder->smoothTime());
+    if(!ui->smoothTimeSpinBox->hasFocus() && !m_smoothTimeEdited)
+        ui->smoothTimeSpinBox->setValue(m_extruder->smoothTime());
 
     //make sure it has not been or is currently being edited
-    if(!ui->extrusionFactorSpinBox->hasFocus() && !_extrusionFactorEdited)
-        ui->extrusionFactorSpinBox->setValue(_extruder->extrusionFactor());
+    if(!ui->extrusionFactorSpinBox->hasFocus() && !m_extrusionFactorEdited)
+        ui->extrusionFactorSpinBox->setValue(m_extruder->extrusionFactor());
 
-    ui->dashboardExtruderTargetTempLabel->setText(QString::number(_extruder->targetTemp()) + QString("°"));
-    _temperatureProgressBar->setProgress(_extruder->currentTemp());
-    _temperatureProgressBar->setMaximum(_extruder->maxTemp());
-    ui->materialWidget->setEnabled(_extruder->canExtrude());
+    ui->dashboardExtruderTargetTempLabel->setText(QString::number(m_extruder->targetTemp()) + QString("°"));
+    m_temperatureProgressBar->setProgress(m_extruder->currentTemp());
+    m_temperatureProgressBar->setMaximum(m_extruder->maxTemp());
+    ui->materialWidget->setEnabled(m_extruder->canExtrude());
 
     //set fan labels
-    ui->extruderFanValueLabel->setText(QString::number(_extruder->fan()->speed() * 100) + QString("%"));
-    ui->partsFanValueLabel->setText(QString::number(_extruder->printer()->toolhead()->fan()->speed() * 100) + QString("%"));
+    ui->extruderFanValueLabel->setText(QString::number(m_extruder->fan()->speed() * 100) + QString("%"));
+    ui->partsFanValueLabel->setText(QString::number(m_extruder->printer()->toolhead()->fan()->speed() * 100) + QString("%"));
 
 
     //unset updating flag to resume change events
-    _updating = false;
+    m_updating = false;
 }
 
 
 void ExtruderWidget::on_targetTempSpinBox_valueChanged(double arg1)
 {
-    if(!_updating)
+    if(!m_updating)
     {
         ui->resetButton->setEnabled(true);
         ui->applyButton->setEnabled(true);
 
-        _targetTempEdited = true;
+        m_targetTempEdited = true;
     }
 }
 
 
 void ExtruderWidget::on_pressureAdvanceSpinBox_valueChanged(double arg1)
 {
-    if(!_updating)
+    if(!m_updating)
     {
         ui->resetButton->setEnabled(true);
         ui->applyButton->setEnabled(true);
 
-        _pressureAdvanceEdited = true;
+        m_pressureAdvanceEdited = true;
     }
 }
 
 
 void ExtruderWidget::on_smoothTimeSpinBox_valueChanged(double arg1)
 {
-    if(!_updating)
+    if(!m_updating)
     {
         ui->resetButton->setEnabled(true);
         ui->applyButton->setEnabled(true);
 
-        _smoothTimeEdited = true;
+        m_smoothTimeEdited = true;
     }
 }
 
@@ -204,24 +204,24 @@ void ExtruderWidget::on_applyButton_clicked()
     ui->applyButton->setEnabled(false);
 
     //check for changes in target temp
-    if(_extruder->targetTemp() != ui->targetTempSpinBox->value())
-        _extruder->setTargetTemp(ui->targetTempSpinBox->value());
+    if(m_extruder->targetTemp() != ui->targetTempSpinBox->value())
+        m_extruder->setTargetTemp(ui->targetTempSpinBox->value());
 
     //check for changes in smooth time or pressure advance
-    if (_extruder->pressureAdvance() != ui->pressureAdvanceSpinBox->value() ||
-        _extruder->smoothTime() != ui->smoothTimeSpinBox->value())
+    if (m_extruder->pressureAdvance() != ui->pressureAdvanceSpinBox->value() ||
+        m_extruder->smoothTime() != ui->smoothTimeSpinBox->value())
     {
-        _extruder->setPressureAdvance(ui->pressureAdvanceSpinBox->value(), ui->smoothTimeSpinBox->value());
+        m_extruder->setPressureAdvance(ui->pressureAdvanceSpinBox->value(), ui->smoothTimeSpinBox->value());
     }
 
     //check for changes in extrusion factor
-    if(_extruder->extrusionFactor() != ui->extrusionFactorSpinBox->value())
-        _extruder->setExtrusionFactor(ui->extrusionFactorSpinBox->value());
+    if(m_extruder->extrusionFactor() != ui->extrusionFactorSpinBox->value())
+        m_extruder->setExtrusionFactor(ui->extrusionFactorSpinBox->value());
 
-    _targetTempEdited = false;
-    _smoothTimeEdited = false;
-    _pressureAdvanceEdited = false;
-    _extrusionFactorEdited = false;
+    m_targetTempEdited = false;
+    m_smoothTimeEdited = false;
+    m_pressureAdvanceEdited = false;
+    m_extrusionFactorEdited = false;
 
     on_console_extrudersUpdate();
 }
@@ -232,10 +232,10 @@ void ExtruderWidget::on_resetButton_clicked()
     ui->resetButton->setEnabled(false);
     ui->applyButton->setEnabled(false);
 
-    _targetTempEdited = false;
-    _smoothTimeEdited = false;
-    _pressureAdvanceEdited = false;
-    _extrusionFactorEdited = false;
+    m_targetTempEdited = false;
+    m_smoothTimeEdited = false;
+    m_pressureAdvanceEdited = false;
+    m_extrusionFactorEdited = false;
 
     on_console_extrudersUpdate();
 }
@@ -246,7 +246,7 @@ void ExtruderWidget::on_extrudeButton_clicked()
     qreal amount = ui->materialLengthSpinBox->value();
     qreal rate = ui->materialFeedRateSpinBox->value();
 
-    _extruder->extrude(amount, rate);
+    m_extruder->extrude(amount, rate);
 }
 
 
@@ -255,6 +255,6 @@ void ExtruderWidget::on_retractButton_clicked()
     qreal amount = ui->materialLengthSpinBox->value();
     qreal rate = ui->materialFeedRateSpinBox->value();
 
-    _extruder->retract(amount, rate);
+    m_extruder->retract(amount, rate);
 }
 

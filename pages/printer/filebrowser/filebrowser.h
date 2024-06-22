@@ -67,40 +67,40 @@ private slots:
     void on_overlay_animatedOut();
 
 private:
-    bool _startup = true;
+    bool m_startup = true;
 
-    Printer *_printer = nullptr;
-    QString _rootDirectory = QString("");
-    QString _currentDirectory = QString("");
+    Printer *m_printer = nullptr;
+    QString m_rootDirectory = QString("");
+    QString m_currentDirectory = QString("");
 
     //UI
-    FileBrowserWidget *_filebrowserWidget = nullptr;
+    FileBrowserWidget *m_filebrowserWidget = nullptr;
 
-    QToolButton *_refreshButton = nullptr;
-    QToolButton *_uploadFileButton = nullptr;
-    QToolButton *_newFolderButton = nullptr;
-    QToolButton *_downloadFolderButton = nullptr;
-    QToolButton *_upDirectoryButton = nullptr;
+    QToolButton *m_refreshButton = nullptr;
+    QToolButton *m_uploadFileButton = nullptr;
+    QToolButton *m_newFolderButton = nullptr;
+    QToolButton *m_downloadFolderButton = nullptr;
+    QToolButton *m_upDirectoryButton = nullptr;
 
-    QPushButton *_printFileButton = nullptr;
-    QPushButton *_editFileButton = nullptr;
-    QPushButton *_deleteFileButton = nullptr;
+    QPushButton *m_printFileButton = nullptr;
+    QPushButton *m_editFileButton = nullptr;
+    QPushButton *m_deleteFileButton = nullptr;
 
-    QLabel *_currentDirectoryLabel = nullptr;
-    QLabel *_thumbnailLabel = nullptr;
+    QLabel *m_currentDirectoryLabel = nullptr;
+    QLabel *m_thumbnailLabel = nullptr;
 
-    QWidget *_actionBar = nullptr;
-    QWidget *_sideBar = nullptr;
+    QWidget *m_actionBar = nullptr;
+    QWidget *m_sideBar = nullptr;
 
-    QGridLayout *_layout = nullptr;
-    QGridLayout *_actionBarLayout = nullptr;
-    QGridLayout *_sideBarLayout = nullptr;
+    QGridLayout *m_layout = nullptr;
+    QGridLayout *m_actionBarLayout = nullptr;
+    QGridLayout *m_sideBarLayout = nullptr;
 
-    FileEditor *_editor = nullptr;
+    FileEditor *m_editor = nullptr;
 
-    FileBrowserOverlay *_overlay = nullptr;
+    FileBrowserOverlay *m_overlay = nullptr;
 
-    Mode _mode = Page;
+    Mode m_mode = Page;
 };
 
 #endif // FILEBROWSER_H

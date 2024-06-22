@@ -15,8 +15,8 @@ public:
     void setConnectionId(qint64 connectionId);
 
 private:
-    qint64 _websocketId = 0;
-    qint64 _connectionId = 0;
+    qint64 m_websocketId = 0;
+    qint64 m_connectionId = 0;
 };
 
 #endif // CLIENTIDENTIFIER_H

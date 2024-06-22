@@ -38,9 +38,9 @@ private:
 
 private:
     Ui::StatusWidget *ui;
-    PrintJobListWidget *_printJobList = nullptr;
-    EnergyConsumptionWidget *_energyConsumption = nullptr;
-    IssueListWidget *_issueList = nullptr;
+    PrintJobListWidget *m_printJobList = nullptr;
+    EnergyConsumptionWidget *m_energyConsumption = nullptr;
+    IssueListWidget *m_issueList = nullptr;
 };
 
 #endif // STATUSWIDGET_H

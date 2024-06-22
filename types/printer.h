@@ -135,6 +135,8 @@ public:
     bool isAutoConnect() ;
     bool isDefaultPrinter() ;
 
+    bool isOnline() const;
+
     GCodeStore gCodeStore() ;
 
     ClientIdentifier clientIdentifier() ;
@@ -205,61 +207,61 @@ private:
     //For use by QAbstractKlipperConsole
     void                                     emitUpdate();
 
-    Toolhead                                *_toolhead = nullptr;
-    Q3DPrintBed                             *_bed = nullptr;
-    Chamber                                 *_chamber = nullptr;
-    Fan                                     *_partsFan = nullptr;
+    Toolhead                                *m_toolhead = nullptr;
+    Q3DPrintBed                             *m_bed = nullptr;
+    Chamber                                 *m_chamber = nullptr;
+    Fan                                     *m_partsFan = nullptr;
 
-    QMap<QString,qreal>                      _powerProfile;
+    QMap<QString,qreal>                      m_powerProfile;
 
-    QString                                  _name;
-    QString                                  _id;
-    QString                                  _firmwareVersion;
-    QString                                  _statusMessage;
-    QString                                  _moonrakerLocation;
-    QString                                  _klipperLocation;
-    QString                                  _gcodesLocation;
-    QString                                  _configLocation;
-    QString                                  _instanceLocation;
-    QString                                  _configFile;
-    QString                                  _apiKey;
-    QString                                  _kinematics;
+    QString                                  m_name;
+    QString                                  m_id;
+    QString                                  m_firmwareVersion;
+    QString                                  m_statusMessage;
+    QString                                  m_moonrakerLocation;
+    QString                                  m_klipperLocation;
+    QString                                  m_gcodesLocation;
+    QString                                  m_configLocation;
+    QString                                  m_instanceLocation;
+    QString                                  m_configFile;
+    QString                                  m_apiKey;
+    QString                                  m_kinematics;
 
-    qreal                                    _maxAcceleration = 0;
-    qreal                                    _maxVelocity = 0;
-    qreal                                    _maxZAcceleration = 0;
-    qreal                                    _maxZVelocity = 0;
-    qreal                                    _squareCornerVelocity = 0;
-    qreal                                    _printTime = 0;
+    qreal                                    m_maxAcceleration = 0;
+    qreal                                    m_maxVelocity = 0;
+    qreal                                    m_maxZAcceleration = 0;
+    qreal                                    m_maxZVelocity = 0;
+    qreal                                    m_squareCornerVelocity = 0;
+    qreal                                    m_printTime = 0;
 
-    QTimer                                  *_connectionTimer = nullptr;
+    QTimer                                  *m_connectionTimer = nullptr;
 
-    bool                                     _autoConnect = true;
-    bool                                     _defaultPrinter = false;
+    bool                                     m_autoConnect = true;
+    bool                                     m_defaultPrinter = false;
 
-    KlipperFile                              _currentFile;
-    QDateTime                                _printStarted;
-    QDateTime                                _printEnding;
+    KlipperFile                              m_currentFile;
+    QDateTime                                m_printStarted;
+    QDateTime                                m_printEnding;
 
-    Status                                   _status = Offline;
-    ConnectionLocation _connectionLocation = LocationLocal;
+    Status                                   m_status = Offline;
+    ConnectionLocation m_connectionLocation = LocationLocal;
 
-    QAbstractKlipperConsole                 *_console = nullptr;
+    QAbstractKlipperConsole                 *m_console = nullptr;
 
-    System                                  *_system;
-    PrintJob                                *_printJob;
+    System                                  *m_system;
+    PrintJob                                *m_printJob;
 
-    GCodeStore                               _gCodeStore;
-    QGCodeMove                               _gcodeMove;
-    ClientIdentifier                         _clientIdentifier;
+    GCodeStore                               m_gCodeStore;
+    QGCodeMove                               m_gcodeMove;
+    ClientIdentifier                         m_clientIdentifier;
 
-    EndstopStatus                            _endstopStatus;
+    EndstopStatus                            m_endstopStatus;
 
-    QMap<QString,QStepperMotor*>             _stepperMotors;
+    QMap<QString,QStepperMotor*>             m_stepperMotors;
 
-    ProbeData                                _probeData;
+    ProbeData                                m_probeData;
 
-    QMap<QString,Fan*>                       _fans;
+    QMap<QString,Fan*>                       m_fans;
 
 };
 

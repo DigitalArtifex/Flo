@@ -9,13 +9,13 @@ SystemWidget::SystemWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    _systemCpuLoadProgressBar = new CircularProgressBar(this);
-    _systemMemoryLoadProgressBar = new CircularProgressBar(this);
-    _systemTemperatureProgressBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
+    m_systemCpuLoadProgressBar = new CircularProgressBar(this);
+    m_systemMemoryLoadProgressBar = new CircularProgressBar(this);
+    m_systemTemperatureProgressBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
 
-    ui->systemMemoryLoadLayout->addWidget(_systemMemoryLoadProgressBar);
-    ui->systemCpuLoadLayout->addWidget(_systemCpuLoadProgressBar);
-    ui->systemTemperatureLayout->addWidget(_systemTemperatureProgressBar);
+    ui->systemMemoryLoadLayout->addWidget(m_systemMemoryLoadProgressBar);
+    ui->systemCpuLoadLayout->addWidget(m_systemCpuLoadProgressBar);
+    ui->systemTemperatureLayout->addWidget(m_systemTemperatureProgressBar);
 
     setUiClasses();
 }
@@ -32,13 +32,13 @@ void SystemWidget::setUiClasses()
 
 void SystemWidget::setPrinter(Printer *printer)
 {
-    if(_printer != nullptr)
-        disconnect(_printer,SIGNAL(systemUpdate(Printer*)), this, SLOT(on_printer_systemUpdate(Printer*)));
+    if(m_printer != nullptr)
+        disconnect(m_printer,SIGNAL(systemUpdate(Printer*)), this, SLOT(on_printer_systemUpdate(Printer*)));
 
-    _printer = printer;
-    connect(_printer,SIGNAL(systemUpdate(Printer*)), this, SLOT(on_printer_systemUpdate(Printer*)));
-    connect(_printer,SIGNAL(klipperConnected(Printer*)),this, SLOT(on_printer_klipperConnected(Printer*)));
-    connect(_printer,SIGNAL(klipperDisconnected(Printer*)),this, SLOT(on_printer_klipperDisconnected(Printer*)));
+    m_printer = printer;
+    connect(m_printer,SIGNAL(systemUpdate(Printer*)), this, SLOT(on_printer_systemUpdate(Printer*)));
+    connect(m_printer,SIGNAL(klipperConnected(Printer*)),this, SLOT(on_printer_klipperConnected(Printer*)));
+    connect(m_printer,SIGNAL(klipperDisconnected(Printer*)),this, SLOT(on_printer_klipperDisconnected(Printer*)));
 }
 
 void SystemWidget::setStyleSheet(QString styleSheet)
@@ -54,10 +54,10 @@ void SystemWidget::setStyleSheet(QString styleSheet)
 
 void SystemWidget::on_printer_systemUpdate(Printer *printer)
 {
-    _systemCpuLoadProgressBar->setProgress(printer->system()->cpuInfo().usage);
+    m_systemCpuLoadProgressBar->setProgress(printer->system()->cpuInfo().usage);
 
-    _systemMemoryLoadProgressBar->setMaximum(printer->system()->memoryStats().total);
-    _systemMemoryLoadProgressBar->setProgress(printer->system()->memoryStats().used);
+    m_systemMemoryLoadProgressBar->setMaximum(printer->system()->memoryStats().total);
+    m_systemMemoryLoadProgressBar->setProgress(printer->system()->memoryStats().used);
 
     QString memoryCapacityString("System Memory: ");
     qreal capacity = printer->system()->memoryStats().total;
@@ -99,7 +99,7 @@ void SystemWidget::on_printer_systemUpdate(Printer *printer)
     ui->driveCapacityLabel->setText(driveCapacityString);
 
     ui->hostnameLabel->setText(QString("Hostname: ") + printer->system()->hostname());
-    ui->cpuInfoLabel->setText(_printer->system()->cpuInfo().description);
+    ui->cpuInfoLabel->setText(m_printer->system()->cpuInfo().description);
     */
 }
 
@@ -115,15 +115,15 @@ void SystemWidget::on_printer_klipperConnected(Printer *printer)
 
 void SystemWidget::on_loadingAnimation_finished()
 {
-    _loadingGif->stop();
+    m_loadingGif->stop();
 
-    delete _loadingGif;
-    delete _loadingLabel;
-    delete _loadingAnimation;
+    delete m_loadingGif;
+    delete m_loadingLabel;
+    delete m_loadingAnimation;
 
-    _loadingLabel = nullptr;
-    _loadingGif = nullptr;
-    _loadingAnimation = nullptr;
+    m_loadingLabel = nullptr;
+    m_loadingGif = nullptr;
+    m_loadingAnimation = nullptr;
 }
 
 void SystemWidget::convertBytes(qreal &bytes, QString &label)
@@ -180,33 +180,33 @@ void SystemWidget::convertDriveBytes(qreal &bytes, QString &label)
 
 void SystemWidget::showLoadingScreen()
 {
-    if(_loadingGif != nullptr)
-        delete _loadingGif;
-    if(_loadingLabel != nullptr)
-        delete _loadingLabel;
-    if(_loadingAnimation != nullptr)
-        delete _loadingAnimation;
+    if(m_loadingGif != nullptr)
+        delete m_loadingGif;
+    if(m_loadingLabel != nullptr)
+        delete m_loadingLabel;
+    if(m_loadingAnimation != nullptr)
+        delete m_loadingAnimation;
 
-    _loadingGif = new QMovie(":/images/loading_widget.gif");
-    _loadingLabel = new QLabel(this);
-    _loadingLabel->setMinimumWidth(this->width());
-    _loadingLabel->setMinimumHeight(this->height());
-    _loadingLabel->setScaledContents(true);
-    _loadingLabel->setMovie(_loadingGif);
-    _loadingLabel->show();
-    _loadingLabel->activateWindow();
-    _loadingLabel->raise();
+    m_loadingGif = new QMovie(":/images/loading_widget.gif");
+    m_loadingLabel = new QLabel(this);
+    m_loadingLabel->setMinimumWidth(this->width());
+    m_loadingLabel->setMinimumHeight(this->height());
+    m_loadingLabel->setScaledContents(true);
+    m_loadingLabel->setMovie(m_loadingGif);
+    m_loadingLabel->show();
+    m_loadingLabel->activateWindow();
+    m_loadingLabel->raise();
 
-    _loadingAnimation = new WidgetAnimation(_loadingLabel, WidgetAnimation::Opacity);
-    _loadingGif->start();
-    _loadingAnimation->show();
+    m_loadingAnimation = new WidgetAnimation(m_loadingLabel, WidgetAnimation::Opacity);
+    m_loadingGif->start();
+    m_loadingAnimation->show();
 }
 
 void SystemWidget::hideLoadingScreen()
 {
-    if(_loadingGif != nullptr)
+    if(m_loadingGif != nullptr)
     {
-        connect(_loadingAnimation, SIGNAL(finished()), this, SLOT(on_loadingAnimation_finished()));
-        _loadingAnimation->hide();
+        connect(m_loadingAnimation, SIGNAL(finished()), this, SLOT(on_loadingAnimation_finished()));
+        m_loadingAnimation->hide();
     }
 }

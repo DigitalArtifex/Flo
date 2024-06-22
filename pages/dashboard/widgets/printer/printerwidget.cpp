@@ -18,16 +18,16 @@ PrinterWidget::~PrinterWidget()
 
 void PrinterWidget::setPrinter(Printer *printer)
 {
-    _printer = printer;
-    connect(_printer,SIGNAL(printerUpdate(Printer*)),this, SLOT(on_printer_update(Printer*)));
-    connect(_printer,SIGNAL(klipperConnected(Printer*)),this, SLOT(on_printer_klipperConnected(Printer*)));
-    connect(_printer,SIGNAL(klipperDisconnected(Printer*)),this, SLOT(on_printer_klipperDisconnected(Printer*)));
+    m_printer = printer;
+    connect(m_printer,SIGNAL(printerUpdate(Printer*)),this, SLOT(on_printer_update(Printer*)));
+    connect(m_printer,SIGNAL(klipperConnected(Printer*)),this, SLOT(on_printer_klipperConnected(Printer*)));
+    connect(m_printer,SIGNAL(klipperDisconnected(Printer*)),this, SLOT(on_printer_klipperDisconnected(Printer*)));
     on_printer_update(printer);
 }
 
 Printer *PrinterWidget::printer()
 {
-    return _printer;
+    return m_printer;
 }
 
 void PrinterWidget::setUiClasses()
@@ -40,11 +40,11 @@ void PrinterWidget::setStyleSheet(QString styleSheet)
     QFrame::setStyleSheet(styleSheet);
     QPixmap pixmap;
 
-    if(_printer == nullptr)
+    if(m_printer == nullptr)
         pixmap = Settings::getThemeIcon("printer-icon").pixmap(ui->iconLabel->size());
     else
     {
-        switch(_printer->status())
+        switch(m_printer->status())
         {
         case Printer::Printing:
             pixmap = Settings::getThemeIcon("printer-printing-icon").pixmap(ui->iconLabel->size());
@@ -78,13 +78,13 @@ void PrinterWidget::setStyleSheet(QString styleSheet)
 
 void PrinterWidget::on_printer_update(Printer *printer)
 {
-    ui->nameLabel->setText(_printer->name());
-    ui->etaLabel->setText(QString("ETA: ") + _printer->printEndTime().toString());
+    ui->nameLabel->setText(m_printer->name());
+    ui->etaLabel->setText(QString("ETA: ") + m_printer->printEndTime().toString());
 
     QString statusText;
     QPixmap pixmap;
 
-    switch(_printer->status())
+    switch(m_printer->status())
     {
     case Printer::Printing:
         statusText = QString("Printing");
@@ -139,7 +139,7 @@ void PrinterWidget::on_printer_update(Printer *printer)
     }
 
     ui->statusButton->setText(QString("Status: ") + statusText);
-    ui->statusMessageEdit->setText(_printer->statusMessage());
+    ui->statusMessageEdit->setText(m_printer->statusMessage());
     ui->iconLabel->setPixmap(pixmap);
 }
 
@@ -189,40 +189,40 @@ void PrinterWidget::on_pausePrintButton_toggled(bool checked)
 
 void PrinterWidget::showLoadingScreen()
 {
-    if(_loadingGif != nullptr)
-        delete _loadingGif;
-    if(_loadingLabel != nullptr)
-        delete _loadingLabel;
-    if(_loadingAnimation != nullptr)
-        delete _loadingAnimation;
+    if(m_loadingGif != nullptr)
+        delete m_loadingGif;
+    if(m_loadingLabel != nullptr)
+        delete m_loadingLabel;
+    if(m_loadingAnimation != nullptr)
+        delete m_loadingAnimation;
 
     setGraphicsEffect(nullptr);
 
-    _loadingGif = new QMovie(":/images/loading_widget.gif");
-    _loadingLabel = new QLabel(this);
-    _loadingLabel->setMinimumWidth(this->width());
-    _loadingLabel->setMinimumHeight(this->height());
-    _loadingLabel->show();
-    _loadingLabel->activateWindow();
-    _loadingLabel->raise();
-    _loadingLabel->setMovie(_loadingGif);
+    m_loadingGif = new QMovie(":/images/loading_widget.gif");
+    m_loadingLabel = new QLabel(this);
+    m_loadingLabel->setMinimumWidth(this->width());
+    m_loadingLabel->setMinimumHeight(this->height());
+    m_loadingLabel->show();
+    m_loadingLabel->activateWindow();
+    m_loadingLabel->raise();
+    m_loadingLabel->setMovie(m_loadingGif);
 
-    _loadingAnimation = new WidgetAnimation(_loadingLabel, WidgetAnimation::Opacity);
+    m_loadingAnimation = new WidgetAnimation(m_loadingLabel, WidgetAnimation::Opacity);
 
-    _loadingLabel->setScaledContents(true);
-    ui->loadingLabel->setMovie(_loadingGif);
-    _loadingGif->start();
-    _loadingAnimation->show();
+    m_loadingLabel->setScaledContents(true);
+    ui->loadingLabel->setMovie(m_loadingGif);
+    m_loadingGif->start();
+    m_loadingAnimation->show();
 
     //ui->stackedWidget->setCurrentIndex(3);
 }
 
 void PrinterWidget::hideLoadingScreen()
 {
-    if(_loadingGif != nullptr)
+    if(m_loadingGif != nullptr)
     {
-        connect(_loadingAnimation, SIGNAL(finished()), this, SLOT(on_loadingAnimation_finished()));
-        _loadingAnimation->hide();
+        connect(m_loadingAnimation, SIGNAL(finished()), this, SLOT(on_loadingAnimation_finished()));
+        m_loadingAnimation->hide();
         //ui->stackedWidget->setCurrentIndex(0);
     }
 }
@@ -232,19 +232,19 @@ void PrinterWidget::on_restartKlipperButton_clicked()
 {
     ui->restartKlipperButton->setEnabled(false);
     ui->restartFirmwareButton->setEnabled(false);
-    _printer->console()->restartKlipper();
+    m_printer->console()->restartKlipper();
 }
 
 void PrinterWidget::on_loadingAnimation_finished()
 {
-    _loadingGif->stop();
-    delete _loadingGif;
-    delete _loadingLabel;
-    delete _loadingAnimation;
-    _loadingLabel = nullptr;
-    _loadingGif = nullptr;
-    _loadingAnimation = nullptr;
-    on_printer_update(_printer);
+    m_loadingGif->stop();
+    delete m_loadingGif;
+    delete m_loadingLabel;
+    delete m_loadingAnimation;
+    m_loadingLabel = nullptr;
+    m_loadingGif = nullptr;
+    m_loadingAnimation = nullptr;
+    on_printer_update(m_printer);
 }
 
 
@@ -252,6 +252,6 @@ void PrinterWidget::on_restartFirmwareButton_clicked()
 {
     ui->restartKlipperButton->setEnabled(false);
     ui->restartFirmwareButton->setEnabled(false);
-    _printer->console()->restartFirmware();
+    m_printer->console()->restartFirmware();
 }
 

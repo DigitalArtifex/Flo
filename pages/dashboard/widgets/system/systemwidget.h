@@ -43,16 +43,16 @@ private:
 private:
     Ui::SystemWidget *ui;
 
-    Printer *_printer = nullptr;
+    Printer *m_printer = nullptr;
 
-    CircularProgressBar *_systemCpuLoadProgressBar;
-    CircularProgressBar *_systemMemoryLoadProgressBar;
-    CircularProgressBar *_systemTemperatureProgressBar;
+    CircularProgressBar *m_systemCpuLoadProgressBar;
+    CircularProgressBar *m_systemMemoryLoadProgressBar;
+    CircularProgressBar *m_systemTemperatureProgressBar;
 
-    QMovie *_loadingGif = nullptr;
-    QLabel *_loadingLabel = nullptr;
+    QMovie *m_loadingGif = nullptr;
+    QLabel *m_loadingLabel = nullptr;
 
-    WidgetAnimation *_loadingAnimation = nullptr;
+    WidgetAnimation *m_loadingAnimation = nullptr;
 };
 
 #endif // SYSTEMWIDGET_H

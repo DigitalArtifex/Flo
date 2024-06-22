@@ -55,18 +55,18 @@ private slots:
 protected:
     virtual void resizeEvent(QResizeEvent *event);
 
-    QList<QAnimatedListItem*> _items;
-    QList<QAnimatedListItem*> _selectedItems;
+    QList<QAnimatedListItem*> m_items;
+    QList<QAnimatedListItem*> m_selectedItems;
 
-    QString _emptyText;
-    QPixmap _emptyPixmap;
+    QString m_emptyText;
+    QPixmap m_emptyPixmap;
 
-    QAnimatedEmptyListItem *_emptyListItem = nullptr;
+    QAnimatedEmptyListItem *m_emptyListItem = nullptr;
 
-    QWidget *_scrollAreaContents = nullptr;
-    QSpacerItem *_spacer = nullptr;
+    QWidget *m_scrollAreaContents = nullptr;
+    QSpacerItem *m_spacer = nullptr;
 
-    SelectionMode _selectionMode = SingleSelect;
+    SelectionMode m_selectionMode = SingleSelect;
 };
 
 #endif // QANIMATEDLISTWIDGET_H

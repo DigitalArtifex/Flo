@@ -9,11 +9,11 @@ FileEditor::FileEditor(Printer *printer, QWidget *parent)
 {
     ui->setupUi(this);
 
-    _highlighter = new QSourceHighliter(ui->textEdit->document());
-    _highlighter->setCurrentLanguage(QSourceHighliter::CodeGCode);
-    _highlighter->setTheme(QSourceHighliter::System);
+    m_highlighter = new QSourceHighliter(ui->textEdit->document());
+    m_highlighter->setCurrentLanguage(QSourceHighliter::CodeGCode);
+    m_highlighter->setTheme(QSourceHighliter::System);
 
-    _printer = printer;
+    m_printer = printer;
     showMaximized();
 }
 
@@ -24,32 +24,32 @@ FileEditor::~FileEditor()
 
 KlipperFile FileEditor::file() const
 {
-    return _file;
+    return m_file;
 }
 
 void FileEditor::setFile(const KlipperFile &file)
 {
-    _file = file;
+    m_file = file;
     setWindowTitle(QString(file.name));
 
-    if(_file.type == KlipperFile::GCode)
+    if(m_file.type == KlipperFile::GCode)
     {
-        _highlighter->setCurrentLanguage(QSourceHighliter::CodeGCode);
+        m_highlighter->setCurrentLanguage(QSourceHighliter::CodeGCode);
         ui->saveAndRestartButton->setHidden(true);
     }
-    else if(_file.type == KlipperFile::Config)
+    else if(m_file.type == KlipperFile::Config)
     {
-        _highlighter->setCurrentLanguage(QSourceHighliter::CodeINI);
+        m_highlighter->setCurrentLanguage(QSourceHighliter::CodeINI);
         ui->saveAndRestartButton->setHidden(false);
     }
 
-    QString fileContents = _printer->console()->downloadFile(_file);
+    QString fileContents = m_printer->console()->downloadFile(m_file);
     ui->textEdit->setText(fileContents);
 }
 
 void FileEditor::on_resetButton_clicked()
 {
-    QString fileContents = _printer->console()->downloadFile(_file);
+    QString fileContents = m_printer->console()->downloadFile(m_file);
     ui->textEdit->setText(fileContents);
 }
 
@@ -57,9 +57,9 @@ void FileEditor::on_saveAndRestartButton_clicked()
 {
     QByteArray fileContents = ui->textEdit->toPlainText().toUtf8();
 
-    if(_printer->console()->uploadFile(_file.root, _file.path, _file.name, fileContents))
+    if(m_printer->console()->uploadFile(m_file.root, m_file.path, m_file.name, fileContents))
     {
-        _printer->console()->restartKlipper();
+        m_printer->console()->restartKlipper();
         close();
     }
 }
@@ -68,7 +68,7 @@ void FileEditor::on_saveAndCloseButton_clicked()
 {
     QByteArray fileContents = ui->textEdit->toPlainText().toUtf8();
 
-    if(_printer->console()->uploadFile(_file.root, _file.path, _file.name, fileContents))
+    if(m_printer->console()->uploadFile(m_file.root, m_file.path, m_file.name, fileContents))
     {
         close();
     }

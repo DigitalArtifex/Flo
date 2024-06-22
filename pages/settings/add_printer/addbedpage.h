@@ -31,7 +31,7 @@ private slots:
 private:
     Ui::AddBedPage *ui;
 
-    PrinterDefinition _definition;
+    PrinterDefinition m_definition;
 };
 
 #endif // ADDBEDPAGE_H

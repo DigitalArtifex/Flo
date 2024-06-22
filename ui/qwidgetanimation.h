@@ -81,41 +81,41 @@ protected slots:
 
 private:
     //Animations
-    QPropertyAnimation *_minHeightAnimation = nullptr;
-    QPropertyAnimation *_maxHeightAnimation = nullptr;
-    QPropertyAnimation *_minWidthAnimation = nullptr;
-    QPropertyAnimation *_maxWidthAnimation = nullptr;
-    QPropertyAnimation *_positionAnimation = nullptr;
-    QPropertyAnimation *_geometryAnimation = nullptr;
-    QPropertyAnimation *_opacityAnimation = nullptr;
-    QPropertyAnimation *_blurAnimation = nullptr;
-    QParallelAnimationGroup *_animations = nullptr;
+    QPropertyAnimation *m_minHeightAnimation = nullptr;
+    QPropertyAnimation *m_maxHeightAnimation = nullptr;
+    QPropertyAnimation *m_minWidthAnimation = nullptr;
+    QPropertyAnimation *m_maxWidthAnimation = nullptr;
+    QPropertyAnimation *m_positionAnimation = nullptr;
+    QPropertyAnimation *m_geometryAnimation = nullptr;
+    QPropertyAnimation *m_opacityAnimation = nullptr;
+    QPropertyAnimation *m_blurAnimation = nullptr;
+    QParallelAnimationGroup *m_animations = nullptr;
 
     //Effects
-    QGraphicsOpacityEffect *_opacityEffect = nullptr;
-    QGraphicsBlurEffect *_blurEffect = nullptr;
+    QGraphicsOpacityEffect *m_opacityEffect = nullptr;
+    QGraphicsBlurEffect *m_blurEffect = nullptr;
 
     //Control
-    QWidget *_target = nullptr;
+    QWidget *m_target = nullptr;
 
-    AnimationType _animationType = Static;
+    AnimationType m_animationType = Static;
 
-    qint32 _startHeight = 0;
-    qint32 _endHeight = 0;
-    qint32 _startWidth = 0;
-    qint32 _endWidth = 0;
-    qint32 _duration = 0;
+    qint32 m_startHeight = 0;
+    qint32 m_endHeight = 0;
+    qint32 m_startWidth = 0;
+    qint32 m_endWidth = 0;
+    qint32 m_duration = 0;
 
-    QPoint _startPosition = QPoint(0,0);
-    QPoint _endPosition = QPoint(0,0);
+    QPoint m_startPosition = QPoint(0,0);
+    QPoint m_endPosition = QPoint(0,0);
 
-    QRect _startGeometry = QRect(0,0,0,0);
-    QRect _endGeometry = QRect(0,0,0,0);
+    QRect m_startGeometry = QRect(0,0,0,0);
+    QRect m_endGeometry = QRect(0,0,0,0);
 
-    qreal _startOpacity = 0.0;
-    qreal _endOpacity = 0.0;
-    qreal _startBlur = 0.0;
-    qreal _endBlur = 0.0;
+    qreal m_startOpacity = 0.0;
+    qreal m_endOpacity = 0.0;
+    qreal m_startBlur = 0.0;
+    qreal m_endBlur = 0.0;
 };
 
 #endif // QWIDGETANIMATION_H

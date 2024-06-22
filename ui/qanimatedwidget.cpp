@@ -3,82 +3,82 @@
 QAnimatedWidget::QAnimatedWidget(QWidget *parent)
     : QFrame{parent}
 {
-    _layout = new QGridLayout(this);
-    _layout->setSpacing(0);
-    _layout->setContentsMargins(0,0,0,0);
+    m_layout = new QGridLayout(this);
+    m_layout->setSpacing(0);
+    m_layout->setContentsMargins(0,0,0,0);
 
-    _snapshotLabel = new QLabel(this);
-    _snapshotLabel->resize(size());
-    _snapshotLabel->hide();
+    m_snapshotLabel = new QLabel(this);
+    m_snapshotLabel->resize(size());
+    m_snapshotLabel->hide();
 
-    _animationFinal = new QWidgetAnimation(this, parent);
-    _animationIn = new QWidgetAnimation(this, parent);
-    _animationOut = new QWidgetAnimation(this, parent);
+    m_animationFinal = new QWidgetAnimation(this, parent);
+    m_animationIn = new QWidgetAnimation(this, parent);
+    m_animationOut = new QWidgetAnimation(this, parent);
 
-    connect(_animationIn, SIGNAL(finished()), this, SLOT(on_animationIn_finished()));
-    connect(_animationFinal, SIGNAL(finished()), this, SLOT(on_animationFinal_finished()));
-    connect(_animationOut, SIGNAL(finished()), this, SLOT(on_animationOut_finished()));
+    connect(m_animationIn, SIGNAL(finished()), this, SLOT(on_animationIn_finished()));
+    connect(m_animationFinal, SIGNAL(finished()), this, SLOT(on_animationFinal_finished()));
+    connect(m_animationOut, SIGNAL(finished()), this, SLOT(on_animationOut_finished()));
 
-    setLayout(_layout);
+    setLayout(m_layout);
 }
 
 QAnimatedWidget::~QAnimatedWidget()
 {
-    if(_animationIn)
-        delete _animationIn;
+    if(m_animationIn)
+        delete m_animationIn;
 
-    if(_animationFinal)
-        delete _animationFinal;
+    if(m_animationFinal)
+        delete m_animationFinal;
 
-    if(_animationOut)
-        delete _animationOut;
+    if(m_animationOut)
+        delete m_animationOut;
 
-    if(_snapshotLabel)
-        delete _snapshotLabel;
+    if(m_snapshotLabel)
+        delete m_snapshotLabel;
 
-    if(_widget)
-        _widget->deleteLater();
+    if(m_widget)
+        m_widget->deleteLater();
 
-    if(_layout)
-        delete _layout;
+    if(m_layout)
+        delete m_layout;
 }
 
 void QAnimatedWidget::animateIn()
 {
-    if(_animationIn->hasAnimationType(QWidgetAnimation::Position))
+    if(m_animationIn->hasAnimationType(QWidgetAnimation::Position))
     {
-        _animationIn->setStartPosition(_positionOut);
-        _animationIn->setEndPosition(_positionIn);
+        m_animationIn->setStartPosition(m_positionOut);
+        m_animationIn->setEndPosition(m_positionIn);
     }
 
-    if(_animationIn->hasAnimationType(QWidgetAnimation::Opacity))
+    if(m_animationIn->hasAnimationType(QWidgetAnimation::Opacity))
     {
-        _animationIn->setStartOpacity(_opacityOut);
-        _animationIn->setEndOpacity(_opacityIn);
+        m_animationIn->setStartOpacity(m_opacityOut);
+        m_animationIn->setEndOpacity(m_opacityIn);
     }
 
-    if(_animationIn->hasAnimationType(QWidgetAnimation::Geometry))
+    if(m_animationIn->hasAnimationType(QWidgetAnimation::Geometry))
     {
-        _animationIn->setStartGeometry(_geometryOut);
-        _animationIn->setEndGeometry(_geometryIn);
+        m_animationIn->setStartGeometry(m_geometryOut);
+        m_animationIn->setEndGeometry(m_geometryIn);
     }
 
-    if(_animationIn->hasAnimationType(QWidgetAnimation::Blur))
+    if(m_animationIn->hasAnimationType(QWidgetAnimation::Blur))
     {
-        _animationIn->setStartBlur(_blurOut);
-        _animationIn->setEndBlur(_blurIn);
+        m_animationIn->setStartBlur(m_blurOut);
+        m_animationIn->setEndBlur(m_blurIn);
     }
 
-    if(_animationIn->hasAnimationType(QWidgetAnimation::Height))
+    if(m_animationIn->hasAnimationType(QWidgetAnimation::Height))
     {
-        _animationIn->setStartHeight(_heightOut);
-        _animationIn->setEndHeight(_heightIn);
+        m_animationIn->setStartHeight(m_heightOut);
+        m_animationIn->setEndHeight(m_heightIn);
     }
 
-    if(_animationIn->hasAnimationType(QWidgetAnimation::Width))
+    if(m_animationIn->hasAnimationType(QWidgetAnimation::Width))
     {
-        _animationIn->setStartWidth(_widthOut);
-        _animationIn->setEndWidth(_widthIn);
+        m_animationIn->setStartWidth(m_widthOut);
+        m_animationIn->setEndWidth(m_widthIn);
     }
 
     //switch to a snapshot of the actual widget to prevent performance issues
@@ -89,63 +89,63 @@ void QAnimatedWidget::animateIn()
     painter.setRenderHints(QPainter::Antialiasing);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
-    if(_widget)
+    if(m_widget)
     {
-        _widget->setProperty("isAnimating", true);
-        _widget->render(&painter, QPoint(), QRegion(), QWidget::DrawChildren);
+        m_widget->setProperty("isAnimating", true);
+        m_widget->render(&painter, QPoint(), QRegion(), QWidget::DrawChildren);
     }
 
-    _snapshotLabel->setPixmap(QPixmap::fromImage(snapshot));
-    _snapshotLabel->resize(size());
-    _snapshotLabel->show();
+    m_snapshotLabel->setPixmap(QPixmap::fromImage(snapshot));
+    m_snapshotLabel->resize(size());
+    m_snapshotLabel->show();
 
     //hide after showing the snapshot to prevent flicker
-    if(_widget)
+    if(m_widget)
     {
-        _widget->hide();
-        _layout->removeWidget(_widget);
+        m_widget->hide();
+        m_layout->removeWidget(m_widget);
     }
 
-    _animationIn->setDuration(_duration);
-    _animationIn->start();
+    m_animationIn->setDuration(m_duration);
+    m_animationIn->start();
 }
 
 void QAnimatedWidget::animateOut()
 {
-    if(_animationOut->hasAnimationType(QWidgetAnimation::Position))
+    if(m_animationOut->hasAnimationType(QWidgetAnimation::Position))
     {
-        _animationOut->setStartPosition(_positionIn);
-        _animationOut->setEndPosition(_positionOut);
+        m_animationOut->setStartPosition(m_positionIn);
+        m_animationOut->setEndPosition(m_positionOut);
     }
 
-    if(_animationOut->hasAnimationType(QWidgetAnimation::Opacity))
+    if(m_animationOut->hasAnimationType(QWidgetAnimation::Opacity))
     {
-        _animationOut->setStartOpacity(_opacityIn);
-        _animationOut->setEndOpacity(_opacityOut);
+        m_animationOut->setStartOpacity(m_opacityIn);
+        m_animationOut->setEndOpacity(m_opacityOut);
     }
 
-    if(_animationOut->hasAnimationType(QWidgetAnimation::Geometry))
+    if(m_animationOut->hasAnimationType(QWidgetAnimation::Geometry))
     {
-        _animationOut->setStartGeometry(_geometryIn);
-        _animationOut->setEndGeometry(_geometryOut);
+        m_animationOut->setStartGeometry(m_geometryIn);
+        m_animationOut->setEndGeometry(m_geometryOut);
     }
 
-    if(_animationOut->hasAnimationType(QWidgetAnimation::Blur))
+    if(m_animationOut->hasAnimationType(QWidgetAnimation::Blur))
     {
-        _animationOut->setStartBlur(_blurIn);
-        _animationOut->setEndBlur(_blurOut);
+        m_animationOut->setStartBlur(m_blurIn);
+        m_animationOut->setEndBlur(m_blurOut);
     }
 
-    if(_animationOut->hasAnimationType(QWidgetAnimation::Height))
+    if(m_animationOut->hasAnimationType(QWidgetAnimation::Height))
     {
-        _animationOut->setStartHeight(_heightIn);
-        _animationOut->setEndHeight(_heightOut);
+        m_animationOut->setStartHeight(m_heightIn);
+        m_animationOut->setEndHeight(m_heightOut);
     }
 
-    if(_animationOut->hasAnimationType(QWidgetAnimation::Width))
+    if(m_animationOut->hasAnimationType(QWidgetAnimation::Width))
     {
-        _animationOut->setStartWidth(_widthIn);
-        _animationOut->setEndWidth(_widthOut);
+        m_animationOut->setStartWidth(m_widthIn);
+        m_animationOut->setEndWidth(m_widthOut);
     }
 
     //switch to a snapshot of the actual widget to prevent performance issues
@@ -156,176 +156,176 @@ void QAnimatedWidget::animateOut()
     painter.setRenderHints(QPainter::Antialiasing);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
-    if(_widget)
+    if(m_widget)
     {
-        _widget->setProperty("isAnimating", true);
-        _widget->render(&painter, QPoint(), QRegion(), QWidget::DrawChildren);
+        m_widget->setProperty("isAnimating", true);
+        m_widget->render(&painter, QPoint(), QRegion(), QWidget::DrawChildren);
     }
 
-    _snapshotLabel->setPixmap(QPixmap::fromImage(snapshot));
-    _snapshotLabel->resize(size());
-    _snapshotLabel->show();
+    m_snapshotLabel->setPixmap(QPixmap::fromImage(snapshot));
+    m_snapshotLabel->resize(size());
+    m_snapshotLabel->show();
 
     //hide after showing the snapshot to prevent flicker
-    if(_widget)
+    if(m_widget)
     {
-        _widget->hide();
-        _layout->removeWidget(_widget);
+        m_widget->hide();
+        m_layout->removeWidget(m_widget);
     }
 
-    _animationOut->setDuration(_duration);
-    _animationOut->start();
+    m_animationOut->setDuration(m_duration);
+    m_animationOut->start();
 }
 
 QWidget *QAnimatedWidget::widget() const
 {
-    return _widget;
+    return m_widget;
 }
 
 void QAnimatedWidget::setWidget(QWidget *widget)
 {
-    if(_widget)
+    if(m_widget)
     {
-        _layout->removeWidget(_widget);
-        delete _widget;
-        _widget = nullptr;
+        m_layout->removeWidget(m_widget);
+        delete m_widget;
+        m_widget = nullptr;
     }
 
-    _widget = widget;
-    _layout->addWidget(_widget);
+    m_widget = widget;
+    m_layout->addWidget(m_widget);
 }
 
 void QAnimatedWidget::on_animationIn_finished()
 {
-    if(_widget)
+    if(m_widget)
     {
-        _layout->addWidget(_widget);
-        _widget->show();
+        m_layout->addWidget(m_widget);
+        m_widget->show();
     }
 
-    if(_snapshotLabel)
-        _snapshotLabel->hide();
+    if(m_snapshotLabel)
+        m_snapshotLabel->hide();
 
-    if(_widget)
-        _widget->setProperty("isAnimating", false);
+    if(m_widget)
+        m_widget->setProperty("isAnimating", false);
 
     emit animatedIn();
 }
 
 void QAnimatedWidget::on_animationOut_finished()
 {
-    if(!_animationFinal)
+    if(!m_animationFinal)
     {
-        if(_snapshotLabel)
-            _snapshotLabel->hide();
+        if(m_snapshotLabel)
+            m_snapshotLabel->hide();
 
-        if(_widget)
-            _widget->setProperty("isAnimating", false);
+        if(m_widget)
+            m_widget->setProperty("isAnimating", false);
 
         emit animatedOut();
     }
     else
-        _animationFinal->start();
+        m_animationFinal->start();
 }
 
 void QAnimatedWidget::on_animationFinal_finished()
 {
-    if(_snapshotLabel)
-        _snapshotLabel->hide();
+    if(m_snapshotLabel)
+        m_snapshotLabel->hide();
 
-    if(_widget)
-        _widget->setProperty("isAnimating", false);
+    if(m_widget)
+        m_widget->setProperty("isAnimating", false);
 
     emit animatedOut();
 }
 
 void QAnimatedWidget::setWidthOut(qint32 widthOut)
 {
-    _widthOut = widthOut;
-    _animationOut->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Width));
+    m_widthOut = widthOut;
+    m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Width));
 }
 
 void QAnimatedWidget::setStyleSheet(QString styleSheet)
 {
-    if(_widget)
-        _widget->setStyleSheet(styleSheet);
+    if(m_widget)
+        m_widget->setStyleSheet(styleSheet);
 }
 
 void QAnimatedWidget::resizeEvent(QResizeEvent *event)
 {
-    if(_snapshotLabel)
-        _snapshotLabel->resize(event->size());
+    if(m_snapshotLabel)
+        m_snapshotLabel->resize(event->size());
 
     QFrame::resizeEvent(event);
 }
 
 void QAnimatedWidget::setWidthIn(qint32 widthIn)
 {
-    _widthIn = widthIn;
-    _animationIn->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Width));
+    m_widthIn = widthIn;
+    m_animationIn->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Width));
 }
 
 void QAnimatedWidget::setHeightOut(qint32 heightOut)
 {
-    _heightOut = heightOut;
-    _animationOut->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Height));
+    m_heightOut = heightOut;
+    m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Height));
 }
 
 void QAnimatedWidget::setHeightIn(qint32 heightIn)
 {
-    _heightIn = heightIn;
-    _animationIn->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Height));
+    m_heightIn = heightIn;
+    m_animationIn->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Height));
 }
 
 void QAnimatedWidget::setDuration(qint32 duration)
 {
-    _duration = duration;
+    m_duration = duration;
 }
 
 void QAnimatedWidget::setOpacityOut(qreal opacityOut)
 {
-    _opacityOut = opacityOut;
-    _animationOut->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Opacity));
+    m_opacityOut = opacityOut;
+    m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Opacity));
 }
 
 void QAnimatedWidget::setOpacityIn(qreal opacityIn)
 {
-    _opacityIn = opacityIn;
-    _animationIn->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Opacity));
+    m_opacityIn = opacityIn;
+    m_animationIn->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Opacity));
 }
 
 void QAnimatedWidget::setBlurOut(qreal blurOut)
 {
-    _blurOut = blurOut;
-    _animationOut->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Blur));
+    m_blurOut = blurOut;
+    m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Blur));
 }
 
 void QAnimatedWidget::setBlurIn(qreal blurIn)
 {
-    _blurIn = blurIn;
-    _animationIn->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Blur));
+    m_blurIn = blurIn;
+    m_animationIn->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Blur));
 }
 
 void QAnimatedWidget::setPositionOut(QPoint positionOut)
 {
-    _positionOut = positionOut;
-    _animationOut->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Position));
+    m_positionOut = positionOut;
+    m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Position));
 }
 
 void QAnimatedWidget::setPositionIn(QPoint positionIn)
 {
-    _positionIn = positionIn;
-    _animationIn->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Position));
+    m_positionIn = positionIn;
+    m_animationIn->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Position));
 }
 
 void QAnimatedWidget::setGeometryOut(const QRect &geometryOut)
 {
-    _geometryOut = geometryOut;
-    _animationOut->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Geometry));
+    m_geometryOut = geometryOut;
+    m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Geometry));
 }
 
 void QAnimatedWidget::setGeometryIn(const QRect &geometryIn)
 {
-    _geometryIn = geometryIn;
-    _animationIn->setAnimationType(QWidgetAnimation::AnimationType(_animationIn->animationType() | QWidgetAnimation::Geometry));
+    m_geometryIn = geometryIn;
+    m_animationIn->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Geometry));
 }

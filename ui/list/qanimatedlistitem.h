@@ -72,35 +72,35 @@ private slots:
     void on_animationOut_finished();
 
 private:
-    bool _selectable = true;
-    bool _selected = false;
-    bool _pressed = false;
-    bool _longPressed = false;
+    bool m_selectable = true;
+    bool m_selected = false;
+    bool m_pressed = false;
+    bool m_longPressed = false;
 
-    QTimer *_clickTimer = nullptr;
+    QTimer *m_clickTimer = nullptr;
 
-    QWidgetAnimation *_animationIn = nullptr;
-    QWidgetAnimation *_animationOut = nullptr;
-    QWidgetAnimation *_animationFinal = nullptr;
+    QWidgetAnimation *m_animationIn = nullptr;
+    QWidgetAnimation *m_animationOut = nullptr;
+    QWidgetAnimation *m_animationFinal = nullptr;
 
-    QRect _geometryIn = QRect(0,0,0,0);
-    QRect _geometryOut = QRect(0,0,0,0);
-    QPoint _positionIn = QPoint(0,0);
-    QPoint _positionOut = QPoint(0,0);
+    QRect m_geometryIn = QRect(0,0,0,0);
+    QRect m_geometryOut = QRect(0,0,0,0);
+    QPoint m_positionIn = QPoint(0,0);
+    QPoint m_positionOut = QPoint(0,0);
 
-    qreal _blurIn = 0;
-    qreal _blurOut = 0;
-    qreal _opacityIn = 0;
-    qreal _opacityOut = 0;
+    qreal m_blurIn = 0;
+    qreal m_blurOut = 0;
+    qreal m_opacityIn = 0;
+    qreal m_opacityOut = 0;
 
-    qint32 _duration = 0;
-    qint32 _heightIn = 0;
-    qint32 _heightOut = 0;
-    qint32 _widthIn = 0;
-    qint32 _widthOut = 0;
-    qint32 _clickCount = 0;
+    qint32 m_duration = 0;
+    qint32 m_heightIn = 0;
+    qint32 m_heightOut = 0;
+    qint32 m_widthIn = 0;
+    qint32 m_widthOut = 0;
+    qint32 m_clickCount = 0;
 
-    QWidget *_widget = nullptr;
+    QWidget *m_widget = nullptr;
 };
 
 #endif // QANIMATEDLISTITEM_H

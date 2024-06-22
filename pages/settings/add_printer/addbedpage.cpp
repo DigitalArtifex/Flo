@@ -15,12 +15,12 @@ AddBedPage::~AddBedPage()
 
 void AddBedPage::reset()
 {
-    ui->bedPowerSpinBox->setValue(_definition.powerProfile[QString("bed")]);
+    ui->bedPowerSpinBox->setValue(m_definition.powerProfile[QString("bed")]);
 }
 
 void AddBedPage::apply()
 {
-    _definition.powerProfile[QString("bed")] = ui->bedPowerSpinBox->value();
+    m_definition.powerProfile[QString("bed")] = ui->bedPowerSpinBox->value();
 }
 
 void AddBedPage::on_heatedBedCheckbox_stateChanged(int arg1)
@@ -30,12 +30,12 @@ void AddBedPage::on_heatedBedCheckbox_stateChanged(int arg1)
 
 PrinterDefinition AddBedPage::definition() const
 {
-    return _definition;
+    return m_definition;
 }
 
 void AddBedPage::setDefinition(PrinterDefinition definition)
 {
-    _definition = definition;
+    m_definition = definition;
 }
 
 bool AddBedPage::validate()

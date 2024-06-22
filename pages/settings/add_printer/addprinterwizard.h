@@ -35,12 +35,12 @@ public slots:
 
 private:
     Ui::AddPrinterWizard *ui;
-    AddPrinterPage *_addPage = nullptr;
-    AddExtrudersPage *_extruderPage = nullptr;
-    AddBedPage *_bedPage = nullptr;
-    ValidatePrinterPage *_validatePage = nullptr;
-    PrinterDefinition _definition;
-    Printer *_printer = nullptr;
+    AddPrinterPage *m_addPage = nullptr;
+    AddExtrudersPage *m_extruderPage = nullptr;
+    AddBedPage *m_bedPage = nullptr;
+    ValidatePrinterPage *m_validatePage = nullptr;
+    PrinterDefinition m_definition;
+    Printer *m_printer = nullptr;
 };
 
 #endif // ADDPRINTERWIZARD_H

@@ -9,51 +9,51 @@ QAnimatedEmptyListItem::QAnimatedEmptyListItem(QWidget *parent) : QAnimatedWidge
 
 QAnimatedEmptyListItem::~QAnimatedEmptyListItem()
 {
-    //delete _label;
-    //delete _iconLabel;
-    //delete _topSpacer;
-    //delete _bottomSpacer;
-    //delete _middleSpacer;
-    //delete _layout;
+    //delete m_label;
+    //delete m_iconLabel;
+    //delete m_topSpacer;
+    //delete m_bottomSpacer;
+    //delete m_middleSpacer;
+    //delete m_layout;
 }
 
 void QAnimatedEmptyListItem::setupUi()
 {
-    _label = new QLabel(this);
-    _label->setText(QString("No Items"));
-    _label->setAlignment(Qt::AlignCenter);
+    m_label = new QLabel(this);
+    m_label->setText(QString("No Items"));
+    m_label->setAlignment(Qt::AlignCenter);
 
-    _iconLabel = new QLabel(this);
-    _iconLabel->setText(QString(""));
-    _iconLabel->setAlignment(Qt::AlignCenter);
+    m_iconLabel = new QLabel(this);
+    m_iconLabel->setText(QString(""));
+    m_iconLabel->setAlignment(Qt::AlignCenter);
 
     QPixmap pixmap = Settings::getThemeIcon(QString("empty-icon")).pixmap(64,64);
-    _iconLabel->setPixmap(pixmap);
+    m_iconLabel->setPixmap(pixmap);
 
-    _topSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    _bottomSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    _middleSpacer = new QSpacerItem(20,20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+    m_topSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_bottomSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_middleSpacer = new QSpacerItem(20,20, QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-    QGridLayout *_layout = (QGridLayout*)layout();
-    _layout->addItem(_topSpacer,0,0);
-    _layout->addWidget(_label);
-    _layout->addItem(_middleSpacer,2,0);
-    _layout->addWidget(_iconLabel);
-    _layout->addItem(_bottomSpacer,4,0);
+    QGridLayout *m_layout = (QGridLayout*)layout();
+    m_layout->addItem(m_topSpacer,0,0);
+    m_layout->addWidget(m_label);
+    m_layout->addItem(m_middleSpacer,2,0);
+    m_layout->addWidget(m_iconLabel);
+    m_layout->addItem(m_bottomSpacer,4,0);
 }
 
 void QAnimatedEmptyListItem::setText(const QString &text)
 {
-    _label->setText(text);
+    m_label->setText(text);
 }
 
 void QAnimatedEmptyListItem::setIcon(const QPixmap &pixmap)
 {
-    _iconLabel->setPixmap(pixmap);
+    m_iconLabel->setPixmap(pixmap);
 }
 
 void QAnimatedEmptyListItem::setIcon(const QString &iconName)
 {
     QPixmap pixmap = Settings::getThemeIcon(iconName).pixmap(64,64);
-    _iconLabel->setPixmap(pixmap);
+    m_iconLabel->setPixmap(pixmap);
 }

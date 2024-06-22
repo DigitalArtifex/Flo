@@ -5,10 +5,10 @@ QMap<QString,QVariant> Settings::settings;
 QMap<QString,QVariant> Settings::themeSettings;
 QMap<QString,QString> Settings::themeMap;
 QMap<QString,QIcon> Settings::iconMap;
-PrinterDefinitionList Settings::_printers;
-Settings *Settings::_instance = nullptr;
-QString Settings::_currentTheme = "";
-QString Settings::_digitalFontFamily = "";
+PrinterDefinitionList Settings::m_printers;
+Settings *Settings::m_instance = nullptr;
+QString Settings::m_currentTheme = "";
+QString Settings::m_digitalFontFamily = "";
 
 void Settings::loadThemes()
 {
@@ -59,13 +59,13 @@ void Settings::loadThemes()
         }
     }
 
-    _currentTheme = getTheme(get("system.theme").toString());
+    m_currentTheme = getTheme(get("system.theme").toString());
 }
 
 void Settings::load()
 {
     int id = QFontDatabase::addApplicationFont(":/fonts/digital-7(mono).ttf");
-    _digitalFontFamily = QFontDatabase::applicationFontFamilies(id).at(0);
+    m_digitalFontFamily = QFontDatabase::applicationFontFamilies(id).at(0);
 
     qDebug() << "Settings File";
     QString settingsFileLocation = QDir::homePath() + QDir::separator() + QString(".local") +
@@ -101,7 +101,7 @@ void Settings::load()
             return;
         }
 
-        _printers.clear();
+        m_printers.clear();
 
         for(settingsIterator = settingsObject.begin(); settingsIterator != settingsObject.end(); settingsIterator++)
         {
@@ -138,7 +138,7 @@ void Settings::load()
                             printer.powerProfile[key] = value;
                         }
 
-                        _printers.append(printer);
+                        m_printers.append(printer);
                     }
                 }
             }
@@ -163,34 +163,34 @@ void Settings::save()
         rootObject[mapIterator.key()] = QJsonValue::fromVariant(mapIterator.value());
 
     QJsonArray printerArray;
-    //QJsonArray::fromVariantList(_printers);
+    //QJsonArray::fromVariantList(m_printers);
 
-    for(int i = 0; i < _printers.count(); i++)
+    for(int i = 0; i < m_printers.count(); i++)
     {
         QJsonArray powerArray;
-        QStringList keys = _printers[i].powerProfile.keys();
+        QStringList keys = m_printers[i].powerProfile.keys();
 
         foreach(QString key, keys)
         {
             QJsonObject powerObject;
             powerObject["key"] = key;
-            powerObject["value"] = _printers[i].powerProfile[key];
+            powerObject["value"] = m_printers[i].powerProfile[key];
             powerArray.append(powerObject);
         }
 
         QJsonObject printerObject;
-        printerObject["name"] = _printers[i].name;
-        printerObject["id"] = _printers[i].id;
-        printerObject["config_file"] = _printers[i].configFile;
-        printerObject["config_location"] = _printers[i].configLocation;
-        printerObject["gcode_location"] = _printers[i].gcodeLocation;
-        printerObject["instance_location"] = _printers[i].instanceLocation;
-        printerObject["auto_connect"] = _printers[i].autoConnect;
-        printerObject["default_printer"] = _printers[i].defaultPrinter;
-        printerObject["klipper_location"] = _printers[i].klipperLocation;
-        printerObject["moonraker_location"] = _printers[i].moonrakerLocation;
-        printerObject["api_key"] = _printers[i].apiKey;
-        printerObject["extruder_count"] = _printers[i].extruderCount;
+        printerObject["name"] = m_printers[i].name;
+        printerObject["id"] = m_printers[i].id;
+        printerObject["config_file"] = m_printers[i].configFile;
+        printerObject["config_location"] = m_printers[i].configLocation;
+        printerObject["gcode_location"] = m_printers[i].gcodeLocation;
+        printerObject["instance_location"] = m_printers[i].instanceLocation;
+        printerObject["auto_connect"] = m_printers[i].autoConnect;
+        printerObject["default_printer"] = m_printers[i].defaultPrinter;
+        printerObject["klipper_location"] = m_printers[i].klipperLocation;
+        printerObject["moonraker_location"] = m_printers[i].moonrakerLocation;
+        printerObject["api_key"] = m_printers[i].apiKey;
+        printerObject["extruder_count"] = m_printers[i].extruderCount;
         printerObject["power_profile"] = powerArray;
 
         printerArray.append(printerObject);
@@ -338,7 +338,7 @@ QString Settings::getTheme(QString key)
             iconMap[themeIcon["name"].toString()] = loadedIcon;
         }
     }
-    _currentTheme = theme;
+    m_currentTheme = theme;
     return theme;
 }
 
@@ -360,17 +360,17 @@ void Settings::setTheme(QString key)
 
 void Settings::addPrinter(PrinterDefinition printer)
 {
-    _printers.append(printer);
+    m_printers.append(printer);
     save();
 }
 
 void Settings::removePrinter(PrinterDefinition printer)
 {
-    for(int i = 0; i < _printers.count(); i++)
+    for(int i = 0; i < m_printers.count(); i++)
     {
-        if(_printers[i].id == printer.id)
+        if(m_printers[i].id == printer.id)
         {
-            _printers.removeAt(i);
+            m_printers.removeAt(i);
             save();
         }
     }
@@ -378,12 +378,12 @@ void Settings::removePrinter(PrinterDefinition printer)
 
 void Settings::setDefaultPrinter(PrinterDefinition printer)
 {
-    for(int i = 0; i < _printers.count(); i++)
+    for(int i = 0; i < m_printers.count(); i++)
     {
-        if(_printers[i].id == printer.id)
-            _printers[i].defaultPrinter = true;
+        if(m_printers[i].id == printer.id)
+            m_printers[i].defaultPrinter = true;
         else
-            _printers[i].defaultPrinter = false;
+            m_printers[i].defaultPrinter = false;
     }
 
     save();
@@ -391,11 +391,11 @@ void Settings::setDefaultPrinter(PrinterDefinition printer)
 
 void Settings::updatePrinter(PrinterDefinition printer)
 {
-    for(int i = 0; i < _printers.count(); i++)
+    for(int i = 0; i < m_printers.count(); i++)
     {
-        if(_printers[i].id == printer.id)
+        if(m_printers[i].id == printer.id)
         {
-            _printers[i] = printer;
+            m_printers[i] = printer;
             break;
         }
     }
@@ -403,23 +403,23 @@ void Settings::updatePrinter(PrinterDefinition printer)
 
 PrinterDefinitionList Settings::printers()
 {
-    return _printers;
+    return m_printers;
 }
 
 Settings *Settings::instance()
 {
-    if(_instance == nullptr)
-        _instance = new Settings();
+    if(m_instance == nullptr)
+        m_instance = new Settings();
 
-    return _instance;
+    return m_instance;
 }
 
 QString Settings::currentTheme()
 {
-    return _currentTheme;
+    return m_currentTheme;
 }
 
 QString Settings::digitalFontFamily()
 {
-    return _digitalFontFamily;
+    return m_digitalFontFamily;
 }

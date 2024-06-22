@@ -10,8 +10,8 @@ IssueListItem::IssueListItem(QString title, QString source, QString message, QWi
 
     setFixedHeight(120);
 
-    _titleLabel->setText(title);
-    _sourceLabel->setText(source);
+    m_titleLabel->setText(title);
+    m_sourceLabel->setText(source);
 
     QString messageText = message;
 
@@ -32,18 +32,18 @@ IssueListItem::IssueListItem(QString title, QString source, QString message, QWi
     if(title == QString("Error configuring printer"))
     {
         QPixmap icon = Settings::getThemeIcon(QString("issue-config-icon")).pixmap(32,32);
-        _iconLabel->setPixmap(icon);
-        _iconLabel->setAlignment(Qt::AlignCenter);
+        m_iconLabel->setPixmap(icon);
+        m_iconLabel->setAlignment(Qt::AlignCenter);
     }
     else
     {
         QPixmap icon = Settings::getThemeIcon(QString("issue-default-icon")).pixmap(32,32);
-        _iconLabel->setPixmap(icon);
-        _iconLabel->setAlignment(Qt::AlignCenter);
+        m_iconLabel->setPixmap(icon);
+        m_iconLabel->setAlignment(Qt::AlignCenter);
     }
 
-    _messageLabel->setText(messageText);
-    _messageLabel->setWordWrap(true);
+    m_messageLabel->setText(messageText);
+    m_messageLabel->setWordWrap(true);
 
     if(parent)
         setStyleSheet(parent->styleSheet());
@@ -51,54 +51,54 @@ IssueListItem::IssueListItem(QString title, QString source, QString message, QWi
 
 IssueListItem::~IssueListItem()
 {
-    delete _iconLabel;
-    delete _iconContainer;
-    delete _titleLabel;
-    delete _sourceLabel;
-    delete _messageLabel;
+    delete m_iconLabel;
+    delete m_iconContainer;
+    delete m_titleLabel;
+    delete m_sourceLabel;
+    delete m_messageLabel;
 }
 
 void IssueListItem::setupUi()
 {
     QGridLayout *layout = new QGridLayout();
 
-    _iconContainer = new QWidget(this);
-    _iconContainer->setLayout(new QVBoxLayout(_iconContainer));
-    _iconContainer->setBaseSize(75,75);
-    _iconContainer->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Minimum));
-    layout->addWidget(_iconContainer,0,0,4,1);
+    m_iconContainer = new QWidget(this);
+    m_iconContainer->setLayout(new QVBoxLayout(m_iconContainer));
+    m_iconContainer->setBaseSize(75,75);
+    m_iconContainer->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Minimum));
+    layout->addWidget(m_iconContainer,0,0,4,1);
 
-    _iconLabel = new QLabel(this);
-    _iconLabel->setBaseSize(50,50);
-    _iconLabel->setAlignment(Qt::AlignCenter);
-    _iconLabel->setText(QString("Icon"));
-    _iconContainer->layout()->addWidget(_iconLabel);
+    m_iconLabel = new QLabel(this);
+    m_iconLabel->setBaseSize(50,50);
+    m_iconLabel->setAlignment(Qt::AlignCenter);
+    m_iconLabel->setText(QString("Icon"));
+    m_iconContainer->layout()->addWidget(m_iconLabel);
 
-    _titleLabel = new QLabel(this);
-    layout->addWidget(_titleLabel,0,1,1,1);
+    m_titleLabel = new QLabel(this);
+    layout->addWidget(m_titleLabel,0,1,1,1);
 
-    _sourceLabel = new QLabel(this);
-    layout->addWidget(_sourceLabel,0,2,1,1);
+    m_sourceLabel = new QLabel(this);
+    layout->addWidget(m_sourceLabel,0,2,1,1);
 
-    _buttonSpacer = new QSpacerItem(0,0, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    layout->addItem(_buttonSpacer,0,3,1,1);
+    m_buttonSpacer = new QSpacerItem(0,0, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    layout->addItem(m_buttonSpacer,0,3,1,1);
 
-    _closeButton = new QToolButton(this);
-    _closeButton->setIcon(Settings::getThemeIcon(QString("close-icon")));
-    layout->addWidget(_closeButton,0,4,1,1);
+    m_closeButton = new QToolButton(this);
+    m_closeButton->setIcon(Settings::getThemeIcon(QString("close-icon")));
+    layout->addWidget(m_closeButton,0,4,1,1);
 
-    connect(_closeButton, SIGNAL(clicked(bool)), this, SLOT(on_closeButton_clicked()));
+    connect(m_closeButton, SIGNAL(clicked(bool)), this, SLOT(on_closeButton_clicked()));
 
-    _separator = new QFrame(this);
-    _separator->setFrameShape(QFrame::HLine);
-    _separator->setFrameShadow(QFrame::Sunken);
-    layout->addWidget(_separator,1,1,1,4);
+    m_separator = new QFrame(this);
+    m_separator->setFrameShape(QFrame::HLine);
+    m_separator->setFrameShadow(QFrame::Sunken);
+    layout->addWidget(m_separator,1,1,1,4);
 
-    _messageLabel = new QLabel(this);
-    layout->addWidget(_messageLabel,2,1,1,4);
+    m_messageLabel = new QLabel(this);
+    layout->addWidget(m_messageLabel,2,1,1,4);
 
-    _spacer = new QSpacerItem(20,20,QSizePolicy::Expanding, QSizePolicy::Preferred);
-    layout->addItem(_spacer, 3, 1, 1, 2);
+    m_spacer = new QSpacerItem(20,20,QSizePolicy::Expanding, QSizePolicy::Preferred);
+    layout->addItem(m_spacer, 3, 1, 1, 2);
 
     setLayout(layout);
 }

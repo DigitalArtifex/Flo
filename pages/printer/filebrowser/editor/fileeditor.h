@@ -36,9 +36,9 @@ private slots:
 private:
     Ui::FileEditor *ui;
 
-    QSourceHighlite::QSourceHighliter *_highlighter;
-    KlipperFile _file;
-    Printer *_printer = nullptr;
+    QSourceHighlite::QSourceHighliter *m_highlighter;
+    KlipperFile m_file;
+    Printer *m_printer = nullptr;
 };
 
 #endif // FILEEDITOR_H

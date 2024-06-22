@@ -83,9 +83,9 @@ void CircularProgressBar::paintEvent(QPaintEvent *event)
 
     QString text;
 
-    if(_mode == Percent)
+    if(m_mode == Percent)
         text = QString::number(progress * 100.00, 'f', 2) + QString("%");
-    else if(_mode == Temperature)
+    else if(m_mode == Temperature)
         text = QString::number(current, 'f', 2) + QString("°");
     else
         text = QString::number(current, 'f', 2);
@@ -95,7 +95,7 @@ void CircularProgressBar::paintEvent(QPaintEvent *event)
     x = width() / 2;
     x -= ((fontScale * text.length()) / 2);
 
-    if(_mode != Temperature)
+    if(m_mode != Temperature)
         x -= 3;
 
     y = (height()/2);

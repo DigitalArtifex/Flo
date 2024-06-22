@@ -4,10 +4,10 @@ Chamber::Chamber() {}
 
 qreal Chamber::watts() const
 {
-    return _watts;
+    return m_watts;
 }
 
 void Chamber::setWatts(qreal watts)
 {
-    _watts = watts;
+    m_watts = watts;
 }

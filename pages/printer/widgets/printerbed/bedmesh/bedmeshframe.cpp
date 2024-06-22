@@ -9,21 +9,21 @@ BedMeshFrame::BedMeshFrame(Q3DPrintBed *bed, QWidget *parent)
 {
     ui->setupUi(this);
 
-    _layout = new QGridLayout(this);
-    _layout->setContentsMargins(4,4,4,4);
-    _layout->setSpacing(4);
-    ui->bedMeshFrame->setLayout(_layout);
+    m_layout = new QGridLayout(this);
+    m_layout->setContentsMargins(4,4,4,4);
+    m_layout->setSpacing(4);
+    ui->bedMeshFrame->setLayout(m_layout);
 
-    _emptyFrame = new BedMeshEmptyFrame(bed, this);
-    _layout->addWidget(_emptyFrame);
+    m_emptyFrame = new BedMeshEmptyFrame(bed, this);
+    m_layout->addWidget(m_emptyFrame);
 
     ui->recalibrateButton->setHidden(true);
 
-    _printerBed = bed;
-    connect(_printerBed, SIGNAL(bedMeshCalibrating()), this, SLOT(on_printerBed_bedMeshCalibrating()));
-    connect(_printerBed, SIGNAL(bedMeshCalibrated()), this, SLOT(on_printerBed_bedMeshCalibrated()));
-    connect(_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(on_toolhead_homing()));
-    connect(_printerBed->printer()->toolhead(), SIGNAL(homed()), this, SLOT(on_toolhead_homed()));
+    m_printerBed = bed;
+    connect(m_printerBed, SIGNAL(bedMeshCalibrating()), this, SLOT(on_printerBed_bedMeshCalibrating()));
+    connect(m_printerBed, SIGNAL(bedMeshCalibrated()), this, SLOT(on_printerBed_bedMeshCalibrated()));
+    connect(m_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(on_toolhead_homing()));
+    connect(m_printerBed->printer()->toolhead(), SIGNAL(homed()), this, SLOT(on_toolhead_homed()));
 
     setupIcons();
 }
@@ -44,109 +44,109 @@ void BedMeshFrame::setupUiClasses()
 
 void BedMeshFrame::showLoadingScreen()
 {
-    if(_loadingGif)
+    if(m_loadingGif)
     {
-        delete _loadingGif;
-        _loadingGif = nullptr;
+        delete m_loadingGif;
+        m_loadingGif = nullptr;
     }
 
-    if(_loadingLabel)
+    if(m_loadingLabel)
     {
-        delete _loadingLabel;
-        _loadingLabel = nullptr;
+        delete m_loadingLabel;
+        m_loadingLabel = nullptr;
     }
 
-    if(_loadingAnimation)
+    if(m_loadingAnimation)
     {
-        delete _loadingAnimation;
-        _loadingAnimation = nullptr;
+        delete m_loadingAnimation;
+        m_loadingAnimation = nullptr;
     }
 
-    if(_loadingFrameLayout)
+    if(m_loadingFrameLayout)
     {
-        delete _loadingFrameLayout;
-        _loadingFrameLayout = nullptr;
+        delete m_loadingFrameLayout;
+        m_loadingFrameLayout = nullptr;
     }
 
-    if(_loadingFrame)
+    if(m_loadingFrame)
     {
-        delete _loadingFrame;
-        _loadingFrame = nullptr;
+        delete m_loadingFrame;
+        m_loadingFrame = nullptr;
     }
 
-    _loadingFrameLayout = new QHBoxLayout(_loadingFrame);
-    _loadingFrame = new QFrame(this);
-    _loadingFrame->setLayout(_loadingFrameLayout);
-    _loadingFrame->setMinimumWidth(this->width());
-    _loadingFrame->setMinimumHeight(this->height());
-    _loadingFrame->show();
-    _loadingFrame->raise();
+    m_loadingFrameLayout = new QHBoxLayout(m_loadingFrame);
+    m_loadingFrame = new QFrame(this);
+    m_loadingFrame->setLayout(m_loadingFrameLayout);
+    m_loadingFrame->setMinimumWidth(this->width());
+    m_loadingFrame->setMinimumHeight(this->height());
+    m_loadingFrame->show();
+    m_loadingFrame->raise();
 
-    _loadingFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "LoadingOverlayFrame"));
+    m_loadingFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "LoadingOverlayFrame"));
 
-    _loadingGif = new QMovie(":/images/loading_small_1a87c5.gif");
+    m_loadingGif = new QMovie(":/images/loading_small_1a87c5.gif");
 
-    _loadingLabel = new QLabel(_loadingFrame);
-    _loadingLabel->setFixedSize(50,50);
-    _loadingLabel->setScaledContents(true);
-    _loadingLabel->setMovie(_loadingGif);
-    _loadingFrameLayout->addWidget(_loadingLabel);
+    m_loadingLabel = new QLabel(m_loadingFrame);
+    m_loadingLabel->setFixedSize(50,50);
+    m_loadingLabel->setScaledContents(true);
+    m_loadingLabel->setMovie(m_loadingGif);
+    m_loadingFrameLayout->addWidget(m_loadingLabel);
 
-    _loadingAnimation = new QWidgetAnimation(_loadingFrame);
-    _loadingAnimation->setDuration(100);
-    _loadingAnimation->setStartOpacity(0);
-    _loadingAnimation->setEndOpacity(1);
+    m_loadingAnimation = new QWidgetAnimation(m_loadingFrame);
+    m_loadingAnimation->setDuration(100);
+    m_loadingAnimation->setStartOpacity(0);
+    m_loadingAnimation->setEndOpacity(1);
 
-    _loadingGif->start();
-    _loadingAnimation->start();
+    m_loadingGif->start();
+    m_loadingAnimation->start();
 
-    this->style()->polish(_loadingFrame);
+    this->style()->polish(m_loadingFrame);
 }
 
 void BedMeshFrame::hideLoadingScreen()
 {
-    if(_loadingGif)
+    if(m_loadingGif)
     {
-        connect(_loadingAnimation, SIGNAL(finished()), this, SLOT(on_loadingAnimation_finished()));
-        _loadingAnimation->setStartOpacity(1);
-        _loadingAnimation->setEndOpacity(0);
-        _loadingAnimation->setDuration(100);
-        _loadingAnimation->start();
+        connect(m_loadingAnimation, SIGNAL(finished()), this, SLOT(on_loadingAnimation_finished()));
+        m_loadingAnimation->setStartOpacity(1);
+        m_loadingAnimation->setEndOpacity(0);
+        m_loadingAnimation->setDuration(100);
+        m_loadingAnimation->start();
     }
 }
 
 void BedMeshFrame::on_loadingAnimation_finished()
 {
-    _loadingGif->stop();
+    m_loadingGif->stop();
 
-    if(_loadingGif)
+    if(m_loadingGif)
     {
-        delete _loadingGif;
-        _loadingGif = nullptr;
+        delete m_loadingGif;
+        m_loadingGif = nullptr;
     }
 
-    if(_loadingLabel)
+    if(m_loadingLabel)
     {
-        delete _loadingLabel;
-        _loadingLabel = nullptr;
+        delete m_loadingLabel;
+        m_loadingLabel = nullptr;
     }
 
-    if(_loadingAnimation)
+    if(m_loadingAnimation)
     {
-        delete _loadingAnimation;
-        _loadingAnimation = nullptr;
+        delete m_loadingAnimation;
+        m_loadingAnimation = nullptr;
     }
 
-    if(_loadingFrameLayout)
+    if(m_loadingFrameLayout)
     {
-        delete _loadingFrameLayout;
-        _loadingFrameLayout = nullptr;
+        delete m_loadingFrameLayout;
+        m_loadingFrameLayout = nullptr;
     }
 
-    if(_loadingFrame)
+    if(m_loadingFrame)
     {
-        delete _loadingFrame;
-        _loadingFrame = nullptr;
+        delete m_loadingFrame;
+        m_loadingFrame = nullptr;
     }
 }
 
@@ -172,24 +172,24 @@ void BedMeshFrame::on_printerBed_bedMeshCalibrated()
 
     foreach(BedMeshItemFrame *itemFrame, itemFrames)
     {
-        _layout->removeWidget(itemFrame);
+        m_layout->removeWidget(itemFrame);
         itemFrame->deleteLater();
     }
 
-    if(_printerBed->bedMesh().probed.count() > 0)
+    if(m_printerBed->bedMesh().probed.count() > 0)
     {
-        foreach(QList<qreal> row, _printerBed->bedMesh().probed)
+        foreach(QList<qreal> row, m_printerBed->bedMesh().probed)
         {
-            int rowNumber = _layout->rowCount();
+            int rowNumber = m_layout->rowCount();
 
             for(int i = 0; i < row.count(); i++)
             {
                 //remove empty frame
-                if(_emptyFrame)
+                if(m_emptyFrame)
                 {
-                    _layout->removeWidget(_emptyFrame);
-                    delete _emptyFrame;
-                    _emptyFrame = nullptr;
+                    m_layout->removeWidget(m_emptyFrame);
+                    delete m_emptyFrame;
+                    m_emptyFrame = nullptr;
 
                     //unhide recalibrate ui
                     ui->recalibrateButton->setHidden(false);
@@ -198,7 +198,7 @@ void BedMeshFrame::on_printerBed_bedMeshCalibrated()
                 BedMeshItemFrame *itemFrame = new BedMeshItemFrame(this);
                 itemFrame->setValue(row[i]);
 
-                _layout->addWidget(itemFrame, rowNumber, i, Qt::AlignCenter);
+                m_layout->addWidget(itemFrame, rowNumber, i, Qt::AlignCenter);
             }
         }
     }
@@ -206,10 +206,10 @@ void BedMeshFrame::on_printerBed_bedMeshCalibrated()
     //show empty frame
     else
     {
-        if(!_emptyFrame)
+        if(!m_emptyFrame)
         {
-            _emptyFrame = new BedMeshEmptyFrame(_printerBed, this);
-            _layout->addWidget(_emptyFrame);
+            m_emptyFrame = new BedMeshEmptyFrame(m_printerBed, this);
+            m_layout->addWidget(m_emptyFrame);
 
             //unhide recalibrate ui
             ui->recalibrateButton->setHidden(true);

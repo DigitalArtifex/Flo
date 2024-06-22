@@ -97,63 +97,63 @@ protected:
     void emitUpdate();
 
 private:
-    Position _offset;
-    Fan *_fan;
+    Position m_offset;
+    Fan *m_fan;
 
-    QPair<qint32,qint32> _gearRatio;
+    QPair<qint32,qint32> m_gearRatio;
 
-    qint32 _extruderNumber = 0;
-    qint32 _fullStepsPerRotation = 0;
-    qint32 _microsteps = 0;
+    qint32 m_extruderNumber = 0;
+    qint32 m_fullStepsPerRotation = 0;
+    qint32 m_microsteps = 0;
 
-    qreal _currentTemp = 0;
-    qreal _targetTemp = 0;
-    qreal _smoothTime = 0;
-    qreal _pressureAdvance = 0;
-    qreal _pressureAdvanceSmoothTime = 0;
-    qreal _extrusionFactor = 0;
-    qreal _filamentDiameter = 0;
-    qreal _nozzleDiameter = 0;
-    qreal _power = 0;
-    qreal _watts = 0;
-    qreal _inlineResistor = 0;
-    qreal _pullupResistor = 0;
-    qreal _pwmCycle = 0;
-    qreal _rotationDistance = 0;
-    qreal _instantCornerVelocity = 0;
+    qreal m_currentTemp = 0;
+    qreal m_targetTemp = 0;
+    qreal m_smoothTime = 0;
+    qreal m_pressureAdvance = 0;
+    qreal m_pressureAdvanceSmoothTime = 0;
+    qreal m_extrusionFactor = 0;
+    qreal m_filamentDiameter = 0;
+    qreal m_nozzleDiameter = 0;
+    qreal m_power = 0;
+    qreal m_watts = 0;
+    qreal m_inlineResistor = 0;
+    qreal m_pullupResistor = 0;
+    qreal m_pwmCycle = 0;
+    qreal m_rotationDistance = 0;
+    qreal m_instantCornerVelocity = 0;
 
     //pid settings
-    qreal _pidKD = 0;
-    qreal _pidKI = 0;
-    qreal _pidKP = 0;
+    qreal m_pidKD = 0;
+    qreal m_pidKI = 0;
+    qreal m_pidKP = 0;
 
     //maximums
-    qreal _maxExtrudeCrossSection = 0;
-    qreal _maxExtrudeOnlyAcceleration = 0;
-    qreal _maxExtrudeOnlyDistance = 0;
-    qreal _maxExtrudeOnlyVelocity = 0;
-    qreal _maxTemp = 0;
-    qreal _maxPower = 0;
+    qreal m_maxExtrudeCrossSection = 0;
+    qreal m_maxExtrudeOnlyAcceleration = 0;
+    qreal m_maxExtrudeOnlyDistance = 0;
+    qreal m_maxExtrudeOnlyVelocity = 0;
+    qreal m_maxTemp = 0;
+    qreal m_maxPower = 0;
 
     //minimums
-    qreal _minExtrudeTemp = 0;
-    qreal _minTemp = 0;
+    qreal m_minExtrudeTemp = 0;
+    qreal m_minTemp = 0;
 
-    bool _canExtrude = false;
+    bool m_canExtrude = false;
 
-    QString _name;
-    QString _control;
-    QString _dirPin;
-    QString _enablePin;
-    QString _heaterPin;
-    QString _sensorPin;
-    QString _sensorType;
-    QString _stepPin;
+    QString m_name;
+    QString m_control;
+    QString m_dirPin;
+    QString m_enablePin;
+    QString m_heaterPin;
+    QString m_sensorPin;
+    QString m_sensorType;
+    QString m_stepPin;
 
-    TemperatureStore _temperatureStore;
+    TemperatureStore m_temperatureStore;
 
     //Parent printer object
-    Printer *_printer = nullptr;
+    Printer *m_printer = nullptr;
 };
 
 #endif // EXTRUDER_H

@@ -50,15 +50,15 @@ private slots:
     void on_retractButton_clicked();
 
 private:
-    CircularProgressBar *_temperatureProgressBar;
-    Extruder *_extruder;
+    CircularProgressBar *m_temperatureProgressBar;
+    Extruder *m_extruder;
     Ui::ExtruderWidget *ui;
 
-    bool _updating = false;
-    bool _targetTempEdited = false;
-    bool _pressureAdvanceEdited = false;
-    bool _smoothTimeEdited = false;
-    bool _extrusionFactorEdited = false;
+    bool m_updating = false;
+    bool m_targetTempEdited = false;
+    bool m_pressureAdvanceEdited = false;
+    bool m_smoothTimeEdited = false;
+    bool m_extrusionFactorEdited = false;
 };
 
 #endif // EXTRUDERWIDGET_H

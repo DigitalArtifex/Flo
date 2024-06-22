@@ -9,14 +9,14 @@ DashboardPage::DashboardPage(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    _layout = new QFlowLayout(ui->scrollAreaWidgetContents);
-    ui->scrollAreaWidgetContents->setLayout(_layout);
+    m_layout = new QFlowLayout(ui->scrollAreaWidgetContents);
+    ui->scrollAreaWidgetContents->setLayout(m_layout);
 
-    _systemWidget = new SystemWidget();
-    ui->scrollAreaWidgetContents->layout()->addWidget(_systemWidget);
+    m_systemWidget = new SystemWidget();
+    ui->scrollAreaWidgetContents->layout()->addWidget(m_systemWidget);
 
-    _statusWidget = new StatusWidget(this);
-    ui->scrollAreaWidgetContents->layout()->addWidget(_statusWidget);
+    m_statusWidget = new StatusWidget(this);
+    ui->scrollAreaWidgetContents->layout()->addWidget(m_statusWidget);
 
     setUiClasses();
     loadPrinters();
@@ -31,17 +31,17 @@ DashboardPage::~DashboardPage()
 {
     delete ui;
 
-    if(_systemWidget)
-        delete _systemWidget;
+    if(m_systemWidget)
+        delete m_systemWidget;
 
-    if(_statusWidget)
-        delete _statusWidget;
+    if(m_statusWidget)
+        delete m_statusWidget;
 
-    for(int i = 0; i < _printerWidgets.count(); i++)
-        delete _printerWidgets[i];
+    for(int i = 0; i < m_printerWidgets.count(); i++)
+        delete m_printerWidgets[i];
 
-    if(_layout)
-        delete _layout;
+    if(m_layout)
+        delete m_layout;
 }
 
 void DashboardPage::loadPrinters()
@@ -51,7 +51,7 @@ void DashboardPage::loadPrinters()
     foreach(PrinterDefinition definition, printers)
     {
         bool found = false;
-        foreach(PrinterWidget *widget, _printerWidgets)
+        foreach(PrinterWidget *widget, m_printerWidgets)
         {
             if(widget->printer()->id() == definition.id)
             {
@@ -68,21 +68,21 @@ void DashboardPage::loadPrinters()
                 printer = new Printer(definition);
 
             widget->setPrinter(printer);
-            _printerWidgets.append(widget);
+            m_printerWidgets.append(widget);
             ui->scrollAreaWidgetContents->layout()->addWidget(widget);
 
             if(definition.defaultPrinter)
             {
-                _selectedWidget = widget;
-                _systemWidget->setPrinter(printer);
+                m_selectedWidget = widget;
+                m_systemWidget->setPrinter(printer);
             }
         }
     }
 
-    if(_selectedWidget == nullptr && !_printerWidgets.isEmpty())
+    if(m_selectedWidget == nullptr && !m_printerWidgets.isEmpty())
     {
-        _selectedWidget = _printerWidgets[0];
-        _systemWidget->setPrinter(_selectedWidget->printer());
+        m_selectedWidget = m_printerWidgets[0];
+        m_systemWidget->setPrinter(m_selectedWidget->printer());
     }
 }
 
@@ -102,39 +102,39 @@ void DashboardPage::setStyleSheet(QString styleSheet)
 {
     QFrame::setStyleSheet(styleSheet);
 
-    if(_systemWidget)
-        _systemWidget->setStyleSheet(styleSheet);
+    if(m_systemWidget)
+        m_systemWidget->setStyleSheet(styleSheet);
 
-    if(_statusWidget)
-        _statusWidget->setStyleSheet(styleSheet);
+    if(m_statusWidget)
+        m_statusWidget->setStyleSheet(styleSheet);
 
-    for(int i = 0; i < _printerWidgets.count(); i++)
-        _printerWidgets[i]->setStyleSheet(styleSheet);
+    for(int i = 0; i < m_printerWidgets.count(); i++)
+        m_printerWidgets[i]->setStyleSheet(styleSheet);
 }
 
 void DashboardPage::resizeEvent(QResizeEvent *event)
 {
     QFrame::resizeEvent(event);
 
-    qint32 padding = _layout->horizontalSpacing() * 2;
-    padding += _layout->contentsMargins().left();
-    padding += _layout->contentsMargins().right();
-    qint32 statusWidth = ((width() - padding) - _systemWidget->width()) - 20;
-    qint32 statusHeight = _systemWidget->height();
+    qint32 padding = m_layout->horizontalSpacing() * 2;
+    padding += m_layout->contentsMargins().left();
+    padding += m_layout->contentsMargins().right();
+    qint32 statusWidth = ((width() - padding) - m_systemWidget->width()) - 20;
+    qint32 statusHeight = m_systemWidget->height();
 
-    if(_statusWidget)
-        _statusWidget->setFixedSize(QSize(statusWidth, statusHeight));
+    if(m_statusWidget)
+        m_statusWidget->setFixedSize(QSize(statusWidth, statusHeight));
 }
 
 void DashboardPage::on_printerPool_printerRemoved(Printer *printer)
 {
-    for(int i = 0; i < _printerWidgets.count(); i++)
+    for(int i = 0; i < m_printerWidgets.count(); i++)
     {
-        if(printer->id() == _printerWidgets[i]->printer()->id())
+        if(printer->id() == m_printerWidgets[i]->printer()->id())
         {
-            PrinterWidget *widget = _printerWidgets[i];
-            ui->scrollAreaWidgetContents->layout()->removeWidget(_printerWidgets[i]);
-            _printerWidgets.removeAt(i);
+            PrinterWidget *widget = m_printerWidgets[i];
+            ui->scrollAreaWidgetContents->layout()->removeWidget(m_printerWidgets[i]);
+            m_printerWidgets.removeAt(i);
             delete widget;
         }
     }

@@ -72,22 +72,22 @@ protected slots:
 private:
 
 #ifdef DEBUG_PRINTJOB
-    QTimer *_printJobTestTimer = nullptr;
+    QTimer *m_printJobTestTimer = nullptr;
 #endif
 
-    JobState _state = Error;
+    JobState m_state = Error;
 
-    QString _filename;
-    QString _message;
+    QString m_filename;
+    QString m_message;
 
-    qreal _totalDuration = 0.0;
-    qreal _printDuration = 0.0;
-    qreal _filamentUsed = 0.0;
+    qreal m_totalDuration = 0.0;
+    qreal m_printDuration = 0.0;
+    qreal m_filamentUsed = 0.0;
 
-    qint64 _totalLayers = 0;
-    qint64 _currentLayer = 0;
+    qint64 m_totalLayers = 0;
+    qint64 m_currentLayer = 0;
 
-    Printer *_parent = nullptr;
+    Printer *m_parent = nullptr;
 };
 
 #endif // PRINTJOB_H

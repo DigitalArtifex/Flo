@@ -49,7 +49,7 @@ void GeometryEngine::initCubeGeometry()
      *
      *
      *    X------>
-     *     ______
+     *     m______
      *    |      | Z
      *    |      | |
      *    |______| v
@@ -57,40 +57,40 @@ void GeometryEngine::initCubeGeometry()
      */
     VertexData vertices[] = {
         // Vertex data for face 0 [Front]
-        {QVector3D( ((((double)_width / 2) / (_scaleFactor / _scale)) * -1), ((((double)_thickness / 2) / (_scaleFactor / _scale)) * -1),  (((double)_length / 2) / (_scaleFactor / _scale))), QVector2D(0.0f, 0.0f)},  // v0
-        {QVector3D(  (((double)_width / 2) / (_scaleFactor / _scale)),       ((((double)_thickness / 2) / (_scaleFactor / _scale)) * -1),  (((double)_length / 2) / (_scaleFactor / _scale))), QVector2D(0.33f, 0.0f)}, // v1
-        {QVector3D( ((((double)_width / 2) / (_scaleFactor / _scale)) * -1),  (((double)_thickness / 2) / (_scaleFactor / _scale)),        (((double)_length / 2) / (_scaleFactor / _scale))), QVector2D(0.0f, 0.5f)},  // v2
-        {QVector3D(  (((double)_width / 2) / (_scaleFactor / _scale)),        (((double)_thickness / 2) / (_scaleFactor / _scale)),        (((double)_length / 2) / (_scaleFactor / _scale))), QVector2D(0.33f, 0.5f)}, // v3
+        {QVector3D( ((((double)m_width / 2) / (m_scaleFactor / m_scale)) * -1), ((((double)m_thickness / 2) / (m_scaleFactor / m_scale)) * -1),  (((double)m_length / 2) / (m_scaleFactor / m_scale))), QVector2D(0.0f, 0.0f)},  // v0
+        {QVector3D(  (((double)m_width / 2) / (m_scaleFactor / m_scale)),       ((((double)m_thickness / 2) / (m_scaleFactor / m_scale)) * -1),  (((double)m_length / 2) / (m_scaleFactor / m_scale))), QVector2D(0.33f, 0.0f)}, // v1
+        {QVector3D( ((((double)m_width / 2) / (m_scaleFactor / m_scale)) * -1),  (((double)m_thickness / 2) / (m_scaleFactor / m_scale)),        (((double)m_length / 2) / (m_scaleFactor / m_scale))), QVector2D(0.0f, 0.5f)},  // v2
+        {QVector3D(  (((double)m_width / 2) / (m_scaleFactor / m_scale)),        (((double)m_thickness / 2) / (m_scaleFactor / m_scale)),        (((double)m_length / 2) / (m_scaleFactor / m_scale))), QVector2D(0.33f, 0.5f)}, // v3
 
         // Vertex data for face 1 [Left]
-        {QVector3D( (((double)_width / 2) / (_scaleFactor / _scale)), ((((double)_thickness / 2) / (_scaleFactor / _scale)) * -1),   (((double)_length / 2) / (_scaleFactor / _scale))), QVector2D( 0.0f, 0.5f)}, // v4
-        {QVector3D( (((double)_width / 2) / (_scaleFactor / _scale)), ((((double)_thickness / 2) / (_scaleFactor / _scale)) * -1),  ((((double)_length / 2) / (_scaleFactor / _scale)) * -1)), QVector2D(0.33f, 0.5f)}, // v5
-        {QVector3D( (((double)_width / 2) / (_scaleFactor / _scale)),  (((double)_thickness / 2) / (_scaleFactor / _scale)),         (((double)_length / 2) / (_scaleFactor / _scale))), QVector2D(0.0f, 1.0f)},  // v6
-        {QVector3D( (((double)_width / 2) / (_scaleFactor / _scale)),  (((double)_thickness / 2) / (_scaleFactor / _scale)),        ((((double)_length / 2) / (_scaleFactor / _scale)) * -1)), QVector2D(0.33f, 1.0f)}, // v7
+        {QVector3D( (((double)m_width / 2) / (m_scaleFactor / m_scale)), ((((double)m_thickness / 2) / (m_scaleFactor / m_scale)) * -1),   (((double)m_length / 2) / (m_scaleFactor / m_scale))), QVector2D( 0.0f, 0.5f)}, // v4
+        {QVector3D( (((double)m_width / 2) / (m_scaleFactor / m_scale)), ((((double)m_thickness / 2) / (m_scaleFactor / m_scale)) * -1),  ((((double)m_length / 2) / (m_scaleFactor / m_scale)) * -1)), QVector2D(0.33f, 0.5f)}, // v5
+        {QVector3D( (((double)m_width / 2) / (m_scaleFactor / m_scale)),  (((double)m_thickness / 2) / (m_scaleFactor / m_scale)),         (((double)m_length / 2) / (m_scaleFactor / m_scale))), QVector2D(0.0f, 1.0f)},  // v6
+        {QVector3D( (((double)m_width / 2) / (m_scaleFactor / m_scale)),  (((double)m_thickness / 2) / (m_scaleFactor / m_scale)),        ((((double)m_length / 2) / (m_scaleFactor / m_scale)) * -1)), QVector2D(0.33f, 1.0f)}, // v7
 
         // Vertex data for face 2 [Back]
-        {QVector3D(  (((double)_width / 2) / (_scaleFactor / _scale)),       ((((double)_thickness / 2) / (_scaleFactor / _scale)) * -1),  ((((double)_length / 2) / (_scaleFactor / _scale)) * -1)), QVector2D(0.66f, 0.5f)}, // v8
-        {QVector3D( ((((double)_width / 2) / (_scaleFactor / _scale)) * -1), ((((double)_thickness / 2) / (_scaleFactor / _scale)) * -1),  ((((double)_length / 2) / (_scaleFactor / _scale)) * -1)), QVector2D(1.0f, 0.5f)},  // v9
-        {QVector3D(  (((double)_width / 2) / (_scaleFactor / _scale)),        (((double)_thickness / 2) / (_scaleFactor / _scale)),        ((((double)_length / 2) / (_scaleFactor / _scale)) * -1)), QVector2D(0.66f, 1.0f)}, // v10
-        {QVector3D( ((((double)_width / 2) / (_scaleFactor / _scale)) * -1),  (((double)_thickness / 2) / (_scaleFactor / _scale)),        ((((double)_length / 2) / (_scaleFactor / _scale)) * -1)), QVector2D(1.0f, 1.0f)},  // v11
+        {QVector3D(  (((double)m_width / 2) / (m_scaleFactor / m_scale)),       ((((double)m_thickness / 2) / (m_scaleFactor / m_scale)) * -1),  ((((double)m_length / 2) / (m_scaleFactor / m_scale)) * -1)), QVector2D(0.66f, 0.5f)}, // v8
+        {QVector3D( ((((double)m_width / 2) / (m_scaleFactor / m_scale)) * -1), ((((double)m_thickness / 2) / (m_scaleFactor / m_scale)) * -1),  ((((double)m_length / 2) / (m_scaleFactor / m_scale)) * -1)), QVector2D(1.0f, 0.5f)},  // v9
+        {QVector3D(  (((double)m_width / 2) / (m_scaleFactor / m_scale)),        (((double)m_thickness / 2) / (m_scaleFactor / m_scale)),        ((((double)m_length / 2) / (m_scaleFactor / m_scale)) * -1)), QVector2D(0.66f, 1.0f)}, // v10
+        {QVector3D( ((((double)m_width / 2) / (m_scaleFactor / m_scale)) * -1),  (((double)m_thickness / 2) / (m_scaleFactor / m_scale)),        ((((double)m_length / 2) / (m_scaleFactor / m_scale)) * -1)), QVector2D(1.0f, 1.0f)},  // v11
 
         // Vertex data for face 3 [Right]
-        {QVector3D( ((((double)_width / 2) / (_scaleFactor / _scale)) * -1), ((((double)_thickness / 2) / (_scaleFactor / _scale)) * -1),  ((((double)_length / 2) / (_scaleFactor / _scale)) * -1)), QVector2D(0.66f, 0.0f)}, // v12
-        {QVector3D( ((((double)_width / 2) / (_scaleFactor / _scale)) * -1), ((((double)_thickness / 2) / (_scaleFactor / _scale)) * -1),  ((double)_length / 2) / (_scaleFactor / _scale)), QVector2D(1.0f, 0.0f)},  // v13
-        {QVector3D( ((((double)_width / 2) / (_scaleFactor / _scale)) * -1),  (((double)_thickness / 2) / (_scaleFactor / _scale)),        ((((double)_length / 2) / (_scaleFactor / _scale)) * -1)), QVector2D(0.66f, 0.5f)}, // v14
-        {QVector3D( ((((double)_width / 2) / (_scaleFactor / _scale)) * -1),  (((double)_thickness / 2) / (_scaleFactor / _scale)),        ((double)_length / 2) / (_scaleFactor / _scale)), QVector2D(1.0f, 0.5f)},  // v15
+        {QVector3D( ((((double)m_width / 2) / (m_scaleFactor / m_scale)) * -1), ((((double)m_thickness / 2) / (m_scaleFactor / m_scale)) * -1),  ((((double)m_length / 2) / (m_scaleFactor / m_scale)) * -1)), QVector2D(0.66f, 0.0f)}, // v12
+        {QVector3D( ((((double)m_width / 2) / (m_scaleFactor / m_scale)) * -1), ((((double)m_thickness / 2) / (m_scaleFactor / m_scale)) * -1),  ((double)m_length / 2) / (m_scaleFactor / m_scale)), QVector2D(1.0f, 0.0f)},  // v13
+        {QVector3D( ((((double)m_width / 2) / (m_scaleFactor / m_scale)) * -1),  (((double)m_thickness / 2) / (m_scaleFactor / m_scale)),        ((((double)m_length / 2) / (m_scaleFactor / m_scale)) * -1)), QVector2D(0.66f, 0.5f)}, // v14
+        {QVector3D( ((((double)m_width / 2) / (m_scaleFactor / m_scale)) * -1),  (((double)m_thickness / 2) / (m_scaleFactor / m_scale)),        ((double)m_length / 2) / (m_scaleFactor / m_scale)), QVector2D(1.0f, 0.5f)},  // v15
 
         // Vertex data for face 4 [Top]
-        {QVector3D( ((((double)_width / 2) / (_scaleFactor / _scale)) * -1), ((((double)_thickness / 2) / (_scaleFactor / _scale)) * -1),  ((((double)_length / 2) / (_scaleFactor / _scale)) * -1)), QVector2D(0.33f, 0.0f)}, // v16
-        {QVector3D(  (((double)_width / 2) / (_scaleFactor / _scale)),       ((((double)_thickness / 2) / (_scaleFactor / _scale)) * -1),  ((((double)_length / 2) / (_scaleFactor / _scale)) * -1)), QVector2D(0.66f, 0.0f)}, // v17
-        {QVector3D( ((((double)_width / 2) / (_scaleFactor / _scale)) * -1), ((((double)_thickness / 2) / (_scaleFactor / _scale)) * -1),    ((double)_length / 2) / (_scaleFactor / _scale)), QVector2D(0.33f, 0.5f)}, // v18
-        {QVector3D(  (((double)_width / 2) / (_scaleFactor / _scale)),       ((((double)_thickness / 2) / (_scaleFactor / _scale)) * -1),    ((double)_length / 2) / (_scaleFactor / _scale)), QVector2D(0.66f, 0.5f)}, // v19
+        {QVector3D( ((((double)m_width / 2) / (m_scaleFactor / m_scale)) * -1), ((((double)m_thickness / 2) / (m_scaleFactor / m_scale)) * -1),  ((((double)m_length / 2) / (m_scaleFactor / m_scale)) * -1)), QVector2D(0.33f, 0.0f)}, // v16
+        {QVector3D(  (((double)m_width / 2) / (m_scaleFactor / m_scale)),       ((((double)m_thickness / 2) / (m_scaleFactor / m_scale)) * -1),  ((((double)m_length / 2) / (m_scaleFactor / m_scale)) * -1)), QVector2D(0.66f, 0.0f)}, // v17
+        {QVector3D( ((((double)m_width / 2) / (m_scaleFactor / m_scale)) * -1), ((((double)m_thickness / 2) / (m_scaleFactor / m_scale)) * -1),    ((double)m_length / 2) / (m_scaleFactor / m_scale)), QVector2D(0.33f, 0.5f)}, // v18
+        {QVector3D(  (((double)m_width / 2) / (m_scaleFactor / m_scale)),       ((((double)m_thickness / 2) / (m_scaleFactor / m_scale)) * -1),    ((double)m_length / 2) / (m_scaleFactor / m_scale)), QVector2D(0.66f, 0.5f)}, // v19
 
         // Vertex data for face 5 [Bottom]
-        {QVector3D( ((((double)_width / 2) / (_scaleFactor / _scale)) * -1),  (((double)_thickness / 2) / (_scaleFactor / _scale)),  ((double)_length / 2) / (_scaleFactor / _scale)), QVector2D(0.33f, 0.5f)}, // v20
-        {QVector3D(  (((double)_width / 2) / (_scaleFactor / _scale)),        (((double)_thickness / 2) / (_scaleFactor / _scale)),  ((double)_length / 2) / (_scaleFactor / _scale)), QVector2D(0.66f, 0.5f)}, // v21
-        {QVector3D( ((((double)_width / 2) / (_scaleFactor / _scale)) * -1),  (((double)_thickness / 2) / (_scaleFactor / _scale)),  ((((double)_length / 2) / (_scaleFactor / _scale)) * -1)), QVector2D(0.33f, 1.0f)}, // v22
-        {QVector3D(  (((double)_width / 2) / (_scaleFactor / _scale)),        (((double)_thickness / 2) / (_scaleFactor / _scale)),  ((((double)_length / 2) / (_scaleFactor / _scale)) * -1)), QVector2D(0.66f, 1.0f)}  // v23
+        {QVector3D( ((((double)m_width / 2) / (m_scaleFactor / m_scale)) * -1),  (((double)m_thickness / 2) / (m_scaleFactor / m_scale)),  ((double)m_length / 2) / (m_scaleFactor / m_scale)), QVector2D(0.33f, 0.5f)}, // v20
+        {QVector3D(  (((double)m_width / 2) / (m_scaleFactor / m_scale)),        (((double)m_thickness / 2) / (m_scaleFactor / m_scale)),  ((double)m_length / 2) / (m_scaleFactor / m_scale)), QVector2D(0.66f, 0.5f)}, // v21
+        {QVector3D( ((((double)m_width / 2) / (m_scaleFactor / m_scale)) * -1),  (((double)m_thickness / 2) / (m_scaleFactor / m_scale)),  ((((double)m_length / 2) / (m_scaleFactor / m_scale)) * -1)), QVector2D(0.33f, 1.0f)}, // v22
+        {QVector3D(  (((double)m_width / 2) / (m_scaleFactor / m_scale)),        (((double)m_thickness / 2) / (m_scaleFactor / m_scale)),  ((((double)m_length / 2) / (m_scaleFactor / m_scale)) * -1)), QVector2D(0.66f, 1.0f)}  // v23
     };
 
     // Indices for drawing cube faces using triangle strips.
@@ -122,32 +122,32 @@ void GeometryEngine::initCubeGeometry()
 
 qint32 GeometryEngine::thickness() const
 {
-    return _thickness;
+    return m_thickness;
 }
 
 void GeometryEngine::setThickness(qint32 thickness)
 {
-    _thickness = thickness;
+    m_thickness = thickness;
 }
 
 qint32 GeometryEngine::length() const
 {
-    return _length;
+    return m_length;
 }
 
 void GeometryEngine::setLength(qint32 length)
 {
-    _length = length;
+    m_length = length;
 }
 
 qint32 GeometryEngine::width() const
 {
-    return _width;
+    return m_width;
 }
 
 void GeometryEngine::setWidth(qint32 width)
 {
-    _width = width;
+    m_width = width;
 }
 
 //! [2]

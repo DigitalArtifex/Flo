@@ -7,231 +7,231 @@ Printer::Printer(QString name, QString id) : QObject(nullptr)
 
 Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent)
 {
-    _name = definition.name;
-    _klipperLocation = definition.klipperLocation;
-    _moonrakerLocation = definition.moonrakerLocation;
-    _instanceLocation = definition.instanceLocation;
-    _id = definition.id;
-    _gcodesLocation = definition.gcodeLocation;
-    _configLocation = definition.configLocation;
-    _configFile = definition.configFile;
-    _autoConnect = definition.autoConnect;
-    _defaultPrinter = definition.defaultPrinter;
-    _apiKey = definition.apiKey;
-    _powerProfile = definition.powerProfile;
+    m_name = definition.name;
+    m_klipperLocation = definition.klipperLocation;
+    m_moonrakerLocation = definition.moonrakerLocation;
+    m_instanceLocation = definition.instanceLocation;
+    m_id = definition.id;
+    m_gcodesLocation = definition.gcodeLocation;
+    m_configLocation = definition.configLocation;
+    m_configFile = definition.configFile;
+    m_autoConnect = definition.autoConnect;
+    m_defaultPrinter = definition.defaultPrinter;
+    m_apiKey = definition.apiKey;
+    m_powerProfile = definition.powerProfile;
 
-    _toolhead = new Toolhead(this);
-    _bed = new Q3DPrintBed(this);
-    _bed->setWatts(_powerProfile["bed"]);
-    _chamber = new Chamber();
-    _chamber->setWatts(_powerProfile["chamber"]);
-    _partsFan = new Fan(this);
+    m_toolhead = new Toolhead(this);
+    m_bed = new Q3DPrintBed(this);
+    m_bed->setWatts(m_powerProfile["bed"]);
+    m_chamber = new Chamber();
+    m_chamber->setWatts(m_powerProfile["chamber"]);
+    m_partsFan = new Fan(this);
 
-    if(_connectionLocation == LocationLocal)
-        _console = new QLocalKlipperConsole(this, parent);
+    if(m_connectionLocation == LocationLocal)
+        m_console = new QLocalKlipperConsole(this, parent);
 
-    _system = new System(this);
-    _printJob = new PrintJob(this);
+    m_system = new System(this);
+    m_printJob = new PrintJob(this);
 
     for(int i = 0; i < definition.extruderCount; i++)
     {
         QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
-        _toolhead->extruder(i)->_extruderNumber = i;
-        _toolhead->extruder(i)->_watts = definition.powerProfile[extruderName];
+        m_toolhead->extruder(i)->m_extruderNumber = i;
+        m_toolhead->extruder(i)->m_watts = definition.powerProfile[extruderName];
     }
 
-    _console->setMoonrakerLocation(_moonrakerLocation);
+    m_console->setMoonrakerLocation(m_moonrakerLocation);
 
-    connect(_console, SIGNAL(moonrakerConnected()), this, SLOT(on_moonrakerConnected()));
-    connect(_console, SIGNAL(klipperConnected()), this, SLOT(on_klipperConnected()));
-    connect(_console, SIGNAL(klipperDisconnected()), this, SLOT(on_klipperDisconnected()));
-    connect(_console, SIGNAL(printerUpdate()), this, SLOT(on_printerUpdate()));
-    connect(_console, SIGNAL(systemUpdate()), this, SLOT(on_systemUpdate()));
-    connect(_console, SIGNAL(klipperError(QString,QString)), this, SLOT(on_console_klipperError(QString,QString)));
-    connect(_console, SIGNAL(directoryListing(QString,QString,QList<KlipperFile>)), this, SLOT(on_console_directoryListing(QString,QString,QList<KlipperFile>)));
-    connect(_console,SIGNAL(startup()),this,SLOT(on_console_startup()));
+    connect(m_console, SIGNAL(moonrakerConnected()), this, SLOT(on_moonrakerConnected()));
+    connect(m_console, SIGNAL(klipperConnected()), this, SLOT(on_klipperConnected()));
+    connect(m_console, SIGNAL(klipperDisconnected()), this, SLOT(on_klipperDisconnected()));
+    connect(m_console, SIGNAL(printerUpdate()), this, SLOT(on_printerUpdate()));
+    connect(m_console, SIGNAL(systemUpdate()), this, SLOT(on_systemUpdate()));
+    connect(m_console, SIGNAL(klipperError(QString,QString)), this, SLOT(on_console_klipperError(QString,QString)));
+    connect(m_console, SIGNAL(directoryListing(QString,QString,QList<KlipperFile>)), this, SLOT(on_console_directoryListing(QString,QString,QList<KlipperFile>)));
+    connect(m_console,SIGNAL(startup()),this,SLOT(on_console_startup()));
 }
 
 Printer::~Printer()
 {
-    delete _toolhead;
-    delete _bed;
-    delete _partsFan;
-    delete _console;
+    delete m_toolhead;
+    delete m_bed;
+    delete m_partsFan;
+    delete m_console;
 }
 
 Toolhead *Printer::toolhead()
 {
-    return _toolhead;
+    return m_toolhead;
 }
 
 Extruder *Printer::extruder(int index)
 {
-    return _toolhead->extruder(index);
+    return m_toolhead->extruder(index);
 }
 
 void Printer::setName(QString name)
 {
-    _name = name;
+    m_name = name;
 }
 
 QString Printer::name()
 {
-    return _name;
+    return m_name;
 }
 
 void Printer::setId(QString id)
 {
-    _id = id;
+    m_id = id;
 }
 
 QString Printer::id()
 {
-    return _id;
+    return m_id;
 }
 
 void Printer::setStatus(Status status)
 {
-    _status = status;
+    m_status = status;
 }
 
 Printer::Status Printer::status()
 {
-    return _status;
+    return m_status;
 }
 
 void Printer::setFirmwareVersion(QString version)
 {
-    _firmwareVersion = version;
+    m_firmwareVersion = version;
 }
 
 QString Printer::firmwareVersion()
 {
-    return _firmwareVersion;
+    return m_firmwareVersion;
 }
 
 void Printer::setCurrentFile(KlipperFile file)
 {
-    _currentFile = file;
+    m_currentFile = file;
 }
 
 KlipperFile Printer::currentFile()
 {
-    return _currentFile;
+    return m_currentFile;
 }
 
 void Printer::setStatusMessage(QString message)
 {
-    _statusMessage = message;
+    m_statusMessage = message;
 }
 
 QString Printer::statusMessage()
 {
-    return _statusMessage;
+    return m_statusMessage;
 }
 
 void Printer::setPrintEndTime(QDateTime time)
 {
-    _printEnding = time;
+    m_printEnding = time;
 }
 
 QDateTime Printer::printEndTime()
 {
-    return _printEnding;
+    return m_printEnding;
 }
 
 void Printer::setMoonrakerLocation(QString location)
 {
-    _moonrakerLocation = location;
+    m_moonrakerLocation = location;
 }
 
 QString Printer::moonrakerLocation()
 {
-    return _moonrakerLocation;
+    return m_moonrakerLocation;
 }
 
 void Printer::setKlipperLocation(QString location)
 {
-    _klipperLocation = location;
+    m_klipperLocation = location;
 }
 
 QString Printer::klipperLocation()
 {
-    return _klipperLocation;
+    return m_klipperLocation;
 }
 
 void Printer::setConfigFile(QString file)
 {
-    _configFile = file;
+    m_configFile = file;
 }
 
 QString Printer::configFile()
 {
-    return _configFile;
+    return m_configFile;
 }
 
 PrinterDefinition Printer::definition()
 {
     PrinterDefinition definition;
-    definition.defaultPrinter = _defaultPrinter;
-    definition.autoConnect = _autoConnect;
-    definition.apiKey = _apiKey;
-    definition.configFile = _configFile;
-    definition.gcodeLocation = _gcodesLocation;
-    definition.instanceLocation = _instanceLocation;
-    definition.configLocation = _configLocation;
-    definition.klipperLocation = _klipperLocation;
-    definition.moonrakerLocation = _moonrakerLocation;
-    definition.id = _id;
-    definition.name = _name;
+    definition.defaultPrinter = m_defaultPrinter;
+    definition.autoConnect = m_autoConnect;
+    definition.apiKey = m_apiKey;
+    definition.configFile = m_configFile;
+    definition.gcodeLocation = m_gcodesLocation;
+    definition.instanceLocation = m_instanceLocation;
+    definition.configLocation = m_configLocation;
+    definition.klipperLocation = m_klipperLocation;
+    definition.moonrakerLocation = m_moonrakerLocation;
+    definition.id = m_id;
+    definition.name = m_name;
 
-    definition.powerProfile["chamber"] = _chamber->watts();
-    definition.powerProfile["bed"] = _bed->watts();
+    definition.powerProfile["chamber"] = m_chamber->watts();
+    definition.powerProfile["bed"] = m_bed->watts();
 
-    for(int i = 0; i < _toolhead->extruderCount(); i++)
+    for(int i = 0; i < m_toolhead->extruderCount(); i++)
     {
         QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
-        definition.powerProfile[extruderName] = _toolhead->extruder(i)->watts();
+        definition.powerProfile[extruderName] = m_toolhead->extruder(i)->watts();
     }
 
-    definition.extruderCount = _toolhead->extruderCount();
+    definition.extruderCount = m_toolhead->extruderCount();
 
     return definition;
 }
 
 void Printer::update(PrinterDefinition definition)
 {
-    _name = definition.name;
-    _klipperLocation = definition.klipperLocation;
-    _id = definition.id;
-    _gcodesLocation = definition.gcodeLocation;
-    _configLocation = definition.configLocation;
-    _configFile = definition.configFile;
-    _autoConnect = definition.autoConnect;
-    _defaultPrinter = definition.defaultPrinter;
-    _apiKey = definition.apiKey;
-    _powerProfile = definition.powerProfile;
+    m_name = definition.name;
+    m_klipperLocation = definition.klipperLocation;
+    m_id = definition.id;
+    m_gcodesLocation = definition.gcodeLocation;
+    m_configLocation = definition.configLocation;
+    m_configFile = definition.configFile;
+    m_autoConnect = definition.autoConnect;
+    m_defaultPrinter = definition.defaultPrinter;
+    m_apiKey = definition.apiKey;
+    m_powerProfile = definition.powerProfile;
 
-    _bed->setWatts(_powerProfile["bed"]);
-    _chamber->setWatts(_powerProfile["chamber"]);
+    m_bed->setWatts(m_powerProfile["bed"]);
+    m_chamber->setWatts(m_powerProfile["chamber"]);
 
-    for(int i = 0; i < _toolhead->extruderCount(); i++)
+    for(int i = 0; i < m_toolhead->extruderCount(); i++)
     {
         QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
-        _toolhead->extruder(i)->_watts = definition.powerProfile[extruderName];
+        m_toolhead->extruder(i)->m_watts = definition.powerProfile[extruderName];
     }
 
-    if(_moonrakerLocation != definition.moonrakerLocation)
+    if(m_moonrakerLocation != definition.moonrakerLocation)
     {
-        _moonrakerLocation = definition.moonrakerLocation;
-        _instanceLocation = definition.instanceLocation;
+        m_moonrakerLocation = definition.moonrakerLocation;
+        m_instanceLocation = definition.instanceLocation;
 
-        _status = Offline;
+        m_status = Offline;
 
         emit printerUpdate(this);
 
-        _console->disconnectKlipper();
-        _console->connectToMoonraker();
+        m_console->disconnectKlipper();
+        m_console->connectToMoonraker();
     }
     else
         emit printerUpdate(this);
@@ -239,41 +239,41 @@ void Printer::update(PrinterDefinition definition)
 
 int Printer::extruderCount()
 {
-    return _toolhead->extruderCount();
+    return m_toolhead->extruderCount();
 }
 
 QAbstractKlipperConsole *Printer::console()
 {
-    return _console;
+    return m_console;
 }
 
 void Printer::connectMoonraker()
 {
-    connect(_console, SIGNAL(printerUpdate()), this, SLOT(on_printerUpdate()));
-    connect(_console,SIGNAL(responseReceived(KlipperResponse)), this, SLOT(on_console_responseReceived(KlipperResponse)));
-    _console->setMoonrakerLocation(_moonrakerLocation);
+    connect(m_console, SIGNAL(printerUpdate()), this, SLOT(on_printerUpdate()));
+    connect(m_console,SIGNAL(responseReceived(KlipperResponse)), this, SLOT(on_console_responseReceived(KlipperResponse)));
+    m_console->setMoonrakerLocation(m_moonrakerLocation);
     //_console->start();
-    _console->connectToMoonraker();
+    m_console->connectToMoonraker();
 }
 
 PrintJob *Printer::currentJob()
 {
-    return _printJob;
+    return m_printJob;
 }
 
 Q3DPrintBed *Printer::bed()
 {
-    return _bed;
+    return m_bed;
 }
 
 Fan *Printer::fan()
 {
-    return _partsFan;
+    return m_partsFan;
 }
 
 System *Printer::system()
 {
-    return _system;
+    return m_system;
 }
 
 void Printer::on_klipperConnected()
@@ -337,182 +337,187 @@ void Printer::emitUpdate()
 
 qreal Printer::squareCornerVelocity() const
 {
-    return _squareCornerVelocity;
+    return m_squareCornerVelocity;
 }
 
 void Printer::setSquareCornerVelocity(qreal squareCornerVelocity)
 {
-    _squareCornerVelocity = squareCornerVelocity;
+    m_squareCornerVelocity = squareCornerVelocity;
 }
 
 qreal Printer::maxZVelocity() const
 {
-    return _maxZVelocity;
+    return m_maxZVelocity;
 }
 
 void Printer::setMaxZVelocity(qreal maxZVelocity)
 {
-    _maxZVelocity = maxZVelocity;
+    m_maxZVelocity = maxZVelocity;
 }
 
 qreal Printer::maxZAcceleration() const
 {
-    return _maxZAcceleration;
+    return m_maxZAcceleration;
 }
 
 void Printer::setMaxZAcceleration(qreal maxZAcceleration)
 {
-    _maxZAcceleration = maxZAcceleration;
+    m_maxZAcceleration = maxZAcceleration;
 }
 
 qreal Printer::maxVelocity() const
 {
-    return _maxVelocity;
+    return m_maxVelocity;
 }
 
 void Printer::setMaxVelocity(qreal maxVelocity)
 {
-    _maxVelocity = maxVelocity;
+    m_maxVelocity = maxVelocity;
 }
 
 qreal Printer::maxAcceleration() const
 {
-    return _maxAcceleration;
+    return m_maxAcceleration;
 }
 
 void Printer::setMaxAcceleration(qreal maxAcceleration)
 {
-    _maxAcceleration = maxAcceleration;
+    m_maxAcceleration = maxAcceleration;
 }
 
 QString Printer::kinematics() const
 {
-    return _kinematics;
+    return m_kinematics;
 }
 
 void Printer::setKinematics(const QString &kinematics)
 {
-    _kinematics = kinematics;
+    m_kinematics = kinematics;
 }
 
 QMap<QString, Fan *> &Printer::fans()
 {
-    return _fans;
+    return m_fans;
 }
 
 void Printer::setFans(const QMap<QString, Fan *> &fans)
 {
-    _fans = fans;
+    m_fans = fans;
 }
 
 Printer::ProbeData Printer::probeData()
 {
-    return _probeData;
+    return m_probeData;
 }
 
 void Printer::setProbeData(const ProbeData &probeData)
 {
-    _probeData = probeData;
+    m_probeData = probeData;
 }
 
 QMap<QString, QStepperMotor *> &Printer::stepperMotors()
 {
-    return _stepperMotors;
+    return m_stepperMotors;
 }
 
 QGCodeMove Printer::gcodeMove()
 {
-    return _gcodeMove;
+    return m_gcodeMove;
 }
 
 EndstopStatus Printer::endstopStatus()
 {
-    return _endstopStatus;
+    return m_endstopStatus;
 }
 
 ClientIdentifier Printer::clientIdentifier()
 {
-    return _clientIdentifier;
+    return m_clientIdentifier;
 }
 
 GCodeStore Printer::gCodeStore()
 {
-    return _gCodeStore;
+    return m_gCodeStore;
 }
 
 bool Printer::isAutoConnect()
 {
-    return _autoConnect;
+    return m_autoConnect;
 }
 
 bool Printer::isDefaultPrinter()
 {
-    return _defaultPrinter;
+    return m_defaultPrinter;
+}
+
+bool Printer::isOnline() const
+{
+    return ((m_status != Error) && (m_status != Offline));
 }
 
 Chamber *Printer::chamber()
 {
-    return _chamber;
+    return m_chamber;
 }
 
 void Printer::setChamber(Chamber *chamber)
 {
-    _chamber = chamber;
+    m_chamber = chamber;
 }
 
 QMap<QString, qreal> Printer::powerProfile()
 {
-    return _powerProfile;
+    return m_powerProfile;
 }
 
 QString Printer::apiKey()
 {
-    return _apiKey;
+    return m_apiKey;
 }
 
 void Printer::setApiKey(const QString &apiKey)
 {
-    _apiKey = apiKey;
+    m_apiKey = apiKey;
 }
 
 void Printer::getFiles(QString root, QString directory)
 {
     if(directory.isEmpty())
-        _console->getFileList(root);
+        m_console->getFileList(root);
     else
-        _console->getFileList(root + QString("/") + directory);
+        m_console->getFileList(root + QString("/") + directory);
 }
 
 QString Printer::instanceLocation()
 {
-    return _instanceLocation;
+    return m_instanceLocation;
 }
 
 void Printer::setInstanceLocation(const QString &instanceLocation)
 {
-    _instanceLocation = instanceLocation + ((instanceLocation.endsWith(QDir::separator())) ? QString("") : QDir::separator());
-    _gcodesLocation = instanceLocation + QString("gcodes");
-    _configLocation = instanceLocation + QString("config");
-    _klipperLocation = instanceLocation + QString("comms") + QDir::separator() + QString("klippy.sock");
-    _moonrakerLocation = instanceLocation + QString("comms") + QDir::separator() + QString("moonraker.sock");
+    m_instanceLocation = instanceLocation + ((instanceLocation.endsWith(QDir::separator())) ? QString("") : QDir::separator());
+    m_gcodesLocation = instanceLocation + QString("gcodes");
+    m_configLocation = instanceLocation + QString("config");
+    m_klipperLocation = instanceLocation + QString("comms") + QDir::separator() + QString("klippy.sock");
+    m_moonrakerLocation = instanceLocation + QString("comms") + QDir::separator() + QString("moonraker.sock");
 }
 
 QString Printer::configLocation()
 {
-    return _configLocation;
+    return m_configLocation;
 }
 
 void Printer::setConfigLocation(const QString &configLocation)
 {
-    _configLocation = configLocation;
+    m_configLocation = configLocation;
 }
 
 QString Printer::gcodesLocation()
 {
-    return _gcodesLocation;
+    return m_gcodesLocation;
 }
 
 void Printer::setGcodesLocation(const QString &gcodesLocation)
 {
-    _gcodesLocation = gcodesLocation;
+    m_gcodesLocation = gcodesLocation;
 }

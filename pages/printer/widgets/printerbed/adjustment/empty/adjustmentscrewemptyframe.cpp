@@ -14,10 +14,10 @@ AdjustmentScrewEmptyFrame::AdjustmentScrewEmptyFrame(Q3DPrintBed *bed, QWidget *
 
     ui->homeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
 
-    _printerBed = bed;
-    connect(_printerBed->printer()->toolhead(), SIGNAL(updated()), this, SLOT(on_toolhead_updated()));
-    connect(_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(on_toolhead_homing()));
-    connect(_printerBed->printer()->toolhead(), SIGNAL(homed()), this, SLOT(on_toolhead_homed()));
+    m_printerBed = bed;
+    connect(m_printerBed->printer()->toolhead(), SIGNAL(updated()), this, SLOT(on_toolhead_updated()));
+    connect(m_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(on_toolhead_homing()));
+    connect(m_printerBed->printer()->toolhead(), SIGNAL(homed()), this, SLOT(on_toolhead_homed()));
 }
 
 AdjustmentScrewEmptyFrame::~AdjustmentScrewEmptyFrame()
@@ -42,12 +42,12 @@ void AdjustmentScrewEmptyFrame::setCalibrationEnabled(bool enabled)
 void AdjustmentScrewEmptyFrame::on_calibrateButton_clicked()
 {
     ui->calibrateButton->setEnabled(false);
-    _printerBed->calibrateAdjustmentScrews();
+    m_printerBed->calibrateAdjustmentScrews();
 }
 
 void AdjustmentScrewEmptyFrame::on_toolhead_updated()
 {
-    if(_printerBed->printer()->toolhead()->isHomed())
+    if(m_printerBed->printer()->toolhead()->isHomed())
     {
         ui->calibrateButton->setEnabled(true);
         ui->homeButton->setEnabled(false);
@@ -74,6 +74,6 @@ void AdjustmentScrewEmptyFrame::on_homeButton_clicked()
 {
     emit calibrating();
 
-    _printerBed->printer()->toolhead()->homeAll();
+    m_printerBed->printer()->toolhead()->homeAll();
 }
 

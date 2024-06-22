@@ -16,28 +16,28 @@ void EmptyPrinterWebcamFrame::setStyleSheet(QString &styleSheet)
 
 void EmptyPrinterWebcamFrame::setupUi()
 {
-    _layout = new QGridLayout(this);
-    _layout->setContentsMargins(0,0,0,0);
-    setLayout(_layout);
+    m_layout = new QGridLayout(this);
+    m_layout->setContentsMargins(0,0,0,0);
+    setLayout(m_layout);
 
-    _topSpacer = new QSpacerItem(10,10, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    _layout->addItem(_topSpacer,0,0);
+    m_topSpacer = new QSpacerItem(10,10, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_layout->addItem(m_topSpacer,0,0);
 
-    _iconLabel = new QLabel(this);
-    _iconLabel->setFixedSize(32,32);
-    _layout->addWidget(_iconLabel, 1, 0, Qt::AlignCenter);
+    m_iconLabel = new QLabel(this);
+    m_iconLabel->setFixedSize(32,32);
+    m_layout->addWidget(m_iconLabel, 1, 0, Qt::AlignCenter);
 
-    _label = new QLabel(this);
-    _label->setText(QString("No connection"));
-    _label->setAlignment(Qt::AlignHCenter);
-    _layout->addWidget(_label, 2, 0, Qt::AlignCenter);
+    m_label = new QLabel(this);
+    m_label->setText(QString("No connection"));
+    m_label->setAlignment(Qt::AlignHCenter);
+    m_layout->addWidget(m_label, 2, 0, Qt::AlignCenter);
 
-    _bottomSpacer = new QSpacerItem(10,10, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    _layout->addItem(_bottomSpacer,3,0);
+    m_bottomSpacer = new QSpacerItem(10,10, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_layout->addItem(m_bottomSpacer,3,0);
 }
 
 void EmptyPrinterWebcamFrame::setIcons()
 {
     QPixmap pixmap = Settings::getThemeIcon("no-video-icon").pixmap(28,28);
-    _iconLabel->setPixmap(pixmap);
+    m_iconLabel->setPixmap(pixmap);
 }

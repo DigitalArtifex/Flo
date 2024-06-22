@@ -141,43 +141,43 @@ protected:
 
 private:
 
-    qreal _currentTemp = 0;
-    qreal _targetTemp = 0;
-    qreal _power = 0;
-    qreal _watts = 0;
-    qreal _inlineResistor = 0;
-    qreal _maxPower = 0;
-    qreal _maxTemp= 0;
-    qreal _minTemp = 0;
-    qreal _pidKD = 0;
-    qreal _pidKI = 0;
-    qreal _pidKP = 0;
-    qreal _pullupResistor = 0;
-    qreal _pwmCycleTime = 0;
-    qreal _smoothTime = 0;
+    qreal m_currentTemp = 0;
+    qreal m_targetTemp = 0;
+    qreal m_power = 0;
+    qreal m_watts = 0;
+    qreal m_inlineResistor = 0;
+    qreal m_maxPower = 0;
+    qreal m_maxTemp= 0;
+    qreal m_minTemp = 0;
+    qreal m_pidKD = 0;
+    qreal m_pidKI = 0;
+    qreal m_pidKP = 0;
+    qreal m_pullupResistor = 0;
+    qreal m_pwmCycleTime = 0;
+    qreal m_smoothTime = 0;
 
-    QDateTime _startTime;
+    QDateTime m_startTime;
 
-    Mesh _bedMesh;
+    Mesh m_bedMesh;
 
-    QMap<QString, AdjustmentScrew*> _adjustmentScrews;
-    bool                            _adjustmentScrewsError = false;
-    bool                            _hasAdjustmentScrewResult = false;
-    bool                            _hasBedMeshResult = false;
-    bool                            _adjustmentScrewsCalibrating = false;
-    bool                            _bedMeshCalibrating = false;
-    qreal                           _adjustmentScrewsMaxDeviation = 0;
+    QMap<QString, AdjustmentScrew*> m_adjustmentScrews;
+    bool                            m_adjustmentScrewsError = false;
+    bool                            m_hasAdjustmentScrewResult = false;
+    bool                            m_hasBedMeshResult = false;
+    bool                            m_adjustmentScrewsCalibrating = false;
+    bool                            m_bedMeshCalibrating = false;
+    qreal                           m_adjustmentScrewsMaxDeviation = 0;
 
-    bool                            _tiltAdjustError = false;
+    bool                            m_tiltAdjustError = false;
 
-    Printer                        *_printer = nullptr;
+    Printer                        *m_printer = nullptr;
 
-    QString                         _control;
-    QString                         _heaterPin;
-    QString                         _sensorPin;
-    QString                         _sensorType;
+    QString                         m_control;
+    QString                         m_heaterPin;
+    QString                         m_sensorPin;
+    QString                         m_sensorType;
 
-    Type                            _type = NonHeated;
+    Type                            m_type = NonHeated;
 };
 
 #endif // BED_H

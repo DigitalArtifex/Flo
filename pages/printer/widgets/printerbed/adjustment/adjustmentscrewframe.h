@@ -41,17 +41,17 @@ private slots:
 private:
     Ui::AdjustmentScrewFrame *ui;
 
-    QMovie *_loadingGif = nullptr;
-    QLabel *_loadingLabel = nullptr;
+    QMovie *m_loadingGif = nullptr;
+    QLabel *m_loadingLabel = nullptr;
 
-    QFrame *_loadingFrame = nullptr;
-    QHBoxLayout *_loadingFrameLayout = nullptr;
+    QFrame *m_loadingFrame = nullptr;
+    QHBoxLayout *m_loadingFrameLayout = nullptr;
 
-    QWidgetAnimation *_loadingAnimation = nullptr;
+    QWidgetAnimation *m_loadingAnimation = nullptr;
 
-    AdjustmentScrewEmptyFrame *_emptyAdjustmentScrewFrame = nullptr;
+    AdjustmentScrewEmptyFrame *m_emptyAdjustmentScrewFrame = nullptr;
 
-    Q3DPrintBed *_printerBed = nullptr;
+    Q3DPrintBed *m_printerBed = nullptr;
 };
 
 #endif // ADJUSTMENTSCREWFRAME_H

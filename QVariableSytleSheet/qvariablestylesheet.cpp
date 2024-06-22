@@ -2,17 +2,17 @@
 
 QVariableStyleSheet::QVariableStyleSheet(QString stylesheet)
 {
-    _stylesheet = stylesheet;
+    m_stylesheet = stylesheet;
 }
 
 void QVariableStyleSheet::setStyleSheet(QString stylesheet)
 {
-    _stylesheet = stylesheet;
+    m_stylesheet = stylesheet;
 }
 
 QString QVariableStyleSheet::process()
 {
-    QString theme = _stylesheet;
+    QString theme = m_stylesheet;
 
     //Process CSS variables in QSS
     QRegularExpression rootExpression(":root\\s*\n*\\s*\\{\n*\\s*(--.*:.*;\n*)*\n*\\s*\\}", QRegularExpression::MultilineOption);

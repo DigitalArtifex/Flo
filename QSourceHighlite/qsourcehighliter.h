@@ -168,8 +168,8 @@ private:
     }
 #endif
 
-    QHash<Token, QTextCharFormat> _formats;
-    Language _language;
+    QHash<Token, QTextCharFormat> m_formats;
+    Language m_language;
 };
 }
 #endif // QSOURCEHIGHLITER_H

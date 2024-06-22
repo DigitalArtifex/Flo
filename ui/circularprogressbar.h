@@ -26,13 +26,13 @@ public:
 
     CircularProgressBar(QWidget * parent = 0, Mode mode = Percent) : QWidget(parent)
     {
-        _mode = mode;
+        m_mode = mode;
         setMinimumSize(104, 104);
         setMaximumSize(104, 104);
         progress = 0.285;
 
         int id = QFontDatabase::addApplicationFont(":/fonts/digital-7(mono).ttf");
-        _fontFamily = QFontDatabase::applicationFontFamilies(id).at(0);
+        m_fontFamily = QFontDatabase::applicationFontFamilies(id).at(0);
     }
     void setMinimum(qreal min);
     void setMaximum(qreal max);
@@ -47,8 +47,8 @@ public:
     void paintEvent(QPaintEvent *event);
 
 private:
-    Mode _mode = Percent;
-    QString _fontFamily;
+    Mode m_mode = Percent;
+    QString m_fontFamily;
 };
 
 #endif // CIRCULARPROGRESSBAR_H

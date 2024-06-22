@@ -8,37 +8,37 @@ PrinterTerminalItem::PrinterTerminalItem(QWidget *parent)
 
 PrinterTerminalItem::~PrinterTerminalItem()
 {
-    delete _messageMethodLabel;
-    delete _messageTimestampLabel;
-    delete _responseMessageLabel;
+    delete m_messageMethodLabel;
+    delete m_messageTimestampLabel;
+    delete m_responseMessageLabel;
 
-    if(_layout)
-        delete _layout;
+    if(m_layout)
+        delete m_layout;
 }
 
 void PrinterTerminalItem::setupUi()
 {
-    _layout = new QGridLayout(this);
-    _layout->setSpacing(12);
+    m_layout = new QGridLayout(this);
+    m_layout->setSpacing(12);
 
-    _messageTimestampLabel = new QLabel();
-    _messageTimestampLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    _messageTimestampLabel->setAlignment(Qt::AlignRight | Qt::AlignBottom);
-    _messageTimestampLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessageTimestamp"));
+    m_messageTimestampLabel = new QLabel();
+    m_messageTimestampLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_messageTimestampLabel->setAlignment(Qt::AlignRight | Qt::AlignBottom);
+    m_messageTimestampLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessageTimestamp"));
 
-    _messageMethodLabel = new QLabel();
-    _messageMethodLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    _messageMethodLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessageTitle"));
+    m_messageMethodLabel = new QLabel();
+    m_messageMethodLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    m_messageMethodLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessageTitle"));
 
-    _responseMessageLabel = new QLabel();
-    _responseMessageLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    _responseMessageLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessageText"));
+    m_responseMessageLabel = new QLabel();
+    m_responseMessageLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    m_responseMessageLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessageText"));
 
-    _layout->addWidget(_messageMethodLabel,0,0,1,2);
-    _layout->addWidget(_messageTimestampLabel,1,1,1,1);
-    _layout->addWidget(_responseMessageLabel,1,0,1,1);
+    m_layout->addWidget(m_messageMethodLabel,0,0,1,2);
+    m_layout->addWidget(m_messageTimestampLabel,1,1,1,1);
+    m_layout->addWidget(m_responseMessageLabel,1,0,1,1);
 
-    setLayout(_layout);
+    setLayout(m_layout);
 
     //setFixedHeight(75);
 
@@ -47,77 +47,77 @@ void PrinterTerminalItem::setupUi()
 
 bool PrinterTerminalItem::isErrorMessage() const
 {
-    return _isErrorMessage;
+    return m_isErrorMessage;
 }
 
 void PrinterTerminalItem::setIsErrorMessage(bool isErrorMessage)
 {
-    _isErrorMessage = isErrorMessage;
+    m_isErrorMessage = isErrorMessage;
 }
 
 KlipperResponse PrinterTerminalItem::response() const
 {
-    return _response;
+    return m_response;
 }
 
 void PrinterTerminalItem::setResponse(const KlipperResponse &response)
 {
-    _response = response;
+    m_response = response;
 
     if(response.status == KlipperResponse::OK)
     {
-        _responseMessageLabel->setText(QString("OK"));
+        m_responseMessageLabel->setText(QString("OK"));
         setProperty("status", QVariant::fromValue<QString>("ok"));
     }
     else
     {
         QString error = response.rootObject["error"].toObject()["message"].toString();
-        _responseMessageLabel->setText(QString("Error: ") + error);
+        m_responseMessageLabel->setText(QString("Error: ") + error);
         setProperty("status", QVariant::fromValue<QString>("error"));
     }
 
-    qint64 span = _message.timestamp.secsTo(response.timestamp);
+    qint64 span = m_message.timestamp.secsTo(response.timestamp);
 
-    _messageTimestampLabel->setText(_message.timestamp.toString(QString("hh:mm:ss - ")) + QString::number(span) + QString("s"));
+    m_messageTimestampLabel->setText(m_message.timestamp.toString(QString("hh:mm:ss - ")) + QString::number(span) + QString("s"));
 
     style()->polish(this);
 }
 
 void PrinterTerminalItem::setErrorMessage(QString title, QString message)
 {
-    _messageMethodLabel->setText(title);
+    m_messageMethodLabel->setText(title);
 
-    _responseMessageLabel->setText(message);
-    _responseMessageLabel->setWordWrap(true);
+    m_responseMessageLabel->setText(message);
+    m_responseMessageLabel->setWordWrap(true);
 
-    _messageTimestampLabel->setText(_message.timestamp.toString(QString("hh:mm:ss")));
-    _messageTimestampLabel->setMaximumWidth(200);
+    m_messageTimestampLabel->setText(m_message.timestamp.toString(QString("hh:mm:ss")));
+    m_messageTimestampLabel->setMaximumWidth(200);
 
-    _isErrorMessage = true;
+    m_isErrorMessage = true;
 
     setProperty("status", QVariant::fromValue<QString>("error"));
 }
 
 KlipperMessage PrinterTerminalItem::message() const
 {
-    return _message;
+    return m_message;
 }
 
 void PrinterTerminalItem::setMessage(const KlipperMessage &message)
 {
-    _message = message;
+    m_message = message;
 
-    QString method = _message.document()["method"].toString();
+    QString method = m_message.document()["method"].toString();
 
-    _messageTimestampLabel->setText(_message.timestamp.toString(QString("hh:mm:ss")));
+    m_messageTimestampLabel->setText(m_message.timestamp.toString(QString("hh:mm:ss")));
 
     if(method == QString("printer.gcode.script"))
     {
-        QJsonObject paramsObject = _message.document()["params"].toObject();
-        _messageMethodLabel->setText(paramsObject["script"].toString());
+        QJsonObject paramsObject = m_message.document()["params"].toObject();
+        m_messageMethodLabel->setText(paramsObject["script"].toString());
     }
     else
-        _messageMethodLabel->setText(method);
+        m_messageMethodLabel->setText(method);
 
-    _responseMessageLabel->setText(QString("Awaiting response.."));
+    m_responseMessageLabel->setText(QString("Awaiting response.."));
 }

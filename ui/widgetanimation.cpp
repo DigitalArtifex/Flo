@@ -3,170 +3,170 @@
 WidgetAnimation::WidgetAnimation(QWidget *target, Property property, QObject *parent)
     : QObject{parent}
 {
-    _target = target;
-    _property = property;
+    m_target = target;
+    m_property = property;
 
-    _animationsIn = new QParallelAnimationGroup(this->parent());
-    _animationsOut = new QParallelAnimationGroup(this->parent());
+    m_animationsIn = new QParallelAnimationGroup(this->parent());
+    m_animationsOut = new QParallelAnimationGroup(this->parent());
 
-    connect(_animationsIn, SIGNAL(finished()), this, SLOT(on_animations_finished()));
-    connect(_animationsOut, SIGNAL(finished()), this, SLOT(on_animations_finished()));
+    connect(m_animationsIn, SIGNAL(finished()), this, SLOT(on_animations_finished()));
+    connect(m_animationsOut, SIGNAL(finished()), this, SLOT(on_animations_finished()));
 
-    _effect_opacity = new QGraphicsOpacityEffect(_target);
+    m_effect_opacity = new QGraphicsOpacityEffect(m_target);
 }
 
 void WidgetAnimation::show()
 {
-    if(_animationsIn->state() == QAnimationGroup::Running)
+    if(m_animationsIn->state() == QAnimationGroup::Running)
         return;
-    if(_animationsOut->state() == QAnimationGroup::Running)
-        _animationsOut->stop();
+    if(m_animationsOut->state() == QAnimationGroup::Running)
+        m_animationsOut->stop();
 
-    _animationsIn->clear();
+    m_animationsIn->clear();
 
     if(hasPropertyFlag(Property::Opacity))
     {
-        _animationIn_opacity = new QPropertyAnimation(_effect_opacity, "opacity");
-        _animationIn_opacity->setStartValue(0);
-        _animationIn_opacity->setEndValue(1);
-        _animationIn_opacity->setDuration(1000);
-        _animationsIn->addAnimation(_animationIn_opacity);
-        _target->setGraphicsEffect(_effect_opacity);
+        m_animationIn_opacity = new QPropertyAnimation(m_effect_opacity, "opacity");
+        m_animationIn_opacity->setStartValue(0);
+        m_animationIn_opacity->setEndValue(1);
+        m_animationIn_opacity->setDuration(1000);
+        m_animationsIn->addAnimation(m_animationIn_opacity);
+        m_target->setGraphicsEffect(m_effect_opacity);
     }
 
     if(this->hasPropertyFlag(Property::MaxHeight))
     {
-        _animationIn_maxHeight = new QPropertyAnimation(_target, "maximumHeight", this->parent());
+        m_animationIn_maxHeight = new QPropertyAnimation(m_target, "maximumHeight", this->parent());
 
-        _animationIn_maxHeight->setStartValue(_heightOut);
-        _animationIn_maxHeight->setEndValue(_heightIn);
-        _animationIn_maxHeight->setDuration(250);
-        _animationsIn->addAnimation(_animationIn_maxHeight);
+        m_animationIn_maxHeight->setStartValue(m_heightOut);
+        m_animationIn_maxHeight->setEndValue(m_heightIn);
+        m_animationIn_maxHeight->setDuration(250);
+        m_animationsIn->addAnimation(m_animationIn_maxHeight);
     }
 
     if(this->hasPropertyFlag(Property::MinHeight))
     {
-        _animationIn_minHeight = new QPropertyAnimation(_target, "minimumHeight", this->parent());
+        m_animationIn_minHeight = new QPropertyAnimation(m_target, "minimumHeight", this->parent());
 
-        _animationIn_minHeight->setStartValue(_heightOut);
-        _animationIn_minHeight->setEndValue(_heightIn);
-        _animationIn_minHeight->setDuration(250);
-        _animationsIn->addAnimation(_animationIn_minHeight);
+        m_animationIn_minHeight->setStartValue(m_heightOut);
+        m_animationIn_minHeight->setEndValue(m_heightIn);
+        m_animationIn_minHeight->setDuration(250);
+        m_animationsIn->addAnimation(m_animationIn_minHeight);
     }
 
     if(this->hasPropertyFlag(Property::MaxWidth))
     {
-            _animationIn_maxWidth = new QPropertyAnimation(_target, "maximumWidth", this->parent());
+            m_animationIn_maxWidth = new QPropertyAnimation(m_target, "maximumWidth", this->parent());
 
-        _animationIn_maxWidth->setStartValue(_widthOut);
-        _animationIn_maxWidth->setEndValue(_widthIn);
-        _animationIn_maxWidth->setDuration(250);
-        _animationsIn->addAnimation(_animationIn_maxWidth);
+        m_animationIn_maxWidth->setStartValue(m_widthOut);
+        m_animationIn_maxWidth->setEndValue(m_widthIn);
+        m_animationIn_maxWidth->setDuration(250);
+        m_animationsIn->addAnimation(m_animationIn_maxWidth);
     }
 
     if(this->hasPropertyFlag(Property::MinWidth))
     {
-            _animationIn_minWidth = new QPropertyAnimation(_target, "minimumWidth", this->parent());
+            m_animationIn_minWidth = new QPropertyAnimation(m_target, "minimumWidth", this->parent());
 
-        _animationIn_minWidth->setStartValue(_widthOut);
-        _animationIn_minWidth->setEndValue(_widthIn);
-        _animationIn_minWidth->setDuration(250);
-        _animationsIn->addAnimation(_animationIn_minWidth);
+        m_animationIn_minWidth->setStartValue(m_widthOut);
+        m_animationIn_minWidth->setEndValue(m_widthIn);
+        m_animationIn_minWidth->setDuration(250);
+        m_animationsIn->addAnimation(m_animationIn_minWidth);
     }
 
-    _animationsIn->start(QParallelAnimationGroup::KeepWhenStopped);
+    m_animationsIn->start(QParallelAnimationGroup::KeepWhenStopped);
 }
 
 void WidgetAnimation::hide()
 {
-    if(_animationsOut->state() == QAnimationGroup::Running)
+    if(m_animationsOut->state() == QAnimationGroup::Running)
         return;
-    if(_animationsIn->state() == QAnimationGroup::Running)
-        _animationsIn->stop();
+    if(m_animationsIn->state() == QAnimationGroup::Running)
+        m_animationsIn->stop();
 
-    _animationsOut->clear();
+    m_animationsOut->clear();
 
     if(hasPropertyFlag(Property::Opacity))
     {
-        _animationOut_opacity = new QPropertyAnimation(_effect_opacity, "opacity");
-        _animationOut_opacity->setStartValue(1);
-        _animationOut_opacity->setEndValue(0);
-        _animationOut_opacity->setDuration(1000);
-        _animationsOut->addAnimation(_animationOut_opacity);
-        //_target->setGraphicsEffect(_effect_opacity);
+        m_animationOut_opacity = new QPropertyAnimation(m_effect_opacity, "opacity");
+        m_animationOut_opacity->setStartValue(1);
+        m_animationOut_opacity->setEndValue(0);
+        m_animationOut_opacity->setDuration(1000);
+        m_animationsOut->addAnimation(m_animationOut_opacity);
+        //_target->setGraphicsEffect(m_effect_opacity);
     }
 
     if(this->hasPropertyFlag(Property::MaxHeight))
     {
-        _animationOut_maxHeight = new QPropertyAnimation(_target, "maximumHeight", this->parent());
+        m_animationOut_maxHeight = new QPropertyAnimation(m_target, "maximumHeight", this->parent());
 
-        _animationOut_maxHeight->setStartValue(_heightIn);
-        _animationOut_maxHeight->setEndValue(_heightOut);
-        _animationOut_maxHeight->setDuration(250);
-        _animationsOut->addAnimation(_animationOut_maxHeight);
+        m_animationOut_maxHeight->setStartValue(m_heightIn);
+        m_animationOut_maxHeight->setEndValue(m_heightOut);
+        m_animationOut_maxHeight->setDuration(250);
+        m_animationsOut->addAnimation(m_animationOut_maxHeight);
     }
 
     if(this->hasPropertyFlag(Property::MinHeight))
     {
-        _animationOut_minHeight = new QPropertyAnimation(_target, "minimumHeight", this->parent());
+        m_animationOut_minHeight = new QPropertyAnimation(m_target, "minimumHeight", this->parent());
 
-        _animationOut_minHeight->setStartValue(_heightIn);
-        _animationOut_minHeight->setEndValue(_heightOut);
-        _animationOut_minHeight->setDuration(250);
-        _animationsOut->addAnimation(_animationOut_minHeight);
+        m_animationOut_minHeight->setStartValue(m_heightIn);
+        m_animationOut_minHeight->setEndValue(m_heightOut);
+        m_animationOut_minHeight->setDuration(250);
+        m_animationsOut->addAnimation(m_animationOut_minHeight);
     }
 
     if(this->hasPropertyFlag(Property::MaxWidth))
     {
-        _animationOut_maxWidth = new QPropertyAnimation(_target, "maximumWidth", this->parent());
+        m_animationOut_maxWidth = new QPropertyAnimation(m_target, "maximumWidth", this->parent());
 
-        _animationOut_maxWidth->setStartValue(_widthIn);
-        _animationOut_maxWidth->setEndValue(_widthOut);
-        _animationOut_maxWidth->setDuration(250);
-        _animationsOut->addAnimation(_animationOut_maxWidth);
+        m_animationOut_maxWidth->setStartValue(m_widthIn);
+        m_animationOut_maxWidth->setEndValue(m_widthOut);
+        m_animationOut_maxWidth->setDuration(250);
+        m_animationsOut->addAnimation(m_animationOut_maxWidth);
     }
 
     if(this->hasPropertyFlag(Property::MinWidth))
     {
-        _animationOut_minWidth = new QPropertyAnimation(_target, "minimumWidth", this->parent());
+        m_animationOut_minWidth = new QPropertyAnimation(m_target, "minimumWidth", this->parent());
 
-        _animationOut_minWidth->setStartValue(_widthIn);
-        _animationOut_minWidth->setEndValue(_widthOut);
-        _animationOut_minWidth->setDuration(250);
-        _animationsOut->addAnimation(_animationOut_minWidth);
+        m_animationOut_minWidth->setStartValue(m_widthIn);
+        m_animationOut_minWidth->setEndValue(m_widthOut);
+        m_animationOut_minWidth->setDuration(250);
+        m_animationsOut->addAnimation(m_animationOut_minWidth);
     }
 
-    _animationsOut->start(QParallelAnimationGroup::KeepWhenStopped);
+    m_animationsOut->start(QParallelAnimationGroup::KeepWhenStopped);
 }
 
 void WidgetAnimation::setProperty(Property property)
 {
-    _property = property;
+    m_property = property;
 }
 
 void WidgetAnimation::setHeightIn(qreal height)
 {
-    _heightIn = height;
+    m_heightIn = height;
 }
 
 void WidgetAnimation::setHeightOut(qreal height)
 {
-    _heightOut = height;
+    m_heightOut = height;
 }
 
 void WidgetAnimation::setWidthIn(qreal width)
 {
-    _widthIn = width;
+    m_widthIn = width;
 }
 
 void WidgetAnimation::setWidthOut(qreal width)
 {
-    _widthOut = width;
+    m_widthOut = width;
 }
 
 bool WidgetAnimation::hasPropertyFlag(Property property)
 {
-    return ((_property & property) == property);
+    return ((m_property & property) == property);
 }
 
 void WidgetAnimation::on_animations_finished()

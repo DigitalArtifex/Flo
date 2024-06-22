@@ -2,8 +2,8 @@
 #include "../types/printer.h"
 #include "../system/settings.h"
 
-QMap<QString,Printer*> PrinterPool::_printerPool;
-PrinterPool *PrinterPool::_instance = nullptr;
+QMap<QString,Printer*> PrinterPool::m_printerPool;
+PrinterPool *PrinterPool::m_instance = nullptr;
 
 PrinterPool::PrinterPool() : QObject()
 {
@@ -12,8 +12,8 @@ PrinterPool::PrinterPool() : QObject()
 
 Printer *PrinterPool::getPrinterById(QString id)
 {
-    if(_printerPool.contains(id))
-        return _printerPool[id];
+    if(m_printerPool.contains(id))
+        return m_printerPool[id];
     else
         return nullptr;
 }
@@ -21,12 +21,12 @@ Printer *PrinterPool::getPrinterById(QString id)
 void PrinterPool::addPrinter(PrinterDefinition definition)
 {
     Printer *printer = new Printer(definition);
-    connect(printer, SIGNAL(printerError(QString,QString,Printer*)), _instance, SLOT(on_printerError(QString,QString,Printer*)));
+    connect(printer, SIGNAL(printerError(QString,QString,Printer*)), m_instance, SLOT(on_printerError(QString,QString,Printer*)));
 
     if(definition.autoConnect)
         printer->connectMoonraker();
 
-    _printerPool.insert(definition.id,printer);
+    m_printerPool.insert(definition.id,printer);
     Settings::addPrinter(definition);
 
     instance()->on_printerAdded(printer);
@@ -34,8 +34,8 @@ void PrinterPool::addPrinter(PrinterDefinition definition)
 
 void PrinterPool::removePrinter(PrinterDefinition definition)
 {
-    Printer *printer = _printerPool[definition.id];
-    _printerPool.remove(definition.id);
+    Printer *printer = m_printerPool[definition.id];
+    m_printerPool.remove(definition.id);
 
     delete printer;
     Settings::removePrinter(definition);
@@ -45,9 +45,9 @@ void PrinterPool::removePrinter(PrinterDefinition definition)
 
 void PrinterPool::updatePrinter(PrinterDefinition definition)
 {
-    if(_printerPool.contains(definition.id))
+    if(m_printerPool.contains(definition.id))
     {
-        _printerPool[definition.id]->update(definition);
+        m_printerPool[definition.id]->update(definition);
         Settings::updatePrinter(definition);
         Settings::save();
     }
@@ -63,7 +63,7 @@ void PrinterPool::loadPrinters(QObject *parent)
         if(definition.id.isEmpty())
             continue;
 
-        if(_printerPool.contains(definition.id))
+        if(m_printerPool.contains(definition.id))
             continue;
 
         if(definition.defaultPrinter && !hasDefault)
@@ -72,37 +72,37 @@ void PrinterPool::loadPrinters(QObject *parent)
             definition.defaultPrinter = false;
 
         Printer *printer = new Printer(definition, parent);
-        connect(printer, SIGNAL(printerError(QString,QString,Printer*)), _instance, SLOT(on_printerError(QString,QString,Printer*)));
-        connect(printer->currentJob(), SIGNAL(started(PrintJob*)), _instance, SLOT(on_printJob_started(PrintJob*)));
-        connect(printer->currentJob(), SIGNAL(finished(PrintJob*)), _instance, SLOT(on_printJob_finished(PrintJob*)));
+        connect(printer, SIGNAL(printerError(QString,QString,Printer*)), m_instance, SLOT(on_printerError(QString,QString,Printer*)));
+        connect(printer->currentJob(), SIGNAL(started(PrintJob*)), m_instance, SLOT(on_printJob_started(PrintJob*)));
+        connect(printer->currentJob(), SIGNAL(finished(PrintJob*)), m_instance, SLOT(on_printJob_finished(PrintJob*)));
 
         if(definition.autoConnect)
             printer->connectMoonraker();
 
-        _printerPool.insert(definition.id,printer);
+        m_printerPool.insert(definition.id,printer);
 
         instance()->on_printerAdded(printer);
     }
 
-    if(!hasDefault && !_printerPool.isEmpty())
+    if(!hasDefault && !m_printerPool.isEmpty())
     {
-        Settings::setDefaultPrinter(_printerPool[0]->definition());
+        Settings::setDefaultPrinter(m_printerPool[0]->definition());
     }
 }
 
 bool PrinterPool::contains(QString id)
 {
-    return _printerPool.contains(id);
+    return m_printerPool.contains(id);
 }
 
 long PrinterPool::printersOnline()
 {
     long online = 0;
-    QStringList keys = _printerPool.keys();
+    QStringList keys = m_printerPool.keys();
 
     foreach(QString key, keys)
     {
-        if(_printerPool[key]->status() != Printer::Offline)
+        if(m_printerPool[key]->status() != Printer::Offline)
             online++;
     }
 
@@ -111,19 +111,19 @@ long PrinterPool::printersOnline()
 
 long PrinterPool::printersAvailable()
 {
-    return _printerPool.count();
+    return m_printerPool.count();
 }
 
 long PrinterPool::printersRunning()
 {
     long running = 0;
-    QStringList keys = _printerPool.keys();
+    QStringList keys = m_printerPool.keys();
 
     foreach(QString key, keys)
     {
-        if(_printerPool[key]->status() == Printer::Printing)
+        if(m_printerPool[key]->status() == Printer::Printing)
             running++;
-        else if(_printerPool[key]->status() == Printer::Paused)
+        else if(m_printerPool[key]->status() == Printer::Paused)
                 running++;
     }
 
@@ -133,14 +133,14 @@ long PrinterPool::printersRunning()
 QList<PrintJob *> PrinterPool::printJobs()
 {
     QList<PrintJob*> jobs;
-    QStringList keys = _printerPool.keys();
+    QStringList keys = m_printerPool.keys();
 
     foreach(QString key, keys)
     {
-        if(_printerPool[key]->status() == Printer::Printing)
-            jobs.append(_printerPool[key]->currentJob());
-        else if(_printerPool[key]->status() == Printer::Paused)
-            jobs.append(_printerPool[key]->currentJob());
+        if(m_printerPool[key]->status() == Printer::Printing)
+            jobs.append(m_printerPool[key]->currentJob());
+        else if(m_printerPool[key]->status() == Printer::Paused)
+            jobs.append(m_printerPool[key]->currentJob());
     }
 
     return jobs;
@@ -148,10 +148,10 @@ QList<PrintJob *> PrinterPool::printJobs()
 
 PrinterPool *PrinterPool::instance()
 {
-    if(_instance == nullptr)
-        _instance = new PrinterPool();
+    if(m_instance == nullptr)
+        m_instance = new PrinterPool();
 
-    return _instance;
+    return m_instance;
 }
 
 void PrinterPool::on_printerAdded(Printer *printer)

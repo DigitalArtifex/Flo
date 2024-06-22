@@ -13,7 +13,7 @@ public:
     void setWatts(qreal watts);
 
 private:
-    qreal _watts = 0;
+    qreal m_watts = 0;
 };
 
 #endif // CHAMBER_H

@@ -3,8 +3,8 @@
 PrinterTerminalWidget::PrinterTerminalWidget(QWidget *parent)
     : QAnimatedListWidget(parent)
 {
-    _scrollAreaContents->layout()->setContentsMargins(9,9,9,9);
-    _scrollAreaContents->layout()->setSpacing(9);
+    m_scrollAreaContents->layout()->setContentsMargins(9,9,9,9);
+    m_scrollAreaContents->layout()->setSpacing(9);
 }
 
 void PrinterTerminalWidget::addMessage(KlipperMessage message)
@@ -17,7 +17,7 @@ void PrinterTerminalWidget::addMessage(KlipperMessage message)
         item->setOpacityOut(0);
         item->setDuration(100);
 
-        _itemMap[message.id] = item;
+        m_itemMap[message.id] = item;
 
         addItem(item);
     }
@@ -25,9 +25,9 @@ void PrinterTerminalWidget::addMessage(KlipperMessage message)
 
 void PrinterTerminalWidget::addResponse(KlipperResponse response)
 {
-    if(_itemMap.contains(response.id()))
+    if(m_itemMap.contains(response.id()))
     {
-        _itemMap[response.id()]->setResponse(response);
+        m_itemMap[response.id()]->setResponse(response);
     }
 }
 

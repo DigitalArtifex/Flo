@@ -28,52 +28,52 @@ namespace QSourceHighlite {
 
 static QHash<QSourceHighliter::Token, QTextCharFormat> formats()
 {
-    QHash<QSourceHighliter::Token, QTextCharFormat> _formats;
+    QHash<QSourceHighliter::Token, QTextCharFormat> m_formats;
 
     QTextCharFormat defaultFormat = QTextCharFormat();
 
-    _formats[QSourceHighliter::Token::CodeBlock] = defaultFormat;
-    _formats[QSourceHighliter::Token::CodeKeyWord] = defaultFormat;
-    _formats[QSourceHighliter::Token::CodeString] = defaultFormat;
-    _formats[QSourceHighliter::Token::CodeComment] = defaultFormat;
-    _formats[QSourceHighliter::Token::CodeType] = defaultFormat;
-    _formats[QSourceHighliter::Token::CodeOther] = defaultFormat;
-    _formats[QSourceHighliter::Token::CodeNumLiteral] = defaultFormat;
-    _formats[QSourceHighliter::Token::CodeBuiltIn] = defaultFormat;
+    m_formats[QSourceHighliter::Token::CodeBlock] = defaultFormat;
+    m_formats[QSourceHighliter::Token::CodeKeyWord] = defaultFormat;
+    m_formats[QSourceHighliter::Token::CodeString] = defaultFormat;
+    m_formats[QSourceHighliter::Token::CodeComment] = defaultFormat;
+    m_formats[QSourceHighliter::Token::CodeType] = defaultFormat;
+    m_formats[QSourceHighliter::Token::CodeOther] = defaultFormat;
+    m_formats[QSourceHighliter::Token::CodeNumLiteral] = defaultFormat;
+    m_formats[QSourceHighliter::Token::CodeBuiltIn] = defaultFormat;
 
-    return _formats;
+    return m_formats;
 }
 
 static QHash<QSourceHighliter::Token, QTextCharFormat> monokai()
 {
-    QHash<QSourceHighliter::Token, QTextCharFormat> _formats = formats();
+    QHash<QSourceHighliter::Token, QTextCharFormat> m_formats = formats();
 
-    _formats[QSourceHighliter::Token::CodeBlock].setForeground(QColor(227, 226, 214));
-    _formats[QSourceHighliter::Token::CodeKeyWord].setForeground(QColor(249, 38, 114));
-    _formats[QSourceHighliter::Token::CodeString].setForeground(QColor(230, 219, 116));
-    _formats[QSourceHighliter::Token::CodeComment].setForeground(QColor(117, 113, 94));
-    _formats[QSourceHighliter::Token::CodeType].setForeground(QColor(102, 217, 239));
-    _formats[QSourceHighliter::Token::CodeOther].setForeground(QColor(249, 38, 114));
-    _formats[QSourceHighliter::Token::CodeNumLiteral].setForeground(QColor(174, 129, 255));
-    _formats[QSourceHighliter::Token::CodeBuiltIn].setForeground(QColor(166, 226, 46));
+    m_formats[QSourceHighliter::Token::CodeBlock].setForeground(QColor(227, 226, 214));
+    m_formats[QSourceHighliter::Token::CodeKeyWord].setForeground(QColor(249, 38, 114));
+    m_formats[QSourceHighliter::Token::CodeString].setForeground(QColor(230, 219, 116));
+    m_formats[QSourceHighliter::Token::CodeComment].setForeground(QColor(117, 113, 94));
+    m_formats[QSourceHighliter::Token::CodeType].setForeground(QColor(102, 217, 239));
+    m_formats[QSourceHighliter::Token::CodeOther].setForeground(QColor(249, 38, 114));
+    m_formats[QSourceHighliter::Token::CodeNumLiteral].setForeground(QColor(174, 129, 255));
+    m_formats[QSourceHighliter::Token::CodeBuiltIn].setForeground(QColor(166, 226, 46));
 
-    return _formats;
+    return m_formats;
 }
 
 static QHash<QSourceHighliter::Token, QTextCharFormat> system()
 {
-    QHash<QSourceHighliter::Token, QTextCharFormat> _formats = formats();
+    QHash<QSourceHighliter::Token, QTextCharFormat> m_formats = formats();
 
-    _formats[QSourceHighliter::Token::CodeBlock].setForeground(QColor::fromString(Settings::get("color_CodeBlock").toString()));
-    _formats[QSourceHighliter::Token::CodeKeyWord].setForeground(QColor::fromString(Settings::get("color_CodeKeyWord").toString()));
-    _formats[QSourceHighliter::Token::CodeString].setForeground(QColor::fromString(Settings::get("color_CodeString").toString()));
-    _formats[QSourceHighliter::Token::CodeComment].setForeground(QColor::fromString(Settings::get("color_CodeComment").toString()));
-    _formats[QSourceHighliter::Token::CodeType].setForeground(QColor::fromString(Settings::get("color_CodeType").toString()));
-    _formats[QSourceHighliter::Token::CodeOther].setForeground(QColor::fromString(Settings::get("color_CodeOther").toString()));
-    _formats[QSourceHighliter::Token::CodeNumLiteral].setForeground(QColor::fromString(Settings::get("color_CodeNumLiteral").toString()));
-    _formats[QSourceHighliter::Token::CodeBuiltIn].setForeground(QColor::fromString(Settings::get("color_CodeBuiltIn").toString()));
+    m_formats[QSourceHighliter::Token::CodeBlock].setForeground(QColor::fromString(Settings::get("color_CodeBlock").toString()));
+    m_formats[QSourceHighliter::Token::CodeKeyWord].setForeground(QColor::fromString(Settings::get("color_CodeKeyWord").toString()));
+    m_formats[QSourceHighliter::Token::CodeString].setForeground(QColor::fromString(Settings::get("color_CodeString").toString()));
+    m_formats[QSourceHighliter::Token::CodeComment].setForeground(QColor::fromString(Settings::get("color_CodeComment").toString()));
+    m_formats[QSourceHighliter::Token::CodeType].setForeground(QColor::fromString(Settings::get("color_CodeType").toString()));
+    m_formats[QSourceHighliter::Token::CodeOther].setForeground(QColor::fromString(Settings::get("color_CodeOther").toString()));
+    m_formats[QSourceHighliter::Token::CodeNumLiteral].setForeground(QColor::fromString(Settings::get("color_CodeNumLiteral").toString()));
+    m_formats[QSourceHighliter::Token::CodeBuiltIn].setForeground(QColor::fromString(Settings::get("color_CodeBuiltIn").toString()));
 
-    return _formats;
+    return m_formats;
 }
 
 QHash<QSourceHighliter::Token, QTextCharFormat>

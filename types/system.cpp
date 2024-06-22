@@ -11,275 +11,275 @@ System::~System()
 
 void System::setHostname(QString hostname)
 {
-    _hostname = hostname;
+    m_hostname = hostname;
 }
 
 QString System::hostname()
 {
-    return _hostname;
+    return m_hostname;
 }
 
 qint64 System::driveCapacity() const
 {
-    return _driveCapacity;
+    return m_driveCapacity;
 }
 
 void System::setDriveCapacity(qint64 driveCapacity)
 {
-    _driveCapacity = driveCapacity;
+    m_driveCapacity = driveCapacity;
 }
 
 qint64 System::driveUsage() const
 {
-    return _driveUsage;
+    return m_driveUsage;
 }
 
 void System::setDriveUsage(qint64 driveUsage)
 {
-    _driveUsage = driveUsage;
+    m_driveUsage = driveUsage;
 }
 
 qint64 System::driveFree() const
 {
-    return _driveFree;
+    return m_driveFree;
 }
 
 void System::setDriveFree(qint64 driveFree)
 {
-    _driveFree = driveFree;
+    m_driveFree = driveFree;
 }
 
 QStringList System::availableServices() const
 {
-    return _availableServices;
+    return m_availableServices;
 }
 
 void System::setAvailableServices(const QStringList &availableServices)
 {
-    _availableServices = availableServices;
+    m_availableServices = availableServices;
 }
 
 QMap<QString, System::ServiceState> System::serviceStates() const
 {
-    return _serviceStates;
+    return m_serviceStates;
 }
 
 QString System::pythonVersion() const
 {
-    return _pythonVersion;
+    return m_pythonVersion;
 }
 
 void System::setPythonVersion(const QString &pythonVersion)
 {
-    _pythonVersion = pythonVersion;
+    m_pythonVersion = pythonVersion;
 }
 
 System::CpuInfo System::cpuInfo() const
 {
-    return _cpuInfo;
+    return m_cpuInfo;
 }
 
 void System::setCpuInfo(CpuInfo cpuInfo)
 {
-    _cpuInfo = cpuInfo;
+    m_cpuInfo = cpuInfo;
 }
 
 System::DistributionInfo System::distributionInfo() const
 {
-    return _distributionInfo;
+    return m_distributionInfo;
 }
 
 void System::setDistributionInfo(const DistributionInfo &distributionInfo)
 {
-    _distributionInfo = distributionInfo;
+    m_distributionInfo = distributionInfo;
 }
 
 System::VirtualizationState System::virtualizationState() const
 {
-    return _virtualizationState;
+    return m_virtualizationState;
 }
 
 void System::setVirtualizationState(const VirtualizationState &virtualizationState)
 {
-    _virtualizationState = virtualizationState;
+    m_virtualizationState = virtualizationState;
 }
 
 QMap<QString, System::NetworkInterface> System::networkInterfaces() const
 {
-    return _networkInterfaces;
+    return m_networkInterfaces;
 }
 
 void System::setNetworkInterfaces(const QMap<QString, NetworkInterface> &networkInterfaces)
 {
-    _networkInterfaces = networkInterfaces;
+    m_networkInterfaces = networkInterfaces;
 }
 
 QMap<QString, System::CanBusDevice> System::canBus() const
 {
-    return _canBus;
+    return m_canBus;
 }
 
 void System::setCanBus(const QMap<QString, CanBusDevice> &canBus)
 {
-    _canBus = canBus;
+    m_canBus = canBus;
 }
 
 System::SdInfo System::sdInfo() const
 {
-    return _sdInfo;
+    return m_sdInfo;
 }
 
 void System::setSdInfo(const SdInfo &sdInfo)
 {
-    _sdInfo = sdInfo;
+    m_sdInfo = sdInfo;
 }
 
 QList<System::MoonrakerStatsEntry> System::moonrakerStats() const
 {
-    return _moonrakerStats;
+    return m_moonrakerStats;
 }
 
 QMap<QString, System::NetworkStatsEntry> System::networkStats() const
 {
-    return _networkStats;
+    return m_networkStats;
 }
 
 System::ThrottleState System::throttleState() const
 {
-    return _throttleState;
+    return m_throttleState;
 }
 
 void System::setThrottleState(const ThrottleState &throttleState)
 {
-    _throttleState = throttleState;
+    m_throttleState = throttleState;
 }
 
 System::MemoryStats System::memoryStats() const
 {
-    return _memoryStats;
+    return m_memoryStats;
 }
 
 void System::setMemoryStats(const MemoryStats &memoryStats)
 {
-    _memoryStats = memoryStats;
+    m_memoryStats = memoryStats;
 }
 
 qreal System::uptime() const
 {
-    return _uptime;
+    return m_uptime;
 }
 
 void System::setUptime(qreal uptime)
 {
-    _uptime = uptime;
+    m_uptime = uptime;
 }
 
 qint32 System::connectionCount() const
 {
-    return _connectionCount;
+    return m_connectionCount;
 }
 
 void System::setConnectionCount(qint32 connectionCount)
 {
-    _connectionCount = connectionCount;
+    m_connectionCount = connectionCount;
 }
 
 QList<System::UsbPeripheral> System::usbPeripherals() const
 {
-    return _usbPeripherals;
+    return m_usbPeripherals;
 }
 
 QList<System::SerialPeripheral> System::serialPeripherals() const
 {
-    return _serialPeripherals;
+    return m_serialPeripherals;
 }
 
 QList<System::V412Device> System::v412Devices() const
 {
-    return _v412Devices;
+    return m_v412Devices;
 }
 
 QList<System::LibcameraDevice> System::libcameraDevices() const
 {
-    return _libcameraDevices;
+    return m_libcameraDevices;
 }
 
 QMap<qint32, System::CanBus> System::canBusses() const
 {
-    return _canBusses;
+    return m_canBusses;
 }
 
 System::AccessDetails System::accessDetails() const
 {
-    return _accessDetails;
+    return m_accessDetails;
 }
 
 void System::setAccessDetails(const AccessDetails &accessDetails)
 {
-    _accessDetails = accessDetails;
+    m_accessDetails = accessDetails;
 }
 
 QList<System::User> System::userList() const
 {
-    return _userList;
+    return m_userList;
 }
 
 QList<System::Webcam> System::webcams() const
 {
-    return _webcams;
+    return m_webcams;
 }
 
 QList<System::Announcement> System::announcements() const
 {
-    return _announcements;
+    return m_announcements;
 }
 
 System::UpdateState System::updateState() const
 {
-    return _updateState;
+    return m_updateState;
 }
 
 void System::setUpdateState(const UpdateState &updateState)
 {
-    _updateState = updateState;
+    m_updateState = updateState;
 }
 
 System::JobQueue System::jobQueue() const
 {
-    return _jobQueue;
+    return m_jobQueue;
 }
 
 void System::setJobQueue(const JobQueue &jobQueue)
 {
-    _jobQueue = jobQueue;
+    m_jobQueue = jobQueue;
 }
 
 System::VirtualSDCard System::virtualSDCard() const
 {
-    return _virtualSDCard;
+    return m_virtualSDCard;
 }
 
 void System::setVirtualSDCard(const VirtualSDCard &virtualSDCard)
 {
-    _virtualSDCard = virtualSDCard;
+    m_virtualSDCard = virtualSDCard;
 }
 
 System::MCU System::mcu() const
 {
-    return _mcu;
+    return m_mcu;
 }
 
 void System::setMcu(const MCU &mcu)
 {
-    _mcu = mcu;
+    m_mcu = mcu;
 }
 
 System::SafeZHome System::safeZHome() const
 {
-    return _safeZHome;
+    return m_safeZHome;
 }
 
 void System::setSafeZHome(const SafeZHome &safeZHome)
 {
-    _safeZHome = safeZHome;
+    m_safeZHome = safeZHome;
 }

@@ -20,34 +20,34 @@ MainWindow::MainWindow(QWidget *parent)
 
     showMaximized();
 
-    _titleOpacityEffect = new QGraphicsOpacityEffect(this);
-    ui->pageTitle->setGraphicsEffect(_titleOpacityEffect);
-    _titleOpacityAnimation = new QPropertyAnimation(_titleOpacityEffect, "opacity");
-    _titleOpacityAnimation->setDuration(500);
+    m_titleOpacityEffect = new QGraphicsOpacityEffect(this);
+    ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);
+    m_titleOpacityAnimation = new QPropertyAnimation(m_titleOpacityEffect, "opacity");
+    m_titleOpacityAnimation->setDuration(500);
 
     Settings::load();
     setStyleSheet(Settings::currentTheme());
 
     LoadingPage *page = new LoadingPage(this);
-    _loadingPage = new QAnimatedWidget(this);
-    _loadingPage->setWidget(page);
-    _loadingPage->setHidden(true);
-    ui->PageContainer->layout()->addWidget(_loadingPage);
+    m_loadingPage = new QAnimatedWidget(this);
+    m_loadingPage->setWidget(page);
+    m_loadingPage->setHidden(true);
+    ui->PageContainer->layout()->addWidget(m_loadingPage);
 
-    _currentPage = _loadingPage;
+    m_currentPage = m_loadingPage;
     //_currentPage->setOpacityIn(1);
     //_currentPage->setOpacityOut(0);
-    _currentPage->setPositionIn(_pagePositionIn);
-    _currentPage->setPositionOut(QPoint(_pageSize.width(), 0));
-    _currentPage->setDuration(250);
-    _currentPage->animateIn();
+    m_currentPage->setPositionIn(m_pagePositionIn);
+    m_currentPage->setPositionOut(QPoint(m_pageSize.width(), 0));
+    m_currentPage->setDuration(250);
+    m_currentPage->animateIn();
 
-    _initTimer = new QTimer(this);
-    _initTimer->setInterval(1000);
-    _initTimer->setSingleShot(true);
+    m_initTimer = new QTimer(this);
+    m_initTimer->setInterval(1000);
+    m_initTimer->setSingleShot(true);
 
-    connect(_initTimer, SIGNAL(timeout()), this, SLOT(on_initAsync()));
-    _initTimer->start();
+    connect(m_initTimer, SIGNAL(timeout()), this, SLOT(on_initAsync()));
+    m_initTimer->start();
 }
 
 MainWindow::~MainWindow()
@@ -58,69 +58,69 @@ MainWindow::~MainWindow()
 void MainWindow::changePage(QAnimatedWidget *page, QString title)
 {
     //Disable Buttons
-    if(_dashboardButton)
-        _dashboardButton->setEnabled(false);
+    if(m_dashboardButton)
+        m_dashboardButton->setEnabled(false);
 
-    if(_settingsButton)
-        _settingsButton->setEnabled(false);
+    if(m_settingsButton)
+        m_settingsButton->setEnabled(false);
 
-    for(int i = 0; i < _printerButtons.count(); i++)
-        _printerButtons[i]->setEnabled(false);
+    for(int i = 0; i < m_printerButtons.count(); i++)
+        m_printerButtons[i]->setEnabled(false);
 
     //Title
-    if(_titleOpacityAnimation)
-        delete _titleOpacityAnimation;
+    if(m_titleOpacityAnimation)
+        delete m_titleOpacityAnimation;
 
-    _titleOpacityAnimation = new QPropertyAnimation(_titleOpacityEffect, "opacity");
-    _titleOpacityAnimation->setDuration(500);
+    m_titleOpacityAnimation = new QPropertyAnimation(m_titleOpacityEffect, "opacity");
+    m_titleOpacityAnimation->setDuration(500);
 
-    connect(_titleOpacityAnimation, SIGNAL(finished()), this, SLOT(on_titleOpacityAnimation_finished()));
+    connect(m_titleOpacityAnimation, SIGNAL(finished()), this, SLOT(on_titleOpacityAnimation_finished()));
 
-    _nextTitle = title;
-    _titleOpacityAnimation->setStartValue(1);
-    _titleOpacityAnimation->setEndValue(0);
-    ui->pageTitle->setGraphicsEffect(_titleOpacityEffect);
+    m_nextTitle = title;
+    m_titleOpacityAnimation->setStartValue(1);
+    m_titleOpacityAnimation->setEndValue(0);
+    ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);
 
-    _titleOpacityAnimation->start();
+    m_titleOpacityAnimation->start();
 
     //Page
     qint32 width = this->width() - ui->menuFrame->width();
     qint32 height = this->height() - ui->menuBar->height();
 
-    _pageSize = QSize(width, height);
-    _pagePositionIn = QPoint(0, 0);
-    _pagePositionOut = QPoint(_pageSize.width(), _pageSize.height());
+    m_pageSize = QSize(width, height);
+    m_pagePositionIn = QPoint(0, 0);
+    m_pagePositionOut = QPoint(m_pageSize.width(), m_pageSize.height());
 
     if(page)
     {
-        int ypos = _pageSize.height() * -1;
+        int ypos = m_pageSize.height() * -1;
         ypos -= ui->menuBar->height();
 
-        _nextPage = page;
+        m_nextPage = page;
         //_nextPage->setOpacityIn(1);
         //_nextPage->setOpacityOut(0);
-        _nextPage->setPositionIn(_pagePositionIn);
-        _nextPage->setPositionOut(QPoint(0, ypos));
-        _nextPage->setDuration(250);
+        m_nextPage->setPositionIn(m_pagePositionIn);
+        m_nextPage->setPositionOut(QPoint(0, ypos));
+        m_nextPage->setDuration(250);
 
-        connect(_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
-        _nextPage->setHidden(false);
-        _nextPage->animateIn();
+        connect(m_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
+        m_nextPage->setHidden(false);
+        m_nextPage->animateIn();
     }
 
-    if(_currentPage)
+    if(m_currentPage)
     {
-        connect(_currentPage, SIGNAL(animatedOut()), this, SLOT(on_currentPage_animationOut_finished()));
+        connect(m_currentPage, SIGNAL(animatedOut()), this, SLOT(on_currentPage_animationOut_finished()));
 
         //_currentPage->setOpacityIn(1);
         //_currentPage->setOpacityOut(0);
-        _currentPage->setPositionIn(_pagePositionIn);
-        _currentPage->setPositionOut(QPoint(0, _pageSize.height()));
-        _currentPage->setDuration(250);
+        m_currentPage->setPositionIn(m_pagePositionIn);
+        m_currentPage->setPositionOut(QPoint(0, m_pageSize.height()));
+        m_currentPage->setDuration(250);
 
-        ui->PageContainer->layout()->removeWidget(_currentPage);
+        ui->PageContainer->layout()->removeWidget(m_currentPage);
 
-        _currentPage->animateOut();
+        m_currentPage->animateOut();
     }
     else
     {
@@ -135,24 +135,24 @@ void MainWindow::online()
 {
     setEnabled(true);
 
-    _dashboardButton = new MenuButton(0, ui->menuFrame);
-    _dashboardButton->setText(QString("Dashboard"));
-    _dashboardButton->setIcon("dashboard");
-    _dashboardButton->setChecked(true);
-    ui->menuButtonLayout->addWidget(_dashboardButton);
-    connect(_dashboardButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_dashboardMenuButton_toggled(MenuButton*)));
+    m_dashboardButton = new MenuButton(0, ui->menuFrame);
+    m_dashboardButton->setText(QString("Dashboard"));
+    m_dashboardButton->setIcon("dashboard");
+    m_dashboardButton->setChecked(true);
+    ui->menuButtonLayout->addWidget(m_dashboardButton);
+    connect(m_dashboardButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_dashboardMenuButton_toggled(MenuButton*)));
 
-    _settingsButton = new MenuButton(3, ui->menuFrame);
-    _settingsButton->setText(QString("Settings"));
-    _settingsButton->setIcon("setting");
-    _settingsButton->setChecked(false);
-    ui->menuButtonLayout->addWidget(_settingsButton);
-    connect(_settingsButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_settingsMenuButton_toggled(MenuButton*)));
+    m_settingsButton = new MenuButton(3, ui->menuFrame);
+    m_settingsButton->setText(QString("Settings"));
+    m_settingsButton->setIcon("setting");
+    m_settingsButton->setChecked(false);
+    ui->menuButtonLayout->addWidget(m_settingsButton);
+    connect(m_settingsButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_settingsMenuButton_toggled(MenuButton*)));
 
-    _titleOpacityEffect = new QGraphicsOpacityEffect(this);
+    m_titleOpacityEffect = new QGraphicsOpacityEffect(this);
 
     PrinterDefinitionList printers = Flo::settings()->printers();
-    ui->menuButtonLayout->removeWidget(_settingsButton);
+    ui->menuButtonLayout->removeWidget(m_settingsButton);
 
     foreach(PrinterDefinition definition, printers)
     {
@@ -163,28 +163,28 @@ void MainWindow::online()
         animatedPage->setHidden(true);
         ui->PageContainer->layout()->addWidget(animatedPage);
 
-        MenuButton *printerButton = new MenuButton(_printerPages.count(), this);
+        MenuButton *printerButton = new MenuButton(m_printerPages.count(), this);
         printerButton->setIcon(QString("printer-icon"));
         printerButton->setText(definition.name);
         ui->menuButtonLayout->addWidget(printerButton);
 
-        _printerPages.append(animatedPage);
-        _printerButtons.append(printerButton);
+        m_printerPages.append(animatedPage);
+        m_printerButtons.append(printerButton);
 
         connect(printerButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_printerMenuButton_toggled(MenuButton*)));
     }
 
-    ui->menuButtonLayout->addWidget(_settingsButton);
+    ui->menuButtonLayout->addWidget(m_settingsButton);
 
-    for(int i = 0; i < _printerPages.count(); i++)
-        _printerPages[i]->resize(_pageSize);
+    for(int i = 0; i < m_printerPages.count(); i++)
+        m_printerPages[i]->resize(m_pageSize);
 
     setupPowerActions();
 
     setupUiClasses();
     updateStyleSheet();
 
-    on_dashboardMenuButton_toggled(_dashboardButton);
+    on_dashboardMenuButton_toggled(m_dashboardButton);
 }
 
 void MainWindow::setupUiClasses()
@@ -202,8 +202,8 @@ void MainWindow::setupUiClasses()
     ui->PageContainer->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContainer"));
     ui->menuTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuTitleBar"));
     ui->applicationIcon->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ApplicationIcon"));
-    _dashboardButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuButton" << "DashboardMenuButton"));
-    _settingsButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuButton" << "DashboardMenuButton"));
+    m_dashboardButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuButton" << "DashboardMenuButton"));
+    m_settingsButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuButton" << "DashboardMenuButton"));
 
 
     //Icons
@@ -212,69 +212,69 @@ void MainWindow::setupUiClasses()
 
 void MainWindow::on_dashboardMenuButton_toggled(MenuButton* button)
 {
-    _dashboardButton->setChecked(true);
+    m_dashboardButton->setChecked(true);
 
-    for(int i = 0; i < _printerButtons.count(); i++)
-        _printerButtons[i]->setChecked(false);
+    for(int i = 0; i < m_printerButtons.count(); i++)
+        m_printerButtons[i]->setChecked(false);
 
-    _settingsButton->setChecked(false);
+    m_settingsButton->setChecked(false);
 
-    if(!_dashboardPage)
+    if(!m_dashboardPage)
     {
         DashboardPage *dashboard = new DashboardPage();
-        _dashboardPage = new QAnimatedWidget(ui->PageContainer);
-        _dashboardPage->setWidget(dashboard);
-        _dashboardPage->resize(_pageSize);
-        _dashboardPage->setHidden(true);
+        m_dashboardPage = new QAnimatedWidget(ui->PageContainer);
+        m_dashboardPage->setWidget(dashboard);
+        m_dashboardPage->resize(m_pageSize);
+        m_dashboardPage->setHidden(true);
     }
 
-    changePage(_dashboardPage, QString("Dashboard"));
+    changePage(m_dashboardPage, QString("Dashboard"));
 }
 
 void MainWindow::on_settingsMenuButton_toggled(MenuButton* button)
 {
-    _dashboardButton->setChecked(false);
+    m_dashboardButton->setChecked(false);
 
-    for(int i = 0; i < _printerButtons.count(); i++)
-        _printerButtons[i]->setChecked(false);
+    for(int i = 0; i < m_printerButtons.count(); i++)
+        m_printerButtons[i]->setChecked(false);
 
-    _settingsButton->setChecked(true);
+    m_settingsButton->setChecked(true);
 
-    if(!_settingsPage)
+    if(!m_settingsPage)
     {
         SettingsPage *settings = new SettingsPage();
-        _settingsPage = new QAnimatedWidget(ui->PageContainer);
-        _settingsPage->setWidget(settings);
-        _settingsPage->setHidden(true);
-        _settingsPage->resize(_pageSize);
-        connect(_settingsPage, SIGNAL(printerAdded(PrinterDefinition)), this, SLOT(on_settingsPage_printerAdded(PrinterDefinition)));
+        m_settingsPage = new QAnimatedWidget(ui->PageContainer);
+        m_settingsPage->setWidget(settings);
+        m_settingsPage->setHidden(true);
+        m_settingsPage->resize(m_pageSize);
+        connect(m_settingsPage, SIGNAL(printerAdded(PrinterDefinition)), this, SLOT(on_settingsPage_printerAdded(PrinterDefinition)));
     }
 
-    changePage(_settingsPage, QString("Settings"));
+    changePage(m_settingsPage, QString("Settings"));
 }
 
 void MainWindow::on_currentPage_animationOut_finished()
 {
-    disconnect(_currentPage, SIGNAL(animatedOut()), this, SLOT(on_currentPage_animationOut_finished()));
+    disconnect(m_currentPage, SIGNAL(animatedOut()), this, SLOT(on_currentPage_animationOut_finished()));
 }
 
 void MainWindow::on_nextPage_animationIn_finished()
 {
-    disconnect(_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
-    ui->PageContainer->layout()->addWidget(_nextPage);
+    disconnect(m_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
+    ui->PageContainer->layout()->addWidget(m_nextPage);
 
-    _currentPage = _nextPage;
-    _nextPage = nullptr;
+    m_currentPage = m_nextPage;
+    m_nextPage = nullptr;
 
     //Enable Buttons
-    if(_dashboardButton)
-        _dashboardButton->setEnabled(true);
+    if(m_dashboardButton)
+        m_dashboardButton->setEnabled(true);
 
-    if(_settingsButton)
-        _settingsButton->setEnabled(true);
+    if(m_settingsButton)
+        m_settingsButton->setEnabled(true);
 
-    for(int i = 0; i < _printerButtons.count(); i++)
-        _printerButtons[i]->setEnabled(true);
+    for(int i = 0; i < m_printerButtons.count(); i++)
+        m_printerButtons[i]->setEnabled(true);
 
 
 
@@ -283,36 +283,36 @@ void MainWindow::on_nextPage_animationIn_finished()
 
 void MainWindow::on_titleOpacityAnimation_finished()
 {
-    disconnect(_titleOpacityAnimation, SIGNAL(finished()), this, SLOT(on_titleOpacityAnimation_finished()));
+    disconnect(m_titleOpacityAnimation, SIGNAL(finished()), this, SLOT(on_titleOpacityAnimation_finished()));
 
-    _currentTitle = this->_nextTitle;
-    ui->pageTitle->setText(_currentTitle);
-    ui->pageTitle->setGraphicsEffect(_titleOpacityEffect);
-    _nextTitle = "";
-    _titleOpacityAnimation->setStartValue(0);
-    _titleOpacityAnimation->setEndValue(1);
-    _titleOpacityAnimation->start();
+    m_currentTitle = this->m_nextTitle;
+    ui->pageTitle->setText(m_currentTitle);
+    ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);
+    m_nextTitle = "";
+    m_titleOpacityAnimation->setStartValue(0);
+    m_titleOpacityAnimation->setEndValue(1);
+    m_titleOpacityAnimation->start();
 }
 
 void MainWindow::on_printerMenuButton_toggled(MenuButton* button)
 {
-    _dashboardButton->setChecked(false);
-    _settingsButton->setChecked(false);
+    m_dashboardButton->setChecked(false);
+    m_settingsButton->setChecked(false);
 
     QString title;
 
-    for(int i = 0; i < _printerPages.count(); i++)
+    for(int i = 0; i < m_printerPages.count(); i++)
     {
         if(button->getId() == i)
         {
             title = button->getText();
-            _printerButtons[i]->setChecked(true);
+            m_printerButtons[i]->setChecked(true);
         }
         else
-            _printerButtons[i]->setChecked(false);
+            m_printerButtons[i]->setChecked(false);
     }
 
-    changePage(_printerPages[button->getId()], title);
+    changePage(m_printerPages[button->getId()], title);
 }
 
 void MainWindow::updateStyleSheet()
@@ -321,12 +321,12 @@ void MainWindow::updateStyleSheet()
     QString styleKey = Settings::get("system.theme").toString();
     QString style = Settings::getTheme(styleKey);
 
-    _dashboardButton->setIcon(QString("dashboard"));
+    m_dashboardButton->setIcon(QString("dashboard"));
 
-    for(int i = 0; i < _printerButtons.count(); i++)
-        _printerButtons[i]->setIcon(QString("printer"));
+    for(int i = 0; i < m_printerButtons.count(); i++)
+        m_printerButtons[i]->setIcon(QString("printer"));
 
-    _settingsButton->setIcon(QString("settings"));
+    m_settingsButton->setIcon(QString("settings"));
 
     //Dashboard icons should all be the same size
     QPixmap pixmap;
@@ -335,27 +335,27 @@ void MainWindow::updateStyleSheet()
     ui->powerButton->setIcon(pixmap);
 
     pixmap = Settings::getThemeIcon("refresh-icon").pixmap(16,16);
-    this->_restartAction->setIcon(pixmap);
+    this->m_restartAction->setIcon(pixmap);
 
     pixmap = Settings::getThemeIcon("power-icon").pixmap(16,16);
-    this->_shutdownAction->setIcon(pixmap);
+    this->m_shutdownAction->setIcon(pixmap);
 
     pixmap = Settings::getThemeIcon("cancel-icon").pixmap(16,16);
-    this->_closeAction->setIcon(pixmap);
+    this->m_closeAction->setIcon(pixmap);
 
     ui->applicationIcon->setPixmap(QPixmap(":/images/application-icon"));
     ui->applicationIcon->setScaledContents(true);
 
     this->setStyleSheet(style);
 
-    for(int i = 0; i < _printerPages.count(); i++)
-        _printerPages[i]->setStyleSheet(style);
+    for(int i = 0; i < m_printerPages.count(); i++)
+        m_printerPages[i]->setStyleSheet(style);
 
-    if(_dashboardPage != nullptr)
-        _dashboardPage->setStyleSheet(style);
+    if(m_dashboardPage != nullptr)
+        m_dashboardPage->setStyleSheet(style);
 
-    if(_settingsPage != nullptr)
-        _settingsPage->setStyleSheet(style);
+    if(m_settingsPage != nullptr)
+        m_settingsPage->setStyleSheet(style);
 }
 
 void MainWindow::showPopup()
@@ -365,37 +365,37 @@ void MainWindow::showPopup()
 
 void MainWindow::setMenuEnabled(bool enabled)
 {
-    _dashboardButton->setEnabled(enabled);
+    m_dashboardButton->setEnabled(enabled);
 
-    for(int i = 0; i < _printerButtons.count(); i++)
-        _printerButtons[i]->setEnabled(true);
+    for(int i = 0; i < m_printerButtons.count(); i++)
+        m_printerButtons[i]->setEnabled(true);
 
-    _settingsButton->setEnabled(enabled);
+    m_settingsButton->setEnabled(enabled);
 }
 
 void MainWindow::setupPowerActions()
 {
     //Restart Action
-    this->_restartAction = new QAction(this);
-    this->_restartAction->setText(QString("Restart System"));
-    connect(_restartAction, SIGNAL(triggered(bool)), this, SLOT(on_restartAction_triggered(bool)));
-    ui->powerButton->addAction(_restartAction);
+    this->m_restartAction = new QAction(this);
+    this->m_restartAction->setText(QString("Restart System"));
+    connect(m_restartAction, SIGNAL(triggered(bool)), this, SLOT(on_restartAction_triggered(bool)));
+    ui->powerButton->addAction(m_restartAction);
 
     //Shutdown Action
-    this->_shutdownAction = new QAction(this);
-    this->_shutdownAction->setText(QString("Shutdown System"));
-    connect(_shutdownAction, SIGNAL(triggered(bool)), this, SLOT(on_shutdownAction_triggered(bool)));
-    ui->powerButton->addAction(_shutdownAction);
+    this->m_shutdownAction = new QAction(this);
+    this->m_shutdownAction->setText(QString("Shutdown System"));
+    connect(m_shutdownAction, SIGNAL(triggered(bool)), this, SLOT(on_shutdownAction_triggered(bool)));
+    ui->powerButton->addAction(m_shutdownAction);
 
     QAction *separator = new QAction(this);
     separator->setSeparator(true);
     ui->powerButton->addAction(separator);
 
     //Close Action
-    this->_closeAction = new QAction(this);
-    this->_closeAction->setText(QString("Close Application"));
-    connect(_closeAction, SIGNAL(triggered(bool)), this, SLOT(on_closeAction_triggered(bool)));
-    ui->powerButton->addAction(_closeAction);
+    this->m_closeAction = new QAction(this);
+    this->m_closeAction->setText(QString("Close Application"));
+    connect(m_closeAction, SIGNAL(triggered(bool)), this, SLOT(on_closeAction_triggered(bool)));
+    ui->powerButton->addAction(m_closeAction);
 }
 
 void MainWindow::on_initAsync()
@@ -411,24 +411,24 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     qint32 width = this->width() - ui->menuFrame->width();
     qint32 height = this->height() - ui->menuBar->height();
 
-    _pageSize = QSize(width, height);
-    _pagePositionIn = QPoint(ui->menuFrame->width(), ui->menuBar->height());
-    _pagePositionOut = QPoint(this->width(), ui->menuBar->height());
+    m_pageSize = QSize(width, height);
+    m_pagePositionIn = QPoint(ui->menuFrame->width(), ui->menuBar->height());
+    m_pagePositionOut = QPoint(this->width(), ui->menuBar->height());
 
-    if(_dashboardPage)
-        _dashboardPage->resize(_pageSize);
+    if(m_dashboardPage)
+        m_dashboardPage->resize(m_pageSize);
 
-    if(_settingsPage)
-        _settingsPage->resize(_pageSize);
+    if(m_settingsPage)
+        m_settingsPage->resize(m_pageSize);
 
-    for(int i = 0; i < _printerPages.count(); i++)
-        _printerPages[i]->resize(_pageSize);
+    for(int i = 0; i < m_printerPages.count(); i++)
+        m_printerPages[i]->resize(m_pageSize);
 }
 
 
 void MainWindow::on_emergencyStopButton_clicked()
 {
-    //this->_printer->console()->emergencyStop();
+    //this->m_printer->console()->emergencyStop();
 }
 
 void MainWindow::on_restartAction_triggered(bool checked)
@@ -456,12 +456,12 @@ void MainWindow::on_settingsPage_printerAdded(PrinterDefinition definition)
 
 void MainWindow::on_loadingAnimation_finished()
 {
-    _loadingGif->stop();
-    delete _loadingGif;
-    delete _loadingLabel;
-    delete _loadingAnimation;
-    _loadingLabel = nullptr;
-    _loadingGif = nullptr;
-    _loadingAnimation = nullptr;
+    m_loadingGif->stop();
+    delete m_loadingGif;
+    delete m_loadingLabel;
+    delete m_loadingAnimation;
+    m_loadingLabel = nullptr;
+    m_loadingGif = nullptr;
+    m_loadingAnimation = nullptr;
 }
 

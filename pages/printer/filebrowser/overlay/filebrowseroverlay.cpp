@@ -15,50 +15,50 @@ FileBrowserOverlay::FileBrowserOverlay(QWidget *parent) :
 
 FileBrowserOverlay::~FileBrowserOverlay()
 {
-    if(_label)
-        delete _label;
+    if(m_label)
+        delete m_label;
 
-    if(_layout)
-        delete _layout;
+    if(m_layout)
+        delete m_layout;
 }
 
 void FileBrowserOverlay::setupUi()
 {
-    _label = new QLabel(this);
-    _label->setText(QString("Loading"));
-    _label->setAlignment(Qt::AlignCenter);
+    m_label = new QLabel(this);
+    m_label->setText(QString("Loading"));
+    m_label->setAlignment(Qt::AlignCenter);
 
-    _iconLabel = new QLabel(this);
-    _iconLabel->setText(QString(""));
-    _iconLabel->setAlignment(Qt::AlignCenter);
+    m_iconLabel = new QLabel(this);
+    m_iconLabel->setText(QString(""));
+    m_iconLabel->setAlignment(Qt::AlignCenter);
 
     QPixmap pixmap = Settings::getThemeIcon(QString("empty-icon")).pixmap(64,64);
-    _iconLabel->setPixmap(pixmap);
+    m_iconLabel->setPixmap(pixmap);
 
-    _topSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    _bottomSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_topSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_bottomSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    _layout = new QGridLayout(this);
-    _layout->addItem(_topSpacer,0,0);
-    _layout->addWidget(_label);
-    _layout->addWidget(_iconLabel);
-    _layout->addItem(_bottomSpacer,3,0);
+    m_layout = new QGridLayout(this);
+    m_layout->addItem(m_topSpacer,0,0);
+    m_layout->addWidget(m_label);
+    m_layout->addWidget(m_iconLabel);
+    m_layout->addItem(m_bottomSpacer,3,0);
 
-    setLayout(_layout);
+    setLayout(m_layout);
 }
 
 void FileBrowserOverlay::setText(const QString &text)
 {
-    _label->setText(text);
+    m_label->setText(text);
 }
 
 void FileBrowserOverlay::setIcon(const QPixmap &pixmap)
 {
-    _iconLabel->setPixmap(pixmap);
+    m_iconLabel->setPixmap(pixmap);
 }
 
 void FileBrowserOverlay::setIcon(const QIcon &icon)
 {
     QPixmap pixmap = icon.pixmap(64,64);
-    _iconLabel->setPixmap(pixmap);
+    m_iconLabel->setPixmap(pixmap);
 }

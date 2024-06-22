@@ -17,16 +17,16 @@ BedMeshItemFrame::~BedMeshItemFrame()
 
 qreal BedMeshItemFrame::value() const
 {
-    return _value;
+    return m_value;
 }
 
 void BedMeshItemFrame::setValue(qreal value)
 {
-    _value = value;
+    m_value = value;
 
-    if(_value <= _thresholdLow)
+    if(m_value <= m_thresholdLow)
     {
-        if(_value <= (_thresholdLow - (_thresholdLow * 0.1)))
+        if(m_value <= (m_thresholdLow - (m_thresholdLow * 0.1)))
             setProperty("level_very_low", true);
         else
         {
@@ -34,9 +34,9 @@ void BedMeshItemFrame::setValue(qreal value)
             setProperty("level_low", true);
         }
     }
-    else if(_value >= _thresholdHigh)
+    else if(m_value >= m_thresholdHigh)
     {
-        if(_value <= (_thresholdHigh - (_thresholdHigh * 0.1)))
+        if(m_value <= (m_thresholdHigh - (m_thresholdHigh * 0.1)))
             setProperty("level_very_high", true);
         else
         {

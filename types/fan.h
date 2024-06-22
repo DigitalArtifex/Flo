@@ -22,10 +22,10 @@ public:
     void setPrinter(Printer *printer);
 
 private:
-    qreal _speed;
-    qreal _rpm;
+    qreal m_speed;
+    qreal m_rpm;
 
-    Printer *_printer;
+    Printer *m_printer;
 };
 
 #endif // FAN_H

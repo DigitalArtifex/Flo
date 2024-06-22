@@ -42,12 +42,12 @@ private slots:
 private:
     Ui::AdjustmentScrewEmptyFrame *ui;
 
-    QSpacerItem *_rightSpacer = nullptr;
-    QSpacerItem *_topSpacer = nullptr;
-    QSpacerItem *_leftSpacer = nullptr;
-    QSpacerItem *_bottomSpacer = nullptr;
+    QSpacerItem *m_rightSpacer = nullptr;
+    QSpacerItem *m_topSpacer = nullptr;
+    QSpacerItem *m_leftSpacer = nullptr;
+    QSpacerItem *m_bottomSpacer = nullptr;
 
-    Q3DPrintBed *_printerBed = nullptr;
+    Q3DPrintBed *m_printerBed = nullptr;
 };
 
 #endif // ADJUSTMENTSCREWEMPTYFRAME_H

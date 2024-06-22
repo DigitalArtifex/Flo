@@ -4,7 +4,7 @@
 QLocalKlipperConsole::QLocalKlipperConsole(Printer *printer, QObject *parent)
     : QAbstractKlipperConsole(printer,parent)
 {
-    _printer = printer;
+    m_printer = printer;
 
     QLocalSocket *socket = new QLocalSocket(parent);
     setMoonrakerSocket((QAbstractSocket*)socket);
@@ -14,10 +14,10 @@ QLocalKlipperConsole::QLocalKlipperConsole(Printer *printer, QObject *parent)
 
 QLocalKlipperConsole::~QLocalKlipperConsole()
 {
-    if(_moonrakerSocket->isOpen())
+    if(m_moonrakerSocket->isOpen())
     {
         //TODO proper shutdown
-        _moonrakerSocket->close();
+        m_moonrakerSocket->close();
     }
 }
 
@@ -28,8 +28,8 @@ void QLocalKlipperConsole::shutdown()
 void QLocalKlipperConsole::sendCommand(KlipperMessage message)
 {
     QByteArray document = message.toRpc(QJsonDocument::Compact);
-    _klipperMessageBuffer[message["id"].toInt()] = message;
-    qint64 length = _moonrakerSocket->write(document);
+    m_klipperMessageBuffer[message["id"].toInt()] = message;
+    qint64 length = m_moonrakerSocket->write(document);
 
     if(length != document.length())
     {
@@ -41,35 +41,35 @@ void QLocalKlipperConsole::sendCommand(KlipperMessage message)
 
 void QLocalKlipperConsole::connectToMoonraker()
 {
-    if(_moonrakerSocket->isOpen())
+    if(m_moonrakerSocket->isOpen())
         return;
 
     addState(Connecting);
 
-    ((QLocalSocket*)_moonrakerSocket)->setServerName(_moonrakerLocation);
-    ((QLocalSocket*)_moonrakerSocket)->connectToServer();
+    ((QLocalSocket*)m_moonrakerSocket)->setServerName(m_moonrakerLocation);
+    ((QLocalSocket*)m_moonrakerSocket)->connectToServer();
 
-    if(!((QLocalSocket*)_moonrakerSocket)->waitForConnected())
+    if(!((QLocalSocket*)m_moonrakerSocket)->waitForConnected())
     {
         qDebug() << QString("Failed to connect to moonraker");
         sendError("Could not connect to local socket");
         return;
     }
 
-    _isMoonrakerConnected = true;
+    m_isMoonrakerConnected = true;
     emit moonrakerConnected();
 
-    if(_startupSequence.count())
+    if(m_startupSequence.count())
     {
-        StartupFunction function = _startupSequence.dequeue();
+        StartupFunction function = m_startupSequence.dequeue();
         (this->*function)();
     }
 }
 
 void QLocalKlipperConsole::disconnectKlipper()
 {
-    ((QLocalSocket*)_moonrakerSocket)->disconnectFromServer();
-    ((QLocalSocket*)_moonrakerSocket)->waitForDisconnected();
+    ((QLocalSocket*)m_moonrakerSocket)->disconnectFromServer();
+    ((QLocalSocket*)m_moonrakerSocket)->waitForDisconnected();
 
     emit klipperDisconnected();
 }
@@ -78,14 +78,14 @@ void QLocalKlipperConsole::disconnectKlipper()
 
 QString QLocalKlipperConsole::downloadFile(KlipperFile file)
 {
-    if(_connectionLoaction == LocationLocal)
+    if(m_connectionLoaction == LocationLocal)
     {
         QString rootLocation;
 
         if(file.type == KlipperFile::GCode)
-            rootLocation = _printer->gcodesLocation();
+            rootLocation = m_printer->gcodesLocation();
         else if(file.type == KlipperFile::Config)
-            rootLocation = _printer->configLocation();
+            rootLocation = m_printer->configLocation();
 
         QFile localFile(rootLocation + QDir::separator() + file.fileLocation());
         QString localFileData;
@@ -104,7 +104,7 @@ QString QLocalKlipperConsole::downloadFile(KlipperFile file)
 
 bool QLocalKlipperConsole::uploadFile(QString root, QString directory, QString name, QByteArray data)
 {
-    if(_connectionLoaction == LocationLocal)
+    if(m_connectionLoaction == LocationLocal)
     {
         QString rootLocation;
         QString localFileLocation;
@@ -113,9 +113,9 @@ bool QLocalKlipperConsole::uploadFile(QString root, QString directory, QString n
             directory.removeLast();
 
         if(root == QString("gcodes"))
-            rootLocation = _printer->gcodesLocation();
+            rootLocation = m_printer->gcodesLocation();
         else if(root == QString("config"))
-            rootLocation = _printer->configLocation();
+            rootLocation = m_printer->configLocation();
 
         if(directory.isEmpty())
             localFileLocation = rootLocation + QDir::separator() + name;

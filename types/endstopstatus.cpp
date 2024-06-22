@@ -7,30 +7,30 @@ EndstopStatus::EndstopStatus(QObject *parent)
 
 bool EndstopStatus::x() const
 {
-    return _x;
+    return m_x;
 }
 
 void EndstopStatus::setX(bool x)
 {
-    _x = x;
+    m_x = x;
 }
 
 bool EndstopStatus::y() const
 {
-    return _y;
+    return m_y;
 }
 
 void EndstopStatus::setY(bool y)
 {
-    _y = y;
+    m_y = y;
 }
 
 bool EndstopStatus::z() const
 {
-    return _z;
+    return m_z;
 }
 
 void EndstopStatus::setZ(bool z)
 {
-    _z = z;
+    m_z = z;
 }

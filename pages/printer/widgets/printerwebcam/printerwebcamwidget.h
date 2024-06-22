@@ -56,26 +56,26 @@ protected slots:
     virtual void resizeEvent(QResizeEvent *event);
 
 private:
-    Printer *_printer = nullptr;
+    Printer *m_printer = nullptr;
 
-    QWebcamWidget *_webcamFrame = nullptr;
-    QWebcamWidget *_webcamFrame_1 = nullptr;
-    QWebcamWidget *_webcamFrame_2 = nullptr;
-    QWebcamWidget *_webcamFrame_3 = nullptr;
+    QWebcamWidget *m_webcamFrame = nullptr;
+    QWebcamWidget *m_webcamFrame_1 = nullptr;
+    QWebcamWidget *m_webcamFrame_2 = nullptr;
+    QWebcamWidget *m_webcamFrame_3 = nullptr;
 
-    qint32 _webcamIndex = -1;
+    qint32 m_webcamIndex = -1;
 
-    EmptyPrinterWebcamFrame *_emptyFrame = nullptr;
+    EmptyPrinterWebcamFrame *m_emptyFrame = nullptr;
 
-    QGridLayout *_layout = nullptr;
+    QGridLayout *m_layout = nullptr;
 
-    QTimer *_delayTimer = nullptr;
-    bool _animating = false;
+    QTimer *m_delayTimer = nullptr;
+    bool m_animating = false;
 
-    QString _webcamUrl;
-    QString _webcamUrl_1;
-    QString _webcamUrl_2;
-    QString _webcamUrl_3;
+    QString m_webcamUrl;
+    QString m_webcamUrl_1;
+    QString m_webcamUrl_2;
+    QString m_webcamUrl_3;
 };
 
 #endif // PRINTERWEBCAMWIDGET_H

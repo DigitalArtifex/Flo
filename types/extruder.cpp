@@ -3,103 +3,103 @@
 
 Extruder::Extruder(Printer *printer, Position offset, QObject *parent) : QObject(parent)
 {
-    _offset = offset;
-    _fan = new Fan(printer);
-    _printer = printer;
+    m_offset = offset;
+    m_fan = new Fan(printer);
+    m_printer = printer;
 }
 
 void Extruder::setOffset(Position offset)
 {
-    _offset = offset;
+    m_offset = offset;
 }
 
 void Extruder::setOffset(qreal x, qreal y, qreal z)
 {
-    _offset = Position(x,y,z);
+    m_offset = Position(x,y,z);
 }
 
 Position Extruder::offset()
 {
-    return _offset;
+    return m_offset;
 }
 
 Fan *Extruder::fan()
 {
-    return _fan;
+    return m_fan;
 }
 
 qreal Extruder::currentTemp()
 {
-    return _currentTemp;
+    return m_currentTemp;
 }
 
 void Extruder::setTargetTemp(qreal temp)
 {
-    _targetTemp = temp;
+    m_targetTemp = temp;
 
     //construct the gcode
     QString gcode("M104 T");
-    gcode += QString::number(_extruderNumber);
+    gcode += QString::number(m_extruderNumber);
     gcode += QString(" S") + QString::number(temp);
 
     //send the gcode
-    _printer->console()->sendGcode(gcode);
+    m_printer->console()->sendGcode(gcode);
 }
 
 qreal Extruder::targetTemp()
 {
-    return _targetTemp;
+    return m_targetTemp;
 }
 
 qreal Extruder::power()
 {
-    return _power;
+    return m_power;
 }
 
 void Extruder::setPressureAdvance(qreal advance, qreal smoothTime)
 {
-    _pressureAdvance = advance;
-    _smoothTime = smoothTime;
+    m_pressureAdvance = advance;
+    m_smoothTime = smoothTime;
 
     //set to relative movement
     QString gcode("SET_PRESSURE_ADVANCE EXTRUDER=");
-    gcode += _name + QString(" ADVANCE=") + QString::number(_pressureAdvance);
-    gcode += QString(" SMOOTH_TIME=") + QString::number(_smoothTime);
+    gcode += m_name + QString(" ADVANCE=") + QString::number(m_pressureAdvance);
+    gcode += QString(" SMOOTH_TIME=") + QString::number(m_smoothTime);
 
-    _printer->console()->sendGcode(gcode);
+    m_printer->console()->sendGcode(gcode);
 }
 
 qreal Extruder::pressureAdvance()
 {
-    return _pressureAdvance;
+    return m_pressureAdvance;
 }
 
 qreal Extruder::smoothTime()
 {
-    return _smoothTime;
+    return m_smoothTime;
 }
 
 bool Extruder::canExtrude()
 {
-    return _canExtrude;
+    return m_canExtrude;
 }
 
 void Extruder::extrude(qreal amount, qreal speed)
 {
-    if(_canExtrude)
+    if(m_canExtrude)
     {
         //set to relative movement
         QString gcode("G91");
-        _printer->console()->sendGcode(gcode);
+        m_printer->console()->sendGcode(gcode);
 
         //set active extruder
-        gcode = QString("M6 T") + QString::number(_extruderNumber);
-        _printer->console()->sendGcode(gcode);
+        gcode = QString("M6 T") + QString::number(m_extruderNumber);
+        m_printer->console()->sendGcode(gcode);
 
         //extrude the requested amount
         gcode = QString("G1 E") + QString::number(amount);
         gcode += QString(" F") + QString::number(speed);
-        _printer->console()->sendGcode(gcode);
+        m_printer->console()->sendGcode(gcode);
     }
 }
 
@@ -111,22 +111,22 @@ void Extruder::retract(qreal amount, qreal speed)
 
 qreal Extruder::watts() const
 {
-    return _watts;
+    return m_watts;
 }
 
 TemperatureStore Extruder::temperatureStore() const
 {
-    return _temperatureStore;
+    return m_temperatureStore;
 }
 
 Printer *Extruder::printer() const
 {
-    return _printer;
+    return m_printer;
 }
 
 void Extruder::setPrinter(Printer *printer)
 {
-    _printer = printer;
+    m_printer = printer;
 }
 
 void Extruder::emitUpdate()
@@ -136,167 +136,167 @@ void Extruder::emitUpdate()
 
 qreal Extruder::minTemp() const
 {
-    return _minTemp;
+    return m_minTemp;
 }
 
 qreal Extruder::minExtrudeTemp() const
 {
-    return _minExtrudeTemp;
+    return m_minExtrudeTemp;
 }
 
 QString Extruder::stepPin() const
 {
-    return _stepPin;
+    return m_stepPin;
 }
 
 QString Extruder::sensorType() const
 {
-    return _sensorType;
+    return m_sensorType;
 }
 
 QString Extruder::sensorPin() const
 {
-    return _sensorPin;
+    return m_sensorPin;
 }
 
 QString Extruder::heaterPin() const
 {
-    return _heaterPin;
+    return m_heaterPin;
 }
 
 QString Extruder::enablePin() const
 {
-    return _enablePin;
+    return m_enablePin;
 }
 
 QString Extruder::dirPin() const
 {
-    return _dirPin;
+    return m_dirPin;
 }
 
 QString Extruder::control() const
 {
-    return _control;
+    return m_control;
 }
 
 qreal Extruder::maxPower() const
 {
-    return _maxPower;
+    return m_maxPower;
 }
 
 qreal Extruder::maxExtrudeOnlyVelocity() const
 {
-    return _maxExtrudeOnlyVelocity;
+    return m_maxExtrudeOnlyVelocity;
 }
 
 qreal Extruder::maxExtrudeOnlyDistance() const
 {
-    return _maxExtrudeOnlyDistance;
+    return m_maxExtrudeOnlyDistance;
 }
 
 qreal Extruder::maxExtrudeOnlyAcceleration() const
 {
-    return _maxExtrudeOnlyAcceleration;
+    return m_maxExtrudeOnlyAcceleration;
 }
 
 qreal Extruder::maxExtrudeCrossSection() const
 {
-    return _maxExtrudeCrossSection;
+    return m_maxExtrudeCrossSection;
 }
 
 qreal Extruder::pidKP() const
 {
-    return _pidKP;
+    return m_pidKP;
 }
 
 qreal Extruder::pidKI() const
 {
-    return _pidKI;
+    return m_pidKI;
 }
 
 qreal Extruder::pidKD() const
 {
-    return _pidKD;
+    return m_pidKD;
 }
 
 qreal Extruder::instantCornerVelocity() const
 {
-    return _instantCornerVelocity;
+    return m_instantCornerVelocity;
 }
 
 qreal Extruder::rotationDistance() const
 {
-    return _rotationDistance;
+    return m_rotationDistance;
 }
 
 qreal Extruder::pwmCycle() const
 {
-    return _pwmCycle;
+    return m_pwmCycle;
 }
 
 qreal Extruder::pullupResistor() const
 {
-    return _pullupResistor;
+    return m_pullupResistor;
 }
 
 qreal Extruder::inlineResistor() const
 {
-    return _inlineResistor;
+    return m_inlineResistor;
 }
 
 qreal Extruder::nozzleDiameter() const
 {
-    return _nozzleDiameter;
+    return m_nozzleDiameter;
 }
 
 qreal Extruder::filamentDiameter() const
 {
-    return _filamentDiameter;
+    return m_filamentDiameter;
 }
 
 qreal Extruder::pressureAdvanceSmoothTime() const
 {
-    return _pressureAdvanceSmoothTime;
+    return m_pressureAdvanceSmoothTime;
 }
 
 qint32 Extruder::microsteps() const
 {
-    return _microsteps;
+    return m_microsteps;
 }
 
 qint32 Extruder::fullStepsPerRotation() const
 {
-    return _fullStepsPerRotation;
+    return m_fullStepsPerRotation;
 }
 
 qint32 Extruder::extruderNumber() const
 {
-    return _extruderNumber;
+    return m_extruderNumber;
 }
 
 QPair<qint32, qint32> Extruder::gearRatio() const
 {
-    return _gearRatio;
+    return m_gearRatio;
 }
 
 qreal Extruder::maxTemp() const
 {
-    return _maxTemp;
+    return m_maxTemp;
 }
 
 QString Extruder::name() const
 {
-    return _name;
+    return m_name;
 }
 
 qreal Extruder::extrusionFactor() const
 {
-    return _extrusionFactor;
+    return m_extrusionFactor;
 }
 
 void Extruder::setExtrusionFactor(qreal extrusionFactor)
 {
-    _extrusionFactor = extrusionFactor;
+    m_extrusionFactor = extrusionFactor;
 
     //convert to percentage
     extrusionFactor *= 100;
@@ -308,10 +308,10 @@ void Extruder::setExtrusionFactor(qreal extrusionFactor)
     gcode += QString::number(extrusionFactor);
 
     //set the extruder number as T
-    gcode += QString(" T") + QString::number(_extruderNumber);
+    gcode += QString(" T") + QString::number(m_extruderNumber);
 
     //send the gcode
-    _printer->console()->sendGcode(gcode);
+    m_printer->console()->sendGcode(gcode);
 }
 
 

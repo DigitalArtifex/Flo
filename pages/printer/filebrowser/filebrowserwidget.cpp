@@ -4,14 +4,14 @@
 FileBrowserWidget::FileBrowserWidget(QWidget *parent, DisplayMode mode) :
     QAnimatedListWidget(parent)
 {
-    _displayMode = mode;
+    m_displayMode = mode;
 }
 
 void FileBrowserWidget::addFile(KlipperFile file)
 {
     FileBrowserItem *item;
 
-    if(_displayMode == Page)
+    if(m_displayMode == Page)
         item = new FileBrowserItem(file,this);
     else
         item = new FileBrowserItem(file,this, FileBrowserItem::Widget);
@@ -26,7 +26,7 @@ void FileBrowserWidget::setFiles(const QList<KlipperFile> &files)
     {
         FileBrowserItem *item;
 
-        if(_displayMode == Page)
+        if(m_displayMode == Page)
             item = new FileBrowserItem(files[i],this);
         else
             item = new FileBrowserItem(files[i],this, FileBrowserItem::Widget);
@@ -40,5 +40,5 @@ void FileBrowserWidget::setFiles(const QList<KlipperFile> &files)
 
 FileBrowserItem *FileBrowserWidget::selectedItem()
 {
-    return (FileBrowserItem*)_selectedItems[0];
+    return (FileBrowserItem*)m_selectedItems[0];
 }

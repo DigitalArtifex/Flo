@@ -2,20 +2,20 @@
 
 qint64 ClientIdentifier::websocketId() const
 {
-    return _websocketId;
+    return m_websocketId;
 }
 
 void ClientIdentifier::setWebsocketId(qint64 websocketId)
 {
-    _websocketId = websocketId;
+    m_websocketId = websocketId;
 }
 
 qint64 ClientIdentifier::connectionId() const
 {
-    return _connectionId;
+    return m_connectionId;
 }
 
 void ClientIdentifier::setConnectionId(qint64 connectionId)
 {
-    _connectionId = connectionId;
+    m_connectionId = connectionId;
 }

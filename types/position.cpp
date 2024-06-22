@@ -2,62 +2,62 @@
 
 Position::Position()
 {
-    _x = 0;
-    _y = 0;
-    _z = 0;
+    m_x = 0;
+    m_y = 0;
+    m_z = 0;
 }
 
 Position::Position(qreal x, qreal y, qreal z, qreal e)
 {
-    _x = x;
-    _y = y;
-    _z = z;
-    _e = e;
+    m_x = x;
+    m_y = y;
+    m_z = z;
+    m_e = e;
 }
 
 void Position::set(qreal x, qreal y, qreal z)
 {
-    _x = x;
-    _y = y;
-    _z = z;
+    m_x = x;
+    m_y = y;
+    m_z = z;
 }
 
 void Position::setX(qreal x)
 {
-    _x = x;
+    m_x = x;
 }
 
 qreal Position::x()
 {
-    return _x;
+    return m_x;
 }
 
 void Position::setY(qreal y)
 {
-    _y = y;
+    m_y = y;
 }
 
 qreal Position::y()
 {
-    return _y;
+    return m_y;
 }
 
 void Position::setZ(qreal z)
 {
-    _z = z;
+    m_z = z;
 }
 
 qreal Position::z()
 {
-    return _z;
+    return m_z;
 }
 
 void Position::setE(qreal e)
 {
-    _e = e;
+    m_e = e;
 }
 
 qreal Position::e()
 {
-    return _e;
+    return m_e;
 }

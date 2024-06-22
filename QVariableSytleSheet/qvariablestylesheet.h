@@ -15,7 +15,7 @@ public:
     QString process();
 
 private:
-    QString _stylesheet;
+    QString m_stylesheet;
 };
 
 #endif // QVARIABLESTYLESHEET_H

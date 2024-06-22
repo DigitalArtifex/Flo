@@ -33,20 +33,20 @@ protected slots:
     void on_closeButton_clicked();
 
 private:
-    PrintJob *_job;
+    PrintJob *m_job;
 
-    QLabel *_titleLabel = nullptr;
-    QLabel *_sourceLabel = nullptr;
-    QLabel *_messageLabel = nullptr;
-    QLabel *_iconLabel = nullptr;
+    QLabel *m_titleLabel = nullptr;
+    QLabel *m_sourceLabel = nullptr;
+    QLabel *m_messageLabel = nullptr;
+    QLabel *m_iconLabel = nullptr;
 
-    QSpacerItem *_spacer = nullptr;
-    QSpacerItem *_buttonSpacer = nullptr;
+    QSpacerItem *m_spacer = nullptr;
+    QSpacerItem *m_buttonSpacer = nullptr;
 
-    QToolButton *_closeButton = nullptr;
+    QToolButton *m_closeButton = nullptr;
 
-    QFrame *_separator;
-    QWidget *_iconContainer = nullptr;
+    QFrame *m_separator;
+    QWidget *m_iconContainer = nullptr;
 };
 
 #endif // ISSUELISTITEM_H

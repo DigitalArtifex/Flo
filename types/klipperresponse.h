@@ -47,7 +47,7 @@ public:
     void setId(qint64 id);
 
 private:
-    qint64 _id = 0;
+    qint64 m_id = 0;
 };
 
 #endif // KLIPPERRESPONSE_H

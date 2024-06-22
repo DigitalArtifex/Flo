@@ -7,8 +7,8 @@ QMaskedButton::QMaskedButton(QWidget *parent)
 
 QMaskedButton::~QMaskedButton()
 {
-    if(_clickTimer)
-        delete _clickTimer;
+    if(m_clickTimer)
+        delete m_clickTimer;
 }
 
 void QMaskedButton::on_clickTimer_timeout()
@@ -29,12 +29,12 @@ void QMaskedButton::mousePressEvent(QMouseEvent *event)
         setProperty("pressed", true);
         update();
 
-        _clickTimer = new QTimer(this);
-        connect(_clickTimer, SIGNAL(timeout()), this, SLOT(on_clickTimer_timeout()));
+        m_clickTimer = new QTimer(this);
+        connect(m_clickTimer, SIGNAL(timeout()), this, SLOT(on_clickTimer_timeout()));
 
-        _clickTimer->setInterval(500);
-        _clickTimer->setSingleShot(true);
-        _clickTimer->start();
+        m_clickTimer->setInterval(500);
+        m_clickTimer->setSingleShot(true);
+        m_clickTimer->start();
     }
 
     QWidget::mousePressEvent(event);
@@ -44,10 +44,10 @@ void QMaskedButton::mouseReleaseEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton)
     {
-        if(_clickTimer)
+        if(m_clickTimer)
         {
-            delete _clickTimer;
-            _clickTimer = nullptr;
+            delete m_clickTimer;
+            m_clickTimer = nullptr;
         }
 
         if(property("pressed").toBool() && !property("longPressed").toBool())
@@ -82,8 +82,8 @@ void QMaskedButton::paintEvent(QPaintEvent *event)
         painter.setRenderHints(QPainter::Antialiasing | QPainter::LosslessImageRendering);
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
         painter.drawImage(QRect(),image);
-        painter.drawImage(_clickPixmap.rect(), _clickPixmap.toImage());
-        setMask(_clickMask);
+        painter.drawImage(m_clickPixmap.rect(), m_clickPixmap.toImage());
+        setMask(m_clickMask);
     }
     else if(property("hover").toBool())
     {
@@ -91,8 +91,8 @@ void QMaskedButton::paintEvent(QPaintEvent *event)
         painter.setRenderHints(QPainter::Antialiasing | QPainter::LosslessImageRendering);
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
         painter.drawImage(QRect(), image);
-        painter.drawImage(_hoverPixmap.rect(), _hoverPixmap.toImage());
-        setMask(_hoverMask);
+        painter.drawImage(m_hoverPixmap.rect(), m_hoverPixmap.toImage());
+        setMask(m_hoverMask);
     }
     else
     {
@@ -100,8 +100,8 @@ void QMaskedButton::paintEvent(QPaintEvent *event)
         painter.setRenderHints(QPainter::Antialiasing | QPainter::LosslessImageRendering);
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
         painter.drawImage(QRect(),image);
-        painter.drawImage(_pixmap.rect(), _pixmap.toImage());
-        setMask(_mask);
+        painter.drawImage(m_pixmap.rect(), m_pixmap.toImage());
+        setMask(m_mask);
     }
 
     QWidget::paintEvent(event);
@@ -109,22 +109,22 @@ void QMaskedButton::paintEvent(QPaintEvent *event)
 
 void QMaskedButton::setPixmap(const QPixmap &pixmap)
 {
-    _pixmap = pixmap;
-    _mask = pixmap.createHeuristicMask();
+    m_pixmap = pixmap;
+    m_mask = pixmap.createHeuristicMask();
 
     update();
 }
 
 void QMaskedButton::setHoverPixmap(const QPixmap &pixmap)
 {
-    _hoverPixmap = pixmap;
-    _hoverMask = pixmap.createHeuristicMask();
+    m_hoverPixmap = pixmap;
+    m_hoverMask = pixmap.createHeuristicMask();
 }
 
 void QMaskedButton::setClickPixmap(const QPixmap &pixmap)
 {
-    _clickPixmap = pixmap;
-    _clickMask = pixmap.createHeuristicMask();
+    m_clickPixmap = pixmap;
+    m_clickMask = pixmap.createHeuristicMask();
 }
 
 void QMaskedButton::enterEvent(QEnterEvent *event)
@@ -140,10 +140,10 @@ void QMaskedButton::leaveEvent(QEvent *event)
     setProperty("pressed", false);
     setProperty("longPressed", false);
 
-    if(_clickTimer)
+    if(m_clickTimer)
     {
-        delete _clickTimer;
-        _clickTimer = nullptr;
+        delete m_clickTimer;
+        m_clickTimer = nullptr;
     }
 
     update();

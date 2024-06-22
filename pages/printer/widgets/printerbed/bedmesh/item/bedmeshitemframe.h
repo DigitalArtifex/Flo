@@ -23,9 +23,9 @@ public:
 private:
     Ui::BedMeshItemFrame *ui;
 
-    qreal _value = 0.0000;
-    qreal _thresholdLow = -0.02;
-    qreal _thresholdHigh = 0.02;
+    qreal m_value = 0.0000;
+    qreal m_thresholdLow = -0.02;
+    qreal m_thresholdHigh = 0.02;
 };
 
 #endif // BEDMESHITEMFRAME_H

@@ -49,20 +49,20 @@ protected slots:
     void videoFrameChangeEvent(QVideoFrame frame);
 
 private:
-    QGridLayout *_layout = nullptr;
-    QMediaPlayer *_player = nullptr;
+    QGridLayout *m_layout = nullptr;
+    QMediaPlayer *m_player = nullptr;
 
-    QLabel *_nameLabel = nullptr;
-    QLabel *_infoLabel = nullptr;
+    QLabel *m_nameLabel = nullptr;
+    QLabel *m_infoLabel = nullptr;
 
-    bool _showInfo = false;
+    bool m_showInfo = false;
 
-    QLabel *_videoLabel = nullptr;
+    QLabel *m_videoLabel = nullptr;
 
-    QString _source;
-    QString _info;
+    QString m_source;
+    QString m_info;
 
-    QVideoSink *_webcamSink = nullptr;
+    QVideoSink *m_webcamSink = nullptr;
 };
 
 #endif // QWEBCAMWIDGET_H

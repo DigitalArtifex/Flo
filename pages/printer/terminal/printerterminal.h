@@ -32,14 +32,14 @@ protected:
     virtual void sendCommand();
 
 private:
-    QGridLayout *_layout = nullptr;
-    QTextEdit *_commandEdit = nullptr;
-    QPushButton *_commandSendButton = nullptr;
-    PrinterTerminalWidget *_terminal = nullptr;
+    QGridLayout *m_layout = nullptr;
+    QTextEdit *m_commandEdit = nullptr;
+    QPushButton *m_commandSendButton = nullptr;
+    PrinterTerminalWidget *m_terminal = nullptr;
 
-    Printer *_printer = nullptr;
+    Printer *m_printer = nullptr;
 
-    QSourceHighlite::QSourceHighliter *_highlighter = nullptr;
+    QSourceHighlite::QSourceHighliter *m_highlighter = nullptr;
 };
 
 #endif // PRINTERTERMINAL_H

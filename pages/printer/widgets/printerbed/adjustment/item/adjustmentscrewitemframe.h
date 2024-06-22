@@ -24,7 +24,7 @@ public:
 private:
     Ui::AdjustmentScrewItemFrame *ui;
 
-    //Q3DPrintBed::AdjustmentScrew *_adjustmentScrew = nullptr;
+    //Q3DPrintBed::AdjustmentScrew *m_adjustmentScrew = nullptr;
 };
 
 #endif // ADJUSTMENTSCREWITEMFRAME_H

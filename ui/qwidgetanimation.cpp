@@ -3,242 +3,242 @@
 QWidgetAnimation::QWidgetAnimation(QWidget *target, QObject *parent) :
     QObject(parent)
 {
-    _target = target;
-    _animations = new QParallelAnimationGroup();
-    connect(_animations, SIGNAL(finished()), this, SLOT(on_animationsFinished()));
+    m_target = target;
+    m_animations = new QParallelAnimationGroup();
+    connect(m_animations, SIGNAL(finished()), this, SLOT(on_animationsFinished()));
 }
 
 void QWidgetAnimation::start()
 {
-    _animations = new QParallelAnimationGroup();
+    m_animations = new QParallelAnimationGroup();
 
     emit started();
 
     if(hasAnimationType(Height))
     {
-        _minHeightAnimation = new QPropertyAnimation(_target, "minHeight");
-        _minHeightAnimation->setStartValue(_startHeight);
-        _minHeightAnimation->setEndValue(_endHeight);
-        _minHeightAnimation->setDuration(_duration);
-        _animations->addAnimation(_minHeightAnimation);
+        m_minHeightAnimation = new QPropertyAnimation(m_target, "minHeight");
+        m_minHeightAnimation->setStartValue(m_startHeight);
+        m_minHeightAnimation->setEndValue(m_endHeight);
+        m_minHeightAnimation->setDuration(m_duration);
+        m_animations->addAnimation(m_minHeightAnimation);
 
-        _maxHeightAnimation = new QPropertyAnimation(_target, "maxHeight");
-        _maxHeightAnimation->setStartValue(_startHeight);
-        _maxHeightAnimation->setEndValue(_endHeight);
-        _maxHeightAnimation->setDuration(_duration);
-        _animations->addAnimation(_maxHeightAnimation);
+        m_maxHeightAnimation = new QPropertyAnimation(m_target, "maxHeight");
+        m_maxHeightAnimation->setStartValue(m_startHeight);
+        m_maxHeightAnimation->setEndValue(m_endHeight);
+        m_maxHeightAnimation->setDuration(m_duration);
+        m_animations->addAnimation(m_maxHeightAnimation);
     }
 
     if(hasAnimationType(Width))
     {
-        _minWidthAnimation = new QPropertyAnimation(_target, "minWidth");
-        _minWidthAnimation->setStartValue(_startWidth);
-        _minWidthAnimation->setEndValue(_endWidth);
-        _minWidthAnimation->setDuration(_duration);
-        _animations->addAnimation(_minWidthAnimation);
+        m_minWidthAnimation = new QPropertyAnimation(m_target, "minWidth");
+        m_minWidthAnimation->setStartValue(m_startWidth);
+        m_minWidthAnimation->setEndValue(m_endWidth);
+        m_minWidthAnimation->setDuration(m_duration);
+        m_animations->addAnimation(m_minWidthAnimation);
 
-        _maxWidthAnimation = new QPropertyAnimation(_target, "maxWidth");
-        _maxWidthAnimation->setStartValue(_startWidth);
-        _maxWidthAnimation->setEndValue(_endWidth);
-        _maxWidthAnimation->setDuration(_duration);
-        _animations->addAnimation(_maxWidthAnimation);
+        m_maxWidthAnimation = new QPropertyAnimation(m_target, "maxWidth");
+        m_maxWidthAnimation->setStartValue(m_startWidth);
+        m_maxWidthAnimation->setEndValue(m_endWidth);
+        m_maxWidthAnimation->setDuration(m_duration);
+        m_animations->addAnimation(m_maxWidthAnimation);
     }
 
     if(hasAnimationType(Geometry))
     {
-        _geometryAnimation = new QPropertyAnimation(_target, "geometry");
-        _geometryAnimation->setStartValue(_startGeometry);
-        _geometryAnimation->setEndValue(_endGeometry);
-        _geometryAnimation->setDuration(_duration);
-        _animations->addAnimation(_geometryAnimation);
+        m_geometryAnimation = new QPropertyAnimation(m_target, "geometry");
+        m_geometryAnimation->setStartValue(m_startGeometry);
+        m_geometryAnimation->setEndValue(m_endGeometry);
+        m_geometryAnimation->setDuration(m_duration);
+        m_animations->addAnimation(m_geometryAnimation);
     }
 
     if(hasAnimationType(Position))
     {
-        _positionAnimation = new QPropertyAnimation(_target, "pos");
-        _positionAnimation->setStartValue(_startPosition);
-        _positionAnimation->setEndValue(_endPosition);
-        _positionAnimation->setDuration(_duration);
-        _animations->addAnimation(_positionAnimation);
+        m_positionAnimation = new QPropertyAnimation(m_target, "pos");
+        m_positionAnimation->setStartValue(m_startPosition);
+        m_positionAnimation->setEndValue(m_endPosition);
+        m_positionAnimation->setDuration(m_duration);
+        m_animations->addAnimation(m_positionAnimation);
     }
 
     if(hasAnimationType(Opacity))
     {
-        _opacityEffect = new QGraphicsOpacityEffect(_target);
-        _opacityAnimation = new QPropertyAnimation(_opacityEffect, "opacity");
-        _opacityAnimation->setStartValue(_startOpacity);
-        _opacityAnimation->setEndValue(_endOpacity);
-        _opacityAnimation->setDuration(_duration);
-        _animations->addAnimation(_opacityAnimation);
-        _target->setGraphicsEffect(_opacityEffect);
+        m_opacityEffect = new QGraphicsOpacityEffect(m_target);
+        m_opacityAnimation = new QPropertyAnimation(m_opacityEffect, "opacity");
+        m_opacityAnimation->setStartValue(m_startOpacity);
+        m_opacityAnimation->setEndValue(m_endOpacity);
+        m_opacityAnimation->setDuration(m_duration);
+        m_animations->addAnimation(m_opacityAnimation);
+        m_target->setGraphicsEffect(m_opacityEffect);
     }
 
     if(hasAnimationType(Blur))
     {
-        _blurEffect = new QGraphicsBlurEffect(_target);
-        _blurAnimation = new QPropertyAnimation(_blurEffect, "blurRadius");
-        _blurAnimation->setStartValue(_startBlur);
-        _blurAnimation->setEndValue(_endBlur);
-        _blurAnimation->setDuration(_duration);
-        _animations->addAnimation(_blurAnimation);
-        _target->setGraphicsEffect(_blurEffect);
+        m_blurEffect = new QGraphicsBlurEffect(m_target);
+        m_blurAnimation = new QPropertyAnimation(m_blurEffect, "blurRadius");
+        m_blurAnimation->setStartValue(m_startBlur);
+        m_blurAnimation->setEndValue(m_endBlur);
+        m_blurAnimation->setDuration(m_duration);
+        m_animations->addAnimation(m_blurAnimation);
+        m_target->setGraphicsEffect(m_blurEffect);
     }
 
-    connect(_animations, SIGNAL(finished()), this, SLOT(on_animationsFinished()));
-    _animations->start(QAbstractAnimation::DeleteWhenStopped);
+    connect(m_animations, SIGNAL(finished()), this, SLOT(on_animationsFinished()));
+    m_animations->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void QWidgetAnimation::stop()
 {
-    _animations->stop();
+    m_animations->stop();
 }
 
 qreal QWidgetAnimation::startOpacity() const
 {
-    return _startOpacity;
+    return m_startOpacity;
 }
 
 void QWidgetAnimation::setStartOpacity(qreal newStartOpacity)
 {
-    _startOpacity = newStartOpacity;
+    m_startOpacity = newStartOpacity;
 }
 
 qreal QWidgetAnimation::endOpacity() const
 {
-    return _endOpacity;
+    return m_endOpacity;
 }
 
 void QWidgetAnimation::setEndOpacity(qreal newEndOpacity)
 {
-    _endOpacity = newEndOpacity;
+    m_endOpacity = newEndOpacity;
 }
 
 qreal QWidgetAnimation::startBlur() const
 {
-    return _startBlur;
+    return m_startBlur;
 }
 
 void QWidgetAnimation::setStartBlur(qreal newStartBlur)
 {
-    _startBlur = newStartBlur;
+    m_startBlur = newStartBlur;
 }
 
 qreal QWidgetAnimation::endBlur() const
 {
-    return _endBlur;
+    return m_endBlur;
 }
 
 void QWidgetAnimation::setEndBlur(qreal newEndBlur)
 {
-    _endBlur = newEndBlur;
+    m_endBlur = newEndBlur;
 }
 
 QRect QWidgetAnimation::startGeometry() const
 {
-    return _startGeometry;
+    return m_startGeometry;
 }
 
 void QWidgetAnimation::setStartGeometry(const QRect &newStartGeometry)
 {
-    _startGeometry = newStartGeometry;
+    m_startGeometry = newStartGeometry;
 }
 
 QPoint QWidgetAnimation::endPosition() const
 {
-    return _endPosition;
+    return m_endPosition;
 }
 
 void QWidgetAnimation::setEndPosition(QPoint newEndPosition)
 {
-    _endPosition = newEndPosition;
+    m_endPosition = newEndPosition;
 }
 
 QRect QWidgetAnimation::endGeometry() const
 {
-    return _endGeometry;
+    return m_endGeometry;
 }
 
 void QWidgetAnimation::setEndGeometry(const QRect &newEndGeometry)
 {
-    _endGeometry = newEndGeometry;
+    m_endGeometry = newEndGeometry;
 }
 
 QPoint QWidgetAnimation::startPosition() const
 {
-    return _startPosition;
+    return m_startPosition;
 }
 
 void QWidgetAnimation::setStartPosition(QPoint newStartPosition)
 {
-    _startPosition = newStartPosition;
+    m_startPosition = newStartPosition;
 }
 
 qint32 QWidgetAnimation::endWidth() const
 {
-    return _endWidth;
+    return m_endWidth;
 }
 
 void QWidgetAnimation::setEndWidth(qint32 newEndWidth)
 {
-    _endWidth = newEndWidth;
+    m_endWidth = newEndWidth;
 }
 
 qint32 QWidgetAnimation::startWidth() const
 {
-    return _startWidth;
+    return m_startWidth;
 }
 
 void QWidgetAnimation::setStartWidth(qint32 newStartWidth)
 {
-    _startWidth = newStartWidth;
+    m_startWidth = newStartWidth;
 }
 
 qint32 QWidgetAnimation::endHeight() const
 {
-    return _endHeight;
+    return m_endHeight;
 }
 
 void QWidgetAnimation::setEndHeight(qint32 newEndHeight)
 {
-    _endHeight = newEndHeight;
+    m_endHeight = newEndHeight;
 }
 
 qint32 QWidgetAnimation::startHeight() const
 {
-    return _startHeight;
+    return m_startHeight;
 }
 
 void QWidgetAnimation::setStartHeight(qint32 newStartHeight)
 {
-    _startHeight = newStartHeight;
+    m_startHeight = newStartHeight;
 }
 
 bool QWidgetAnimation::hasAnimationType(AnimationType type) const
 {
-    return ((_animationType & type) == type);
+    return ((m_animationType & type) == type);
 }
 
 void QWidgetAnimation::setAnimationType(AnimationType newAnimationType)
 {
-    _animationType = newAnimationType;
+    m_animationType = newAnimationType;
 }
 
 void QWidgetAnimation::setDuration(qint32 newDuration)
 {
-    _duration = newDuration;
+    m_duration = newDuration;
 }
 
 void QWidgetAnimation::on_animationsFinished()
 {
-    if(_target)
-        _target->setGraphicsEffect(0);
+    if(m_target)
+        m_target->setGraphicsEffect(0);
 
-    delete _animations;
+    delete m_animations;
 
     emit finished();
 }
 
 QWidgetAnimation::AnimationType QWidgetAnimation::animationType() const
 {
-    return _animationType;
+    return m_animationType;
 }

@@ -47,8 +47,8 @@ private slots:
 
 private:
     explicit PrinterPool();
-    static PrinterPool *_instance;
-    static QMap<QString,Printer*> _printerPool;
+    static PrinterPool *m_instance;
+    static QMap<QString,Printer*> m_printerPool;
 };
 
 #endif // PRINTERPOOL_H

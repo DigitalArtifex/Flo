@@ -83,50 +83,50 @@ private:
     void setupPowerActions();
 
 private:
-    Flo *_flo = nullptr;
+    Flo *m_flo = nullptr;
 
     Ui::MainWindow *ui;
-    QAction *_restartAction;
-    QAction *_shutdownAction;
-    QAction *_closeAction;
+    QAction *m_restartAction;
+    QAction *m_shutdownAction;
+    QAction *m_closeAction;
 
     //Pages
-    QList<QAnimatedWidget*> _printerPages = QList<QAnimatedWidget*>();
-    QAnimatedWidget *_settingsPage = nullptr;
-    QAnimatedWidget *_dashboardPage = nullptr;
-    QAnimatedWidget *_loadingPage = nullptr;
+    QList<QAnimatedWidget*> m_printerPages = QList<QAnimatedWidget*>();
+    QAnimatedWidget *m_settingsPage = nullptr;
+    QAnimatedWidget *m_dashboardPage = nullptr;
+    QAnimatedWidget *m_loadingPage = nullptr;
 
-    QSize _pageSize = QSize();
-    QPoint _pagePositionIn = QPoint();
-    QPoint _pagePositionOut = QPoint();
+    QSize m_pageSize = QSize();
+    QPoint m_pagePositionIn = QPoint();
+    QPoint m_pagePositionOut = QPoint();
 
     //Menu Buttons
-    MenuButton *_dashboardButton;
-    QList<MenuButton*> _printerButtons = QList<MenuButton*>();
-    MenuButton *_settingsButton;
+    MenuButton *m_dashboardButton;
+    QList<MenuButton*> m_printerButtons = QList<MenuButton*>();
+    MenuButton *m_settingsButton;
 
     //Dialogs
-    LoadingDialog *_loading;
+    LoadingDialog *m_loading;
 
     //Loading animation
-    QMovie *_loadingGif = nullptr;
-    QLabel *_loadingLabel = nullptr;
+    QMovie *m_loadingGif = nullptr;
+    QLabel *m_loadingLabel = nullptr;
 
-    WidgetAnimation *_loadingAnimation = nullptr;
+    WidgetAnimation *m_loadingAnimation = nullptr;
 
     //Timers
-    QTimer *_loadTimer = nullptr;
-    QTimer *_initTimer = nullptr;
+    QTimer *m_loadTimer = nullptr;
+    QTimer *m_initTimer = nullptr;
 
-    QPropertyAnimation *_titleOpacityAnimation = nullptr;
-    QGraphicsOpacityEffect *_titleOpacityEffect = nullptr;
+    QPropertyAnimation *m_titleOpacityAnimation = nullptr;
+    QGraphicsOpacityEffect *m_titleOpacityEffect = nullptr;
 
-    QString _currentTitle = "Loading";
-    QString _nextTitle = "";
+    QString m_currentTitle = "Loading";
+    QString m_nextTitle = "";
 
-    QAnimatedWidget *_currentPage = nullptr;
-    QAnimatedWidget *_nextPage = nullptr;
-    QParallelAnimationGroup *_pageAnimationGroup;
+    QAnimatedWidget *m_currentPage = nullptr;
+    QAnimatedWidget *m_nextPage = nullptr;
+    QParallelAnimationGroup *m_pageAnimationGroup;
 
 };
 #endif // MAINWINDOW_H

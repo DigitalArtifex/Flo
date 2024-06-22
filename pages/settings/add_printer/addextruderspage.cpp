@@ -24,7 +24,7 @@ void AddExtrudersPage::reset()
             if (edits[c]->property("extruder").isValid())
             {
                 int extruder = edits[c]->property("extruder").toInt();
-                edits[c]->setValue(_definition.powerProfile[(QString("extruder") + ((extruder > 0) ? QString::number(extruder) : QString("")))]);
+                edits[c]->setValue(m_definition.powerProfile[(QString("extruder") + ((extruder > 0) ? QString::number(extruder) : QString("")))]);
             }
         }
     }
@@ -42,7 +42,7 @@ void AddExtrudersPage::apply()
             {
                 int extruder = edits[c]->property("extruder").toInt();
                 qreal extruderPower = edits[c]->text().toFloat();
-                _definition.powerProfile[(QString("extruder") + ((extruder > 0) ? QString::number(extruder) : QString("")))] = extruderPower;
+                m_definition.powerProfile[(QString("extruder") + ((extruder > 0) ? QString::number(extruder) : QString("")))] = extruderPower;
             }
         }
     }
@@ -53,26 +53,26 @@ void AddExtrudersPage::on_extruderCountSpinBox_valueChanged(int arg1)
     layout()->removeItem(ui->profileSpacer);
     layout()->removeItem(ui->profileSpacer_2);
 
-    if(arg1 > _extruderCount)
+    if(arg1 > m_extruderCount)
     {
-        for(int i = _extruderCount; i < arg1; i++)
+        for(int i = m_extruderCount; i < arg1; i++)
         {
-            QLabel *_extruderLabel = new QLabel();
-            _extruderLabel->setProperty("extruder", i);
-            _extruderLabel->setText(QString("Extruder ") + ((i > 0) ? QString::number(i) : QString("")));
+            QLabel *m_extruderLabel = new QLabel();
+            m_extruderLabel->setProperty("extruder", i);
+            m_extruderLabel->setText(QString("Extruder ") + ((i > 0) ? QString::number(i) : QString("")));
 
-            QDoubleSpinBox *_extruderWattEdit = new QDoubleSpinBox();
-            _extruderWattEdit->setProperty("extruder", i);
-            _extruderWattEdit->setAlignment(Qt::AlignRight);
-            _extruderWattEdit->setValue(_definition.powerProfile[(QString("extruder") + ((i > 0) ? QString::number(i) : QString("")))]);
+            QDoubleSpinBox *m_extruderWattEdit = new QDoubleSpinBox();
+            m_extruderWattEdit->setProperty("extruder", i);
+            m_extruderWattEdit->setAlignment(Qt::AlignRight);
+            m_extruderWattEdit->setValue(m_definition.powerProfile[(QString("extruder") + ((i > 0) ? QString::number(i) : QString("")))]);
 
-            layout()->addWidget(_extruderLabel);
-            layout()->addWidget(_extruderWattEdit);
+            layout()->addWidget(m_extruderLabel);
+            layout()->addWidget(m_extruderWattEdit);
         }
     }
     else
     {
-        for(int i = _extruderCount - 1; i >= arg1; i--)
+        for(int i = m_extruderCount - 1; i >= arg1; i--)
         {
             QList<QLabel*> labels = findChildren<QLabel*>();
 
@@ -105,18 +105,18 @@ void AddExtrudersPage::on_extruderCountSpinBox_valueChanged(int arg1)
     layout()->addItem(ui->profileSpacer);
     layout()->addItem(ui->profileSpacer_2);
 
-    _definition.extruderCount = arg1;
-    _extruderCount = arg1;
+    m_definition.extruderCount = arg1;
+    m_extruderCount = arg1;
 }
 
 PrinterDefinition AddExtrudersPage::definition() const
 {
-    return _definition;
+    return m_definition;
 }
 
 void AddExtrudersPage::setDefinition(PrinterDefinition definition)
 {
-    _definition = definition;
+    m_definition = definition;
     ui->extruderCountSpinBox->setValue(definition.extruderCount);
     reset();
 }

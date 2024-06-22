@@ -33,17 +33,17 @@ protected:
     virtual void setupUi();
 
 private:
-    KlipperMessage _message;
-    KlipperResponse _response;
+    KlipperMessage m_message;
+    KlipperResponse m_response;
 
     //UI
-    QGridLayout *_layout = nullptr;
+    QGridLayout *m_layout = nullptr;
 
-    QLabel *_messageTimestampLabel = nullptr;
-    QLabel *_messageMethodLabel = nullptr;
-    QLabel *_responseMessageLabel = nullptr;
+    QLabel *m_messageTimestampLabel = nullptr;
+    QLabel *m_messageMethodLabel = nullptr;
+    QLabel *m_responseMessageLabel = nullptr;
 
-    bool _isErrorMessage = false;
+    bool m_isErrorMessage = false;
 };
 
 #endif // PRINTERTERMINALITEM_H

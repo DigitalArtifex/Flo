@@ -39,16 +39,16 @@ protected slots:
 private:
     Ui::PrinterBedWidget *ui;
 
-    CircularProgressBar *_bedTemperatureBar = nullptr;
-    Q3DPrintBed *_printerBed = nullptr;
+    CircularProgressBar *m_bedTemperatureBar = nullptr;
+    Q3DPrintBed *m_printerBed = nullptr;
 
-    AdjustmentScrewFrame* _adjustmentScrewFrame = nullptr;
+    AdjustmentScrewFrame* m_adjustmentScrewFrame = nullptr;
 
-    BedMeshFrame *_bedMeshFrame = nullptr;
+    BedMeshFrame *m_bedMeshFrame = nullptr;
 
-    QSpacerItem *_adjustmentScrewSpacer = nullptr;
+    QSpacerItem *m_adjustmentScrewSpacer = nullptr;
 
-    QPushButton *_recalibrateButton = nullptr;
+    QPushButton *m_recalibrateButton = nullptr;
 };
 
 #endif // PRINTERBEDWIDGET_H
