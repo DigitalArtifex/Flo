@@ -85,12 +85,13 @@ void QWidgetAnimation::start()
     }
 
     connect(m_animations, SIGNAL(finished()), this, SLOT(on_animationsFinished()));
-    m_animations->start(QAbstractAnimation::DeleteWhenStopped);
+    m_animations->start(QAbstractAnimation::KeepWhenStopped);
 }
 
 void QWidgetAnimation::stop()
 {
-    m_animations->stop();
+    if(m_animations)
+        m_animations->stop();
 }
 
 qreal QWidgetAnimation::startOpacity() const
@@ -234,6 +235,7 @@ void QWidgetAnimation::on_animationsFinished()
         m_target->setGraphicsEffect(0);
 
     delete m_animations;
+    m_animations = nullptr;
 
     emit finished();
 }
