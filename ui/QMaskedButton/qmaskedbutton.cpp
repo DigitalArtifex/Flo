@@ -3,12 +3,27 @@
 QMaskedButton::QMaskedButton(QWidget *parent)
     : QWidget{parent}
 {
+    m_hover_animation = new QPropertyAnimation(this, "hover_opacity");
+    m_hover_animation->setStartValue(0.0);
+    m_hover_animation->setEndValue(1.0);
+    m_hover_animation->setDuration(50);
+
+    m_click_animation = new QPropertyAnimation(this, "click_opacity");
+    m_click_animation->setStartValue(0.0);
+    m_click_animation->setEndValue(1.0);
+    m_click_animation->setDuration(50);
 }
 
 QMaskedButton::~QMaskedButton()
 {
     if(m_clickTimer)
         delete m_clickTimer;
+
+    if(m_hover_animation)
+        delete m_hover_animation;
+
+    if(m_click_animation)
+        delete m_click_animation;
 }
 
 void QMaskedButton::on_clickTimer_timeout()
@@ -17,15 +32,52 @@ void QMaskedButton::on_clickTimer_timeout()
         setProperty("longPressed", true);
 }
 
+qreal QMaskedButton::hoverOpacity() const
+{
+    return m_hover_opacity;
+}
+
+void QMaskedButton::setHoverOpacity(qreal hover_opacity)
+{
+    m_hover_opacity = hover_opacity;
+}
+
+qreal QMaskedButton::clickOpacity() const
+{
+    return m_click_opacity;
+}
+
+void QMaskedButton::setClickOpacity(qreal click_opacity)
+{
+    m_click_opacity = click_opacity;
+}
+qreal QMaskedButton::widgetOpacity() const
+{
+    return m_opacity;
+}
+
+void QMaskedButton::setOpacity(qreal opacity)
+{
+    m_opacity = opacity;
+}
+
 void QMaskedButton::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    emit doubleClicked(this);
+    if(isEnabled())
+        emit doubleClicked(this);
 }
 
 void QMaskedButton::mousePressEvent(QMouseEvent *event)
 {
-    if(event->button() == Qt::LeftButton)
+    if(event->button() == Qt::LeftButton && isEnabled())
     {
+        if(m_click_animation->state() == QPropertyAnimation::Running)
+            m_click_animation->stop();
+
+        m_click_animation->setStartValue(m_click_opacity);
+        m_click_animation->setEndValue(1.0);
+        m_click_animation->start();
+
         setProperty("pressed", true);
         update();
 
@@ -42,8 +94,15 @@ void QMaskedButton::mousePressEvent(QMouseEvent *event)
 
 void QMaskedButton::mouseReleaseEvent(QMouseEvent *event)
 {
-    if(event->button() == Qt::LeftButton)
+    if(event->button() == Qt::LeftButton && isEnabled())
     {
+        if(m_click_animation->state() == QPropertyAnimation::Running)
+            m_click_animation->stop();
+
+        m_click_animation->setStartValue(m_click_opacity);
+        m_click_animation->setEndValue(0.0);
+        m_click_animation->start();
+
         if(m_clickTimer)
         {
             delete m_clickTimer;
@@ -76,33 +135,29 @@ void QMaskedButton::paintEvent(QPaintEvent *event)
     QImage image(size(), QImage::Format_ARGB32);
     image.fill(Qt::transparent);
 
-    if(property("pressed").toBool())
+    QPainter painter(this);
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::LosslessImageRendering);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    painter.drawImage(QRect(), image);
+
+    if(!isEnabled())
     {
-        QPainter painter(this);
-        painter.setRenderHints(QPainter::Antialiasing | QPainter::LosslessImageRendering);
-        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-        painter.drawImage(QRect(),image);
-        painter.drawImage(m_clickPixmap.rect(), m_clickPixmap.toImage());
-        setMask(m_clickMask);
-    }
-    else if(property("hover").toBool())
-    {
-        QPainter painter(this);
-        painter.setRenderHints(QPainter::Antialiasing | QPainter::LosslessImageRendering);
-        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-        painter.drawImage(QRect(), image);
-        painter.drawImage(m_hoverPixmap.rect(), m_hoverPixmap.toImage());
-        setMask(m_hoverMask);
+        painter.setOpacity(0.5);
+        painter.drawImage(m_pixmap.rect(), m_pixmap.toImage());
     }
     else
     {
-        QPainter painter(this);
-        painter.setRenderHints(QPainter::Antialiasing | QPainter::LosslessImageRendering);
-        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-        painter.drawImage(QRect(),image);
+        painter.setOpacity(m_opacity);
         painter.drawImage(m_pixmap.rect(), m_pixmap.toImage());
-        setMask(m_mask);
+
+        painter.setOpacity(m_hover_opacity);
+        painter.drawImage(m_hoverPixmap.rect(), m_hoverPixmap.toImage());
+
+        painter.setOpacity(m_click_opacity);
+        painter.drawImage(m_clickPixmap.rect(), m_clickPixmap.toImage());
     }
+
+    setMask(m_mask);
 
     QWidget::paintEvent(event);
 }
@@ -129,16 +184,36 @@ void QMaskedButton::setClickPixmap(const QPixmap &pixmap)
 
 void QMaskedButton::enterEvent(QEnterEvent *event)
 {
-    setProperty("hover", true);
+    if(isEnabled())
+    {
+        if(m_hover_animation->state() == QPropertyAnimation::Running)
+            m_hover_animation->stop();
 
-    update();
+        m_hover_animation->setStartValue(m_hover_opacity);
+        m_hover_animation->setEndValue(1.0);
+        m_hover_animation->setDuration(100);
+        m_hover_animation->start();
+
+        setProperty("hover", true);
+        update();
+        m_hover_animation->start();
+    }
 }
 
 void QMaskedButton::leaveEvent(QEvent *event)
 {
+    if(m_hover_animation->state() == QPropertyAnimation::Running)
+        m_hover_animation->stop();
+
+    m_hover_animation->setStartValue(m_hover_opacity);
+    m_hover_animation->setEndValue(0.0);
+    m_hover_animation->setDuration(100);
+    m_hover_animation->start();
+
     setProperty("hover", false);
     setProperty("pressed", false);
     setProperty("longPressed", false);
+    setProperty("opacity", 1.0);
 
     if(m_clickTimer)
     {
