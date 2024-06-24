@@ -37,10 +37,11 @@ signals:
 private slots:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
-    virtual void repaint();
+    virtual void paintEvent(QPaintEvent *event);
 
 private:
     Ui::MenuButton *ui;
+    bool m_checked = false;
 
 };
 

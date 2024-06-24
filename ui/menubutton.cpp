@@ -36,7 +36,8 @@ void MenuButton::setText(QString text)
 void MenuButton::setChecked(bool checked)
 {
     this->setProperty("checked", checked);
-    repaint();
+    m_checked = checked;
+    update();
 }
 
 QString MenuButton::getText()
@@ -55,8 +56,7 @@ void MenuButton::mousePressEvent(QMouseEvent *event)
     {
         this->setProperty("pressed", true);
         pressed = true;
-        this->style()->polish(this);
-        qDebug() << "Pressed";
+        update();
     }
 }
 
@@ -66,16 +66,16 @@ void MenuButton::mouseReleaseEvent(QMouseEvent *event)
     {
         this->setProperty("pressed", false);
         pressed = false;
-        this->style()->polish(this);
-        qDebug() << "Released";
+        update();
 
-        emit(clicked(this));
+        if(!m_checked)
+            emit(clicked(this));
     }
 }
 
-void MenuButton::repaint()
+void MenuButton::paintEvent(QPaintEvent *event)
 {
-    setIcon(this->icon);
+    //setIcon(this->icon);
     this->style()->polish(this);
-    QFrame::repaint();
+    QFrame::paintEvent(event);
 }
