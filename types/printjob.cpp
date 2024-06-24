@@ -207,7 +207,10 @@ void PrintJob::on_printJobTestTimer_timeout()
                 setCurrentLayer(currentLayer() + (m_totalLayers / 100));
 
                 if(currentLayer() >= totalLayers())
+                {
+                    m_currentLayer = m_totalLayers;
                     setState(Complete);
+                }
                 else
                     setState(Printing);
             }
