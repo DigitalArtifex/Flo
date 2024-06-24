@@ -30,6 +30,8 @@ void PrintJobListWidget::addJob(PrintJob *job)
     item->setOpacityOut(0);
     item->setDuration(250);
 
+    connect(item, SIGNAL(removeRequest(PrintJobListItem*)), this, SLOT(itemRemoveRequestEvent(PrintJobListItem*)));
+
     addItem(item);
 }
 
@@ -46,4 +48,9 @@ void PrintJobListWidget::updateJob(PrintJob *job)
 void PrintJobListWidget::on_printJob_started(PrintJob *printJob)
 {
     addJob(printJob);
+}
+
+void PrintJobListWidget::itemRemoveRequestEvent(PrintJobListItem *item)
+{
+    removeItem(item);
 }

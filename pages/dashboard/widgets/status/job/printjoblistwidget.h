@@ -26,6 +26,7 @@ public:
 
 protected slots:
     void on_printJob_started(PrintJob *printJob);
+    void itemRemoveRequestEvent(PrintJobListItem *item);
 
 private:
 };

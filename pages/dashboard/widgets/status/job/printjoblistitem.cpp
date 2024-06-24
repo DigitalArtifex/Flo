@@ -1,5 +1,6 @@
 #include "printjoblistitem.h"
 #include "../../../../../system/settings.h"
+#include "../../../../../types/printer.h"
 
 PrintJobListItem::PrintJobListItem(QWidget *parent) :
     QAnimatedListItem(parent)
@@ -16,6 +17,9 @@ PrintJobListItem::~PrintJobListItem()
     delete m_timeRemainingLabel;
     delete m_timeRunningLabel;
     delete m_progressBar;
+
+    if(m_closeButton)
+        delete m_closeButton;
 }
 
 void PrintJobListItem::setupUi()
@@ -39,6 +43,11 @@ void PrintJobListItem::setupUi()
     m_jobNameLabel->setText(QString("Name"));
     layout->addWidget(m_jobNameLabel,0,1,1,2);
 
+    m_closeButton = new QToolButton(this);
+    m_closeButton->setIcon(Settings::getThemeIcon(QString("close-icon")));
+    connect(m_closeButton, SIGNAL(clicked(bool)), this, SLOT(closeButtonClickEvent()));
+    layout->addWidget(m_closeButton,0,3,1,1);
+
     m_printerNameLabel = new QLabel(this);
     m_printerNameLabel->setText(QString("Printer"));
     layout->addWidget(m_printerNameLabel,1,1,1,2);
@@ -49,7 +58,7 @@ void PrintJobListItem::setupUi()
 
     m_timeRunningLabel = new QLabel(this);
     m_timeRunningLabel->setText(QString("Time Running"));
-    layout->addWidget(m_timeRunningLabel,2,2,1,1);
+    layout->addWidget(m_timeRunningLabel,2,2,1,2);
 
     m_progressBar = new QProgressBar(this);
     m_progressBar->setMaximum(100);
@@ -213,11 +222,28 @@ void PrintJobListItem::on_printJob_updated(PrintJob *printJob)
     case PrintJob::Complete:
         pixmap = Settings::getThemeIcon(QString("printjob-completed-icon")).pixmap(m_iconLabel->size());
         m_iconLabel->setPixmap(pixmap);
+
+        if(!m_autoRemoveTimer)
+        {
+            m_autoRemoveTimer = new QTimer(this);
+            m_autoRemoveTimer->setInterval(10000);
+            connect(m_autoRemoveTimer, SIGNAL(timeout()), this, SLOT(autoRemoveTimerTimeoutEvent()));
+            m_autoRemoveTimer->start();
+        }
         break;
 
     case PrintJob::Cancelled:
         pixmap = Settings::getThemeIcon(QString("printjob-cancelled-icon")).pixmap(m_iconLabel->size());
         m_iconLabel->setPixmap(pixmap);
+
+        if(!m_autoRemoveTimer)
+        {
+            m_autoRemoveTimer = new QTimer(this);
+            m_autoRemoveTimer->setInterval(10000);
+            connect(m_autoRemoveTimer, SIGNAL(timeout()), this, SLOT(autoRemoveTimerTimeoutEvent()));
+            m_autoRemoveTimer->start();
+        }
+
         break;
 
     case PrintJob::Error:
@@ -233,4 +259,20 @@ void PrintJobListItem::on_printJob_updated(PrintJob *printJob)
     progress *= 100;
 
     m_progressBar->setValue((int)progress);
+}
+
+void PrintJobListItem::closeButtonClickEvent()
+{
+    emit removeRequest(this);
+}
+
+void PrintJobListItem::autoRemoveTimerTimeoutEvent()
+{
+    if(m_autoRemoveTimer)
+    {
+        delete m_autoRemoveTimer;
+        m_autoRemoveTimer = nullptr;
+    }
+
+    emit removeRequest(this);
 }

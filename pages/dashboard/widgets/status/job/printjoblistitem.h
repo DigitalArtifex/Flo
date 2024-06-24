@@ -8,9 +8,10 @@
 #include <QProgressBar>
 #include <QGridLayout>
 #include <QStringList>
+#include <QToolButton>
+#include <QTimer>
 
 #include "../../../../../types/printjob.h"
-#include "../../../../../types/printer.h"
 #include "../../../../../ui/list/qanimatedlistitem.h"
 
 class PrintJobListItem : public QAnimatedListItem
@@ -29,7 +30,7 @@ public:
     virtual void setStyleSheet(const QString &styleSheet);
 
 signals:
-    void removeRequested(PrintJobListItem *item);
+    void removeRequest(PrintJobListItem *item);
 
 protected slots:
     void on_printJob_finished(PrintJob *printJob);
@@ -38,6 +39,9 @@ protected slots:
     void on_printJob_cancelled(PrintJob *printJob);
     void on_printJob_error(PrintJob *printJob);
     void on_printJob_updated(PrintJob *printJob);
+
+    void closeButtonClickEvent();
+    void autoRemoveTimerTimeoutEvent();
 
 private:
     PrintJob *m_job;
@@ -48,6 +52,9 @@ private:
     QLabel *m_iconLabel = nullptr;
     QWidget *m_iconContainer = nullptr;
     QProgressBar *m_progressBar = nullptr;
+
+    QToolButton *m_closeButton = nullptr;
+    QTimer *m_autoRemoveTimer = nullptr;
 };
 
 #endif // PRINTJOBLISTITEM_H
