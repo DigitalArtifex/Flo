@@ -20,7 +20,7 @@ public:
 
 private slots:
     void on_printerPool_printerError(QString title, QString message, Printer *printer);
-    void on_item_removeRequest(IssueListItem *item);
+    void itemRemoveRequestEvent(IssueListItem *item);
 
 private:
 };

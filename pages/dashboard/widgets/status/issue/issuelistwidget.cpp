@@ -15,7 +15,7 @@ void IssueListWidget::addIssue(QString title, QString source, QString message)
     item->setOpacityOut(0);
     item->setDuration(150);
 
-    connect(item, SIGNAL(removeRequest(IssueListItem*)), this, SLOT(on_item_removeRequest(IssueListItem*)));
+    connect(item, SIGNAL(removeRequest(IssueListItem*)), this, SLOT(itemRemoveRequestEvent(IssueListItem*)));
 
     addItem(item);
 }
@@ -25,7 +25,7 @@ void IssueListWidget::on_printerPool_printerError(QString title, QString message
     addIssue(title, QString("Printer: ") + printer->name(), message);
 }
 
-void IssueListWidget::on_item_removeRequest(IssueListItem *item)
+void IssueListWidget::itemRemoveRequestEvent(IssueListItem *item)
 {
     removeItem(item);
 }
