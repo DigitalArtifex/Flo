@@ -649,6 +649,14 @@ void PrinterPage::on_posIncrementSelect_currentTextChanged(const QString &arg1)
     }
     else
         ui->posIncrementSelect->setCurrentText(number + QString("mm"));
+
+    bool ok = false;
+    qreal increment = number.toDouble(&ok);
+
+    if(ok)
+        m_toolheadControlFrame->setIncrement(increment);
+    else
+        qDebug() << QString("Could not set toolhead increment: Invalid number format \"") + number + QString("\"");
 }
 
 void PrinterPage::on_xPosIncreaseButton_clicked()

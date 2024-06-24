@@ -80,6 +80,7 @@ ToolHeadControlFrame::ToolHeadControlFrame(Toolhead *toolhead, QWidget *parent) 
     connect(m_homeWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(homeClickEvent()));
 
     m_toolhead = toolhead;
+    connect(m_toolhead, SIGNAL(updated()), this, SLOT(toolheadUpdateEvent()));
 }
 
 ToolHeadControlFrame::~ToolHeadControlFrame()
