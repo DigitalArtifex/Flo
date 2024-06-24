@@ -63,6 +63,10 @@ private:
     QString m_info;
 
     QVideoSink *m_webcamSink = nullptr;
+
+    QWidget *m_overlayWidget = nullptr;
+    QLabel *m_overlayIconLabel = nullptr;
+    QLabel *m_overlayTextLabel = nullptr;
 };
 
 #endif // QWEBCAMWIDGET_H

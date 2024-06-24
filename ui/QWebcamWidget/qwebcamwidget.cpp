@@ -5,7 +5,32 @@ QWebcamWidget::QWebcamWidget(QString source, QWidget *parent) : QWidget(parent)
     m_layout = new QGridLayout(this);
     m_layout->setContentsMargins(0,0,0,0);
 
+    //get the aspect ratio for 16:9
+    QSize size;
+    qreal ratio = ((qreal)9/16);
+    qint32 width = this->width();
+    width -= layout()->contentsMargins().left();
+    width -= layout()->contentsMargins().right();
+    width = qFloor(width);
+
+    qint32 height = qFloor((qreal)width * ratio);
+
+    size.setWidth(width);
+    size.setHeight(height);
+
     setLayout(m_layout);
+
+    m_videoLabel = new QLabel(this);
+    m_videoLabel->setScaledContents(true);
+    m_videoLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Subwidget"));
+    m_videoLabel->resize(size);
+    m_layout->addWidget(m_videoLabel);
+
+    m_webcamSink = new QVideoSink(this);
+
+    m_player = new QMediaPlayer(m_videoLabel);
+    m_player->setSource(source);
+    m_player->setVideoSink(m_webcamSink);
 
     m_nameLabel = new QLabel(this);
     m_nameLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WebcamTitle"));
@@ -15,16 +40,6 @@ QWebcamWidget::QWebcamWidget(QString source, QWidget *parent) : QWidget(parent)
     m_infoLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WebcamInfo"));
     m_infoLabel->setVisible(false);
 
-    m_videoLabel = new QLabel(this);
-    m_videoLabel->setScaledContents(true);
-    m_layout->addWidget(m_videoLabel);
-
-    m_webcamSink = new QVideoSink(this);
-
-    m_player = new QMediaPlayer(m_videoLabel);
-    m_player->setSource(source);
-    m_player->setVideoSink(m_webcamSink);
-    //_player->setVideoOutput(m_videoLabel);
     connect(m_webcamSink, SIGNAL(videoFrameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
 
     connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
@@ -126,48 +141,13 @@ void QWebcamWidget::resizeEvent(QResizeEvent *event)
 
 void QWebcamWidget::hideEvent(QHideEvent *event)
 {
-    /*
-    qDebug() << "hiding";
-
-    if(m_player)
-    {
-        stop();
-
-        delete m_player;
-        m_player = nullptr;
-    }
-
-    if(m_videoLabel)
-    {
-        delete m_videoLabel;
-        m_videoLabel = nullptr;
-    }
-    */
+    pause();
     QWidget::hideEvent(event);
 }
 
 void QWebcamWidget::showEvent(QShowEvent *event)
 {
-    /*
-    if(!m_source.isEmpty() && !m_player)
-    {
-        if(!m_videoLabel)
-        {
-            m_videoLabel = new QVideoWidget(this);
-            m_videoLabel->setAspectRatioMode(Qt::KeepAspectRatioByExpanding);
-            m_layout->addWidget(m_videoLabel);
-        }
-
-        m_player = new QMediaPlayer(m_videoLabel);
-        m_player->setSource(m_source);
-        m_player->setVideoOutput(m_videoLabel);
-
-        connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
-
-        play();
-        update();
-    }*/
-
+    play();
     QWidget::showEvent(event);
 }
 
@@ -196,7 +176,7 @@ QString QWebcamWidget::info() const
 void QWebcamWidget::setInfo(const QString &info)
 {
     m_info = info;
-    //_infoLabel->setText(info);
+    m_infoLabel->setText(info);
 }
 
 QString QWebcamWidget::source() const
