@@ -56,6 +56,7 @@ public:
     static QString currentTheme();
 
     static QString digitalFontFamily();
+    static bool contains(QString key);
 
 private:
     static Settings *m_instance;

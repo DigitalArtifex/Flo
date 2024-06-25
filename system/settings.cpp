@@ -423,3 +423,8 @@ QString Settings::digitalFontFamily()
 {
     return m_digitalFontFamily;
 }
+
+bool Settings::contains(QString key)
+{
+    return settings.contains(key);
+}
