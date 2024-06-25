@@ -90,6 +90,9 @@ public:
 
     qreal minTemp() const;
 
+    qreal maxWatts() const;
+    void setMaxWatts(qreal maxWatts);
+
 signals:
     void updated(Extruder *extruder);
 
@@ -116,6 +119,7 @@ private:
     qreal m_nozzleDiameter = 0;
     qreal m_power = 0;
     qreal m_watts = 0;
+    qreal m_maxWatts;
     qreal m_inlineResistor = 0;
     qreal m_pullupResistor = 0;
     qreal m_pwmCycle = 0;

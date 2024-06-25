@@ -22,9 +22,11 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
 
     m_toolhead = new Toolhead(this);
     m_bed = new Q3DPrintBed(this);
-    m_bed->setWatts(m_powerProfile["bed"]);
+    m_bed->setMaxWatts(m_powerProfile["bed"]);
+
     m_chamber = new Chamber();
-    m_chamber->setWatts(m_powerProfile["chamber"]);
+    m_chamber->setMaxWatts(m_powerProfile["chamber"]);
+
     m_partsFan = new Fan(this);
 
     if(m_connectionLocation == LocationLocal)
@@ -37,7 +39,7 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
     {
         QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
         m_toolhead->extruder(i)->m_extruderNumber = i;
-        m_toolhead->extruder(i)->m_watts = definition.powerProfile[extruderName];
+        m_toolhead->extruder(i)->m_maxWatts = definition.powerProfile[extruderName];
     }
 
     m_console->setMoonrakerLocation(m_moonrakerLocation);
@@ -49,15 +51,25 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
     connect(m_console, SIGNAL(systemUpdate()), this, SLOT(on_systemUpdate()));
     connect(m_console, SIGNAL(klipperError(QString,QString)), this, SLOT(on_console_klipperError(QString,QString)));
     connect(m_console, SIGNAL(directoryListing(QString,QString,QList<KlipperFile>)), this, SLOT(on_console_directoryListing(QString,QString,QList<KlipperFile>)));
-    connect(m_console,SIGNAL(startup()),this,SLOT(on_console_startup()));
+    connect(m_console, SIGNAL(startup()),this,SLOT(on_console_startup()));
 }
 
 Printer::~Printer()
 {
-    delete m_toolhead;
-    delete m_bed;
-    delete m_partsFan;
-    delete m_console;
+    if(m_toolhead)
+        delete m_toolhead;
+
+    if(m_bed)
+        delete m_bed;
+
+    if(m_partsFan)
+        delete m_partsFan;
+
+    if(m_console)
+        delete m_console;
+
+    if(m_system)
+        delete m_system;
 }
 
 Toolhead *Printer::toolhead()
@@ -212,8 +224,8 @@ void Printer::update(PrinterDefinition definition)
     m_apiKey = definition.apiKey;
     m_powerProfile = definition.powerProfile;
 
-    m_bed->setWatts(m_powerProfile["bed"]);
-    m_chamber->setWatts(m_powerProfile["chamber"]);
+    m_bed->setMaxWatts(m_powerProfile["bed"]);
+    m_chamber->setMaxWatts(m_powerProfile["chamber"]);
 
     for(int i = 0; i < m_toolhead->extruderCount(); i++)
     {
@@ -343,6 +355,27 @@ qreal Printer::squareCornerVelocity() const
 void Printer::setSquareCornerVelocity(qreal squareCornerVelocity)
 {
     m_squareCornerVelocity = squareCornerVelocity;
+}
+
+void Printer::pause()
+{
+    if(m_status == Printing)
+        m_console->pausePrint();
+}
+
+void Printer::resume()
+{
+    if(m_status == Paused)
+        m_console->resumePrint();
+}
+
+qreal Printer::watts() const
+{
+    qreal watts = m_bed->watts();
+    watts += m_chamber->watts();
+    watts += m_toolhead->watts();
+
+    return watts;
 }
 
 qreal Printer::maxZVelocity() const

@@ -307,6 +307,26 @@ void Toolhead::setExtruderMaxWatts(qint32 extruder, qreal watts)
     m_extruders[extruder]->m_watts = watts;
 }
 
+qreal Toolhead::watts() const
+{
+    qreal watts = 0;
+
+    for(int i = 0; i < m_extruders.count(); i++)
+        watts += (m_extruders[i]->watts() * m_extruders[i]->power());
+
+    return watts;
+}
+
+qreal Toolhead::maxWatts() const
+{
+    qreal watts = 0;
+
+    for(int i = 0; i < m_extruders.count(); i++)
+        watts += m_extruders[i]->maxWatts();
+
+    return watts;
+}
+
 void Toolhead::update()
 {
     if(m_isHoming)

@@ -171,6 +171,11 @@ public:
     qreal squareCornerVelocity() const;
     void setSquareCornerVelocity(qreal squareCornerVelocity);
 
+    void pause();
+    void resume();
+
+    qreal watts() const;
+
 signals:
     void systemUpdate(Printer *printer);
     void printerUpdate(Printer *printer);

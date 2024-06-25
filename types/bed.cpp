@@ -32,14 +32,7 @@ qreal Q3DPrintBed::power() const
 
 qreal Q3DPrintBed::watts() const
 {
-    return m_watts;
-}
-
-void Q3DPrintBed::setWatts(qreal watts)
-{
-    m_watts = watts;
-
-    emit updated(this);
+    return (m_watts * m_power);
 }
 
 Q3DPrintBed::Mesh Q3DPrintBed::bedMesh() const
@@ -143,4 +136,14 @@ void Q3DPrintBed::updateBedMesh(const Mesh mesh)
     m_bedMesh = mesh;
 
     emit bedMeshCalibrated();
+}
+
+qreal Q3DPrintBed::maxWatts() const
+{
+    return m_maxWatts;
+}
+
+void Q3DPrintBed::setMaxWatts(qreal maxWatts)
+{
+    m_maxWatts = maxWatts;
 }

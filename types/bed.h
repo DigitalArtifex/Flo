@@ -117,9 +117,10 @@ public:
     Printer *printer() const;
     void setPrinter(Printer *printer);
 
-    void setWatts(qreal watts);
-
     Type type() const;
+
+    qreal maxWatts() const;
+    void setMaxWatts(qreal maxWatts);
 
 signals:
     void meshUpdated();
@@ -145,6 +146,7 @@ private:
     qreal m_targetTemp = 0;
     qreal m_power = 0;
     qreal m_watts = 0;
+    qreal m_maxWatts = 0;
     qreal m_inlineResistor = 0;
     qreal m_maxPower = 0;
     qreal m_maxTemp= 0;

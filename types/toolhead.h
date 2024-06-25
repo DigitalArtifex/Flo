@@ -104,6 +104,9 @@ public:
 
     void setExtruderMaxWatts(qint32 extruder, qreal watts);
 
+    qreal watts() const;
+    qreal maxWatts() const;
+
 signals:
     void homing();
     void homed();

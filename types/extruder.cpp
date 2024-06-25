@@ -111,7 +111,7 @@ void Extruder::retract(qreal amount, qreal speed)
 
 qreal Extruder::watts() const
 {
-    return m_watts;
+    return (m_maxWatts * m_power);
 }
 
 TemperatureStore Extruder::temperatureStore() const
@@ -132,6 +132,16 @@ void Extruder::setPrinter(Printer *printer)
 void Extruder::emitUpdate()
 {
     emit updated(this);
+}
+
+qreal Extruder::maxWatts() const
+{
+    return m_maxWatts;
+}
+
+void Extruder::setMaxWatts(qreal maxWatts)
+{
+    m_maxWatts = maxWatts;
 }
 
 qreal Extruder::minTemp() const
