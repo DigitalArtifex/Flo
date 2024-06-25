@@ -1,4 +1,5 @@
 #include "system.h"
+#include "printer.h"
 
 System::System(QObject *parent)
     : QObject{parent}
@@ -282,4 +283,13 @@ System::SafeZHome System::safeZHome() const
 void System::setSafeZHome(const SafeZHome &safeZHome)
 {
     m_safeZHome = safeZHome;
+}
+
+void System::restart()
+{
+    if(Printer *printer = qobject_cast<Printer*>(parent()))
+    {
+        qDebug() << printer->name() + QString(": Restarting firmware");
+        printer->console()->restartFirmware();
+    }
 }

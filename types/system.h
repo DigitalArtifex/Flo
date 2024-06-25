@@ -530,6 +530,8 @@ public:
     SafeZHome safeZHome() const;
     void setSafeZHome(const SafeZHome &safeZHome);
 
+    void restart();
+
 signals:
 
 
