@@ -15,6 +15,7 @@ public:
     static void loadPrinters(QObject *parent);
 
     static Printer *getPrinterById(QString id);
+    static QStringList keys();
     static void addPrinter(PrinterDefinition definition);
     static void removePrinter(PrinterDefinition definition);
     static void updatePrinter(PrinterDefinition definition);

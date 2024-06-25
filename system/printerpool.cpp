@@ -18,6 +18,11 @@ Printer *PrinterPool::getPrinterById(QString id)
         return nullptr;
 }
 
+QStringList PrinterPool::keys()
+{
+    return m_printerPool.keys();
+}
+
 void PrinterPool::addPrinter(PrinterDefinition definition)
 {
     Printer *printer = new Printer(definition);
