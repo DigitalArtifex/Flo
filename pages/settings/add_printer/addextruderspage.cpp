@@ -46,6 +46,8 @@ void AddExtrudersPage::apply()
             }
         }
     }
+
+    qDebug() << "Extruder page " << m_definition.powerProfile;
 }
 
 void AddExtrudersPage::on_extruderCountSpinBox_valueChanged(int arg1)

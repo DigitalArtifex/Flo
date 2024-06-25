@@ -21,6 +21,8 @@ void AddBedPage::reset()
 void AddBedPage::apply()
 {
     m_definition.powerProfile[QString("bed")] = ui->bedPowerSpinBox->value();
+
+    qDebug() << "Bed page " << m_definition.powerProfile;
 }
 
 void AddBedPage::on_heatedBedCheckbox_stateChanged(int arg1)

@@ -23,10 +23,11 @@ bool ValidatePrinterPage::validatePage()
 
 void ValidatePrinterPage::setDefinition(PrinterDefinition definition)
 {
+    m_definition = definition;
     ui->textEdit->clear();
 
     //Validate directory structure
-    QDir instanceDirectory(definition.instanceLocation);
+    QDir instanceDirectory(m_definition.instanceLocation);
     if(instanceDirectory.exists())
     {
         bool valid = true;
@@ -37,16 +38,16 @@ void ValidatePrinterPage::setDefinition(PrinterDefinition definition)
             valid = false;
         else
         {
-            QString location = definition.instanceLocation;
+            QString location = m_definition.instanceLocation;
             location += QDir::separator() + QString("comms") + QDir::separator();
 
             if(QFile::exists(location + QString("klippy.sock")))
-                definition.klipperLocation = location + QString("klippy.sock");
+                m_definition.klipperLocation = location + QString("klippy.sock");
             else
                 valid = false;
 
             if(QFile::exists(location + QString("moonraker.sock")))
-                definition.moonrakerLocation = location + QString("moonraker.sock");
+                m_definition.moonrakerLocation = location + QString("moonraker.sock");
             else
                 valid = false;
         }
@@ -55,9 +56,9 @@ void ValidatePrinterPage::setDefinition(PrinterDefinition definition)
             valid = false;
         else
         {
-            QString location = definition.instanceLocation;
+            QString location = m_definition.instanceLocation;
             location += QDir::separator() + QString("gcodes") + QDir::separator();
-            definition.gcodeLocation = location;
+            m_definition.gcodeLocation = location;
         }
 
         if(!subDirs.contains(QString("logs")))
@@ -67,9 +68,9 @@ void ValidatePrinterPage::setDefinition(PrinterDefinition definition)
             valid = false;
         else
         {
-            QString location = definition.instanceLocation;
+            QString location = m_definition.instanceLocation;
             location += QDir::separator() + QString("config") + QDir::separator();
-            definition.configLocation = location;
+            m_definition.configLocation = location;
         }
 
         if(!valid)
@@ -80,9 +81,9 @@ void ValidatePrinterPage::setDefinition(PrinterDefinition definition)
     }
 
     if(PrinterPool::printersAvailable() == 0)
-        definition.defaultPrinter = true;
+        m_definition.defaultPrinter = true;
 
-    m_printer = new Printer(definition);
+    m_printer = new Printer(m_definition);
 
     if(m_printer->isAutoConnect())
     {
@@ -103,7 +104,7 @@ void ValidatePrinterPage::setDefinition(PrinterDefinition definition)
 
 PrinterDefinition ValidatePrinterPage::definition()
 {
-    return m_printer->definition();
+    return m_definition;
 }
 
 void ValidatePrinterPage::on_klipperConnected(Printer *printer)

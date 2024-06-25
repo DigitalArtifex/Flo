@@ -47,11 +47,13 @@ bool AddPrinterWizard::validateCurrentPage()
         }
         else if(currentId() == 1)
         {
+            m_extruderPage->apply();
             m_definition = m_extruderPage->definition();
             m_bedPage->setDefinition(m_definition);
         }
         else if(currentId() == 2)
         {
+            m_bedPage->apply();
             m_definition = m_bedPage->definition();
             m_validatePage->setDefinition(m_definition);
         }

@@ -33,6 +33,7 @@ private:
     bool m_validated = false;
     bool m_printerOnline = false;
     Printer *m_printer = nullptr;
+    PrinterDefinition m_definition;
 };
 
 #endif // VALIDATEPRINTERPAGE_H

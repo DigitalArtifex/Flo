@@ -89,7 +89,7 @@ void EditPrinterDialog::apply()
     if(ui->printerInstanceLocationEdit->isModified())
         m_printer->setInstanceLocation(ui->printerInstanceLocationEdit->text());
 
-    m_printer->bed()->setWatts(ui->bedPowerSpinBox->value());
+    m_printer->bed()->setMaxWatts(ui->bedPowerSpinBox->value());
     m_printer->setApiKey(ui->printerKeyEdit->text());
 
     PrinterPool::updatePrinter(m_printer->definition());
