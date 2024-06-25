@@ -8,6 +8,42 @@ QWidgetAnimation::QWidgetAnimation(QWidget *target, QObject *parent) :
     connect(m_animations, SIGNAL(finished()), this, SLOT(on_animationsFinished()));
 }
 
+QWidgetAnimation::~QWidgetAnimation()
+{
+    if(m_geometryAnimation)
+        delete m_geometryAnimation;
+
+    if(m_blurEffect)
+        delete m_blurEffect;
+
+    if(m_blurAnimation)
+        delete m_blurAnimation;
+
+    if(m_opacityEffect)
+        delete m_opacityEffect;
+
+    if(m_opacityAnimation)
+        delete m_opacityAnimation;
+
+    if(m_maxHeightAnimation)
+        delete m_maxHeightAnimation;
+
+    if(m_maxWidthAnimation)
+        delete m_maxWidthAnimation;
+
+    if(m_minHeightAnimation)
+        delete m_minHeightAnimation;
+
+    if(m_minWidthAnimation)
+        delete m_minWidthAnimation;
+
+    if(m_positionAnimation)
+        delete m_positionAnimation;
+
+    if(m_animations)
+        delete m_animations;
+}
+
 void QWidgetAnimation::start()
 {
     m_animations = new QParallelAnimationGroup();
@@ -233,9 +269,6 @@ void QWidgetAnimation::on_animationsFinished()
 {
     if(m_target)
         m_target->setGraphicsEffect(0);
-
-    delete m_animations;
-    m_animations = nullptr;
 
     emit finished();
 }

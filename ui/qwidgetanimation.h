@@ -25,6 +25,7 @@ public:
     };
 
     explicit QWidgetAnimation(QWidget *target, QObject *parent = nullptr);
+    ~QWidgetAnimation();
 
     virtual void start();
     virtual void stop();
