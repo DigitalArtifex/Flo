@@ -304,7 +304,7 @@ void Toolhead::setPrinter(Printer *printer)
 
 void Toolhead::setExtruderMaxWatts(qint32 extruder, qreal watts)
 {
-    m_extruders[extruder]->m_watts = watts;
+    m_extruders[extruder]->m_maxWatts = watts;
 }
 
 qreal Toolhead::watts() const
@@ -312,7 +312,7 @@ qreal Toolhead::watts() const
     qreal watts = 0;
 
     for(int i = 0; i < m_extruders.count(); i++)
-        watts += (m_extruders[i]->watts() * m_extruders[i]->power());
+        watts += m_extruders[i]->watts();
 
     return watts;
 }
