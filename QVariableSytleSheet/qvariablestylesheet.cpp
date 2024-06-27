@@ -15,10 +15,6 @@ QString QVariableStyleSheet::process()
     QString theme = m_stylesheet;
 
     //Process CSS variables in QSS
-    QRegularExpression rootExpression(":root\\s*\n*\\s*\\{\n*\\s*(--.*:.*;\n*)*\n*\\s*\\}", QRegularExpression::MultilineOption);
-    QRegularExpression variableExpression("--[a-zA-Z0-9\\-\\_]+:\\s*[a-zA-Z0-9\\-\\_\\#]+;");
-    QRegularExpression variableUsageExpression("var\\(--([a-zA-Z0-9\\-]*)*[\\)]{1}");
-    QRegularExpression commentExpression("\\/\\*[^*]*\\*+([^/*][^*]*\\*+)*\\/");
     theme.remove(commentExpression);
     theme.replace(QRegularExpression("[\n]{2,}"), QString("\n"));
     theme.replace(QRegularExpression("[\\s]{2,}"), QString(" "));
@@ -52,6 +48,13 @@ QString QVariableStyleSheet::process()
                     key.remove(0,1);
                 value.remove(QRegularExpression(";$"));
                 variables[key] = value;
+
+                if(key.startsWith("--"))
+                    key = key.mid(2);
+
+                qDebug() << key << value;
+
+                m_variables[key] = value;
             }
         }
     }
@@ -73,4 +76,14 @@ QString QVariableStyleSheet::process()
     //theme.remove(variableUsageExpression);
 
     return theme;
+}
+
+QMap<QString, QString> QVariableStyleSheet::variables() const
+{
+    return m_variables;
+}
+
+void QVariableStyleSheet::setVariables(const QMap<QString, QString> &variables)
+{
+    m_variables = variables;
 }
