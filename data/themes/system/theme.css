@@ -4,6 +4,12 @@
 
 :root
 {
+  /* Theme Variables */
+  --graph-plot-background-start: #292929;
+  --graph-plot-background-end: #292929;
+  --graph-background-start: #4b4b4b;
+  --graph-background-end: #4b4b4b;
+
   --page-title-font-size: 14pt;
 
   --widget-font-size: 10pt;
