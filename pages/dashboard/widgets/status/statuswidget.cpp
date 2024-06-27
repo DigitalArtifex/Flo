@@ -18,6 +18,14 @@ StatusWidget::StatusWidget(QWidget *parent) :
 
 StatusWidget::~StatusWidget()
 {
+    if(m_printJobList)
+        delete m_printJobList;
+
+    if(m_issueList)
+        delete m_issueList;
+
+    if(m_energyConsumption)
+        delete m_energyConsumption;
 }
 
 void StatusWidget::setUiClasses()
@@ -83,7 +91,7 @@ void StatusWidget::setupJobPage()
 
 void StatusWidget::setupEnergyPage()
 {
-    m_energyConsumption = new EnergyConsumptionWidget(this);
+    m_energyConsumption = new EnergyConsumptionWidget;
     addTab(m_energyConsumption, Settings::getThemeIcon(QString("voltage-icon")), QString("Energy Consumption"));
 }
 

@@ -35,8 +35,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->PageContainer->layout()->addWidget(m_loadingPage);
 
     m_currentPage = m_loadingPage;
-    //_currentPage->setOpacityIn(1);
-    //_currentPage->setOpacityOut(0);
+    m_currentPage->setOpacityIn(1);
+    m_currentPage->setOpacityOut(0);
     m_currentPage->setPositionIn(m_pagePositionIn);
     m_currentPage->setPositionOut(QPoint(m_pageSize.width(), 0));
     m_currentPage->setDuration(250);
@@ -97,11 +97,11 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
         ypos -= ui->menuBar->height();
 
         m_nextPage = page;
-        //_nextPage->setOpacityIn(1);
-        //_nextPage->setOpacityOut(0);
+        m_nextPage->setOpacityIn(1);
+        m_nextPage->setOpacityOut(0);
         m_nextPage->setPositionIn(m_pagePositionIn);
         m_nextPage->setPositionOut(QPoint(0, ypos));
-        m_nextPage->setDuration(250);
+        m_nextPage->setDuration(500);
 
         connect(m_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
         m_nextPage->setHidden(false);
@@ -112,11 +112,11 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
     {
         connect(m_currentPage, SIGNAL(animatedOut()), this, SLOT(on_currentPage_animationOut_finished()));
 
-        //_currentPage->setOpacityIn(1);
-        //_currentPage->setOpacityOut(0);
+        m_currentPage->setOpacityIn(1);
+        m_currentPage->setOpacityOut(0);
         m_currentPage->setPositionIn(m_pagePositionIn);
         m_currentPage->setPositionOut(QPoint(0, m_pageSize.height()));
-        m_currentPage->setDuration(250);
+        m_currentPage->setDuration(500);
 
         ui->PageContainer->layout()->removeWidget(m_currentPage);
 

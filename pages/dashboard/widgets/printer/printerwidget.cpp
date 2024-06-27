@@ -124,6 +124,10 @@ void PrinterWidget::on_printer_update(Printer *printer)
         break;
     case Printer::Ready:
         statusText = QString("Ready");
+        ui->pausePrintButton->setEnabled(false);
+        ui->cancelPrintButton->setEnabled(false);
+        ui->restartFirmwareButton->setEnabled(true);
+        ui->restartKlipperButton->setEnabled(true);
         pixmap = Settings::getThemeIcon("printer-ready-icon").pixmap(ui->iconLabel->size());
         this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Ready" ));
         break;
@@ -131,8 +135,8 @@ void PrinterWidget::on_printer_update(Printer *printer)
         statusText = QString("Offline");
         ui->pausePrintButton->setEnabled(false);
         ui->cancelPrintButton->setEnabled(false);
-        ui->restartFirmwareButton->setEnabled(false);
-        ui->restartKlipperButton->setEnabled(false);
+        ui->restartFirmwareButton->setEnabled(true);
+        ui->restartKlipperButton->setEnabled(true);
         pixmap = Settings::getThemeIcon("printer-offline-icon").pixmap(ui->iconLabel->size());
         this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Offline" ));
         break;
@@ -177,12 +181,14 @@ void PrinterWidget::on_goBackButton_clicked()
 
 void PrinterWidget::on_pausePrintButton_toggled(bool checked)
 {
-    if(checked)
+    if(checked && m_printer->status() == Printer::Printing)
     {
+        m_printer->pause();
         ui->pausePrintButton->setText(QString("Resume Print"));
     }
-    else
+    else if(m_printer->status() == Printer::Paused)
     {
+        m_printer->resume();
         ui->pausePrintButton->setText(QString("Pause Print"));
     }
 }
@@ -213,8 +219,6 @@ void PrinterWidget::showLoadingScreen()
     ui->loadingLabel->setMovie(m_loadingGif);
     m_loadingGif->start();
     m_loadingAnimation->show();
-
-    //ui->stackedWidget->setCurrentIndex(3);
 }
 
 void PrinterWidget::hideLoadingScreen()
@@ -223,7 +227,6 @@ void PrinterWidget::hideLoadingScreen()
     {
         connect(m_loadingAnimation, SIGNAL(finished()), this, SLOT(on_loadingAnimation_finished()));
         m_loadingAnimation->hide();
-        //ui->stackedWidget->setCurrentIndex(0);
     }
 }
 
@@ -238,12 +241,25 @@ void PrinterWidget::on_restartKlipperButton_clicked()
 void PrinterWidget::on_loadingAnimation_finished()
 {
     m_loadingGif->stop();
-    delete m_loadingGif;
-    delete m_loadingLabel;
-    delete m_loadingAnimation;
-    m_loadingLabel = nullptr;
-    m_loadingGif = nullptr;
-    m_loadingAnimation = nullptr;
+
+    if(m_loadingGif)
+    {
+        delete m_loadingGif;
+        m_loadingGif = nullptr;
+    }
+
+    if(m_loadingLabel)
+    {
+        delete m_loadingLabel;
+        m_loadingLabel = nullptr;
+    }
+
+    if(m_loadingAnimation)
+    {
+        delete m_loadingAnimation;
+        m_loadingAnimation = nullptr;
+    }
+
     on_printer_update(m_printer);
 }
 

@@ -6,6 +6,11 @@ QMoonrakerValidator::QMoonrakerValidator(QObject *parent)
 
 }
 
+QMoonrakerValidator::~QMoonrakerValidator()
+{
+
+}
+
 /*!
  * \brief QMoonrakerValidator::validate
  * \param text

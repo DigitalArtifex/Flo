@@ -11,6 +11,7 @@ class QMoonrakerValidator : public QValidator
     Q_OBJECT
 public:
     explicit QMoonrakerValidator(QObject *parent = nullptr);
+    ~QMoonrakerValidator();
 
     virtual QValidator::State validate(QString &text, int &pos) const;
 

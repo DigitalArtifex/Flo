@@ -2,6 +2,7 @@
 #include "ui_addprinterpage.h"
 
 #include "../../../system/settings.h"
+#include "../../../validators/QHexColorValidator/qhexcolorvalidator.h"
 
 AddPrinterPage::AddPrinterPage(QWidget *parent) :
     QWizardPage(parent),
@@ -11,6 +12,8 @@ AddPrinterPage::AddPrinterPage(QWidget *parent) :
     QPixmap pixmap = Settings::getThemeIcon("printer").pixmap(200,200);
     ui->printerIconLabel->setPixmap(pixmap);
     ui->printerIconLabel->setScaledContents(true);
+
+    ui->colorEdit->setValidator(new QHexColorValidator());
 }
 
 AddPrinterPage::~AddPrinterPage()
@@ -27,6 +30,9 @@ bool AddPrinterPage::isComplete()
         return false;
 
     if(ui->keyEdit->isEnabled() && ui->keyEdit->text().isEmpty())
+        return false;
+
+    if(!ui->colorEdit->hasAcceptableInput())
         return false;
 
     return true;

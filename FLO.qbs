@@ -38,6 +38,8 @@ QtApplication {
         "pages/dashboard/widgets/printer/printerwidget.cpp",
         "pages/dashboard/widgets/printer/printerwidget.h",
         "pages/dashboard/widgets/printer/printerwidget.ui",
+        "pages/dashboard/widgets/status/energy/energyconsumptionchart.cpp",
+        "pages/dashboard/widgets/status/energy/energyconsumptionchart.h",
         "pages/dashboard/widgets/status/energy/energyconsumptionwidget.cpp",
         "pages/dashboard/widgets/status/energy/energyconsumptionwidget.h",
         "pages/dashboard/widgets/status/issue/issuelistitem.cpp",
@@ -223,6 +225,10 @@ QtApplication {
         "ui/qwidgetanimation.h",
         "ui/widgetanimation.cpp",
         "ui/widgetanimation.h",
+        "validators/QHexColorValidator/qhexcolorvalidator.cpp",
+        "validators/QHexColorValidator/qhexcolorvalidator.h",
+        "validators/QHttpValidator/qhttpvalidator.cpp",
+        "validators/QHttpValidator/qhttpvalidator.h",
     ]
 
     Group {

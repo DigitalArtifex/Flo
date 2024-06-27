@@ -269,6 +269,11 @@ QString Settings::getTheme(QString key)
     QVariableStyleSheet sheet(theme);
     theme = sheet.process();
 
+    QMap<QString,QString> themeVariables = sheet.variables();
+
+    foreach(QString key, themeVariables.keys())
+        settings[QString("theme-") + key] = themeVariables[key];
+
     //For Debug
 /*
     QFile alteredFile(themeMap[key] + QString("2"));
@@ -315,6 +320,7 @@ QString Settings::getTheme(QString key)
 
     if(themeObject.contains(QString("color_CodeOther")))
         settings[QString("color_CodeOther")] = themeObject[QString("color_CodeOther")].toString();
+
     if(themeObject.contains(QString("color_CodeNumLiteral")))
         settings[QString("color_CodeNumLiteral")] = themeObject[QString("color_CodeNumLiteral")].toString();
 
