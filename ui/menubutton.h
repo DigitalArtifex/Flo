@@ -42,6 +42,7 @@ private slots:
 private:
     Ui::MenuButton *ui;
     bool m_checked = false;
+    bool m_pressed = false;
 
 };
 

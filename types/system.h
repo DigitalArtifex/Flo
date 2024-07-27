@@ -2,7 +2,10 @@
 #define SYSTEM_H
 
 #include <QObject>
-#include <QMap>
+#include <QMultiMap>
+
+class QAbstractKlipperConsole;
+class Printer;
 
 class System : public QObject
 {
@@ -18,6 +21,7 @@ public:
     {
         QString activeState;
         QString subState;
+        QString name;
     };
 
     /*!
@@ -374,7 +378,7 @@ public:
         qint32 githubLimitResetTime = 0;
 
         SystemState systemState;
-        QMap<QString, PackageState> packageStates;
+        QMultiMap<QString, PackageState> packageStates;
     };
 
     struct JobQueue
@@ -438,7 +442,7 @@ public:
         bool moveToPrevious = false;
     };
 
-    explicit System(QObject *parent = nullptr);
+    explicit System(Printer *printer, QObject *parent = nullptr);
     ~System();
 
     void setHostname(QString hostname);
@@ -532,8 +536,33 @@ public:
 
     void restart();
 
-signals:
+    void startService(QString service);
+    void stopService(QString service);
+    void restartService(QString service);
+    void updateServices();
+    void setServiceStates(QList<ServiceState> serviceStates);
+    void updateProcStats();
 
+    void createUser(QString username, QString password);
+
+public slots:
+    void setNetworkStats(const QMap<QString, NetworkStatsEntry> &NetworkStats);
+    void setUserList(const QList<User> &userList);
+
+signals:
+    void updated();
+    void serviceStatesUpdate();
+    void virtualSDCardUpdate();
+    void sdInfoUpdate();
+    void updateStateUpdate();
+
+    //switching naming convention to Changed
+    void networkStatsChanged();
+    void mcuChanged();
+    void userListChanged();
+
+protected:
+    void update();
 
 private:
     qint64                           m_driveCapacity = 0;
@@ -590,6 +619,8 @@ private:
     QString                          m_pythonVersion;
     MCU                              m_mcu;
     SafeZHome                        m_safeZHome;
+
+    QAbstractKlipperConsole         *m_console = nullptr;
 };
 
 #endif // SYSTEM_H

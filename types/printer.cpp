@@ -19,6 +19,7 @@ Printer::Printer(PrinterDefinition definition, QObject *parent) : QObject(parent
     m_defaultPrinter = definition.defaultPrinter;
     m_apiKey = definition.apiKey;
     m_powerProfile = definition.powerProfile;
+    m_color = definition.color;
 
     m_toolhead = new Toolhead(this);
     m_bed = new Q3DPrintBed(this);
@@ -196,14 +197,15 @@ PrinterDefinition Printer::definition()
     definition.moonrakerLocation = m_moonrakerLocation;
     definition.id = m_id;
     definition.name = m_name;
+    definition.color = m_color;
 
-    definition.powerProfile["chamber"] = m_chamber->watts();
-    definition.powerProfile["bed"] = m_bed->watts();
+    definition.powerProfile["chamber"] = m_chamber->maxWatts();
+    definition.powerProfile["bed"] = m_bed->maxWatts();
 
     for(int i = 0; i < m_toolhead->extruderCount(); i++)
     {
         QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
-        definition.powerProfile[extruderName] = m_toolhead->extruder(i)->watts();
+        definition.powerProfile[extruderName] = m_toolhead->extruder(i)->maxWatts();
     }
 
     definition.extruderCount = m_toolhead->extruderCount();
@@ -223,6 +225,7 @@ void Printer::update(PrinterDefinition definition)
     m_defaultPrinter = definition.defaultPrinter;
     m_apiKey = definition.apiKey;
     m_powerProfile = definition.powerProfile;
+    m_color = definition.color;
 
     m_bed->setMaxWatts(m_powerProfile["bed"]);
     m_chamber->setMaxWatts(m_powerProfile["chamber"]);
@@ -230,7 +233,7 @@ void Printer::update(PrinterDefinition definition)
     for(int i = 0; i < m_toolhead->extruderCount(); i++)
     {
         QString extruderName = QString("extruder") + ((i > 0) ? QString::number(i) : QString(""));
-        m_toolhead->extruder(i)->m_watts = definition.powerProfile[extruderName];
+        m_toolhead->extruder(i)->setMaxWatts(definition.powerProfile[extruderName]);
     }
 
     if(m_moonrakerLocation != definition.moonrakerLocation)
@@ -291,16 +294,19 @@ System *Printer::system()
 void Printer::on_klipperConnected()
 {
     emit klipperConnected(this);
+    emit connected(this);
 }
 
 void Printer::on_klipperDisconnected()
 {
     emit klipperDisconnected(this);
+    emit disconnected(this);
 }
 
 void Printer::on_moonrakerConnected()
 {
     emit moonrakerConnected(this);
+    emit connected(this);
 }
 
 void Printer::on_printerUpdate()
@@ -345,6 +351,26 @@ void Printer::on_console_gcodeMove(QGCodeMove &move)
 void Printer::emitUpdate()
 {
     emit printerUpdate(this);
+}
+
+QString Printer::color() const
+{
+    return m_color;
+}
+
+void Printer::setColor(const QString &color)
+{
+    m_color = color;
+}
+
+void Printer::print(KlipperFile file)
+{
+    m_console->startPrint(file.root + QString("/") + file.path + QString("/") + file.name);
+}
+
+bool Printer::isReady()
+{
+    return m_status == Ready;
 }
 
 qreal Printer::squareCornerVelocity() const

@@ -138,6 +138,15 @@ void Q3DPrintBed::updateBedMesh(const Mesh mesh)
     emit bedMeshCalibrated();
 }
 
+void Q3DPrintBed::setTargetTemp(qreal targetTemp)
+{
+    //M140 sets bed temp without waiting
+    QString gcode = QString("M140 S") + QString::number(targetTemp);
+
+    //send the G-Code
+    m_printer->console()->sendGcode(gcode);
+}
+
 qreal Q3DPrintBed::maxWatts() const
 {
     return m_maxWatts;

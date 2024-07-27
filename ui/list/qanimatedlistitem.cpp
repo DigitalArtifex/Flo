@@ -109,7 +109,7 @@ void QAnimatedListItem::setSelected(bool select, bool trigger)
 
     m_selected = select;
     setProperty("selected", select);
-    this->style()->polish(this);
+    style()->polish(this);
 
     if(trigger)
     {
@@ -156,7 +156,6 @@ void QAnimatedListItem::mousePressEvent(QMouseEvent *event)
 
     if(event->button() == Qt::LeftButton)
     {
-
         m_clickTimer = new QTimer(this);
         connect(m_clickTimer, SIGNAL(timeout()), this, SLOT(on_clickTimer_timeout()));
 
@@ -168,6 +167,15 @@ void QAnimatedListItem::mousePressEvent(QMouseEvent *event)
         m_pressed = true;
         style()->polish(this);
     }
+    else if(event->button() == Qt::RightButton)
+    {
+        setSelected(true);
+
+        if(m_contextMenu)
+        {
+            m_contextMenu->popup(event->globalPosition().toPoint());
+        }
+    }
 }
 
 void QAnimatedListItem::mouseReleaseEvent(QMouseEvent *event)
@@ -177,7 +185,7 @@ void QAnimatedListItem::mouseReleaseEvent(QMouseEvent *event)
     if(event->button() == Qt::LeftButton)
     {
         this->setProperty("pressed", false);
-        this->style()->polish(this);
+        style()->polish(this);
 
         if(m_clickTimer)
         {
@@ -196,7 +204,13 @@ void QAnimatedListItem::mouseReleaseEvent(QMouseEvent *event)
         {
             m_pressed = false;
             m_longPressed = false;
-            emit longPressed(this);
+
+            setSelected(!m_selected);
+
+            if(m_contextMenu)
+            {
+                m_contextMenu->popup(event->globalPosition().toPoint());
+            }
         }
     }
 }
@@ -209,6 +223,11 @@ void QAnimatedListItem::on_animationIn_finished()
 void QAnimatedListItem::on_animationOut_finished()
 {
     emit animationOut_finished(this);
+}
+
+void QAnimatedListItem::setContextMenu(QMenu *menu)
+{
+    m_contextMenu = menu;
 }
 
 qint32 QAnimatedListItem::widthOut() const

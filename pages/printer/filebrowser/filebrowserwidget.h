@@ -17,12 +17,23 @@ public:
         Widget
     };
 
-    FileBrowserWidget(QWidget *parent = nullptr, DisplayMode mode = Page);
+    explicit FileBrowserWidget(QWidget *parent = nullptr, DisplayMode mode = Page);
+    ~FileBrowserWidget();
 
     void addFile(KlipperFile file);
     void setFiles(const QList<KlipperFile> &files);
 
     FileBrowserItem *selectedItem();
+
+signals:
+    void itemDeleteRequested(FileBrowserItem *item);
+    void itemEditRequested(FileBrowserItem *item);
+    void itemPrintRequested(FileBrowserItem *item);
+
+protected slots:
+    void itemDeleteRequestedEvent(FileBrowserItem *item);
+    void itemEditRequestedEvent(FileBrowserItem *item);
+    void itemPrintRequestedEvent(FileBrowserItem *item);
 
 private:
     DisplayMode m_displayMode = Page;

@@ -7,13 +7,9 @@ QAnimatedWidget::QAnimatedWidget(QWidget *parent)
     m_layout->setSpacing(0);
     m_layout->setContentsMargins(0,0,0,0);
 
-    m_snapshotLabel = new QLabel(this);
-    m_snapshotLabel->resize(size());
-    m_snapshotLabel->hide();
-
-    m_animationFinal = new QWidgetAnimation(this, parent);
-    m_animationIn = new QWidgetAnimation(this, parent);
-    m_animationOut = new QWidgetAnimation(this, parent);
+    m_animationFinal = new QWidgetAnimation(this, this);
+    m_animationIn = new QWidgetAnimation(this, this);
+    m_animationOut = new QWidgetAnimation(this, this);
 
     connect(m_animationIn, SIGNAL(finished()), this, SLOT(on_animationIn_finished()));
     connect(m_animationFinal, SIGNAL(finished()), this, SLOT(on_animationFinal_finished()));
@@ -25,26 +21,42 @@ QAnimatedWidget::QAnimatedWidget(QWidget *parent)
 QAnimatedWidget::~QAnimatedWidget()
 {
     if(m_animationIn)
-        delete m_animationIn;
+        m_animationIn->deleteLater();
 
     if(m_animationFinal)
-        delete m_animationFinal;
+        m_animationFinal->deleteLater();
 
     if(m_animationOut)
-        delete m_animationOut;
+        m_animationOut->deleteLater();
 
     if(m_snapshotLabel)
-        delete m_snapshotLabel;
+    {
+        if(m_layout)
+            m_layout->removeWidget(m_snapshotLabel);
+
+        m_snapshotLabel->deleteLater();
+    }
 
     if(m_widget)
+    {
+        if(m_layout)
+            m_layout->removeWidget(m_widget);
+
         m_widget->deleteLater();
+    }
 
     if(m_layout)
-        delete m_layout;
+        m_layout->deleteLater();
 }
 
 void QAnimatedWidget::animateIn()
 {
+    if(!m_snapshotLabel)
+    {
+        m_snapshotLabel = new QLabel(this);
+        m_snapshotLabel->resize(size());
+    }
+
     if(m_animationIn->hasAnimationType(QWidgetAnimation::Position))
     {
         m_animationIn->setStartPosition(m_positionOut);
@@ -91,8 +103,8 @@ void QAnimatedWidget::animateIn()
 
     if(m_widget)
     {
-        m_widget->setProperty("isAnimating", true);
         m_widget->render(&painter, QPoint(), QRegion(), QWidget::DrawChildren);
+        m_widget->setProperty("isAnimating", true);
     }
 
     m_snapshotLabel->setPixmap(QPixmap::fromImage(snapshot));
@@ -112,6 +124,17 @@ void QAnimatedWidget::animateIn()
 
 void QAnimatedWidget::animateOut()
 {
+    if(m_animationIn->isAnimating())
+    {
+        m_animationIn->stop();
+    }
+
+    if(!m_snapshotLabel)
+    {
+        m_snapshotLabel = new QLabel(this);
+        m_snapshotLabel->resize(size());
+    }
+
     if(m_animationOut->hasAnimationType(QWidgetAnimation::Position))
     {
         m_animationOut->setStartPosition(m_positionIn);
@@ -158,8 +181,8 @@ void QAnimatedWidget::animateOut()
 
     if(m_widget)
     {
-        m_widget->setProperty("isAnimating", true);
         m_widget->render(&painter, QPoint(), QRegion(), QWidget::DrawChildren);
+        m_widget->setProperty("isAnimating", true);
     }
 
     m_snapshotLabel->setPixmap(QPixmap::fromImage(snapshot));
@@ -220,7 +243,7 @@ void QAnimatedWidget::on_animationOut_finished()
             m_snapshotLabel->hide();
 
         if(m_widget)
-            m_widget->setProperty("isAnimating", false);
+            m_widget->show();
 
         emit animatedOut();
     }
@@ -231,10 +254,14 @@ void QAnimatedWidget::on_animationOut_finished()
 void QAnimatedWidget::on_animationFinal_finished()
 {
     if(m_snapshotLabel)
+    {
         m_snapshotLabel->hide();
+        delete m_snapshotLabel;
+        m_snapshotLabel = nullptr;
+    }
 
     if(m_widget)
-        m_widget->setProperty("isAnimating", false);
+        m_widget->show();
 
     emit animatedOut();
 }

@@ -12,7 +12,7 @@
 #include "../../types/printer.h"
 
 #include "filebrowser/filebrowser.h"
-#include "bedmesh/bedmeshwidget.h"
+#include "bedmesh/q3dprintbedmeshviewer.h"
 #include "offline/printerofflinescreen.h"
 #include "terminal/printerterminal.h"
 
@@ -21,6 +21,8 @@
 #include "../../ui/layouts/qflowlayout.h"
 
 #include "widgets/toolhead/control/toolheadcontrolframe.h"
+
+#include "settings/printersettingspage.h"
 
 namespace Ui {
 class PrinterPage;
@@ -56,11 +58,11 @@ protected:
 
 private slots:
     void on_xPosDecreaseButton_clicked();
-    void on_terminalButton_toggled(bool checked);
-    void on_overviewButton_toggled(bool checked);
-    void on_filesButton_toggled(bool checked);
-    void on_bedMeshButton_toggled(bool checked);
-    void on_settingsButton_toggled(bool checked);
+    void terminalButtonClickEvent();
+    void overviewButtonClickEvent();
+    void fileBrowserButtonClickEvent();
+    void bedMeshViewerButtonClickEvent();
+    void settingsButtonClickEvent();
     void on_printerUpdate(Printer *printer);
 
     void on_homeToolheadButton_clicked();
@@ -89,6 +91,9 @@ private slots:
 
     void on_positionApplyButton_clicked();
 
+    void printerStartupEvent(Printer *printer);
+    void printerDisconnectEvent(Printer *printer);
+
 private:
 
     CircularProgressBar *m_chamberTemperatureBar;
@@ -96,9 +101,8 @@ private:
 
     FileBrowser *m_fileBrowser = nullptr;
     FileBrowser *m_overviewBrowser = nullptr;
-    FileBrowser *m_configBrowser = nullptr;
 
-    Q3DPrintBedMeshWidget *m_bedMeshWidget = nullptr;
+    Q3DPrintBedMeshViewer *m_bedMeshWidget = nullptr;
     PrinterOfflineScreen *m_printerOfflineScreen = nullptr;
     PrinterTerminal *m_terminal = nullptr;
 
@@ -126,8 +130,16 @@ private:
 
     bool m_animating = false;
 
-
     QRegularExpression m_number_expression = QRegularExpression("\\d+");
+
+    QIconButton *m_overviewButton = nullptr;
+    QIconButton *m_terminalButton = nullptr;
+    QIconButton *m_fileBrowserButton = nullptr;
+    QIconButton *m_bedMeshViewerButton = nullptr;
+    QIconButton *m_settingsButton = nullptr;
+    QSpacerItem *m_buttonSpacer = nullptr;
+
+    PrinterSettingsPage *m_printerSettingsPage = nullptr;
 };
 
 #endif // PRINTERPAGE_H

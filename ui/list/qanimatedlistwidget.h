@@ -44,6 +44,7 @@ public:
 
 signals:
     void itemSelected(QAnimatedListItem *item);
+    void itemDoubleClicked(QAnimatedListItem *item);
 
 private slots:
     void on_listItem_animationOut_finished(QAnimatedListItem *item);
@@ -51,9 +52,12 @@ private slots:
 
     void on_item_selected(QAnimatedListItem *item);
     void on_item_deselected(QAnimatedListItem *item);
+    void itemDoubleClickedEvent(QAnimatedListItem *item);
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
+
+    int m_animatingItems = 0;
 
     QList<QAnimatedListItem*> m_items;
     QList<QAnimatedListItem*> m_selectedItems;

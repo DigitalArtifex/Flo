@@ -34,5 +34,6 @@
         <file>images/ui/toolhead/home_clicked.png</file>
         <file>images/ui/toolhead/home_default.png</file>
         <file>images/ui/toolhead/home_hover.png</file>
+        <file>images/ui/filebrowser/no_gcode_thumbnail.png</file>
     </qresource>
 </RCC>

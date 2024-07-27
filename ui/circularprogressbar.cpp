@@ -25,6 +25,11 @@ void CircularProgressBar::setProgress(qreal progress)
     update();
 }
 
+void CircularProgressBar::setFontSize(qreal fontSize)
+{
+    m_fontSize = fontSize;
+}
+
 void CircularProgressBar::paintEvent(QPaintEvent *event)
 {
     this->progress = (current / max);
@@ -32,7 +37,7 @@ void CircularProgressBar::paintEvent(QPaintEvent *event)
     qreal pd = progress * 360;
     qreal rd = 360 - pd;
     QPainter p(this);
-    int pathWidth = 12;
+    int pathWidth = 8;
     int pathRadius = 0;
     int paddingX, paddingY;
 
@@ -72,7 +77,7 @@ void CircularProgressBar::paintEvent(QPaintEvent *event)
     //pen2.setDashOffset(2.2);
     p.strokePath(path2, pen2);
 
-    int fontScale = (14 * (width() / minimumWidth()));
+    qreal fontScale = (m_fontSize * (width() / minimumWidth()));
     //fontScale = 24;
 
     QFont font(Settings::digitalFontFamily());

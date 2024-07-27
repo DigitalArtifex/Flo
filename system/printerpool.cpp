@@ -52,7 +52,7 @@ void PrinterPool::updatePrinter(PrinterDefinition definition)
 {
     if(m_printerPool.contains(definition.id))
     {
-        m_printerPool[definition.id]->update(definition);
+        //m_printerPool[definition.id]->update(definition);
         Settings::updatePrinter(definition);
         Settings::save();
     }
@@ -91,7 +91,7 @@ void PrinterPool::loadPrinters(QObject *parent)
 
     if(!hasDefault && !m_printerPool.isEmpty())
     {
-        Settings::setDefaultPrinter(m_printerPool[0]->definition());
+        Settings::setDefaultPrinter(m_printerPool.first()->definition());
     }
 }
 

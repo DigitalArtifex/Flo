@@ -26,6 +26,10 @@ PrinterBedWidget::PrinterBedWidget(Q3DPrintBed *printerBed, QWidget *parent)
     ui->bedMeshTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar" << "PrinterSubWidget"));
     ui->adjustmentFrameTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar" << "PrinterSubWidget"));
 
+    ui->settingsTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar"));
+    ui->settingsTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
+    ui->bedSettingsWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
+
     m_bedMeshFrame = new BedMeshFrame(m_printerBed, ui->bedMeshContent);
     ui->bedMeshContent->layout()->addWidget(m_bedMeshFrame);
 
@@ -38,6 +42,8 @@ PrinterBedWidget::PrinterBedWidget(Q3DPrintBed *printerBed, QWidget *parent)
 PrinterBedWidget::~PrinterBedWidget()
 {
     delete m_bedTemperatureBar;
+    delete m_adjustmentScrewFrame;
+    delete m_bedMeshFrame;
     delete ui;
 }
 
@@ -48,6 +54,9 @@ void PrinterBedWidget::on_printerBed_update(Q3DPrintBed *printBed)
     ui->bedTargetTempLabel->setText(QString::number(printBed->targetTemp()) + QString("°"));
     ui->bedPowerLabel->setText(QString::number(printBed->power()) + QString(""));
     ui->bedTemperatureLabel->setText(QString::number(printBed->currentTemp()) + QString("°"));
+
+    if(!m_targetTempEdited)
+        ui->targetTempSpinBox->setValue(printBed->targetTemp());
 }
 
 void PrinterBedWidget::on_printerOnline(Printer *printer)
@@ -88,4 +97,32 @@ void PrinterBedWidget::setIcons()
 
     pixmap = Settings::getThemeIcon(QString("adjustment-screw-icon")).pixmap(18,18);
     ui->adjustmentScrewIcon->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon("settings-icon").pixmap(18,18);
+    ui->settingsFrameIcon->setPixmap(pixmap);
+
+    pixmap = Settings::getThemeIcon("temperature-icon").pixmap(18,18);
+    ui->targetTemperatureIconLabel->setPixmap(pixmap);
 }
+
+void PrinterBedWidget::on_applyButton_clicked()
+{
+    m_printerBed->setTargetTemp(ui->targetTempSpinBox->value());
+    m_targetTempEdited = false;
+}
+
+void PrinterBedWidget::on_resetButton_clicked()
+{
+    ui->targetTempSpinBox->setValue(m_printerBed->targetTemp());
+    m_targetTempEdited = false;
+}
+
+
+void PrinterBedWidget::on_targetTempSpinBox_valueChanged(double arg1)
+{
+    bool changed = (arg1 != m_printerBed->targetTemp());
+    m_targetTempEdited = changed;
+    ui->resetButton->setEnabled(changed);
+    ui->applyButton->setEnabled(changed);
+}
+

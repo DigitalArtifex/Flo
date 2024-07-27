@@ -80,7 +80,7 @@ void PrinterTerminalItem::setResponse(const KlipperResponse &response)
 
     m_messageTimestampLabel->setText(m_message.timestamp.toString(QString("hh:mm:ss - ")) + QString::number(span) + QString("s"));
 
-    style()->polish(this);
+    update();
 }
 
 void PrinterTerminalItem::setErrorMessage(QString title, QString message)

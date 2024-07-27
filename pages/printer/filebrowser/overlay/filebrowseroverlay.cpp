@@ -17,9 +17,6 @@ FileBrowserOverlay::~FileBrowserOverlay()
 {
     if(m_label)
         delete m_label;
-
-    if(m_layout)
-        delete m_layout;
 }
 
 void FileBrowserOverlay::setupUi()
@@ -29,7 +26,6 @@ void FileBrowserOverlay::setupUi()
     m_label->setAlignment(Qt::AlignCenter);
 
     m_iconLabel = new QLabel(this);
-    m_iconLabel->setText(QString(""));
     m_iconLabel->setAlignment(Qt::AlignCenter);
 
     QPixmap pixmap = Settings::getThemeIcon(QString("empty-icon")).pixmap(64,64);
@@ -37,14 +33,15 @@ void FileBrowserOverlay::setupUi()
 
     m_topSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_bottomSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_middleSpacer = new QSpacerItem(20,20, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
-    m_layout = new QGridLayout(this);
-    m_layout->addItem(m_topSpacer,0,0);
-    m_layout->addWidget(m_label);
-    m_layout->addWidget(m_iconLabel);
-    m_layout->addItem(m_bottomSpacer,3,0);
+    QGridLayout *layout = qobject_cast<QGridLayout*>(this->layout());
 
-    setLayout(m_layout);
+    layout->addItem(m_topSpacer,0,0);
+    layout->addWidget(m_iconLabel,1,0);
+    layout->addItem(m_middleSpacer,2,0);
+    layout->addWidget(m_label,3,0);
+    layout->addItem(m_bottomSpacer,4,0);
 }
 
 void FileBrowserOverlay::setText(const QString &text)

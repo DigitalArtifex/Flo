@@ -4,8 +4,6 @@ QWidgetAnimation::QWidgetAnimation(QWidget *target, QObject *parent) :
     QObject(parent)
 {
     m_target = target;
-    m_animations = new QParallelAnimationGroup();
-    connect(m_animations, SIGNAL(finished()), this, SLOT(on_animationsFinished()));
 }
 
 QWidgetAnimation::~QWidgetAnimation()
@@ -13,7 +11,7 @@ QWidgetAnimation::~QWidgetAnimation()
     if(m_geometryAnimation)
         delete m_geometryAnimation;
 
-    if(m_blurEffect)
+    /*if(m_blurEffect)
         delete m_blurEffect;
 
     if(m_blurAnimation)
@@ -38,7 +36,7 @@ QWidgetAnimation::~QWidgetAnimation()
         delete m_minWidthAnimation;
 
     if(m_positionAnimation)
-        delete m_positionAnimation;
+        delete m_positionAnimation;*/
 
     if(m_animations)
         delete m_animations;
@@ -47,6 +45,7 @@ QWidgetAnimation::~QWidgetAnimation()
 void QWidgetAnimation::start()
 {
     m_animations = new QParallelAnimationGroup();
+    connect(m_animations, SIGNAL(finished()), this, SLOT(on_animationsFinished()));
 
     emit started();
 
@@ -121,13 +120,21 @@ void QWidgetAnimation::start()
     }
 
     connect(m_animations, SIGNAL(finished()), this, SLOT(on_animationsFinished()));
-    m_animations->start(QAbstractAnimation::KeepWhenStopped);
+    m_animations->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void QWidgetAnimation::stop()
 {
     if(m_animations)
+    {
         m_animations->stop();
+        on_animationsFinished();
+    }
+}
+
+bool QWidgetAnimation::isAnimating()
+{
+    return m_animations ? m_animations->state() == QParallelAnimationGroup::Running : false;
 }
 
 qreal QWidgetAnimation::startOpacity() const
@@ -267,8 +274,97 @@ void QWidgetAnimation::setDuration(qint32 newDuration)
 
 void QWidgetAnimation::on_animationsFinished()
 {
-    if(m_target)
-        m_target->setGraphicsEffect(0);
+    if(m_opacityEffect)
+    {
+        delete m_opacityEffect;
+        m_opacityEffect = nullptr;
+
+        if(m_target)
+            m_target->setGraphicsEffect(0);
+    }
+
+    if(m_blurEffect)
+    {
+        delete m_blurEffect;
+        m_blurEffect = nullptr;
+
+        if(m_target)
+            m_target->setGraphicsEffect(0);
+    }
+
+    /*if(m_geometryAnimation)
+    {
+        delete m_geometryAnimation;
+        m_geometryAnimation = nullptr;
+    }
+
+    if(m_opacityEffect)
+    {
+        delete m_opacityEffect;
+        m_opacityEffect = nullptr;
+
+        if(m_target)
+            m_target->setGraphicsEffect(0);
+    }
+
+    if(m_opacityAnimation)
+    {
+        delete m_opacityAnimation;
+        m_opacityAnimation = nullptr;
+    }
+
+    if(m_blurEffect)
+    {
+        delete m_blurEffect;
+        m_blurEffect = nullptr;
+
+        if(m_target)
+            m_target->setGraphicsEffect(0);
+    }
+
+    if(m_blurAnimation)
+    {
+        delete m_blurAnimation;
+        m_blurAnimation = nullptr;
+    }
+
+    if(m_maxHeightAnimation)
+    {
+        delete m_maxHeightAnimation;
+        m_maxHeightAnimation = nullptr;
+    }
+
+    if(m_maxWidthAnimation)
+    {
+        delete m_maxWidthAnimation;
+        m_maxWidthAnimation = nullptr;
+    }
+
+    if(m_minHeightAnimation)
+    {
+        delete m_minHeightAnimation;
+        m_minHeightAnimation = nullptr;
+    }
+
+    if(m_minWidthAnimation)
+    {
+        delete m_minWidthAnimation;
+        m_minWidthAnimation = nullptr;
+    }
+
+    if(m_positionAnimation)
+    {
+        delete m_positionAnimation;
+        m_positionAnimation = nullptr;
+    }
+
+    if(m_animations)
+    {
+        delete m_animations;
+        m_animations = nullptr;
+    }*/
+
+    m_animations = nullptr;
 
     emit finished();
 }

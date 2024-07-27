@@ -1,7 +1,7 @@
 #ifndef FILEEDITOR_H
 #define FILEEDITOR_H
 
-#include <QMainWindow>
+#include <QDialog>
 #include "../../../../QSourceHighlite/qsourcehighliter.h"
 #include "../../../../types/klipperfile.h"
 #include "../../../../types/printer.h"
@@ -10,7 +10,7 @@ namespace Ui {
 class FileEditor;
 }
 
-class FileEditor : public QMainWindow
+class FileEditor : public QDialog
 {
     Q_OBJECT
 
@@ -25,6 +25,8 @@ public:
 
     KlipperFile file() const;
     void setFile(const KlipperFile &file);
+
+    virtual void setStyleSheet(QString &styleSheet);
 
 private slots:
     void on_resetButton_clicked();

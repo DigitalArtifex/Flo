@@ -36,6 +36,8 @@ public:
         qreal firstLayerExtruderTemp = 0;
         qreal objectHeight = 0;
         qreal filamentTotal = 0;
+        qreal filamentTotalWeight = 0;
+        qreal nozzleDiameter = 0;
 
         qint32 jobId = 0;
         qint64 estimatedTime = 0;
@@ -44,8 +46,10 @@ public:
         qint64 size = 0;
 
         QString filename;
+        QString filamentName;
         QString slicer;
         QString slicerVersion;
+        QString uuid;
 
         QList<Thumbnail> thumbnails;
     };

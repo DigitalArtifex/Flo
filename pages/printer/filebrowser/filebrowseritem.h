@@ -34,11 +34,14 @@ public:
 signals:
     void printRequested(FileBrowserItem *item);
     void deleteRequested(FileBrowserItem *item);
-    void createRequested(FileBrowserItem *item);
-    void saveRequested(FileBrowserItem *item);
+    void editRequested(FileBrowserItem *item);
 
 private slots:
     virtual void setupUi();
+
+    void printActionTriggered(bool checked);
+    void editActionTriggered(bool checked);
+    void deleteActionTriggered(bool checked);
 
 private:
     KlipperFile m_file = KlipperFile();
@@ -57,6 +60,11 @@ private:
     QSpacerItem *m_spacer = nullptr;
 
     DisplayMode m_displayMode = Page;
+
+    //Context menu
+    QAction *m_printAction = nullptr;
+    QAction *m_editAction = nullptr;
+    QAction *m_deleteAction = nullptr;
 };
 
 #endif // FILEBROWSERITEM_H

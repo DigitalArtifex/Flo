@@ -17,6 +17,7 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QTimer>
+#include <QStorageInfo>
 #include <QtConcurrent/QtConcurrent>
 
 #include "../klipperfile.h"
@@ -70,8 +71,8 @@ public:
 
     virtual void shutdown() = 0;
 
-    virtual void sendCommand(KlipperMessage message) = 0;
-    virtual void sendCommand(QString command, KlipperMessage::MessageOrigin origin = KlipperMessage::System) = 0;
+    virtual void sendCommand(KlipperMessage message, bool immediate = false) = 0;
+    virtual void sendCommand(QString command, KlipperMessage::MessageOrigin origin = KlipperMessage::System, bool immediate = false) = 0;
     virtual void connectToMoonraker() = 0;
     virtual void disconnectKlipper() = 0;
 
@@ -135,6 +136,7 @@ public:
     virtual void serverConfig();
     virtual void serverFileRoots();
     virtual void serverFilesMetadata(QString fileName);
+    virtual void serverFilesMetadata(KlipperFile file);
 
     //Store management
     virtual void serverTemperatureStore();
@@ -264,7 +266,7 @@ signals:
     void machineUpdatedFull();
     void machineUpdatedMoonraker();
     void machineUpdatedKlipper();
-    void machineUpdatedClient();
+    void machineUpdatedClient(QString client);
     void machineUpdatedSystem();
 
     //Access signals
@@ -279,6 +281,7 @@ protected slots:
     //Socket slots
     virtual void on_moonrakerSocket_readyRead();
     virtual void on_messageReady();
+    virtual void responseReceivedEvent();
 
     //Timer slots
     virtual void on_klipperRestartTimer_timeout();
@@ -376,6 +379,7 @@ protected:
 
     QQueue<QByteArray> m_messageDataQueue;
     QQueue<StartupFunction> m_startupSequence;
+    QQueue<KlipperMessage> m_messageOutbox;
     QMap<QString, ParserFunction> m_parserMap;
     QMap<QString, ParserFunction> m_actionMap;
     QMap<int, KlipperMessage> m_klipperMessageBuffer;
@@ -391,11 +395,16 @@ protected:
 
     QString m_moonrakerLocation;
     QString m_moonrakerVersion;
+    QString m_progressText;
+
+    qreal m_progress = 0.0;
+    qint64 m_progressSteps = 0;
 
     ConsoleState m_state;
 
     bool m_isKlipperConnected = false;
     bool m_isMoonrakerConnected = false;
+    bool m_awaitingResponse = false;
 
     int m_startupState = 0;
     qint64 m_waitForOkId = 0;

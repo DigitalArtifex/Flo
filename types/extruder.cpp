@@ -111,7 +111,7 @@ void Extruder::retract(qreal amount, qreal speed)
 
 qreal Extruder::watts() const
 {
-    qDebug() << QString("Extruder wattage ") + QString::number(m_maxWatts * m_power) + QString(" of ") + QString::number(m_maxWatts) + QString(" - ") + QString::number(m_power);
+    //qDebug() << QString("Extruder wattage ") + QString::number(m_maxWatts * m_power) + QString(" of ") + QString::number(m_maxWatts) + QString(" - ") + QString::number(m_power);
     return (m_maxWatts * m_power);
 }
 

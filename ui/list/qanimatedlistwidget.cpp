@@ -58,6 +58,7 @@ void QAnimatedListWidget::addItem(QAnimatedListItem *item)
     connect(item, SIGNAL(animationIn_finished(QAnimatedListItem*)), this, SLOT(on_listItem_animationIn_finished(QAnimatedListItem*)));
     connect(item, SIGNAL(selected(QAnimatedListItem*)), this, SLOT(on_item_selected(QAnimatedListItem*)));
     connect(item, SIGNAL(deselected(QAnimatedListItem*)), this, SLOT(on_item_deselected(QAnimatedListItem*)));
+    connect(item, SIGNAL(doubleClicked(QAnimatedListItem*)), this, SLOT(itemDoubleClickedEvent(QAnimatedListItem*)));
 
     QString styleSheet = Settings::currentTheme();
     item->setStyleSheet(styleSheet);
@@ -99,6 +100,7 @@ void QAnimatedListWidget::removeItem(QAnimatedListItem *item)
             item->setDuration(1);
 
         connect(item, SIGNAL(animationOut_finished(QAnimatedListItem*)), this, SLOT(on_listItem_animationOut_finished(QAnimatedListItem*)));
+        ++m_animatingItems;
         item->animateOut();
     }
 }
@@ -191,8 +193,11 @@ void QAnimatedListWidget::setEmptyIcon(const QIcon &icon)
 
 void QAnimatedListWidget::on_listItem_animationOut_finished(QAnimatedListItem *item)
 {
-    m_items.removeAll(item);
+    m_items.removeOne(item);
     item->deleteLater();
+
+    if(m_animatingItems > 0)
+        --m_animatingItems;
 
     if(m_items.isEmpty())
     {
@@ -207,6 +212,15 @@ void QAnimatedListWidget::on_listItem_animationOut_finished(QAnimatedListItem *i
 
         m_emptyListItem->setFixedSize(size());
         m_emptyListItem->raise();
+    }
+    else if(m_animatingItems <= 0)
+    {
+        foreach (QAnimatedListItem *item, m_items) {
+            setAnimationSlide(item);
+        }
+
+        if(m_animatingItems < 0)
+            m_animatingItems = 0;
     }
 }
 
@@ -247,10 +261,15 @@ void QAnimatedListWidget::on_item_selected(QAnimatedListItem *item)
 void QAnimatedListWidget::on_item_deselected(QAnimatedListItem *item)
 {
     if(m_selectedItems.contains(item))
-        m_selectedItems.removeAll(item);
+        m_selectedItems.removeOne(item);
 
     if(m_selectedItems.count() <= 0)
         emit itemSelected(nullptr);
+}
+
+void QAnimatedListWidget::itemDoubleClickedEvent(QAnimatedListItem *item)
+{
+    emit itemDoubleClicked(item);
 }
 
 void QAnimatedListWidget::resizeEvent(QResizeEvent *event)

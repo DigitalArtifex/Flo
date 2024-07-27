@@ -17,12 +17,18 @@ public:
     // QKlipperConsole interface
 public:
     virtual void shutdown() override;
-    virtual void sendCommand(QString command, KlipperMessage::MessageOrigin origin) override;
-    virtual void sendCommand(KlipperMessage message) override;
+    virtual void sendCommand(QString command, KlipperMessage::MessageOrigin origin = KlipperMessage::System, bool forced = false) override;
+    virtual void sendCommand(KlipperMessage message, bool immediate = false) override;
     virtual void connectToMoonraker() override;
     virtual void disconnectKlipper() override;
     virtual QString downloadFile(KlipperFile file) override;
     virtual bool uploadFile(QString root, QString directory, QString name, QByteArray data) override;
+
+protected slots:
+    virtual void responseReceivedEvent() override;
+
+private:
+
 };
 
 #endif // QLOCALKLIPPERCONSOLE_H

@@ -61,6 +61,7 @@ private:
 
     QRect m_geometryIn = QRect(0,0,0,0);
     QRect m_geometryOut = QRect(0,0,0,0);
+
     QPoint m_positionIn = QPoint(0,0);
     QPoint m_positionOut = QPoint(0,0);
 

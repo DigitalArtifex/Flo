@@ -4,38 +4,53 @@
 
 :root
 {
-  /* Theme Variables */
+  /* ---- Theme Variables ---- */
+  --frameless-dialogs: false;
+
+  /* Graph Variables */
   --graph-plot-background-start: #292929;
   --graph-plot-background-end: #292929;
+  --graph-plot-foreground: #4b4b4b;
   --graph-background-start: #4b4b4b;
   --graph-background-end: #4b4b4b;
+  --graph-animations-enabled: true;
+
+  /* Code highlighter Variables */
+  --highlight-block: #9B8C1D;
+  --highlight-keyword: #006699;
+  --highlight-string: #446699;
+  --highlight-comment: #006699;
+  --highlight-type: #006699;
+  --highlight-other: #006699;
+  --highlight-numerical: #D433FF;
+  --highlight-builtin: #006699;
 
   --page-title-font-size: 14pt;
 
   --widget-font-size: 10pt;
   --widget-background-color: #292929;
-  --widget-border-size: 2;
-  --widget-border-color-1: #4b4b4b;
-  --widget-border-color-2: #141414;
+  --widget-border-size: 2px;
+  --widget-border-color-start: #4b4b4b;
+  --widget-border-color-end: #141414;
   --widget-title-background-color: transparent;
   --widget-title-font-size: 12pt;
-  --widget-titlebar-background-color-1: #353535;
-  --widget-titlebar-background-color-2: #303030;
+  --widget-titlebar-background-color-start: #353535;
+  --widget-titlebar-background-color-end: #303030;
 
   /* Sub Widget */
   --subwidget-title-font-size: 10pt;
   --subwidget-font-size: 8pt;
-  --subwidget-border-size: 2;
-  --subwidget-border-color-1: #1F1F1F;
-  --subwidget-border-color-2: #4b4b4b;
+  --subwidget-border-size: 2px;
+  --subwidget-border-color-start: #1F1F1F;
+  --subwidget-border-color-end: #4b4b4b;
   --subwidget-background-color: #1F1F1F;
-  --subwidget-titlebar-background-color-1: #252525;
-  --subwidget-titlebar-background-color-2: #202020;
+  --subwidget-titlebar-background-color-start: #252525;
+  --subwidget-titlebar-background-color-end: #202020;
 
-  --page-overview-background-color-1: #252525;
-  --page-overview-background-color-2: #202020;
-  --page-overview-titlebar-background-color-1: #353535;
-  --page-overview-titlebar-background-color-2: #303030;
+  --page-overview-background-color-start: #252525;
+  --page-overview-background-color-end: #202020;
+  --page-overview-titlebar-background-color-start: #353535;
+  --page-overview-titlebar-background-color-end: #303030;
 
   /* Bed Mesh */
   --bedmesh-background-color: #04728B;
@@ -59,20 +74,87 @@
   --item-success-color: #04a84e;
   --item-pressed-color: #01758f;
   --item-selected-color: #04728B;
-  --item-border-gradient-1: ;
-  --item-border-gradient-2: ;
-  --item-selected-border-gradient-1: ;
-  --item-selected-border-gradient-2: ;
-  --item-highlight-border-gradient-1: ;
-  --item-highlight-border-gradient-2: ;
+  --item-border-gradient-start: #4b4b4b;
+  --item-border-gradient-end: #232323;
+  --item-selected-border-gradient-start: #2f2f2f;
+  --item-selected-border-gradient-end: #2f2f2f;
+  --item-highlight-border-gradient-start: #3f3f3f;
+  --item-highlight-border-gradient-end: #353535;
 
-  --page-background-color: #111111; 
-	--primary-highlight: #006699;
-	--secondary-highlight: #590099;
-	--ready-highlight: #00994c;
-	--warning-highlight: #292929;
-	--color_Danger: #292929;
+  --page-background-color: #171a1f;
+  --primary-highlight: #006699;
+  --secondary-highlight: #590099;
+  --ready-highlight: #00994c;
+  --warning-highlight: #292929;
+  --color_Danger: #292929;
   --default-font-color: #F4F1DE;
+  --window-backgound-color: #242424;
+
+  --button-background-color-start: #353535;
+  --button-background-color-end: #333333;
+  --button-pressed-background-color-start: #303030;
+  --button-pressed-background-color-end: #3f3f3f;
+  --button-hover-background-color-start: #3f3f3f;
+  --button-hover-background-color-end: #353535;
+
+  --button-border-color-start: #4b4b4b;
+  --button-border-color-end: #232323;
+  --button-pressed-border-color-start: #4b4b4b;
+  --button-pressed-border-color-end: #232323;
+  --button-hover-border-color-start: #4b4b4b;
+  --button-hover-border-color-end: #232323;
+
+  --button-border-size: 2px;
+  --button-border-radius: 0px;
+
+  --dialog-border-color: #41454a;
+  --dialog-border-size: 1px;
+  --dialog-border-radius: 0px;
+}
+
+.MenuButton
+{
+  width: 218px;
+  min-width: 218px;
+  max-width: 218px;
+  height: 54px;
+  min-height: 54px;
+  max-height: 54px;
+  border: none;
+  border-radius: 0px;
+}
+
+.MenuButton QLabel
+{
+  font-size: 10pt;
+}
+
+.MenuButton[checked=true]
+{
+  height: 50px;
+  min-height: 50px;
+  max-height: 50px;
+  border-bottom: 2px solid white;
+  border-top: 2px solid white;
+  border-right: 2px solid white;
+  background-color: #292929;
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #292929, stop: 1 #141414);
+  border-top-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #232323);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #141414);
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+}
+
+.MenuButton:hover
+{
+  background-color: #4b4b4b;
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #232323, stop: 1 #141414);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #232323);
+}
+
+.MenuButton QIcon
+{
+  padding: 10px;
+  size: 32px;
 }
 
 QLabel 
@@ -86,7 +168,7 @@ QLabel
   background-color: transparent;
 }
 
-QMainWindow
+QMainWindow, QWindow, QDialog
 {
   background-color: var(--window-backgound-color);
   border-radius: 0px;
@@ -111,10 +193,10 @@ QScrollArea
   border-top: var(--widget-border-size) solid black;
   border-right: var(--widget-border-size) solid black;
   border-bottom: var(--widget-border-size) solid black;
-  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--widget-border-color-2), stop: 1 var(--widget-border-color-1));
-  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--widget-border-color-2), stop: 1 var(--widget-border-color-1));
-  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--widget-border-color-2), stop: 1 var(--widget-border-color-1));
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--widget-border-color-2), stop: 1 var(--widget-border-color-1));
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--widget-border-color-end), stop: 1 var(--widget-border-color-start));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--widget-border-color-end), stop: 1 var(--widget-border-color-start));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--widget-border-color-end), stop: 1 var(--widget-border-color-start));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--widget-border-color-end), stop: 1 var(--widget-border-color-start));
 }
 
 .DashboardWidgetTitleBar, .WidgetTitleBar
@@ -122,7 +204,7 @@ QScrollArea
   font-size: var(--widget-font-size);
   background-color: var(--widget-background-color);
   border: none;
-  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--widget-titlebar-background-color-2), stop: 1 var(--widget-titlebar-background-color-1));
+  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--widget-titlebar-background-color-end), stop: 1 var(--widget-titlebar-background-color-start));
 }
 
 .PageOverview .WidgetTitleBar
@@ -130,7 +212,7 @@ QScrollArea
   font-size: var(--page-title-font-size);
   background-color: var(--widget-background-color);
   border: none;
-  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--page-overview-titlebar-background-color-2), stop: 1 var(--page-overview-titlebar-background-color-1));
+  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--page-overview-titlebar-background-color-end), stop: 1 var(--page-overview-titlebar-background-color-start));
 }
 
 .DashboardWidget:hover, .Widget:hover
@@ -141,10 +223,10 @@ QScrollArea
   border-top: var(--widget-border-size) solid black;
   border-right: var(--widget-border-size) solid black;
   border-bottom: var(--widget-border-size) solid black;
-  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-2));
-  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-2));
-  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-2));
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-2));
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-end));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-end));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-end));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-end));
 }
 
 .DashboardSubWidget, .SubWidget
@@ -155,10 +237,10 @@ QScrollArea
   border-top: var(--subwidget-border-size) solid black;
   border-right: var(--subwidget-border-size) solid black;
   border-bottom: var(--subwidget-border-size) solid black;
-  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
 }
 
 .SubWidget QLabel
@@ -170,13 +252,13 @@ QScrollArea
 {
   font-size: var(--subwidget-title-font-size);
   border: none;
-  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-titlebar-background-color-2), stop: 1 var(--subwidget-titlebar-background-color-1));
+  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-titlebar-background-color-end), stop: 1 var(--subwidget-titlebar-background-color-start));
 }
 
 .PageOverview
 {
   border: none;
-  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--page-overview-background-color-2), stop: 1 var(--page-overview-background-color-1));
+  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--page-overview-background-color-end), stop: 1 var(--page-overview-background-color-start));
 }
 
 .DashboardWidgetTitle .WidgetTitle
@@ -223,10 +305,10 @@ QScrollArea
   border-top: var(--widget-border-size) solid black;
   border-right: var(--widget-border-size) solid black;
   border-bottom: var(--widget-border-size) solid black;
-  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--widget-border-color-1), stop: 1 var(--widget-border-color-2));
-  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--widget-border-color-1), stop: 1 var(--widget-border-color-2));
-  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--widget-border-color-1), stop: 1 var(--widget-border-color-2));
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--widget-border-color-1), stop: 1 var(--widget-border-color-2));
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--widget-border-color-start), stop: 1 var(--widget-border-color-end));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--widget-border-color-start), stop: 1 var(--widget-border-color-end));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--widget-border-color-start), stop: 1 var(--widget-border-color-end));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--widget-border-color-start), stop: 1 var(--widget-border-color-end));
 }
 
 .ErrorFrame
@@ -272,40 +354,6 @@ QScrollArea
   border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
 }
 
-.MenuButton
-{
-  width: 218px;
-  min-width: 218px;
-  max-width: 218px;
-  height: 54px;
-  min-height: 54px;
-  max-height: 54px;
-  border: none;
-  border-radius: 0px;
-}
-
-.MenuButton[checked=true]
-{
-  height: 50px;
-  min-height: 50px;
-  max-height: 50px;
-  border-bottom: 2px solid white;
-  border-top: 2px solid white;
-  border-right: 2px solid white;
-  background-color: #292929;
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #292929, stop: 1 #141414);
-  border-top-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #232323);
-  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #141414);
-  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
-}
-
-.MenuButton:hover
-{
-  background-color: #4b4b4b;
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #232323, stop: 1 #141414);
-  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #232323);
-}
-
 .DashboardMenuButton
 {
   border-top: none;
@@ -317,12 +365,6 @@ QScrollArea
   height: 54px;
   min-height: 54px;
   max-height: 54px;
-}
-
-.MenuButton QIcon
-{
-  padding: 10px;
-  size: 32px;
 }
 
 .Menu
@@ -489,6 +531,12 @@ QScrollArea
   background-color: rgba(0,0,0,200);
 }
 
+.PopupOverlay QLabel
+{
+  font-size: 11pt;
+  font-weight: bold;
+}
+
 .Popup
 {
   background-color: #c70c0c;
@@ -515,8 +563,26 @@ QScrollArea
 
 .FileBrowserItemTitle
 {
-  font-size: 12pt;
+  font-size: 11pt;
   font-weight: bold;
+}
+
+.FileWidgetItemTitle
+{
+  font-size: 10pt;
+  font-weight: bold;
+}
+
+.FileWidgetItemDetails
+{
+  font-size: 8pt;
+  font-style: italic;
+}
+
+.FileBrowserItemDetails
+{
+  font-size: 10pt;
+  font-style: italic;
 }
 
 .FileBrowser
@@ -536,7 +602,7 @@ QScrollArea
   background-color: var(--item-selected-color);
 }
 
-.FileBrowserItem > QLabel
+.FileBrowserItem QLabel
 {
   background-color: transparent;
 }
@@ -549,7 +615,7 @@ QScrollArea
 
 .PrinterListItemName
 {
-  font-size: 12pt;
+  font-size: 11pt;
   font-weight: bold;
 }
 
@@ -558,6 +624,12 @@ QScrollArea
   padding: 0px;
 
   background-color: var(--list-background-color);
+}
+
+.PrinterListItem
+{
+  border-top: 1px solid var(--item-highlight-color);
+  background-color: var(--item-background-color);
 }
 
 .PrinterListItem:hover
@@ -580,12 +652,6 @@ QScrollArea
   background-color: transparent;
 }
 
-.PrinterListItem[selected="false"]
-{
-  border-top: 1px solid var(--item-highlight-color);
-  background-color: var(--item-background-color);
-}
-
 .List
 {
   padding: 0px;
@@ -601,7 +667,7 @@ QScrollArea
   border-bottom: var(--widget-border-size) solid black;
   border-radius: 10px;
   background-color: var(--item-background-color);
-  border-color: var(--subwidget-border-color-1);
+  border-color: var(--subwidget-border-color-start);
 }
 
 .ConsoleMessage:hover
@@ -859,60 +925,15 @@ QDoubleSpinBox:hover, QDoubleSpinBox:focus
 
 QDoubleSpinBox::up-button
 {
-    min-width: 14px;
-    min-height: 14px;
+  min-width: 14px;
+  min-height: 14px;
 
-    background-repeat: no-repeat;
-    background-position: center;
+  background-repeat: no-repeat;
+  background-position: center;
 
-    subcontrol-position: top right; /* position at the top right corner */
-    subcontrol-origin: padding;
+  subcontrol-position: top right; /* position at the top right corner */
+  subcontrol-origin: padding;
 
-    border-left: 2px solid black;
-    border-top: 2px solid black;
-    border-bottom: 2px solid black;
-    border-right: 2px solid black;
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-    border-top-right-radius: 0px;
-    border-bottom-right-radius: 0px;
-    border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
-    border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
-    border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #141414, stop: 1 #4b4b4b);
-    border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
-    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #3d3d3d, stop: 1 #333333);
-    border-image: url(:/images/icons8-chevron-up-64.png);
-}
-
-QDoubleSpinBox::down-button
-{
-    min-width: 14px;
-    min-height: 14px;
-
-    background-repeat: no-repeat;
-    background-position: center;
-
-    subcontrol-position: bottom  right; /* position at the top right corner */
-    subcontrol-origin: padding;
-
-    border-left: 2px solid black;
-    border-top: 2px solid black;
-    border-bottom: 2px solid black;
-    border-right: 2px solid black;
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-    border-top-right-radius: 0px;
-    border-bottom-right-radius: 0px;
-    border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
-    border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
-    border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #141414, stop: 1 #4b4b4b);
-    border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
-    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #3d3d3d, stop: 1 #333333);
-    border-image: url(:/images/icons8-chevron-down-64.png);
-}
-
-QPushButton, QToolButton
-{
   border-left: 2px solid black;
   border-top: 2px solid black;
   border-bottom: 2px solid black;
@@ -926,15 +947,20 @@ QPushButton, QToolButton
   border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #141414, stop: 1 #4b4b4b);
   border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
   background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #3d3d3d, stop: 1 #333333);
+  border-image: url(:/images/icons8-chevron-up-64.png);
 }
 
-QPushButton:pressed, QToolButton:pressed, QToolButton:checked
+QDoubleSpinBox::down-button
 {
-  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #2f2f2f, stop: 1 #2f2f2f);
-}
+  min-width: 14px;
+  min-height: 14px;
 
-QPushButton:hover, QToolButton:hover
-{
+  background-repeat: no-repeat;
+  background-position: center;
+
+  subcontrol-position: bottom  right; /* position at the top right corner */
+  subcontrol-origin: padding;
+
   border-left: 2px solid black;
   border-top: 2px solid black;
   border-bottom: 2px solid black;
@@ -943,11 +969,51 @@ QPushButton:hover, QToolButton:hover
   border-bottom-left-radius: 0px;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #141414, stop: 1 #4b4b4b);
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #3d3d3d, stop: 1 #333333);
+  border-image: url(:/images/icons8-chevron-down-64.png);
+}
+
+QPushButton, QToolButton, .Button
+{
+  border: var(--button-border-size) solid black;
+  border-radius: var(--button-border-radius);
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #141414, stop: 1 #4b4b4b);
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--button-background-color-start), stop: 1 var(--button-background-color-end));
+}
+
+QPushButton:hover, QToolButton:hover, .Button:hover
+{
+  border: var(--button-border-size) solid black;
+  border-radius: var(--button-border-radius);
   border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 #006699, stop: 1 #4b4b4b);
   border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #006699, stop: 1 #4b4b4b);
   border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #006699, stop: 1 #4b4b4b);
   border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #006699, stop: 1 #4b4b4b);
-  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #3f3f3f, stop: 1 #353535);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--button-hover-background-color-start), stop: 1 var(--button-hover-background-color-end));
+}
+
+QPushButton:pressed, QToolButton:pressed, QToolButton:checked, .Button[pressed=true], .Button[checked=true]
+{
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--button-pressed-background-color-start), stop: 1 var(--button-pressed-background-color-end));
+}
+
+.Button QLabel
+{
+  font-size: 9pt;
+  font-weight: bold;
+}
+
+.Button[checked=true] QLabel
+{
+  font-size: 9pt;
+  font-weight: bolder;
 }
 
 QTabWidget[class="Page"]
@@ -970,10 +1036,10 @@ QTabWidget[class="Page"]::pane
   border-top: var(--widget-border-size) solid black;
   border-right: var(--widget-border-size) solid black;
   border-bottom: var(--widget-border-size) solid black;
-  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
 }
 
 .BedMeshItem[level_low=true]
@@ -983,10 +1049,10 @@ QTabWidget[class="Page"]::pane
   border-top: var(--widget-border-size) solid black;
   border-right: var(--widget-border-size) solid black;
   border-bottom: var(--widget-border-size) solid black;
-  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
 }
 
 .BedMeshItem[level_very_low=true]
@@ -996,10 +1062,10 @@ QTabWidget[class="Page"]::pane
   border-top: var(--widget-border-size) solid black;
   border-right: var(--widget-border-size) solid black;
   border-bottom: var(--widget-border-size) solid black;
-  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
 }
 
 .BedMeshItem[level_high=true]
@@ -1009,10 +1075,10 @@ QTabWidget[class="Page"]::pane
   border-top: var(--widget-border-size) solid black;
   border-right: var(--widget-border-size) solid black;
   border-bottom: var(--widget-border-size) solid black;
-  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
 }
 
 .BedMeshItem[level_very_high=true]
@@ -1022,23 +1088,20 @@ QTabWidget[class="Page"]::pane
   border-top: var(--widget-border-size) solid black;
   border-right: var(--widget-border-size) solid black;
   border-bottom: var(--widget-border-size) solid black;
-  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
 }
 
 .AdjustmentScrewItem
 {
   background-color: var(--adjustment-screw-background-color);
-  border-left: var(--widget-border-size) solid black;
-  border-top: var(--widget-border-size) solid black;
-  border-right: var(--widget-border-size) solid black;
-  border-bottom: var(--widget-border-size) solid black;
-  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-1), stop: 1 var(--subwidget-border-color-2));
+  border: var(--widget-border-size) solid black;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
 }
 
 .WebcamTitle
@@ -1060,4 +1123,47 @@ QTabWidget[class="Page"]::pane
 .QMaskedButton:hover
 {
   border: 2px solid blue;
+}
+
+.Thumbnail
+{
+  border: var(--widget-border-size) solid black;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-left-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--subwidget-border-color-start), stop: 1 var(--subwidget-border-color-end));
+}
+
+.Dialog
+{
+  border: var(--dialog-border-size) solid var(--dialog-border-color);
+  border-radius: var(--dialog-border-radius);
+}
+
+.DialogHeading
+{
+  font-size: 14pt;
+}
+
+.DialogInfo
+{
+  font-size: 10pt;
+}
+
+QMenu
+{
+  width: 200px;
+  font-size: 11pt;
+}
+
+QMenu::item
+{
+  height: 35px;
+}
+
+QMenu::icon
+{
+  height: 24px;
+  width: 24px;
+  font-size: 11pt;
 }

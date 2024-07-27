@@ -18,6 +18,7 @@ public:
     QString gcodeLocation;
     QString configFile;
     QString apiKey;
+    QString color;
     bool autoConnect = true;
     bool defaultPrinter = false;
     qreal extruderWattage = 0;

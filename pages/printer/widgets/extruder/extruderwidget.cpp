@@ -26,11 +26,6 @@ void ExtruderWidget::setExtruder(Extruder *extruder)
     connect(m_extruder->printer()->console(), SIGNAL(extrudersUpdate()), this, SLOT(on_console_extrudersUpdate()));
 }
 
-void ExtruderWidget::update()
-{
-    QWidget::update();
-}
-
 void ExtruderWidget::setUiClasses()
 {
     ui->statsWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
@@ -48,7 +43,7 @@ void ExtruderWidget::setUiClasses()
 
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
 
-    style()->polish(this);
+    update();
 }
 
 void ExtruderWidget::setStyleSheet(QString &styleSheet)
@@ -57,7 +52,7 @@ void ExtruderWidget::setStyleSheet(QString &styleSheet)
 
     setIcons();
 
-    style()->polish(this);
+    update();
 }
 
 void ExtruderWidget::setIcons()
@@ -83,7 +78,7 @@ void ExtruderWidget::setIcons()
     pixmap = Settings::getThemeIcon("settings-icon").pixmap(18,18);
     ui->settingsFrameIcon->setPixmap(pixmap);
 
-    style()->polish(this);
+    update();
 }
 
 void ExtruderWidget::on_extrsuionFactorSlider_valueChanged(int value)

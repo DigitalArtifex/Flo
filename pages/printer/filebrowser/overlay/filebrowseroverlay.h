@@ -29,6 +29,7 @@ private:
 
     QSpacerItem *m_topSpacer = nullptr;
     QSpacerItem *m_bottomSpacer = nullptr;
+    QSpacerItem *m_middleSpacer = nullptr;
 
     QGridLayout *m_layout = nullptr;
 };

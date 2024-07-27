@@ -30,6 +30,8 @@ public:
     virtual void start();
     virtual void stop();
 
+    bool isAnimating();
+
     qreal startOpacity() const;
     void setStartOpacity(qreal newStartOpacity);
 

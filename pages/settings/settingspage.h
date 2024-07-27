@@ -9,6 +9,10 @@
 
 #include "theme/themesettingspage.h"
 
+#include "QSourceHighlite/qsourcehighliter.h"
+
+using namespace QSourceHighlite;
+
 namespace Ui {
 class SettingsPage;
 }
@@ -27,21 +31,15 @@ signals:
     void printerAdded(PrinterDefinition definition);
 
 private slots:
-    void on_addPrinterButton_clicked();
-    void on_addPrinterWizardFinished(int result);
-    void on_addPrinterWizardCancelled();
+    void printerListWidgetItemSelectedEvent(PrinterListItem *item);
 
-    void on_printerListWidget_itemSelected(PrinterListItem *item);
+    void editPrinterButtonClickEvent();
+    void addPrinterButtonClickEvent();
+    void removePrinterButtonClickEvent();
 
-    void on_removePrinterButton_clicked();
-
-    void on_editPrinterButton_clicked();
-
-    void on_printersButton_toggled(bool checked);
-
-    void on_themeButton_toggled(bool checked);
-
-    void on_systemButton_toggled(bool checked);
+    void printersActionButtonClickEvent();
+    void themeActionButtonClickEvent();
+    void systemActionButtonClickEvent();
 
 private:
     Ui::SettingsPage *ui;
@@ -51,6 +49,14 @@ private:
     PrinterListWidget *m_printerListWidget = nullptr;
 
     ThemeSettingsPage *m_themeSettingsPage = nullptr;
+
+    QIconButton *m_addPrinterButton = nullptr;
+    QIconButton *m_editPrinterButton = nullptr;
+    QIconButton *m_removePrinterButton = nullptr;
+
+    QIconButton *m_printersActionButton = nullptr;
+    QIconButton *m_themeActionButton = nullptr;
+    QIconButton *m_systemActionButton = nullptr;
 };
 
 #endif // SETTINGSPAGE_H

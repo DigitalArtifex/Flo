@@ -12,6 +12,7 @@
 #include <QMovie>
 #include <QLabel>
 #include <QTimer>
+#include <QColorDialog>
 
 #include <QParallelAnimationGroup>
 
@@ -101,9 +102,9 @@ private:
     QPoint m_pagePositionOut = QPoint();
 
     //Menu Buttons
-    MenuButton *m_dashboardButton;
+    MenuButton *m_dashboardButton = nullptr;
     QList<MenuButton*> m_printerButtons = QList<MenuButton*>();
-    MenuButton *m_settingsButton;
+    MenuButton *m_settingsButton = nullptr;
 
     //Dialogs
     LoadingDialog *m_loading;

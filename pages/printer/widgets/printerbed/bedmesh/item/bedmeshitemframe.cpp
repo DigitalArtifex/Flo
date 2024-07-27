@@ -54,5 +54,5 @@ void BedMeshItemFrame::setValue(qreal value)
 
     ui->valueLabel->setText(QString::number(value));
 
-    style()->polish(this);
+    update();
 }

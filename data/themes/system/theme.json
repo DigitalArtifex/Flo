@@ -1,29 +1,26 @@
 {
     "name": "System Theme",
-	"color": "#006699",
-	"color_CodeBlock": "#9B8C1D",
-	"color_CodeKeyWord": "#006699",
-	"color_CodeString": "#446699",
-	"color_CodeComment": "#006699",
-	"color_CodeType": "#006699",
-	"color_CodeOther": "#006699",
-	"color_CodeNumLiteral": "#D433FF",
-	"color_CodeBuiltIn": "#006699",
-	"color_Graph": "#292929",
-	"color_Primary": "#006699",
-	"color_Secondary": "#590099",
-	"color_Ready": "#00994c",
-	"color_Warning": "#292929",
-	"color_Danger": "#292929",
+    "files":
+    [
+		"theme.css"
+    ],
     "icons":
 	[
 		{
-			"name": "printer-info",
-			"icon": "icons8-printer-maintenance-80.png" 
+			"name": "crowsnest-icon",
+			"icon": "icons8-pirate-50.png"
 		},
 		{
-			"name": "server-info",
-			"icon": "solid/server.svg" 
+			"name": "mainsail-icon",
+			"icon": "icons8-sail-96.png"
+		},
+		{
+			"name": "klipper-icon",
+			"icon": "klipper.png"
+		},
+		{
+			"name": "printer-info",
+			"icon": "icons8-printer-maintenance-80.png" 
 		},
 		{
 			"name": "dashboard",
@@ -99,7 +96,11 @@
 		},
 		{
 			"name": "print-icon",
-			"icon": "icons8-print-file-64.png" 
+			"icon": "icons8-print-file-64.png"
+		},
+		{
+			"name": "update-icon",
+			"icon": "icons8-update-64.png"
 		},
 		{
 			"name": "file-upload-icon",
@@ -111,7 +112,11 @@
 		},
 		{
 			"name": "file-icon",
-			"icon": "icons8-code-file-64.png" 
+			"icon": "icons8-code-file-64.png"
+		},
+		{
+			"name": "multiply-icon",
+			"icon": "icons8-multiply-64.png"
 		},
 		{
 			"name": "file-firmware-icon",
@@ -208,6 +213,14 @@
 		{
 			"name": "error-icon",
 			"icon": "icons8-error-64.png" 
+		},
+		{
+			"name": "edit-icon",
+			"icon": "icons8-edit-64.png"
+		},
+		{
+			"name": "theme-icon",
+			"icon": "icons8-theme-64.png"
 		},
 		{
 			"name": "voltage-icon",
@@ -367,7 +380,27 @@
 		},
 		{
 			"name": "settings-icon",
-			"icon": "icons8-settings-50.png" 
+			"icon": "icons8-settings-50.png"
+		},
+		{
+			"name": "settings-icon",
+			"icon": "icons8-settings-50.png"
+		},
+		{
+			"name": "delete-icon",
+			"icon": "icons8-trash-64.png"
+		},
+		{
+			"name": "start-icon",
+			"icon": "icons8-play-64.png"
+		},
+		{
+			"name": "stop-icon",
+			"icon": "icons8-stop-64.png"
+		},
+		{
+			"name": "user-icon",
+			"icon": "icons8-user-100.png"
 		}
 	]
 }

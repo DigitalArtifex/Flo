@@ -1,5 +1,4 @@
 #include "settings.h"
-#include "../QVariableSytleSheet/qvariablestylesheet.h"
 
 QMap<QString,QVariant> Settings::settings;
 QMap<QString,QVariant> Settings::themeSettings;
@@ -9,6 +8,7 @@ PrinterDefinitionList Settings::m_printers;
 Settings *Settings::m_instance = nullptr;
 QString Settings::m_currentTheme = "";
 QString Settings::m_digitalFontFamily = "";
+QVariableStyleSheet Settings::m_theme;
 
 void Settings::loadThemes()
 {
@@ -59,7 +59,8 @@ void Settings::loadThemes()
         }
     }
 
-    m_currentTheme = getTheme(get("system.theme").toString());
+    if(m_currentTheme.isEmpty())
+        m_currentTheme = getTheme(get("system.theme").toString());
 }
 
 void Settings::load()
@@ -125,6 +126,7 @@ void Settings::load()
                         printer.defaultPrinter = printerObject["default_printer"].toBool();
                         printer.autoConnect = printerObject["auto_connect"].toBool();
                         printer.apiKey = printerObject["api_key"].toString();
+                        printer.color = printerObject["color"].toString();
                         printer.extruderCount = printerObject["extruder_count"].toInt();
 
                         QJsonArray powerArray = printerObject["power_profile"].toArray();
@@ -190,6 +192,7 @@ void Settings::save()
         printerObject["klipper_location"] = m_printers[i].klipperLocation;
         printerObject["moonraker_location"] = m_printers[i].moonrakerLocation;
         printerObject["api_key"] = m_printers[i].apiKey;
+        printerObject["color"] = m_printers[i].color;
         printerObject["extruder_count"] = m_printers[i].extruderCount;
         printerObject["power_profile"] = powerArray;
 
@@ -198,9 +201,6 @@ void Settings::save()
 
     rootObject["printers"] = printerArray;
 
-    //Currently experiencing a bug that writes over a files to the length of the current data,
-    //but leaves the previously written data. Quite obviously a bug I'm creating as its been a while,
-    //but this fixes it for now.
     if(QFile(settingsFileLocation).exists())
     {
         QFile(settingsFileLocation).moveToTrash();
@@ -269,20 +269,22 @@ QString Settings::getTheme(QString key)
     QVariableStyleSheet sheet(theme);
     theme = sheet.process();
 
+    m_theme = sheet;
+
     QMap<QString,QString> themeVariables = sheet.variables();
 
     foreach(QString key, themeVariables.keys())
         settings[QString("theme-") + key] = themeVariables[key];
 
     //For Debug
-/*
-    QFile alteredFile(themeMap[key] + QString("2"));
+#ifdef THEME_DEBUG
+    QFile alteredFile(themeMap[key] + QString("_debug"));
     if(alteredFile.open(QFile::WriteOnly))
     {
         alteredFile.write(theme.toUtf8());
         alteredFile.close();
     }
-*/
+#endif
 
     QString themeLocation = QString(themeMap[key]).remove("theme.css");
     QString themeIconLocation = themeLocation + QDir::separator() + "icons" + QDir::separator();
@@ -303,34 +305,6 @@ QString Settings::getTheme(QString key)
         return QString();
     }
 
-    if(themeObject.contains(QString("color_CodeBlock")))
-        settings[QString("color_CodeBlock")] = themeObject[QString("color_CodeBlock")].toString();
-
-    if(themeObject.contains(QString("color_CodeKeyWord")))
-        settings[QString("color_CodeKeyWord")] = themeObject[QString("color_CodeKeyWord")].toString();
-
-    if(themeObject.contains(QString("color_CodeString")))
-        settings[QString("color_CodeString")] = themeObject[QString("color_CodeString")].toString();
-
-    if(themeObject.contains(QString("color_CodeComment")))
-        settings[QString("color_CodeComment")] = themeObject[QString("color_CodeComment")].toString();
-
-    if(themeObject.contains(QString("color_CodeType")))
-        settings[QString("color_CodeType")] = themeObject[QString("color_CodeType")].toString();
-
-    if(themeObject.contains(QString("color_CodeOther")))
-        settings[QString("color_CodeOther")] = themeObject[QString("color_CodeOther")].toString();
-
-    if(themeObject.contains(QString("color_CodeNumLiteral")))
-        settings[QString("color_CodeNumLiteral")] = themeObject[QString("color_CodeNumLiteral")].toString();
-
-    if(themeObject.contains(QString("color_CodeBuiltIn")))
-        settings[QString("color_CodeBuiltIn")] = themeObject[QString("color_CodeBuiltIn")].toString();
-
-    if(themeObject.contains(QString("color_Graph")))
-        settings[QString("color_Graph")] = themeObject[QString("color_Graph")].toString();
-
-
     QJsonArray themeIcons = themeObject["icons"].toArray();
     iconMap.empty();
 
@@ -344,6 +318,7 @@ QString Settings::getTheme(QString key)
             iconMap[themeIcon["name"].toString()] = loadedIcon;
         }
     }
+
     m_currentTheme = theme;
     return theme;
 }
@@ -433,4 +408,9 @@ QString Settings::digitalFontFamily()
 bool Settings::contains(QString key)
 {
     return settings.contains(key);
+}
+
+QVariableStyleSheet Settings::theme()
+{
+    return m_theme;
 }

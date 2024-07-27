@@ -26,7 +26,7 @@ public:
 
     virtual void setStyleSheet(QString styleSheet);
 
-private slots:
+protected slots:
     void on_printerPool_jobStarted(PrintJob *job);
     void on_printerPool_jobFinished(PrintJob *job);
     void on_printerPool_jobUpdated(PrintJob *job);

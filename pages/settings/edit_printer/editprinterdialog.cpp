@@ -2,6 +2,7 @@
 #include "ui_editprinterdialog.h"
 
 #include "../../../system/printerpool.h"
+#include "../../../validators/QHexColorValidator/qhexcolorvalidator.h"
 
 EditPrinterDialog::EditPrinterDialog(QWidget *parent)
     : QDialog(parent)
@@ -11,6 +12,8 @@ EditPrinterDialog::EditPrinterDialog(QWidget *parent)
     ui->printerInstanceLocationEdit->setValidator(new QMoonrakerValidator());
     ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
     connect(ui->printerInstanceLocationEdit, SIGNAL(textChanged(QString)), this, SLOT(on_printerInstanceLocationEdit_textChanged(QString)));
+
+    ui->colorEdit->setValidator(new QHexColorValidator());
 }
 
 EditPrinterDialog::~EditPrinterDialog()
@@ -118,10 +121,16 @@ void EditPrinterDialog::on_buttonBox_clicked(QAbstractButton *button)
 
 void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
 {
+    QGridLayout *layout = (QGridLayout*)ui->profileTab->layout();
+    layout->removeItem(ui->profileSpacer);
+
     if(arg1 > m_extruderCount)
     {
+
         for(int i = m_extruderCount; i < arg1; i++)
         {
+            int row = layout->rowCount();
+
             QLabel *m_extruderLabel = new QLabel(ui->profileTab);
             m_extruderLabel->setProperty("extruder", i);
             m_extruderLabel->setText(QString("Extruder ") + ((i > 0) ? QString::number(i) : QString("")));
@@ -131,8 +140,8 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
             m_extruderWattEdit->setAlignment(Qt::AlignRight);
             m_extruderWattEdit->setValue(m_printer->powerProfile()[(QString("extruder") + ((i > 0) ? QString::number(i) : QString("")))]);
 
-            ui->profileTab->layout()->addWidget(m_extruderLabel);
-            ui->profileTab->layout()->addWidget(m_extruderWattEdit);
+            layout->addWidget(m_extruderLabel, row, 0, 1, 1);
+            layout->addWidget(m_extruderWattEdit, row, 1, 1, 3);
         }
     }
     else
@@ -147,6 +156,7 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
                 {
                     if (labels[c]->property("extruder") == i)
                     {
+                        layout->removeWidget(labels[c]);
                         delete labels[c];
                     }
                 }
@@ -160,6 +170,7 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
                 {
                     if (edits[c]->property("extruder") == i)
                     {
+                        layout->removeWidget(edits[c]);
                         delete edits[c];
                     }
                 }
@@ -167,9 +178,7 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
         }
     }
 
-    ui->profileTab->layout()->removeItem(ui->profileSpacer);
-    ui->profileTab->layout()->addItem(ui->profileSpacer);
-    ui->profileTab->layout()->addItem(ui->profileSpacer);
+    layout->addItem(ui->profileSpacer, layout->rowCount(), 0, 1, layout->columnCount());
     m_extruderCount = arg1;
 }
 
@@ -190,7 +199,7 @@ void EditPrinterDialog::on_printerBrowseFilesButton_clicked()
     (
         this,
         tr("Open Directory"),
-        QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+        QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks | QFileDialog::DontUseNativeDialog
     );
 
     if(!dir.isEmpty())
@@ -200,7 +209,27 @@ void EditPrinterDialog::on_printerBrowseFilesButton_clicked()
 
 void EditPrinterDialog::on_printerKeyEdit_textChanged(const QString &arg1)
 {
+    Q_UNUSED(arg1)
+
     if(ui->printerInstanceLocationEdit->hasAcceptableInput())
         ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+}
+
+
+void EditPrinterDialog::on_colorEdit_textChanged(const QString &arg1)
+{
+    Q_UNUSED(arg1)
+
+    if(ui->colorEdit->hasAcceptableInput())
+        ui->colorDisplayLabel->setStyleSheet(QString("background-color: ") + ui->colorEdit->text() + QString(";"));
+}
+
+
+void EditPrinterDialog::on_colorPickerButton_clicked()
+{
+    QColor color = QColorDialog::getColor(QColor::fromString(ui->colorEdit->text()), this, ui->printerNameEdit->text(), QColorDialog::DontUseNativeDialog);
+
+    if(color.isValid())
+        ui->colorEdit->setText(color.name());
 }
 

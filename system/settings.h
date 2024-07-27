@@ -20,6 +20,7 @@
 #include <QFontDatabase>
 
 #include "../types/printer.h"
+#include "QVariableSytleSheet/qvariablestylesheet.h"
 
 class Settings
 {
@@ -58,8 +59,11 @@ public:
     static QString digitalFontFamily();
     static bool contains(QString key);
 
+    static QVariableStyleSheet theme();
+
 private:
     static Settings *m_instance;
+    static QVariableStyleSheet m_theme;
     static PrinterDefinitionList m_printers;
     static QString m_currentTheme;
 

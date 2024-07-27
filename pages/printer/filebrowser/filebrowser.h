@@ -13,13 +13,16 @@
 #include <QInputDialog>
 #include <QDialog>
 
-#include "../../../types/printer.h"
-#include "../../../types/klipperfile.h"
+#include "types/printer.h"
+#include "types/klipperfile.h"
 #include "filebrowserwidget.h"
-#include "filebrowseritem.h"
 
 #include "editor/fileeditor.h"
 #include "overlay/filebrowseroverlay.h"
+#include "preview/filepreviewwindow.h"
+#include "newfolder/newfolderdialog.h"
+
+#include "ui/QIconButton/qiconbutton.h"
 
 class FileBrowser : public QWidget
 {
@@ -42,29 +45,43 @@ public:
     virtual void setStyleSheet(const QString &styleSheet);
     virtual void resizeEvent(QResizeEvent *event);
 
+    void showOverlay(QString title, QString icon);
+    void hideOverlay();
+    void setActionsEnabled(bool enabled);
+
 private slots:
     //Tool buttons
-    void on_uploadFileButton_clicked(bool clicked);
-    void on_newFolderButton_clicked(bool clicked);
-    void on_downloadFolderButton_clicked(bool clicked);
-    void on_refreshButton_clicked(bool clicked);
-    void on_upDirectoryButton_clicked(bool clicked);
+    void uploadFileButtonClickEvent();
+    void newFolderButtonClickEvent();
+    void downloadFolderButtonClickEvent();
+    void refreshButtonClickEvent();
+    void upDirectoryButtonClickEvent();
 
     //Pushbuttons
-    void on_printFileButton_clicked();
-    void on_editFileButton_clicked();
-    void on_deleteFileButton_clicked();
+    void printFileButtonClickEvent();
+    void editFileButtonClickEvent();
+    void deleteFileButtonClickEvent();
 
     //Printer
-    void on_printer_update(Printer *printer);
-    void on_printer_fileListing(QString root, QString directory, QList<KlipperFile> files, Printer *printer);
-    void on_printer_startup(Printer *printer);
+    void printerFileListingEvent(QString root, QString directory, QList<KlipperFile> files, Printer *printer);
+    void printerStartupEvent(Printer *printer);
 
     //FileBrowserWidget
-    void on_fileBrowserWidget_fileSelected(QAnimatedListItem *item);
+    void fileBrowserWidgetFileSelectedEvent(QAnimatedListItem *item);
+    void fileDoubleClickEvent(QAnimatedListItem *item);
 
     //Overlay
-    void on_overlay_animatedOut();
+    void overlayAnimatedOutEvent();
+    void overlayAnimatedInEvent();
+
+    //New Folder Dialog
+    void newFolderDialogAcceptEvent(QString value);
+    void newFolderDialogRejectEvent();
+
+    //Item context menu
+    void itemDeleteRequestedEvent(FileBrowserItem *item);
+    void itemEditRequestedEvent(FileBrowserItem *item);
+    void itemPrintRequestedEvent(FileBrowserItem *item);
 
 private:
     bool m_startup = true;
@@ -82,9 +99,9 @@ private:
     QToolButton *m_downloadFolderButton = nullptr;
     QToolButton *m_upDirectoryButton = nullptr;
 
-    QPushButton *m_printFileButton = nullptr;
-    QPushButton *m_editFileButton = nullptr;
-    QPushButton *m_deleteFileButton = nullptr;
+    QIconButton *m_printFileButton = nullptr;
+    QIconButton *m_editFileButton = nullptr;
+    QIconButton *m_deleteFileButton = nullptr;
 
     QLabel *m_currentDirectoryLabel = nullptr;
     QLabel *m_thumbnailLabel = nullptr;
@@ -99,6 +116,8 @@ private:
     FileEditor *m_editor = nullptr;
 
     FileBrowserOverlay *m_overlay = nullptr;
+    FilePreviewWindow  *m_filePreview = nullptr;
+    NewFolderDialog    *m_newFolderDialog = nullptr;
 
     Mode m_mode = Page;
 };

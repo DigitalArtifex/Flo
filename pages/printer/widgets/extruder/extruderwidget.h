@@ -22,8 +22,6 @@ public:
 
     void setExtruder(Extruder *extruder);
 
-    void update();
-
     void setUiClasses();
 
     virtual void setStyleSheet(QString &styleSheet);
@@ -34,19 +32,12 @@ private slots:
 
     void on_extrusionFactorSpinBox_valueChanged(double value);
     void on_console_extrudersUpdate();
-
     void on_targetTempSpinBox_valueChanged(double arg1);
-
     void on_pressureAdvanceSpinBox_valueChanged(double arg1);
-
     void on_smoothTimeSpinBox_valueChanged(double arg1);
-
     void on_applyButton_clicked();
-
     void on_resetButton_clicked();
-
     void on_extrudeButton_clicked();
-
     void on_retractButton_clicked();
 
 private:

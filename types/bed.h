@@ -122,6 +122,8 @@ public:
     qreal maxWatts() const;
     void setMaxWatts(qreal maxWatts);
 
+    void setTargetTemp(qreal targetTemp);
+
 signals:
     void meshUpdated();
     void adjustmentScrewsUpdated();

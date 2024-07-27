@@ -54,6 +54,7 @@ void SystemWidget::setStyleSheet(QString styleSheet)
 
 void SystemWidget::on_printer_systemUpdate(Printer *printer)
 {
+    qDebug() << "System Update";
     m_systemCpuLoadProgressBar->setProgress(printer->system()->cpuInfo().usage);
 
     m_systemMemoryLoadProgressBar->setMaximum(printer->system()->memoryStats().total);
@@ -63,7 +64,7 @@ void SystemWidget::on_printer_systemUpdate(Printer *printer)
     qreal capacity = printer->system()->memoryStats().total;
     QString capacityLabel;
     convertBytes(capacity, capacityLabel);
-    memoryCapacityString += QString::number(capacity);
+    memoryCapacityString += QString::number(capacity, 'f', 2);
     memoryCapacityString += capacityLabel;
     ui->memoryCapacityLabel->setText(memoryCapacityString);
 
@@ -71,7 +72,7 @@ void SystemWidget::on_printer_systemUpdate(Printer *printer)
     qreal available = printer->system()->memoryStats().total - printer->system()->memoryStats().used;
     QString availableLabel;
     convertBytes(available, availableLabel);
-    memoryAvailableString += QString::number(available);
+    memoryAvailableString += QString::number(available, 'f', 2);
     memoryAvailableString += availableLabel;
     ui->memoryAvailableLabel->setText(memoryAvailableString);
 
@@ -98,9 +99,9 @@ void SystemWidget::on_printer_systemUpdate(Printer *printer)
     driveCapacityString = driveCapacityString + QString::number(driveCapacity) + driveUsedValueString;
     ui->driveCapacityLabel->setText(driveCapacityString);
 
+    */
     ui->hostnameLabel->setText(QString("Hostname: ") + printer->system()->hostname());
     ui->cpuInfoLabel->setText(m_printer->system()->cpuInfo().description);
-    */
 }
 
 void SystemWidget::on_printer_klipperDisconnected(Printer *printer)

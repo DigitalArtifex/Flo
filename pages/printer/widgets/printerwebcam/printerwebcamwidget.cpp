@@ -45,7 +45,7 @@ void PrinterWebcamWidget::setStyleSheet(QString &styleSheet)
 
     setIcons();
 
-    style()->polish(this);
+    update();
 }
 
 void PrinterWebcamWidget::setupUi()

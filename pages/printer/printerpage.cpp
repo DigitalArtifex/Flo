@@ -50,15 +50,14 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
     m_fileBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->gcodeTab->layout()->addWidget(m_fileBrowser);
 
-    m_configBrowser = new FileBrowser(printer, QString("config"));
-    m_configBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->settingsTab->layout()->addWidget(m_configBrowser);
+    m_printerSettingsPage = new PrinterSettingsPage(printer, ui->settingsTab);
+    ui->settingsTab->layout()->addWidget(m_printerSettingsPage);
 
-    //_bedMeshWidget = new Q3DPrintBedMeshWidget(ui->bedMeshTab);
-    //_bedMeshWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    //ui->bedMeshTab->layout()->addWidget(m_bedMeshWidget);
+    m_bedMeshWidget = new Q3DPrintBedMeshViewer(printer->bed(), ui->bedMeshTab);
+    m_bedMeshWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->bedMeshTab->layout()->addWidget(m_bedMeshWidget);
 
-    m_printerOfflineScreen = new PrinterOfflineScreen(this);
+    m_printerOfflineScreen = new PrinterOfflineScreen(printer, this);
     m_printerOfflineScreen->setGeometry(QRect(0,0,width(),height()));
     m_printerOfflineScreen->raise();
 
@@ -74,15 +73,75 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
     m_webcamWidget = new PrinterWebcamWidget(m_printer, ui->webcamContentWidget);
     ui->webcamContentWidget->layout()->addWidget(m_webcamWidget);
 
+    //Setup action bar buttons
+    QPixmap pixmap = Settings::getThemeIcon("add-icon").pixmap(28,28);
+    m_overviewButton = new QIconButton(this);
+    m_overviewButton->setFixedSize(250,50);
+    m_overviewButton->setText("Overview");
+    m_overviewButton->setPixmap(pixmap);
+    m_overviewButton->setEnabled(true);
+    m_overviewButton->setCheckable(true);
+    m_overviewButton->setExclusive(true);
+    m_overviewButton->setChecked(true);
+    ui->actionBar->layout()->addWidget(m_overviewButton);
+
+    pixmap = Settings::getThemeIcon("add-icon").pixmap(28,28);
+    m_terminalButton = new QIconButton(this);
+    m_terminalButton->setFixedSize(250,50);
+    m_terminalButton->setText("Terminal");
+    m_terminalButton->setPixmap(pixmap);
+    m_terminalButton->setEnabled(true);
+    m_terminalButton->setCheckable(true);
+    m_terminalButton->setExclusive(true);
+    ui->actionBar->layout()->addWidget(m_terminalButton);
+
+    pixmap = Settings::getThemeIcon("add-icon").pixmap(28,28);
+    m_fileBrowserButton = new QIconButton(this);
+    m_fileBrowserButton->setFixedSize(250,50);
+    m_fileBrowserButton->setText("G-Code Browser");
+    m_fileBrowserButton->setPixmap(pixmap);
+    m_fileBrowserButton->setEnabled(true);
+    m_fileBrowserButton->setCheckable(true);
+    m_fileBrowserButton->setExclusive(true);
+    ui->actionBar->layout()->addWidget(m_fileBrowserButton);
+
+    pixmap = Settings::getThemeIcon("add-icon").pixmap(28,28);
+    m_bedMeshViewerButton = new QIconButton(this);
+    m_bedMeshViewerButton->setFixedSize(250,50);
+    m_bedMeshViewerButton->setText("Bed Mesh Viewer");
+    m_bedMeshViewerButton->setPixmap(pixmap);
+    m_bedMeshViewerButton->setEnabled(true);
+    m_bedMeshViewerButton->setCheckable(true);
+    m_bedMeshViewerButton->setExclusive(true);
+    ui->actionBar->layout()->addWidget(m_bedMeshViewerButton);
+
+    pixmap = Settings::getThemeIcon("add-icon").pixmap(28,28);
+    m_settingsButton = new QIconButton(this);
+    m_settingsButton->setFixedSize(250,50);
+    m_settingsButton->setText("Machine Settings");
+    m_settingsButton->setPixmap(pixmap);
+    m_settingsButton->setEnabled(true);
+    m_settingsButton->setCheckable(true);
+    m_settingsButton->setExclusive(true);
+    ui->actionBar->layout()->addWidget(m_settingsButton);
+
+    m_buttonSpacer = new QSpacerItem(0,0, QSizePolicy::Expanding, QSizePolicy::Ignored);
+    ui->actionBar->layout()->addItem(m_buttonSpacer);
+
+    connect(m_overviewButton, SIGNAL(clicked()), this, SLOT(overviewButtonClickEvent()));
+    connect(m_terminalButton, SIGNAL(clicked()), this, SLOT(terminalButtonClickEvent()));
+    connect(m_bedMeshViewerButton, SIGNAL(clicked()), this, SLOT(bedMeshViewerButtonClickEvent()));
+    connect(m_fileBrowserButton, SIGNAL(clicked()), this, SLOT(fileBrowserButtonClickEvent()));
+    connect(m_settingsButton, SIGNAL(clicked()), this, SLOT(settingsButtonClickEvent()));
+
     setupUiClasses();
-    setStyleSheet(Settings::currentTheme());
+    //setStyleSheet(Settings::currentTheme());
 }
 
 PrinterPage::~PrinterPage()
 {
     delete m_chamberTemperatureBar;
     delete m_fileBrowser;
-    delete m_configBrowser;
 
     if(m_bedMeshWidget)
         delete m_bedMeshWidget;
@@ -164,7 +223,7 @@ void PrinterPage::setStyleSheet(QString styleSheet)
 void PrinterPage::setupUiClasses()
 {
     ui->actionBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageActionBar"));
-    ui->pageContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
+    ui->pageContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
     ui->tabWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
     ui->chamberWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
@@ -280,41 +339,51 @@ void PrinterPage::on_xPosDecreaseButton_clicked()
     m_printer->toolhead()->moveX(amount * -1);
 }
 
-void PrinterPage::on_terminalButton_toggled(bool checked)
+void PrinterPage::terminalButtonClickEvent()
 {
-    if(checked)
-        ui->tabWidget->setCurrentIndex(1);
+    ui->tabWidget->setCurrentIndex(1);
+    m_overviewButton->setChecked(false);
+    m_fileBrowserButton->setChecked(false);
+    m_bedMeshViewerButton->setChecked(false);
+    m_settingsButton->setChecked(false);
 }
 
-
-void PrinterPage::on_overviewButton_toggled(bool checked)
+void PrinterPage::overviewButtonClickEvent()
 {
-    if(checked)
-    {
-        ui->tabWidget->setCurrentIndex(0);
-        m_webcamWidget->show();
-    }
+    ui->tabWidget->setCurrentIndex(0);
+    m_webcamWidget->show();
+
+    m_terminalButton->setChecked(false);
+    m_fileBrowserButton->setChecked(false);
+    m_bedMeshViewerButton->setChecked(false);
+    m_settingsButton->setChecked(false);
 }
 
-
-void PrinterPage::on_filesButton_toggled(bool checked)
+void PrinterPage::fileBrowserButtonClickEvent()
 {
-    if(checked)
-        ui->tabWidget->setCurrentIndex(2);
+    ui->tabWidget->setCurrentIndex(2);
+    m_overviewButton->setChecked(false);
+    m_terminalButton->setChecked(false);
+    m_bedMeshViewerButton->setChecked(false);
+    m_settingsButton->setChecked(false);
 }
 
-
-void PrinterPage::on_bedMeshButton_toggled(bool checked)
+void PrinterPage::bedMeshViewerButtonClickEvent()
 {
-    if(checked)
-        ui->tabWidget->setCurrentIndex(3);
+    ui->tabWidget->setCurrentIndex(3);
+    m_overviewButton->setChecked(false);
+    m_fileBrowserButton->setChecked(false);
+    m_terminalButton->setChecked(false);
+    m_settingsButton->setChecked(false);
 }
 
-
-void PrinterPage::on_settingsButton_toggled(bool checked)
+void PrinterPage::settingsButtonClickEvent()
 {
-    if(checked)
-        ui->tabWidget->setCurrentIndex(4);
+    ui->tabWidget->setCurrentIndex(4);
+    m_overviewButton->setChecked(false);
+    m_fileBrowserButton->setChecked(false);
+    m_bedMeshViewerButton->setChecked(false);
+    m_terminalButton->setChecked(false);
 }
 
 void PrinterPage::on_printerUpdate(Printer *printer)
@@ -357,8 +426,6 @@ void PrinterPage::on_printerUpdate(Printer *printer)
     {
     case Printer::Ready:
         status = QString("Ready");
-        m_printerOfflineScreen->lower();
-        m_printerOfflineScreen->setHidden(true);
 
         pixmap = Settings::getThemeIcon(QString("printer-ready-icon")).pixmap(28,28);
         ui->statusIconLabel->setPixmap(pixmap);
@@ -399,9 +466,6 @@ void PrinterPage::on_printerUpdate(Printer *printer)
         ui->printSpeedSpinBox->setHidden(true);
         ui->printProgress->setHidden(true);
 
-        m_printerOfflineScreen->lower();
-        m_printerOfflineScreen->setHidden(true);
-
         pixmap = Settings::getThemeIcon(QString("printer-error-icon")).pixmap(28,28);
         ui->statusIconLabel->setPixmap(pixmap);
 
@@ -414,9 +478,6 @@ void PrinterPage::on_printerUpdate(Printer *printer)
 
         pixmap = Settings::getThemeIcon(QString("printer-cancelled-icon")).pixmap(28,28);
         ui->statusIconLabel->setPixmap(pixmap);
-
-        ui->restartFirmwareButton->setHidden(true);
-        ui->cancelPrintButton->setHidden(true);
         ui->fileLabel->setHidden(true);
         ui->etaLabel->setHidden(true);
         ui->printStatsLine->setHidden(true);
@@ -557,7 +618,7 @@ void PrinterPage::on_printerUpdate(Printer *printer)
             addFanLabels(printerFans[name], name);
     }
 
-    style()->polish(this);
+    update();
 }
 
 Printer *PrinterPage::printer() const
@@ -596,6 +657,8 @@ void PrinterPage::setPrinter(Printer *printer)
         addFanLabels(printerFans[name], name);
 
     connect(m_printer, SIGNAL(printerUpdate(Printer*)), this, SLOT(on_printerUpdate(Printer*)));
+    connect(m_printer->console(), SIGNAL(moonrakerDisconnected()), this, SLOT(on_printerUpdate(Printer*)));
+    connect(m_printer, SIGNAL(startup(Printer*)), this, SLOT(printerStartupEvent(Printer*)));
 }
 
 void PrinterPage::resizeEvent(QResizeEvent *event)
@@ -768,5 +831,17 @@ void PrinterPage::on_positionApplyButton_clicked()
     }
     else
         qDebug() << "Cannot move toolhead. Printer offline.";
+}
+
+void PrinterPage::printerStartupEvent(Printer *printer)
+{
+    m_printerOfflineScreen->lower();
+    m_printerOfflineScreen->setHidden(true);
+}
+
+void PrinterPage::printerDisconnectEvent(Printer *printer)
+{
+    m_printerOfflineScreen->raise();
+    m_printerOfflineScreen->setHidden(false);
 }
 

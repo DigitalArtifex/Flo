@@ -5,6 +5,7 @@
 #include <QAbstractButton>
 #include <QPushButton>
 #include <QFileDialog>
+#include <QColorDialog>
 
 #include "../../../types/printer.h"
 
@@ -31,13 +32,13 @@ public:
 
 private slots:
     void on_buttonBox_clicked(QAbstractButton *button);
-
     void on_extruderCountSpinBox_valueChanged(int arg1);
     void on_printerInstanceLocationEdit_textChanged(QString text);
-
     void on_printerBrowseFilesButton_clicked();
-
     void on_printerKeyEdit_textChanged(const QString &arg1);
+    void on_colorEdit_textChanged(const QString &arg1);
+
+    void on_colorPickerButton_clicked();
 
 private:
     Ui::EditPrinterDialog *ui;

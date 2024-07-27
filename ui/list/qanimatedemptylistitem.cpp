@@ -32,14 +32,16 @@ void QAnimatedEmptyListItem::setupUi()
 
     m_topSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_bottomSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_middleSpacer = new QSpacerItem(20,20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+    m_middleSpacer = new QSpacerItem(20,20, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
     QGridLayout *m_layout = (QGridLayout*)layout();
     m_layout->addItem(m_topSpacer,0,0);
-    m_layout->addWidget(m_label);
-    m_layout->addItem(m_middleSpacer,2,0);
     m_layout->addWidget(m_iconLabel);
+    m_layout->addItem(m_middleSpacer,2,0);
+    m_layout->addWidget(m_label);
     m_layout->addItem(m_bottomSpacer,4,0);
+
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PopupOverlay"));
 }
 
 void QAnimatedEmptyListItem::setText(const QString &text)

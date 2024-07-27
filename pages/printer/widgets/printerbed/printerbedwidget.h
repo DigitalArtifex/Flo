@@ -36,6 +36,11 @@ protected slots:
     void on_printerBed_update(Q3DPrintBed *printBed);
     void on_printerOnline(Printer* printer);
 
+private slots:
+    void on_applyButton_clicked();
+    void on_resetButton_clicked();
+    void on_targetTempSpinBox_valueChanged(double arg1);
+
 private:
     Ui::PrinterBedWidget *ui;
 
@@ -49,6 +54,8 @@ private:
     QSpacerItem *m_adjustmentScrewSpacer = nullptr;
 
     QPushButton *m_recalibrateButton = nullptr;
+
+    bool m_targetTempEdited = false;
 };
 
 #endif // PRINTERBEDWIDGET_H

@@ -1,11 +1,14 @@
 #ifndef PRINTJOB_H
 #define PRINTJOB_H
 
-#define DEBUG_PRINTJOB
+//#define DEBUG_PRINTJOB
 
 #include <QObject>
 #include <QTimer>
+
+#ifdef DEBUG_PRINTJOB
 #include <QRandomGenerator>
+#endif
 
 class Printer;
 

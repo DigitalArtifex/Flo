@@ -4,7 +4,7 @@
 using namespace QSourceHighlite;
 
 FileEditor::FileEditor(Printer *printer, QWidget *parent)
-    : QMainWindow(parent)
+    : QDialog(parent)
     , ui(new Ui::FileEditor)
 {
     ui->setupUi(this);
@@ -45,6 +45,11 @@ void FileEditor::setFile(const KlipperFile &file)
 
     QString fileContents = m_printer->console()->downloadFile(m_file);
     ui->textEdit->setText(fileContents);
+}
+
+void FileEditor::setStyleSheet(QString &styleSheet)
+{
+    QDialog::setStyleSheet(styleSheet);
 }
 
 void FileEditor::on_resetButton_clicked()

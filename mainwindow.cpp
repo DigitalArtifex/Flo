@@ -28,20 +28,6 @@ MainWindow::MainWindow(QWidget *parent)
     Settings::load();
     setStyleSheet(Settings::currentTheme());
 
-    LoadingPage *page = new LoadingPage(this);
-    m_loadingPage = new QAnimatedWidget(this);
-    m_loadingPage->setWidget(page);
-    m_loadingPage->setHidden(true);
-    ui->PageContainer->layout()->addWidget(m_loadingPage);
-
-    m_currentPage = m_loadingPage;
-    m_currentPage->setOpacityIn(1);
-    m_currentPage->setOpacityOut(0);
-    m_currentPage->setPositionIn(m_pagePositionIn);
-    m_currentPage->setPositionOut(QPoint(m_pageSize.width(), 0));
-    m_currentPage->setDuration(250);
-    m_currentPage->animateIn();
-
     m_initTimer = new QTimer(this);
     m_initTimer->setInterval(1000);
     m_initTimer->setSingleShot(true);
@@ -57,6 +43,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::changePage(QAnimatedWidget *page, QString title)
 {
+    if(page == m_currentPage)
+        return;
+
+    qDebug() << "Changing page to " << title;
+
     //Disable Buttons
     if(m_dashboardButton)
         m_dashboardButton->setEnabled(false);
@@ -135,19 +126,15 @@ void MainWindow::online()
 {
     setEnabled(true);
 
-    m_dashboardButton = new MenuButton(0, ui->menuFrame);
-    m_dashboardButton->setText(QString("Dashboard"));
-    m_dashboardButton->setIcon("dashboard");
-    m_dashboardButton->setChecked(true);
-    ui->menuButtonLayout->addWidget(m_dashboardButton);
-    connect(m_dashboardButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_dashboardMenuButton_toggled(MenuButton*)));
-
-    m_settingsButton = new MenuButton(3, ui->menuFrame);
-    m_settingsButton->setText(QString("Settings"));
-    m_settingsButton->setIcon("setting");
-    m_settingsButton->setChecked(false);
-    ui->menuButtonLayout->addWidget(m_settingsButton);
-    connect(m_settingsButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_settingsMenuButton_toggled(MenuButton*)));
+    if(!m_dashboardButton)
+    {
+        m_dashboardButton = new MenuButton(0, ui->menuFrame);
+        m_dashboardButton->setText(QString("Dashboard"));
+        m_dashboardButton->setIcon("dashboard");
+        m_dashboardButton->setChecked(true);
+        ui->menuButtonLayout->addWidget(m_dashboardButton);
+        connect(m_dashboardButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_dashboardMenuButton_toggled(MenuButton*)));
+    }
 
     m_titleOpacityEffect = new QGraphicsOpacityEffect(this);
 
@@ -174,7 +161,16 @@ void MainWindow::online()
         connect(printerButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_printerMenuButton_toggled(MenuButton*)));
     }
 
-    ui->menuButtonLayout->addWidget(m_settingsButton);
+    if(!m_settingsButton)
+    {
+        m_settingsButton = new MenuButton(3, ui->menuFrame);
+        m_settingsButton->setText(QString("Settings"));
+        m_settingsButton->setIcon("setting");
+        m_settingsButton->setChecked(false);
+        ui->menuButtonLayout->addWidget(m_settingsButton);
+        connect(m_settingsButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_settingsMenuButton_toggled(MenuButton*)));
+        ui->menuButtonLayout->addWidget(m_settingsButton);
+    }
 
     for(int i = 0; i < m_printerPages.count(); i++)
         m_printerPages[i]->resize(m_pageSize);
@@ -185,6 +181,7 @@ void MainWindow::online()
     updateStyleSheet();
 
     on_dashboardMenuButton_toggled(m_dashboardButton);
+    //on_settingsMenuButton_toggled(m_settingsButton);
 }
 
 void MainWindow::setupUiClasses()
@@ -276,9 +273,7 @@ void MainWindow::on_nextPage_animationIn_finished()
     for(int i = 0; i < m_printerButtons.count(); i++)
         m_printerButtons[i]->setEnabled(true);
 
-
-
-    style()->polish(this);
+    update();
 }
 
 void MainWindow::on_titleOpacityAnimation_finished()
@@ -317,9 +312,7 @@ void MainWindow::on_printerMenuButton_toggled(MenuButton* button)
 
 void MainWindow::updateStyleSheet()
 {
-    qDebug() << "Updating Theme";
-    QString styleKey = Settings::get("system.theme").toString();
-    QString style = Settings::getTheme(styleKey);
+    QString style = Settings::currentTheme();
 
     m_dashboardButton->setIcon(QString("dashboard"));
 

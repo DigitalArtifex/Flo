@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QMouseEvent>
 #include <QStyle>
+#include <QMenu>
 #include <QElapsedTimer>
 
 #include "../qwidgetanimation.h"
@@ -71,6 +72,9 @@ private slots:
     void on_animationIn_finished();
     void on_animationOut_finished();
 
+protected:
+    void setContextMenu(QMenu *menu);
+
 private:
     bool m_selectable = true;
     bool m_selected = false;
@@ -101,6 +105,8 @@ private:
     qint32 m_clickCount = 0;
 
     QWidget *m_widget = nullptr;
+
+    QMenu *m_contextMenu = nullptr;
 };
 
 #endif // QANIMATEDLISTITEM_H

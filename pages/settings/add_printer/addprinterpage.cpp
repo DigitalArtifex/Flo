@@ -14,6 +14,13 @@ AddPrinterPage::AddPrinterPage(QWidget *parent) :
     ui->printerIconLabel->setScaledContents(true);
 
     ui->colorEdit->setValidator(new QHexColorValidator());
+
+    QString randomColor("#");
+
+    for(int i = 0; i < 6; i++)
+        randomColor += hexCodes.at(QRandomGenerator::global()->bounded(15));
+
+    ui->colorEdit->setText(randomColor);
 }
 
 AddPrinterPage::~AddPrinterPage()
@@ -21,7 +28,7 @@ AddPrinterPage::~AddPrinterPage()
     delete ui;
 }
 
-bool AddPrinterPage::isComplete()
+bool AddPrinterPage::validatePage()
 {
     if(ui->nameEdit->text().isEmpty())
         return false;
@@ -38,11 +45,6 @@ bool AddPrinterPage::isComplete()
     return true;
 }
 
-bool AddPrinterPage::validatePage()
-{
-    return isComplete();
-}
-
 PrinterDefinition AddPrinterPage::definition()
 {
     PrinterDefinition definition;
@@ -52,6 +54,7 @@ PrinterDefinition AddPrinterPage::definition()
     definition.autoConnect = ui->autoConnectCheckBox->isChecked();
     definition.defaultPrinter = ui->defaultPrinterCheckBox->isChecked();
     definition.id = QUuid::createUuid().toString();
+    definition.color = ui->colorEdit->text();
 
     return definition;
 }
@@ -71,10 +74,35 @@ void AddPrinterPage::on_browseFilesButton_clicked()
     (
         this,
         tr("Open Directory"),
-        QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+        QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks | QFileDialog::DontUseNativeDialog
     );
 
     if(!dir.isEmpty())
         ui->instanceEdit->setText(dir);
+}
+
+
+void AddPrinterPage::on_colorPickerButton_clicked()
+{
+    QColorDialog *colorDialog = new QColorDialog;
+    colorDialog->setWindowFlags(Qt::Window);
+    colorDialog->setOptions(
+        /* do not use native dialog */
+        QColorDialog::DontUseNativeDialog
+        );
+
+    QColor color = QColorDialog::getColor(QColor::fromString(ui->colorEdit->text()), this, ui->nameEdit->text(), QColorDialog::DontUseNativeDialog);
+
+    if(color.isValid())
+        ui->colorEdit->setText(color.name());
+}
+
+
+void AddPrinterPage::on_colorEdit_textChanged(const QString &arg1)
+{
+    if(ui->colorEdit->hasAcceptableInput())
+    {
+        ui->colorDisplayLabel->setStyleSheet(QString("background-color: ") + ui->colorEdit->text() + QString(";"));
+    }
 }
 

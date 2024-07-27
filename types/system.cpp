@@ -1,13 +1,15 @@
 #include "system.h"
 #include "printer.h"
 
-System::System(QObject *parent)
+System::System(Printer *printer, QObject *parent)
     : QObject{parent}
 {
+    m_console = printer->console();
 }
 
 System::~System()
 {
+
 }
 
 void System::setHostname(QString hostname)
@@ -52,7 +54,7 @@ void System::setDriveFree(qint64 driveFree)
 
 QStringList System::availableServices() const
 {
-    return m_availableServices;
+    return m_serviceStates.keys();
 }
 
 void System::setAvailableServices(const QStringList &availableServices)
@@ -133,6 +135,8 @@ System::SdInfo System::sdInfo() const
 void System::setSdInfo(const SdInfo &sdInfo)
 {
     m_sdInfo = sdInfo;
+
+    emit sdInfoUpdate();
 }
 
 QList<System::MoonrakerStatsEntry> System::moonrakerStats() const
@@ -243,6 +247,8 @@ System::UpdateState System::updateState() const
 void System::setUpdateState(const UpdateState &updateState)
 {
     m_updateState = updateState;
+
+    emit updateStateUpdate();
 }
 
 System::JobQueue System::jobQueue() const
@@ -263,6 +269,8 @@ System::VirtualSDCard System::virtualSDCard() const
 void System::setVirtualSDCard(const VirtualSDCard &virtualSDCard)
 {
     m_virtualSDCard = virtualSDCard;
+
+    emit virtualSDCardUpdate();
 }
 
 System::MCU System::mcu() const
@@ -273,6 +281,8 @@ System::MCU System::mcu() const
 void System::setMcu(const MCU &mcu)
 {
     m_mcu = mcu;
+
+    emit mcuChanged();
 }
 
 System::SafeZHome System::safeZHome() const
@@ -292,4 +302,67 @@ void System::restart()
         qDebug() << printer->name() + QString(": Restarting firmware");
         printer->console()->restartFirmware();
     }
+}
+
+void System::startService(QString service)
+{
+    if(m_console->isMoonrakerConnected())
+        m_console->machineServiceStart(service);
+}
+
+void System::stopService(QString service)
+{
+    if(m_console->isMoonrakerConnected())
+        m_console->machineServiceStop(service);
+}
+
+void System::restartService(QString service)
+{
+    if(m_console->isMoonrakerConnected())
+        m_console->machineServiceRestart(service);
+}
+
+void System::updateServices()
+{
+    if(m_console->isMoonrakerConnected())
+        m_console->machineSystemInfo();
+}
+
+void System::setServiceStates(QList<ServiceState> serviceStates)
+{
+    m_serviceStates.clear();
+
+    foreach(ServiceState state, serviceStates)
+        m_serviceStates[state.name] = state;
+
+    emit serviceStatesUpdate();
+}
+
+void System::updateProcStats()
+{
+    m_console->machineProcStats();
+}
+
+void System::createUser(QString username, QString password)
+{
+    m_console->accessCreateUser(username, password);
+}
+
+void System::update()
+{
+    emit updated();
+}
+
+void System::setUserList(const QList<User> &userList)
+{
+    m_userList = userList;
+
+    emit userListChanged();
+}
+
+void System::setNetworkStats(const QMap<QString, NetworkStatsEntry> &NetworkStats)
+{
+    m_networkStats = NetworkStats;
+
+    emit networkStatsChanged();
 }

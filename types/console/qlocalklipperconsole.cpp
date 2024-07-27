@@ -25,18 +25,30 @@ void QLocalKlipperConsole::shutdown()
 {
 }
 
-void QLocalKlipperConsole::sendCommand(KlipperMessage message)
+void QLocalKlipperConsole::sendCommand(KlipperMessage message, bool immediate)
 {
-    QByteArray document = message.toRpc(QJsonDocument::Compact);
-    m_klipperMessageBuffer[message["id"].toInt()] = message;
-    qint64 length = m_moonrakerSocket->write(document);
-
-    if(length != document.length())
+    if(!m_awaitingResponse || immediate)
     {
-        qDebug() << QString("Failed to write data") << length << document.length();
-    }
+        m_awaitingResponse = true;
 
-    emit commandSent(message);
+        QByteArray document = message.toRpc(QJsonDocument::Compact);
+        m_klipperMessageBuffer[message["id"].toInt()] = message;
+
+        qint64 length = m_moonrakerSocket->write(document);
+
+        qDebug() << "Console Command: " << message["method"].toString();
+
+        if(length != document.length())
+        {
+            qDebug() << QString("Failed to write data") << length << document.length();
+        }
+
+        emit commandSent(message);
+    }
+    else
+    {
+        m_messageOutbox.append(message);
+    }
 }
 
 void QLocalKlipperConsole::connectToMoonraker()
@@ -138,4 +150,9 @@ bool QLocalKlipperConsole::uploadFile(QString root, QString directory, QString n
     }
 
     return false;
+}
+
+void QLocalKlipperConsole::responseReceivedEvent()
+{
+
 }

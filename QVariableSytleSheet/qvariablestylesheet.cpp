@@ -16,18 +16,19 @@ QString QVariableStyleSheet::process()
 
     //Process CSS variables in QSS
     theme.remove(commentExpression);
-    theme.replace(QRegularExpression("[\n]{2,}"), QString("\n"));
-    theme.replace(QRegularExpression("[\\s]{2,}"), QString(" "));
+
+    theme.replace(QRegularExpression("[\n]+"), QString("\n"));
 
     QRegularExpressionMatchIterator iterator = rootExpression.globalMatch(theme.toUtf8());
     QMap<QString, QString> variables;
 
-    while(iterator.hasNext())
+    if(iterator.hasNext())
     {
         QRegularExpressionMatch rootMatch = iterator.next();
         QString root = rootMatch.captured(0);
 
         theme.remove(rootExpression);
+        m_rawStyleSheet = theme;
 
         QRegularExpressionMatchIterator variableIterator = variableExpression.globalMatch(root.toUtf8());
         while(variableIterator.hasNext())
@@ -57,23 +58,21 @@ QString QVariableStyleSheet::process()
                 m_variables[key] = value;
             }
         }
+
+        iterator = variableUsageExpression.globalMatch(theme.toUtf8());
+
+        while(iterator.hasNext())
+        {
+            QRegularExpressionMatch variableMatch = iterator.next();
+            QString variable = variableMatch.captured(0);
+
+            variable.remove("var(");
+            variable.remove(QRegularExpression("\\)$"));
+
+            QString replacement = variables[variable];
+            theme.replace(variableMatch.captured(0), replacement);
+        }
     }
-
-    iterator = variableUsageExpression.globalMatch(theme.toUtf8());
-
-    while(iterator.hasNext())
-    {
-        QRegularExpressionMatch variableMatch = iterator.next();
-        QString variable = variableMatch.captured(0);
-
-        variable.remove("var(");
-        variable.remove(QRegularExpression("\\)$"));
-
-        QString replacement = variables[variable];
-        theme.replace(variableMatch.captured(0), replacement);
-    }
-
-    //theme.remove(variableUsageExpression);
 
     return theme;
 }
@@ -86,4 +85,14 @@ QMap<QString, QString> QVariableStyleSheet::variables() const
 void QVariableStyleSheet::setVariables(const QMap<QString, QString> &variables)
 {
     m_variables = variables;
+}
+
+QString QVariableStyleSheet::rawStyleSheet() const
+{
+    return m_rawStyleSheet;
+}
+
+void QVariableStyleSheet::setRawStyleSheet(const QString &newRawStyleSheet)
+{
+    m_rawStyleSheet = newRawStyleSheet;
 }

@@ -88,9 +88,8 @@ void DashboardPage::loadPrinters()
 
 void DashboardPage::setUiClasses()
 {
-    this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page" ));
-    ui->actionBarFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageActionBar" ));
-    ui->scrollAreaWidgetContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContainer" ));
+    ui->scrollArea->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page" ));
+    ui->scrollAreaWidgetContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page" ));
 }
 
 void DashboardPage::updateStyleSheet(QString styleSheet)
@@ -142,5 +141,8 @@ void DashboardPage::on_printerPool_printerRemoved(Printer *printer)
 
 void DashboardPage::on_printerPool_printerAdded(Printer *printer)
 {
-    loadPrinters();
+    PrinterWidget *widget = new PrinterWidget();
+    widget->setPrinter(printer);
+    m_printerWidgets.append(widget);
+    ui->scrollAreaWidgetContents->layout()->addWidget(widget);
 }

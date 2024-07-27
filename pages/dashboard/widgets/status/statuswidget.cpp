@@ -84,9 +84,9 @@ void StatusWidget::setupJobPage()
 
     addTab(m_printJobList, Settings::getThemeIcon(QString("list-icon")), QString("Jobs"));
 
-    connect(PrinterPool::instance(), SIGNAL(jobStarted(PrintJob*)), this, SLOT(on_printerPool_jobStarted(PrintJob*)));
-    connect(PrinterPool::instance(), SIGNAL(jobFinished(PrintJob*)), this, SLOT(on_printerPool_jobFinished(PrintJob*)));
-    connect(PrinterPool::instance(), SIGNAL(jobUpdated(PrintJob*)), this, SLOT(on_printerPool_jobUpdated(PrintJob*)));
+    connect(PrinterPool::instance(), SIGNAL(printJobStarted(PrintJob*)), this, SLOT(on_printerPool_jobStarted(PrintJob*)));
+    connect(PrinterPool::instance(), SIGNAL(printJobFinished(PrintJob*)), this, SLOT(on_printerPool_jobFinished(PrintJob*)));
+    connect(PrinterPool::instance(), SIGNAL(printJobUpdated(PrintJob*)), this, SLOT(on_printerPool_jobUpdated(PrintJob*)));
 }
 
 void StatusWidget::setupEnergyPage()

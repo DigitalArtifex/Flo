@@ -141,7 +141,7 @@ void EnergyConsumptionChart::updateTimerTimeoutEvent()
     qint64 x = timestamp.toMSecsSinceEpoch();
     qreal wattsTotal = 20;
 
-    qDebug() << "Power Update";
+    //qDebug() << "Power Update";
 
     foreach(Printer *printer, m_sources)
     {
@@ -151,7 +151,7 @@ void EnergyConsumptionChart::updateTimerTimeoutEvent()
 
         m_series[printer->id()]->append(timestamp.toMSecsSinceEpoch(), qCeil(power));
 
-        qDebug() << QString("--") + printer->name() + QString(" ") + QString::number(power) + QString("W");
+        //qDebug() << QString("--") + printer->name() + QString(" ") + QString::number(power) + QString("W");
     }
 
     m_series["total"]->append(timestamp.toMSecsSinceEpoch(), wattsTotal);

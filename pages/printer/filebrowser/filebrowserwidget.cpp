@@ -7,6 +7,10 @@ FileBrowserWidget::FileBrowserWidget(QWidget *parent, DisplayMode mode) :
     m_displayMode = mode;
 }
 
+FileBrowserWidget::~FileBrowserWidget()
+{
+}
+
 void FileBrowserWidget::addFile(KlipperFile file)
 {
     FileBrowserItem *item;
@@ -15,6 +19,10 @@ void FileBrowserWidget::addFile(KlipperFile file)
         item = new FileBrowserItem(file,this);
     else
         item = new FileBrowserItem(file,this, FileBrowserItem::Widget);
+
+    connect(item, SIGNAL(deleteRequested(FileBrowserItem*)), this, SLOT(itemDeleteRequestedEvent(FileBrowserItem*)));
+    connect(item, SIGNAL(editRequested(FileBrowserItem*)), this, SLOT(itemEditRequestedEvent(FileBrowserItem*)));
+    connect(item, SIGNAL(printRequested(FileBrowserItem*)), this, SLOT(itemPrintRequestedEvent(FileBrowserItem*)));
 
     setAnimationSlide(item);
     addItem(item);
@@ -31,6 +39,10 @@ void FileBrowserWidget::setFiles(const QList<KlipperFile> &files)
         else
             item = new FileBrowserItem(files[i],this, FileBrowserItem::Widget);
 
+        connect(item, SIGNAL(deleteRequested(FileBrowserItem*)), this, SLOT(itemDeleteRequestedEvent(FileBrowserItem*)));
+        connect(item, SIGNAL(editRequested(FileBrowserItem*)), this, SLOT(itemEditRequestedEvent(FileBrowserItem*)));
+        connect(item, SIGNAL(printRequested(FileBrowserItem*)), this, SLOT(itemPrintRequestedEvent(FileBrowserItem*)));
+
         setAnimationSlide(item);
         item->setDuration(100 + (50 * i));
 
@@ -41,4 +53,19 @@ void FileBrowserWidget::setFiles(const QList<KlipperFile> &files)
 FileBrowserItem *FileBrowserWidget::selectedItem()
 {
     return (FileBrowserItem*)m_selectedItems[0];
+}
+
+void FileBrowserWidget::itemDeleteRequestedEvent(FileBrowserItem *item)
+{
+    emit itemDeleteRequested(item);
+}
+
+void FileBrowserWidget::itemEditRequestedEvent(FileBrowserItem *item)
+{
+    emit itemEditRequested(item);
+}
+
+void FileBrowserWidget::itemPrintRequestedEvent(FileBrowserItem *item)
+{
+    emit itemPrintRequested(item);
 }

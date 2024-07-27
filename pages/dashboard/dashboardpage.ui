@@ -29,7 +29,7 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="1" column="0">
+   <item row="0" column="0">
     <widget class="QScrollArea" name="scrollArea">
      <property name="widgetResizable">
       <bool>true</bool>
@@ -40,38 +40,10 @@
         <x>0</x>
         <y>0</y>
         <width>1132</width>
-        <height>681</height>
+        <height>716</height>
        </rect>
       </property>
      </widget>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QFrame" name="actionBarFrame">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>35</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="baseSize">
-      <size>
-       <width>0</width>
-       <height>50</height>
-      </size>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
     </widget>
    </item>
   </layout>

@@ -37,6 +37,7 @@ public:
     void setMinimum(qreal min);
     void setMaximum(qreal max);
     void setProgress(qreal progress);
+    void setFontSize(qreal fontSize);
 
     void upd(qreal pp)
     {
@@ -44,11 +45,13 @@ public:
         progress = pp;
         update();
     }
+
     void paintEvent(QPaintEvent *event);
 
 private:
     Mode m_mode = Percent;
     QString m_fontFamily;
+    qreal m_fontSize = 12;
 };
 
 #endif // CIRCULARPROGRESSBAR_H

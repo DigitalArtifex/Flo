@@ -4,8 +4,8 @@
 #include "../system/settings.h"
 
 MenuButton::MenuButton(int id, QWidget *parent) :
-    id(id),
     QFrame(parent),
+    id(id),
     ui(new Ui::MenuButton)
 {
     ui->setupUi(this);
@@ -37,7 +37,7 @@ void MenuButton::setChecked(bool checked)
 {
     this->setProperty("checked", checked);
     m_checked = checked;
-    update();
+    style()->polish(this);
 }
 
 QString MenuButton::getText()
@@ -54,28 +54,28 @@ void MenuButton::mousePressEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton)
     {
-        this->setProperty("pressed", true);
-        pressed = true;
-        update();
+        setProperty("pressed", true);
+        m_pressed = true;
+        style()->polish(this);
     }
 }
 
 void MenuButton::mouseReleaseEvent(QMouseEvent *event)
 {
-    if(event->button() == Qt::LeftButton && this->pressed)
+    if(event->button() == Qt::LeftButton && m_pressed)
     {
-        this->setProperty("pressed", false);
-        pressed = false;
-        update();
+        setProperty("pressed", false);
+        m_pressed = false;
 
-        if(!m_checked)
-            emit(clicked(this));
+        m_checked = !m_checked;
+        setProperty("checked", m_checked);
+        emit clicked(this);
+
+        style()->polish(this);
     }
 }
 
 void MenuButton::paintEvent(QPaintEvent *event)
 {
-    //setIcon(this->icon);
-    this->style()->polish(this);
     QFrame::paintEvent(event);
 }

@@ -67,6 +67,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
 
     //Startup commands to get base information
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::clientIdentifier);
+    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::accessUsersList);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverInfo);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineSystemInfo);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineProcStats);
@@ -76,10 +77,12 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverConfig);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverFileRoots);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverWebcamList);
-    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverAnnouncementsUpdate);
+    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverAnnouncementsList);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerInfo);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerObjectsList);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerSubscribe);
+
+    m_progressSteps = m_startupSequence.count();
 
     loadKlipperCommands();
 }
@@ -241,7 +244,7 @@ QAbstractSocket *QAbstractKlipperConsole::moonrakerSocket() const
     return m_moonrakerSocket;
 }
 
-void QLocalKlipperConsole::sendCommand(QString command, KlipperMessage::MessageOrigin origin)
+void QLocalKlipperConsole::sendCommand(QString command, KlipperMessage::MessageOrigin origin, bool forced)
 {
     KlipperMessage message;
     QJsonObject messageObject = message.document();
@@ -506,7 +509,7 @@ void QAbstractKlipperConsole::machineServiceStart(QString service)
 
     paramsObject["service"] = service;
     messageObject["params"] = paramsObject;
-    messageObject["method"] = "machine.proc_stats";
+    messageObject["method"] = "machine.services.start";
 
     message.setDocument(messageObject);
 
@@ -582,7 +585,7 @@ void QAbstractKlipperConsole::machineProcStats()
     QJsonObject paramsObject;
 
     messageObject["params"] = paramsObject;
-    messageObject["method"] = "machine.services.start";
+    messageObject["method"] = "machine.proc.stats";
 
     message.setDocument(messageObject);
 
@@ -656,7 +659,7 @@ void QAbstractKlipperConsole::machineUpdateClient(QString client)
 {
     //Generate params json
     QJsonObject paramsObject;
-    paramsObject["client_name"] = client;
+    paramsObject["name"] = client;
 
     //Generate the root json object
     QJsonObject messageObject;
@@ -826,6 +829,9 @@ void QAbstractKlipperConsole::printerSubscribe()
     foreach(QString object, m_subscriptionObjects)
         objectArray[object];
 
+    if(!objectArray.contains("mcu"))
+        objectArray["mcu"];
+
     paramsObject["objects"] = objectArray;
 
     messageObject["method"] = "printer.objects.subscribe";
@@ -903,6 +909,7 @@ void QAbstractKlipperConsole::serverFileRoots()
 
 void QAbstractKlipperConsole::serverFilesMetadata(QString fileName)
 {
+    qDebug() << "Requesting metadata" << fileName;
     KlipperMessage message;
     QJsonObject messageObject = message.document();
     QJsonObject paramsObject;
@@ -914,6 +921,19 @@ void QAbstractKlipperConsole::serverFilesMetadata(QString fileName)
     message.setDocument(messageObject);
 
     sendCommand(message);
+}
+
+void QAbstractKlipperConsole::serverFilesMetadata(KlipperFile file)
+{
+    QString filename;
+
+    if(!file.path.isEmpty())
+        filename = file.path + QString("/") + file.name;
+
+    else
+        filename = file.name;
+
+    serverFilesMetadata(filename);
 }
 
 void QAbstractKlipperConsole::serverTemperatureStore()
@@ -1412,6 +1432,7 @@ void QAbstractKlipperConsole::on_messageReady()
             response.origin = (KlipperResponse::ResponseOrigin)m_klipperMessageBuffer[response["id"].toInt()].origin;
             m_klipperMessageBuffer.remove(response["id"].toInt());
         }
+
     }
 
     //For some reason I am getting params returned for status updates.
@@ -1486,19 +1507,38 @@ void QAbstractKlipperConsole::on_messageReady()
         (this->*parser)(response);
     }
 
-    if(response["method"] != QString("notify_proc_stat_update"))
+    if(!response["method"].toString().startsWith("notify"))
     {
-        emit responseReceived(response);
+        qDebug() << "Console Received: " << response["method"];
+
+        if(m_klipperMessageBuffer.isEmpty())
+            m_awaitingResponse = false;
 
         if(m_startupSequence.count())
         {
+            qint64 processed = (m_progressSteps - m_startupSequence.count());
+            m_progress = ((qreal)processed / (qreal)m_progressSteps);
+
+            emit startupProgress("Connecting", m_progress);
             StartupFunction function = m_startupSequence.dequeue();
             (this->*function)();
 
             if(!m_startupSequence.count())
                 emit startup();
         }
+        else if(!m_messageOutbox.isEmpty())
+        {
+            KlipperMessage message = m_messageOutbox.dequeue();
+            sendCommand(message, true);
+        }
+
+        emit responseReceived(response);
     }
+}
+
+void QAbstractKlipperConsole::responseReceivedEvent()
+{
+
 }
 
 void QAbstractKlipperConsole::on_klipperRestartTimer_timeout()
@@ -1816,7 +1856,7 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                 m_printer->system()->availableServices().clear();
 
                 for(int i = 0; i < servicesArray.count(); i++)
-                    m_printer->system()->availableServices() += servicesArray[i].toString();
+                    m_printer->system()->m_availableServices.append(servicesArray[i].toString());
             }
 
             if(systemInfo.contains("service_state") && systemInfo["service_state"].isObject())
@@ -1824,7 +1864,7 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                 QJsonObject serviceState = systemInfo["service_state"].toObject();
                 QStringList keys = serviceState.keys();
 
-                m_printer->system()->serviceStates().clear();
+                QList<System::ServiceState> serviceStates;
 
                 foreach(QString key, keys)
                 {
@@ -1839,9 +1879,13 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                         if(stateObject.contains("sub_state"))
                             state.subState = stateObject["sub_state"].toString();
 
-                        m_printer->system()->serviceStates().insert(key, state);
+                        state.name = key;
+
+                        serviceStates += state;
                     }
                 }
+
+                m_printer->system()->setServiceStates(serviceStates);
             }
 
             if(systemInfo.contains("network") && systemInfo["network"].isObject())
@@ -1849,7 +1893,7 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                 QJsonObject networkObject = systemInfo["network"].toObject();
                 QStringList keys = networkObject.keys();
 
-                m_printer->system()->networkInterfaces().clear();
+                m_printer->system()->m_networkInterfaces.clear();
 
                 foreach(QString key, keys)
                 {
@@ -1880,7 +1924,7 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                         }
                     }
 
-                    m_printer->system()->networkInterfaces().insert(key, interface);
+                    m_printer->system()->m_networkInterfaces.insert(key, interface);
                 }
             }
 
@@ -1889,7 +1933,7 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                 QJsonObject canbusObject = systemInfo["canbus"].toObject();
                 QStringList keys = canbusObject.keys();
 
-                m_printer->system()->canBus().clear();
+                m_printer->system()->m_canBus.clear();
 
                 foreach(QString key, keys)
                 {
@@ -1907,7 +1951,7 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                         if(canDeviceObject.contains("driver"))
                             canDevice.driver = canDeviceObject["driver"].toString();
 
-                        m_printer->system()->canBus().insert(key, canDevice);
+                        m_printer->system()->m_canBus.insert(key, canDevice);
                     }
                 }
             }
@@ -1919,23 +1963,25 @@ void QAbstractKlipperConsole::on_machineSystemInfo(KlipperResponse response)
                 if(pythonObject.contains("version_string"))
                     m_printer->system()->setPythonVersion(pythonObject["version_string"].toString());
             }
+
+            m_printer->emitUpdate();
         }
     }
 }
 
 void QAbstractKlipperConsole::on_machineServiceRestart(KlipperResponse response)
 {
-
+    machineSystemInfo();
 }
 
 void QAbstractKlipperConsole::on_machineServiceStop(KlipperResponse response)
 {
-
+    machineSystemInfo();
 }
 
 void QAbstractKlipperConsole::on_machineServiceStart(KlipperResponse response)
 {
-
+    machineSystemInfo();
 }
 
 void QAbstractKlipperConsole::on_machineProcStats(KlipperResponse response)
@@ -1988,10 +2034,10 @@ void QAbstractKlipperConsole::on_machineProcStats(KlipperResponse response)
 
         if(result.contains("network"))
         {
-            QJsonObject networkLoadObject = result["system_cpu_usage"].toObject();
+            QJsonObject networkLoadObject = result["network"].toObject();
             QStringList keys = networkLoadObject.keys();
 
-            m_printer->system()->networkStats().clear();
+            QMap<QString,System::NetworkStatsEntry> stats = m_printer->system()->networkStats();
 
             foreach(QString key, keys)
             {
@@ -2007,8 +2053,10 @@ void QAbstractKlipperConsole::on_machineProcStats(KlipperResponse response)
                 if(statObject.contains("bandwidth"))
                     statEntry.bandwidth = statObject["bandwidth"].toDouble();
 
-                m_printer->system()->networkStats().insert(key, statEntry);
+                stats[key] = statEntry;
             }
+
+            m_printer->system()->setNetworkStats(stats);
         }
 
         //Parse memory status
@@ -2036,6 +2084,8 @@ void QAbstractKlipperConsole::on_machineProcStats(KlipperResponse response)
         m_printer->system()->setThrottleState(throttleState);
 
         emit systemUpdate();
+        m_printer->system()->update();
+        m_printer->emitUpdate();
     }
 }
 
@@ -2105,6 +2155,7 @@ void QAbstractKlipperConsole::on_machinePeripheralsSerial(KlipperResponse respon
         }
 
         emit systemUpdate();
+        m_printer->emitUpdate();
     }
 }
 
@@ -2200,6 +2251,7 @@ void QAbstractKlipperConsole::on_machinePeripheralsVideo(KlipperResponse respons
         }
 
         emit systemUpdate();
+        m_printer->emitUpdate();
     }
 }
 
@@ -2231,12 +2283,15 @@ void QAbstractKlipperConsole::on_machinePeripheralsCanbus(KlipperResponse respon
             }
 
             m_printer->system()->canBusses().insert(interfaceNumber, canBus);
+            m_printer->emitUpdate();
         }
     }
 }
 
 void QAbstractKlipperConsole::on_machineUpdateStatus(KlipperResponse response)
 {
+    qDebug() << response.document();
+
     if(response[QString("result")].isObject())
     {
         //Get the base update state
@@ -2341,6 +2396,10 @@ void QAbstractKlipperConsole::on_machineUpdateStatus(KlipperResponse response)
             }
         }
 
+        m_printer->system()->setUpdateState(updateState);
+
+        m_printer->system()->update();
+
         emit machineUpdateStatusReceived();
     }
 }
@@ -2362,7 +2421,11 @@ void QAbstractKlipperConsole::on_machineUpdateKlipper(KlipperResponse response)
 
 void QAbstractKlipperConsole::on_machineUpdateClient(KlipperResponse response)
 {
-    emit machineUpdatedClient();
+    QString client = response["request"].toObject()["params"].toObject()["name"].toString();
+
+    qDebug() << response.document();
+
+    emit machineUpdatedClient(client);
 }
 
 void QAbstractKlipperConsole::on_machineUpdateSystem(KlipperResponse response)
@@ -2585,6 +2648,8 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
 
                 if(mcuObject.contains("max_velocity"))
                     mcu.baudRate = mcuObject["baud"].toInt();
+
+                m_printer->system()->setMcu(mcu);
             }
 
             //Parse Safe Z Home settings
@@ -3092,6 +3157,14 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         }
     }
 
+    //Parse fan status
+    if(response["result"].toObject().contains("mcu"))
+    {
+        QJsonObject fan = response["result"].toObject()["mcu"].toObject();
+
+        qDebug() << fan;
+    }
+
     //Parse toolhead status
     if(response["result"].toObject().contains("toolhead"))
     {
@@ -3394,6 +3467,35 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
 
         emit printerGCodeMove(move);
     }
+
+#ifdef LOCAL_PRINTER_DRIVE_AS_SD_INFO
+    QStorageInfo storage = QStorageInfo::root();
+
+    System::SdInfo sdInfo;
+    sdInfo.productName = storage.name();
+    sdInfo.availableBytes = storage.bytesAvailable() / 1024;
+    sdInfo.totalBytes = storage.bytesTotal() / 1024;
+    sdInfo.usedBytes = (storage.bytesTotal() - storage.bytesAvailable()) / 1024;
+
+    m_printer->system()->setSdInfo(sdInfo);
+#endif
+
+#ifdef LOCAL_PRINTER_CPU_TEMP_SYSCALL
+    QFile temperatureFile("/sys/class/thermal/thermal_zone0/temp");
+
+    if(temperatureFile.open(QFile::ReadOnly))
+    {
+        QByteArray data = temperatureFile.readAll();
+        qreal temp = (data.toDouble() / 1000);
+
+        temperatureFile.close();
+
+        System::CpuInfo cpu = m_printer->system()->cpuInfo();
+        cpu.temp = temp;
+
+        m_printer->system()->setCpuInfo(cpu);
+    }
+#endif
 
     //Parse bed mesh data
     if(result.contains(QString("bed_mesh")))
@@ -3924,6 +4026,8 @@ void QAbstractKlipperConsole::on_serverWebsocketId(KlipperResponse response)
 
 void QAbstractKlipperConsole::on_serverFilesMetadata(KlipperResponse response)
 {
+    qDebug() << "Received metadata" << response.document();
+
     if(response["result"].isObject())
     {
         QJsonObject result = response["result"].toObject();
@@ -3939,12 +4043,16 @@ void QAbstractKlipperConsole::on_serverFilesMetadata(KlipperResponse response)
         metadata.firstLayerHeight = result["first_layer_height"].toDouble();
         metadata.objectHeight = result["object_height"].toDouble();
         metadata.filamentTotal = result["filament_total"].toDouble();
+        metadata.nozzleDiameter = result["nozzle_diameter"].toDouble();
+        metadata.filamentTotalWeight = result["filament_weight_total"].toDouble();
         metadata.estimatedTime = result["estimated_time"].toInt();
         metadata.firstLayerBedTemp = result["first_layer_bed_temp"].toDouble();
         metadata.firstLayerExtruderTemp = result["first_layer_extr_temp"].toDouble();
         metadata.gcodeStartByte = result["gcode_start_byte"].toInt();
         metadata.gcodeEndByte = result["gcode_end_byte"].toInt();
         metadata.filename = result["filename"].toString();
+        metadata.uuid = result["uuid"].toString();
+        metadata.filamentName = result["filament_name"].toString();
 
         QJsonArray thumbnailArray = result["thumbnails"].toArray();
 
@@ -3959,6 +4067,8 @@ void QAbstractKlipperConsole::on_serverFilesMetadata(KlipperResponse response)
 
             metadata.thumbnails.append(thumbnail);
         }
+
+        qDebug() << "Emitting metadata";
 
         emit serverMetadataResult(metadata);
     }
@@ -4071,12 +4181,16 @@ void QAbstractKlipperConsole::on_serverWebcamDelete(KlipperResponse response)
         webcam.source = webcamObject["source"].toString();
         webcam.uid = webcamObject["uid"].toString();
 
+        m_printer->system()->update();
+
         emit serverWebcamDeleted(webcam);
     }
 }
 
 void QAbstractKlipperConsole::on_serverAnnouncementsList(KlipperResponse response)
 {
+    qDebug() << response.document();
+
     if(response["result"].isObject())
     {
         QJsonObject result = response["result"].toObject();
@@ -4104,6 +4218,8 @@ void QAbstractKlipperConsole::on_serverAnnouncementsList(KlipperResponse respons
             m_printer->system()->announcements().append(announcement);
         }
 
+        m_printer->system()->update();
+
         emit serverAnnouncementsListed();
     }
 }
@@ -4121,6 +4237,7 @@ void QAbstractKlipperConsole::on_serverAnnouncementsUpdate(KlipperResponse respo
 
 void QAbstractKlipperConsole::on_serverAnnouncementDismissed(KlipperResponse response)
 {
+
     if(response["result"].isObject())
     {
         QJsonObject result = response["result"].toObject();
@@ -4288,6 +4405,8 @@ void QAbstractKlipperConsole::on_accessUsersList(KlipperResponse response)
         QJsonObject result = response["result"].toObject();
         QJsonArray userArray = result["users"].toArray();
 
+        QList<System::User> userList;
+
         for(int i = 0; i < userArray.count(); i++)
         {
             QJsonObject userObject = userArray[i].toObject();
@@ -4296,7 +4415,11 @@ void QAbstractKlipperConsole::on_accessUsersList(KlipperResponse response)
             user.username = userObject["username"].toString();
             user.source = userObject["source"].toString();
             user.createdOn = userObject["created_on"].toDouble();
+
+            userList.append(user);
         }
+
+        m_printer->system()->setUserList(userList);
 
         emit accessUsersListed();
     }

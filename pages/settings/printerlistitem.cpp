@@ -46,8 +46,8 @@ void PrinterListItem::setSelected(bool selected)
 {
     this->setProperty("pressed", selected);
     this->setProperty("selected", selected);
-    this->style()->polish(this);
-    this->update();
+
+    style()->polish(this);
 }
 
 bool PrinterListItem::selected()
@@ -77,8 +77,7 @@ void PrinterListItem::mousePressEvent(QMouseEvent *event)
         this->m_clickTimer->start();
         this->setProperty("pressed", true);
         m_pressed = true;
-        this->style()->polish(this);
-        qDebug() << "Pressed";
+        style()->polish(this);
     }
 }
 
@@ -88,8 +87,7 @@ void PrinterListItem::mouseReleaseEvent(QMouseEvent *event)
     {
         this->setProperty("pressed", false);
         this->setProperty("selected", true);
-        this->style()->polish(this);
-        qDebug() << "Released";
+        style()->polish(this);
 
         if(this->m_clickTimer != NULL)
         {

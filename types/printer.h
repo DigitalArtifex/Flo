@@ -176,6 +176,13 @@ public:
 
     qreal watts() const;
 
+    QString color() const;
+    void setColor(const QString &color);
+
+    void print(KlipperFile file);
+
+    bool isReady();
+
 signals:
     void systemUpdate(Printer *printer);
     void printerUpdate(Printer *printer);
@@ -186,6 +193,9 @@ signals:
     void moonrakerConnected(Printer *printer);
 
     void startup(Printer *printer);
+    void connected(Printer *printer);
+    void disconnected(Printer *printer);
+    void statusChanged(Status status);
 
     void connectionTimeout(Printer *printer);
 
@@ -231,6 +241,7 @@ private:
     QString                                  m_configFile;
     QString                                  m_apiKey;
     QString                                  m_kinematics;
+    QString                                  m_color;
 
     qreal                                    m_maxAcceleration = 0;
     qreal                                    m_maxVelocity = 0;

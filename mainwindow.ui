@@ -20,7 +20,7 @@
    <string>FLO</string>
   </property>
   <property name="windowIcon">
-   <iconset theme="call-stop"/>
+   <iconset theme="camera-photo"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_6">
@@ -218,7 +218,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="Resources.qrc">:/images/application-icon</pixmap>
+             <pixmap>:/images/application-icon</pixmap>
             </property>
             <property name="scaledContents">
              <bool>true</bool>
@@ -291,8 +291,6 @@
    </property>
   </widget>
  </widget>
- <resources>
-  <include location="Resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
