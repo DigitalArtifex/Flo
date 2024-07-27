@@ -224,6 +224,12 @@ Extruder *Toolhead::currentExtruder()
         }
     }
 
+    if(!extruder)
+    {
+        if(!m_extruders.isEmpty())
+            extruder = m_extruders[0];
+    }
+
     return extruder;
 }
 

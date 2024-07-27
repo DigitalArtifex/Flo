@@ -3396,8 +3396,11 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         move.speedFactor = gcodeObject["speed_factor"].toDouble();
 
         //Set the extrusion factor on the current extruder
-        m_printer->toolhead()->currentExtruder()->m_extrusionFactor = move.extrusionFactor;
-        m_printer->toolhead()->currentExtruder()->emitUpdate();
+        if(m_printer->toolhead()->currentExtruder())
+        {
+            m_printer->toolhead()->currentExtruder()->m_extrusionFactor = move.extrusionFactor;
+            m_printer->toolhead()->currentExtruder()->emitUpdate();
+        }
 
         //Gcode position
         QJsonArray gcodePositionArray = gcodeObject["gcode_position"].toArray();
