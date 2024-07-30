@@ -135,7 +135,7 @@ PrinterPage::PrinterPage(Printer *printer, QWidget *parent) :
     connect(m_settingsButton, SIGNAL(clicked()), this, SLOT(settingsButtonClickEvent()));
 
     setupUiClasses();
-    //setStyleSheet(Settings::currentTheme());
+    setStyleSheet(Settings::currentTheme());
 }
 
 PrinterPage::~PrinterPage()
