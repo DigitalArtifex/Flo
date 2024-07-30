@@ -8,12 +8,13 @@
 #include "types/printer.h"
 
 #include "ui/QIconButton/qiconbutton.h"
+#include "ui/common/dialog/dialog.h"
 
 namespace Ui {
 class FileEditor;
 }
 
-class FileEditor : public QDialog
+class FileEditor : public Dialog
 {
     Q_OBJECT
 
@@ -23,6 +24,13 @@ signals:
     void reset();
 
 public:
+
+    enum ReturnCodes
+    {
+        SaveAndRestart = 2,
+        Save = 3
+    };
+
     explicit FileEditor(Printer *printer, QWidget *parent = nullptr);
     ~FileEditor();
 
@@ -33,6 +41,7 @@ private slots:
     void resetButtonClicked();
     void saveAndRestartButtonClicked();
     void saveAndCloseButtonClicked();
+    void closeButtonClicked();
 
 private:
     Ui::FileEditor *ui;

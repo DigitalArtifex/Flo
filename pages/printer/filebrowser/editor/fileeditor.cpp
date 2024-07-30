@@ -6,19 +6,19 @@
 using namespace QSourceHighlite;
 
 FileEditor::FileEditor(Printer *printer, QWidget *parent)
-    : QDialog(parent)
+    : Dialog(parent)
     , ui(new Ui::FileEditor)
 {
     ui->setupUi(this);
 
     setWindowFlag(Qt::FramelessWindowHint);
+    setWindowFlag(Qt::Popup);
 
     m_highlighter = new QSourceHighliter(ui->textEdit->document());
     m_highlighter->setCurrentLanguage(QSourceHighliter::CodeGCode);
     m_highlighter->setTheme(QSourceHighliter::System);
 
     m_printer = printer;
-    showMaximized();
 
     QPixmap pixmap = Settings::getThemeIcon("add-icon").pixmap(28,28);
     m_resetButton = new QIconButton(this);
@@ -27,9 +27,7 @@ FileEditor::FileEditor(Printer *printer, QWidget *parent)
     m_resetButton->setPixmap(pixmap);
     ui->buttonLayout->addWidget(m_resetButton);
 
-    ui->buttonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
-
-    pixmap = Settings::getThemeIcon("add-icon").pixmap(28,28);
+    pixmap = Settings::getThemeIcon("save-icon").pixmap(28,28);
     m_saveButton = new QIconButton(this);
     m_saveButton->setFixedSize(250,50);
     m_saveButton->setText("Save");
@@ -37,11 +35,27 @@ FileEditor::FileEditor(Printer *printer, QWidget *parent)
     ui->buttonLayout->addWidget(m_saveButton);
 
     pixmap = Settings::getThemeIcon("multiply-icon").pixmap(28,28);
+    m_saveAndRestartButton = new QIconButton(this);
+    m_saveAndRestartButton->setFixedSize(250,50);
+    m_saveAndRestartButton->setText("Save and Restart");
+    m_saveAndRestartButton->setPixmap(pixmap);
+    ui->buttonLayout->addWidget(m_saveAndRestartButton);
+
+    ui->buttonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
+
+    pixmap = Settings::getThemeIcon("multiply-icon").pixmap(28,28);
     m_closeButton = new QIconButton(this);
     m_closeButton->setFixedSize(250,50);
     m_closeButton->setText("Close");
     m_closeButton->setPixmap(pixmap);
     ui->buttonLayout->addWidget(m_closeButton);
+
+    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeButtonClicked()));
+    connect(m_resetButton, SIGNAL(clicked()), this, SLOT(resetButtonClicked()));
+    connect(m_saveAndRestartButton, SIGNAL(clicked()), this, SLOT(saveAndRestartButtonClicked()));
+    connect(m_saveButton, SIGNAL(clicked()), this, SLOT(saveAndCloseButtonClicked()));
+
+    showMaximized();
 }
 
 FileEditor::~FileEditor()
@@ -76,8 +90,12 @@ void FileEditor::setFile(const KlipperFile &file)
 
 void FileEditor::resetButtonClicked()
 {
+    showLoadingScreen();
+
     QString fileContents = m_printer->console()->downloadFile(m_file);
     ui->textEdit->setText(fileContents);
+
+    hideLoadingScreen();
 }
 
 void FileEditor::saveAndRestartButtonClicked()
@@ -86,8 +104,7 @@ void FileEditor::saveAndRestartButtonClicked()
 
     if(m_printer->console()->uploadFile(m_file.root, m_file.path, m_file.name, fileContents))
     {
-        m_printer->console()->restartKlipper();
-        close();
+        done(SaveAndRestart);
     }
 }
 
@@ -97,6 +114,11 @@ void FileEditor::saveAndCloseButtonClicked()
 
     if(m_printer->console()->uploadFile(m_file.root, m_file.path, m_file.name, fileContents))
     {
-        close();
+        done(Save);
     }
+}
+
+void FileEditor::closeButtonClicked()
+{
+    done(Rejected);
 }

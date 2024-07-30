@@ -518,7 +518,6 @@ void FileBrowser::fileDoubleClickEvent(QAnimatedListItem *item)
             {
                 QString theme = Settings::currentTheme();
                 m_filePreview = new FilePreviewWindow(fileItem->file(), m_printer, this);
-                m_filePreview->setWindowFlag(Qt::Popup);
                 m_filePreview->setStyleSheet(theme);
 
                 int ret = m_filePreview->exec();
@@ -552,10 +551,10 @@ void FileBrowser::fileDoubleClickEvent(QAnimatedListItem *item)
 
                 switch(ret)
                 {
-                case FileEditor::Accepted:
+                case FileEditor::SaveAndRestart:
+                    m_printer->console()->restartKlipper();
                     break;
 
-                case FileEditor::Rejected:
                 default:
                     break;
                 }
