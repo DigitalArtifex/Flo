@@ -523,8 +523,6 @@ void FileBrowser::fileDoubleClickEvent(QAnimatedListItem *item)
 
                 int ret = m_filePreview->exec();
 
-                qDebug() << "poop" << ret;
-
                 if(ret == QDialog::Accepted)
                 {
                     if(m_printer->isReady())
@@ -546,8 +544,21 @@ void FileBrowser::fileDoubleClickEvent(QAnimatedListItem *item)
 
             else
             {
+                m_editor = new FileEditor(m_printer, this);
                 m_editor->setFile(fileItem->file());
-                m_editor->show();
+
+                int ret = m_editor->exec();
+                delete m_editor;
+
+                switch(ret)
+                {
+                case FileEditor::Accepted:
+                    break;
+
+                case FileEditor::Rejected:
+                default:
+                    break;
+                }
             }
         }
     }

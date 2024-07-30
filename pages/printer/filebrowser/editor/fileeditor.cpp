@@ -1,6 +1,8 @@
 #include "fileeditor.h"
 #include "ui_fileeditor.h"
 
+#include "system/settings.h"
+
 using namespace QSourceHighlite;
 
 FileEditor::FileEditor(Printer *printer, QWidget *parent)
@@ -9,12 +11,37 @@ FileEditor::FileEditor(Printer *printer, QWidget *parent)
 {
     ui->setupUi(this);
 
+    setWindowFlag(Qt::FramelessWindowHint);
+
     m_highlighter = new QSourceHighliter(ui->textEdit->document());
     m_highlighter->setCurrentLanguage(QSourceHighliter::CodeGCode);
     m_highlighter->setTheme(QSourceHighliter::System);
 
     m_printer = printer;
     showMaximized();
+
+    QPixmap pixmap = Settings::getThemeIcon("add-icon").pixmap(28,28);
+    m_resetButton = new QIconButton(this);
+    m_resetButton->setFixedSize(250,50);
+    m_resetButton->setText("Reset");
+    m_resetButton->setPixmap(pixmap);
+    ui->buttonLayout->addWidget(m_resetButton);
+
+    ui->buttonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
+
+    pixmap = Settings::getThemeIcon("add-icon").pixmap(28,28);
+    m_saveButton = new QIconButton(this);
+    m_saveButton->setFixedSize(250,50);
+    m_saveButton->setText("Save");
+    m_saveButton->setPixmap(pixmap);
+    ui->buttonLayout->addWidget(m_saveButton);
+
+    pixmap = Settings::getThemeIcon("multiply-icon").pixmap(28,28);
+    m_closeButton = new QIconButton(this);
+    m_closeButton->setFixedSize(250,50);
+    m_closeButton->setText("Close");
+    m_closeButton->setPixmap(pixmap);
+    ui->buttonLayout->addWidget(m_closeButton);
 }
 
 FileEditor::~FileEditor()
@@ -35,30 +62,25 @@ void FileEditor::setFile(const KlipperFile &file)
     if(m_file.type == KlipperFile::GCode)
     {
         m_highlighter->setCurrentLanguage(QSourceHighliter::CodeGCode);
-        ui->saveAndRestartButton->setHidden(true);
+        m_saveAndRestartButton->setHidden(true);
     }
     else if(m_file.type == KlipperFile::Config)
     {
         m_highlighter->setCurrentLanguage(QSourceHighliter::CodeINI);
-        ui->saveAndRestartButton->setHidden(false);
+        m_saveAndRestartButton->setHidden(false);
     }
 
     QString fileContents = m_printer->console()->downloadFile(m_file);
     ui->textEdit->setText(fileContents);
 }
 
-void FileEditor::setStyleSheet(QString &styleSheet)
-{
-    QDialog::setStyleSheet(styleSheet);
-}
-
-void FileEditor::on_resetButton_clicked()
+void FileEditor::resetButtonClicked()
 {
     QString fileContents = m_printer->console()->downloadFile(m_file);
     ui->textEdit->setText(fileContents);
 }
 
-void FileEditor::on_saveAndRestartButton_clicked()
+void FileEditor::saveAndRestartButtonClicked()
 {
     QByteArray fileContents = ui->textEdit->toPlainText().toUtf8();
 
@@ -69,7 +91,7 @@ void FileEditor::on_saveAndRestartButton_clicked()
     }
 }
 
-void FileEditor::on_saveAndCloseButton_clicked()
+void FileEditor::saveAndCloseButtonClicked()
 {
     QByteArray fileContents = ui->textEdit->toPlainText().toUtf8();
 

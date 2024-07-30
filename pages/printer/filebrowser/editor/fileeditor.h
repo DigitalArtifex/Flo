@@ -2,9 +2,12 @@
 #define FILEEDITOR_H
 
 #include <QDialog>
-#include "../../../../QSourceHighlite/qsourcehighliter.h"
-#include "../../../../types/klipperfile.h"
-#include "../../../../types/printer.h"
+
+#include "QSourceHighlite/qsourcehighliter.h"
+#include "types/klipperfile.h"
+#include "types/printer.h"
+
+#include "ui/QIconButton/qiconbutton.h"
 
 namespace Ui {
 class FileEditor;
@@ -26,14 +29,10 @@ public:
     KlipperFile file() const;
     void setFile(const KlipperFile &file);
 
-    virtual void setStyleSheet(QString &styleSheet);
-
 private slots:
-    void on_resetButton_clicked();
-
-    void on_saveAndRestartButton_clicked();
-
-    void on_saveAndCloseButton_clicked();
+    void resetButtonClicked();
+    void saveAndRestartButtonClicked();
+    void saveAndCloseButtonClicked();
 
 private:
     Ui::FileEditor *ui;
@@ -41,6 +40,11 @@ private:
     QSourceHighlite::QSourceHighliter *m_highlighter;
     KlipperFile m_file;
     Printer *m_printer = nullptr;
+
+    QIconButton *m_resetButton = nullptr;
+    QIconButton *m_saveButton = nullptr;
+    QIconButton *m_saveAndRestartButton = nullptr;
+    QIconButton *m_closeButton = nullptr;
 };
 
 #endif // FILEEDITOR_H

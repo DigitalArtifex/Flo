@@ -56,7 +56,7 @@ public:
 
     QString fileLocation();
 
-    KlipperFile(FileType type = GCode);
+    explicit KlipperFile(FileType type = GCode);
 
     Metadata metadata;
 
