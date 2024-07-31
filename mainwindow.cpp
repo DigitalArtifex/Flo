@@ -18,7 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowFlag(Qt::FramelessWindowHint);
     this->setWindowIcon(QIcon(":/images/application-icon"));
 
-    showMaximized();
+    //showMaximized();
+
+    setFixedSize(1440,810);
 
     m_titleOpacityEffect = new QGraphicsOpacityEffect(this);
     ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);

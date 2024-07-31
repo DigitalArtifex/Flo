@@ -45,12 +45,13 @@ SOURCES += \
     pages/printer/settings/announcements/printerannouncementview.cpp \
     pages/printer/settings/announcements/printerannouncementwidget.cpp \
     pages/printer/settings/printersettingspage.cpp \
-    pages/printer/settings/services/drivewidget/printerdrivewidget.cpp \
-    pages/printer/settings/services/networkwidget/printernetworkchart.cpp \
-    pages/printer/settings/services/networkwidget/printernetworkwidget.cpp \
     pages/printer/settings/services/printerservicesview.cpp \
     pages/printer/settings/services/servicewidget/printerservicewidget.cpp \
-    pages/printer/settings/services/systemwidget/printersystemwidget.cpp \
+    pages/printer/settings/system/drivewidget/printerdrivewidget.cpp \
+    pages/printer/settings/system/networkwidget/printernetworkchart.cpp \
+    pages/printer/settings/system/networkwidget/printernetworkwidget.cpp \
+    pages/printer/settings/system/printersystemview.cpp \
+    pages/printer/settings/system/systemwidget/printersystemwidget.cpp \
     pages/printer/settings/updates/printerupdateitem.cpp \
     pages/printer/settings/updates/printerupdateview.cpp \
     pages/printer/settings/updates/printerupdatewidget.cpp \
@@ -158,12 +159,13 @@ HEADERS += \
     pages/printer/settings/announcements/printerannouncementview.h \
     pages/printer/settings/announcements/printerannouncementwidget.h \
     pages/printer/settings/printersettingspage.h \
-    pages/printer/settings/services/drivewidget/printerdrivewidget.h \
-    pages/printer/settings/services/networkwidget/printernetworkchart.h \
-    pages/printer/settings/services/networkwidget/printernetworkwidget.h \
     pages/printer/settings/services/printerservicesview.h \
     pages/printer/settings/services/servicewidget/printerservicewidget.h \
-    pages/printer/settings/services/systemwidget/printersystemwidget.h \
+    pages/printer/settings/system/drivewidget/printerdrivewidget.h \
+    pages/printer/settings/system/networkwidget/printernetworkchart.h \
+    pages/printer/settings/system/networkwidget/printernetworkwidget.h \
+    pages/printer/settings/system/printersystemview.h \
+    pages/printer/settings/system/systemwidget/printersystemwidget.h \
     pages/printer/settings/updates/printerupdateitem.h \
     pages/printer/settings/updates/printerupdateview.h \
     pages/printer/settings/updates/printerupdatewidget.h \

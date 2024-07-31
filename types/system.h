@@ -426,6 +426,23 @@ public:
         qreal maxStepperError = 0;
 
         QString serial;
+
+        qint64 bytesInvalid = 0;
+        qint64 bytesRead = 0;
+        qint64 bytesRetransmitted = 0;
+        qint64 bytesWritten = 0;
+        qint64 bytesUpcoming = 0;
+        qint64 bytesAvailable = 0;
+
+        qint64 frequency = 0;
+
+        qreal awake = 0.0;
+        qreal taskAverage = 0.0;
+        qreal devAverage = 0.0;
+
+        qint64 sequenceRecieved = 0;
+        qint64 sequenceSent = 0;
+        qint64 sequenceRetransmitted = 0;
     };
 
     /*!

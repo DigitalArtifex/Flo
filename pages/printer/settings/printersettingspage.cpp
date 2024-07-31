@@ -20,10 +20,13 @@ PrinterSettingsPage::PrinterSettingsPage(Printer *printer, QWidget *parent)
     ui->announcementsFrame->layout()->addWidget(m_announcementView);
 
     m_servicesView = new PrinterServicesView(m_printer, this);
-    ui->servicesFrame->layout()->addWidget(m_servicesView);
+    ui->servicesWidget->layout()->addWidget(m_servicesView);
 
     m_usersView = new PrinterUsersView(m_printer, this);
     ui->usersFrame->layout()->addWidget(m_usersView);
+
+    m_systemView = new PrinterSystemView(m_printer, this);
+    ui->statusWidget->layout()->addWidget(m_systemView);
 }
 
 PrinterSettingsPage::~PrinterSettingsPage()

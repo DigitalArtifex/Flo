@@ -7,11 +7,10 @@
 #include <QSizePolicy>
 
 #include "servicewidget/printerservicewidget.h"
-#include "systemwidget/printersystemwidget.h"
-#include "drivewidget/printerdrivewidget.h"
-#include "networkwidget/printernetworkwidget.h"
 
 #include "types/printer.h"
+
+#include "ui/layouts/qflowlayout.h"
 
 class PrinterServicesView : public QWidget
 {
@@ -23,7 +22,6 @@ public:
 signals:
 
 protected slots:
-    void setupUi();
     void systemUpdateEvent();
 
 private:
@@ -31,11 +29,7 @@ private:
 
     QWidget *m_centralWidget = nullptr;
 
-    QHBoxLayout *m_layout = nullptr;
-
-    PrinterDriveWidget *m_driveWidget = nullptr;
-    PrinterNetworkWidget *m_networkWidget = nullptr;
-    PrinterSystemWidget *m_systemWidget = nullptr;
+    QFlowLayout *m_layout = nullptr;
 
     QMap<QString, PrinterServiceWidget*> m_serviceCards;
 };

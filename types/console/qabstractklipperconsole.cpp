@@ -3160,9 +3160,25 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
     //Parse fan status
     if(response["result"].toObject().contains("mcu"))
     {
-        QJsonObject fan = response["result"].toObject()["mcu"].toObject();
+        QJsonObject resultObject = response["result"].toObject()["mcu"].toObject();
+        QJsonObject mcuObject = resultObject["last_stats"].toObject();
+        System::MCU mcu = m_printer->system()->mcu();
 
-        qDebug() << fan;
+        mcu.awake = mcuObject["mcu_awake"].toDouble();
+        mcu.frequency = mcuObject["frequency"].toInteger();
+        mcu.bytesAvailable = mcuObject["bytes_available"].toInteger();
+        mcu.bytesInvalid = mcuObject["bytes_invalid"].toInteger();
+        mcu.bytesRead = mcuObject["bytes_read"].toInteger();
+        mcu.bytesWritten = mcuObject["bytes_write"].toInteger();
+        mcu.bytesRetransmitted = mcuObject["bytes_retransmit"].toInteger();
+        mcu.bytesUpcoming = mcuObject["bytes_upcoming"].toInteger();
+        mcu.devAverage = mcuObject["mcu_task_stddev"].toDouble();
+        mcu.taskAverage = mcuObject["mcu_task_avg"].toDouble();
+        mcu.sequenceRecieved = mcuObject["receive_seq"].toInteger();
+        mcu.sequenceSent = mcuObject["send_seq"].toInteger();
+        mcu.sequenceRetransmitted = mcuObject["retransmit_seq"].toInteger();
+
+        m_printer->system()->setMcu(mcu);
     }
 
     //Parse toolhead status

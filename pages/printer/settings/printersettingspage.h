@@ -11,6 +11,7 @@
 #include "announcements/printerannouncementview.h"
 #include "services/printerservicesview.h"
 #include "users/printerusersview.h"
+#include "system/printersystemview.h"
 
 namespace Ui {
 class PrinterSettingsPage;
@@ -36,6 +37,7 @@ private:
     PrinterAnnouncementView *m_announcementView = nullptr;
     PrinterServicesView *m_servicesView = nullptr;
     PrinterUsersView *m_usersView = nullptr;
+    PrinterSystemView *m_systemView = nullptr;
 };
 
 #endif // PRINTERSETTINGSPAGE_H
