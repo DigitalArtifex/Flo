@@ -3157,7 +3157,7 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         }
     }
 
-    //Parse fan status
+    //Parse MCU status
     if(response["result"].toObject().contains("mcu"))
     {
         QJsonObject resultObject = response["result"].toObject()["mcu"].toObject();
