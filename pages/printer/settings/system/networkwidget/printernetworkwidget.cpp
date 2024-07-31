@@ -11,7 +11,7 @@ PrinterNetworkWidget::PrinterNetworkWidget(System *system, QWidget *parent)
 void PrinterNetworkWidget::setupUi()
 {
     setTitle("Network");
-    setFixedWidth(380);
+    setFixedSize(380, 320);
 
     m_centralWidget = new QWidget(this);
     m_centralLayout = new QVBoxLayout(m_centralWidget);

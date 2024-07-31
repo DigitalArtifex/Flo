@@ -62,6 +62,8 @@ void PrinterSystemWidget::systemUpdateEvent()
 
 void PrinterSystemWidget::setupUi()
 {
+    setFixedSize(540, 320);
+
     m_centralWidget = new QWidget(this);
     m_centralLayout = new QHBoxLayout(m_centralWidget);
     m_centralWidget->setLayout(m_centralLayout);

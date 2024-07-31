@@ -13,7 +13,7 @@ PrinterDriveWidget::PrinterDriveWidget(System *system, QWidget *parent)
 void PrinterDriveWidget::setupUi()
 {
     setTitle("MCU");
-    setFixedWidth(160);
+    setFixedSize(220, 320);
 
     m_centralWidget = new QWidget(this);
     m_centralLayout = new QHBoxLayout(m_centralWidget);
