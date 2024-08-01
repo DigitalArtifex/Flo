@@ -588,6 +588,12 @@ void QAbstractKlipperConsole::machineProcStats()
     messageObject["params"] = paramsObject;
     messageObject["method"] = "machine.proc.stats";
 
+    foreach(KlipperMessage outbound, m_messageOutbox)
+    {
+        if(outbound.document()["method"].toString() == "machine.proc.stats")
+            return;
+    }
+
     message.setDocument(messageObject);
 
     sendCommand(message);
