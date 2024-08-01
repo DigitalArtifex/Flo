@@ -51,6 +51,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     m_parserMap[QString("machine.peripherals.video")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsVideo;
     m_parserMap[QString("machine.peripherals.canbus")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsCanbus;
     m_parserMap[QString("machine.update.status")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateStatus;
+    m_parserMap[QString("machine.update.refresh")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateStatus;
     m_parserMap[QString("machine.update.full")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateFull;
     m_parserMap[QString("machine.update.moonraker")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateMoonraker;
     m_parserMap[QString("machine.update.klipper")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateKlipper;
@@ -73,7 +74,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineProcStats);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machinePeripheralsUSB);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machinePeripheralsSerial);
-    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineUpdateStatus);
+    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineUpdateRefresh);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverConfig);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverFileRoots);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverWebcamList);
@@ -599,6 +600,21 @@ void QAbstractKlipperConsole::machineUpdateStatus()
 
     QJsonObject messageObject;
     messageObject["method"] = "machine.update.status";
+    messageObject["params"] = paramsObject;
+
+    KlipperMessage message;
+    message.setDocument(messageObject);
+
+    sendCommand(message);
+}
+
+void QAbstractKlipperConsole::machineUpdateRefresh()
+{
+    QJsonObject paramsObject;
+    paramsObject["refresh"] = true;
+
+    QJsonObject messageObject;
+    messageObject["method"] = "machine.update.refresh";
     messageObject["params"] = paramsObject;
 
     KlipperMessage message;

@@ -108,6 +108,7 @@ public:
     virtual void machinePeripheralsCanbus(qint32 canBus);
     virtual void machineProcStats();
     virtual void machineUpdateStatus();
+    virtual void machineUpdateRefresh();
     virtual void machineUpdateFull();
     virtual void machineUpdateMoonraker();
     virtual void machineUpdateKlipper();
