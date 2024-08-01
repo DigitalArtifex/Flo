@@ -511,7 +511,7 @@ bool Printer::isDefaultPrinter()
 
 bool Printer::isOnline() const
 {
-    return ((m_status != Error) && (m_status != Offline));
+    return ((m_status != Offline));
 }
 
 Chamber *Printer::chamber()
