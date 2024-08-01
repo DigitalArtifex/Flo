@@ -101,7 +101,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>4</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="overviewTab">
          <attribute name="title">
@@ -466,10 +466,16 @@
                     <item row="2" column="0">
                      <widget class="QWidget" name="webcamContentWidget" native="true">
                       <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>360</width>
+                        <height>191</height>
+                       </size>
                       </property>
                       <layout class="QGridLayout" name="gridLayout_35">
                        <property name="leftMargin">
