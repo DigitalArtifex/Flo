@@ -34,13 +34,15 @@ void PrinterUserCard::setupUi()
     m_iconLabel->setPixmap(Settings::getThemeIcon("user-icon").pixmap(100,100));
     m_centralLayout->addWidget(m_iconLabel);
 
-    m_userNameLabel = new QLabel(m_centralWidget);
+/*    m_userNameLabel = new QLabel(m_centralWidget);
     m_userNameLabel->setText(QString("Username: %1").arg(m_user.username));
     m_centralLayout->addWidget(m_userNameLabel);
 
     m_userSourceLabel = new QLabel(m_centralWidget);
     m_userSourceLabel->setText(QString("Source: %1").arg(m_user.source));
     m_centralLayout->addWidget(m_userSourceLabel);
+*/
+    setTitle(m_user.username);
 
     QDateTime time = QDateTime::fromSecsSinceEpoch(m_user.createdOn);
 

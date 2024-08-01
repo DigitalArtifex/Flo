@@ -23,7 +23,7 @@ void MenuButton::setIcon(QString icon)
 {
     this->icon = icon;
     QIcon loadedIcon(Settings::getThemeIcon(this->icon));
-    QPixmap pixmap = loadedIcon.pixmap(QSize(ui->icon->height(), ui->icon->width()));
+    QPixmap pixmap = loadedIcon.pixmap(QSize(ui->icon->height() - 4, ui->icon->width() - 4));
     ui->icon->setPixmap(pixmap);
 }
 

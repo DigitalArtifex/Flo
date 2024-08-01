@@ -34,17 +34,19 @@ private:
     System::MCU m_mcu;
 
     QHBoxLayout *m_centralLayout = nullptr;
+    QHBoxLayout *m_progressLayout = nullptr;
     QVBoxLayout *m_sdLayout = nullptr;
 
     QGroupBox *m_sdGroupBox = nullptr;
 
-    CircularProgressBar *m_sdProgress = nullptr;
+    CircularProgressBar *m_mcuAverageProgressBar = nullptr;
 
     QLabel *m_sdUsedLabel = nullptr;
     QLabel *m_sdAvailableLabel = nullptr;
     QLabel *m_sdCapacityLabel = nullptr;
 
     QWidget *m_centralWidget = nullptr;
+    QWidget *m_progressWidget = nullptr;
 };
 
 #endif // PRINTERDRIVEWIDGET_H

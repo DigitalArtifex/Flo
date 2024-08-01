@@ -43,6 +43,7 @@ void PrinterTerminalItem::setupUi()
     //setFixedHeight(75);
 
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessage"));
+    style()->polish(this);
 }
 
 bool PrinterTerminalItem::isErrorMessage() const
@@ -80,7 +81,7 @@ void PrinterTerminalItem::setResponse(const KlipperResponse &response)
 
     m_messageTimestampLabel->setText(m_message.timestamp.toString(QString("hh:mm:ss - ")) + QString::number(span) + QString("s"));
 
-    update();
+    style()->polish(this);
 }
 
 void PrinterTerminalItem::setErrorMessage(QString title, QString message)
@@ -120,4 +121,6 @@ void PrinterTerminalItem::setMessage(const KlipperMessage &message)
         m_messageMethodLabel->setText(method);
 
     m_responseMessageLabel->setText(QString("Awaiting response.."));
+
+    style()->polish(this);
 }

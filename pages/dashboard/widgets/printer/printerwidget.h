@@ -7,9 +7,10 @@
 #include <QMovie>
 #include <QLabel>
 
-#include "../../../../types/printer.h"
-#include "../../../../ui/widgetanimation.h"
-#include "../../../../ui/qanimatedwidget.h"
+#include "types/printer.h"
+#include "ui/widgetanimation.h"
+#include "ui/qanimatedwidget.h"
+#include "ui/QIconButton/qiconbutton.h"
 
 namespace Ui {
 class PrinterWidget;
@@ -61,6 +62,11 @@ private:
     QLabel *m_loadingLabel = nullptr;
 
     WidgetAnimation *m_loadingAnimation = nullptr;
+
+    QIconButton *m_pausePrintButton = nullptr;
+    QIconButton *m_cancelPrintButton = nullptr;
+    QIconButton *m_restartFirmwareButton = nullptr;
+    QIconButton *m_restartKlipperButton = nullptr;
 };
 
 #endif // PRINTERWIDGET_H

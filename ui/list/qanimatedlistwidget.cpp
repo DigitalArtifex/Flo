@@ -9,7 +9,7 @@ QAnimatedListWidget::QAnimatedListWidget(QWidget *parent) :
     m_scrollAreaContents = new QWidget(this);
     m_scrollAreaContents->setLayout(new QVBoxLayout(m_scrollAreaContents));
     m_scrollAreaContents->setLayoutDirection(Qt::LayoutDirectionAuto);
-    m_scrollAreaContents->layout()->setContentsMargins(0,4,0,4);
+    m_scrollAreaContents->layout()->setContentsMargins(0,0,0,0);
     m_scrollAreaContents->layout()->setSpacing(0);
 
     m_spacer = new QSpacerItem(20,20,QSizePolicy::Fixed,QSizePolicy::Expanding);
@@ -122,8 +122,6 @@ void QAnimatedListWidget::clear()
     for(int i = 0; i < m_items.count(); i++)
     {
         removeItem(m_items[i]);
-
-        //delete m_items[i];
     }
 
     m_selectedItems.clear();
@@ -202,16 +200,19 @@ void QAnimatedListWidget::on_listItem_animationOut_finished(QAnimatedListItem *i
     if(m_items.isEmpty())
     {
         if(!m_emptyListItem)
+        {
             m_emptyListItem = new QAnimatedEmptyListItem(this);
+            m_emptyListItem->setFixedSize(size());
+            m_emptyListItem->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
-        if(!m_emptyText.isEmpty())
-            m_emptyListItem->setText(m_emptyText);
+            if(!m_emptyText.isEmpty())
+                m_emptyListItem->setText(m_emptyText);
 
-        if(!m_emptyPixmap.isNull())
-            m_emptyListItem->setIcon(m_emptyPixmap);
+            if(!m_emptyPixmap.isNull())
+                m_emptyListItem->setIcon(m_emptyPixmap);
 
-        m_emptyListItem->setFixedSize(size());
-        m_emptyListItem->raise();
+            m_scrollAreaContents->layout()->addWidget(m_emptyListItem);
+        }
     }
     else if(m_animatingItems <= 0)
     {

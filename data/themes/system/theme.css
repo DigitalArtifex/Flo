@@ -110,6 +110,11 @@
   --dialog-border-color: #41454a;
   --dialog-border-size: 1px;
   --dialog-border-radius: 0px;
+
+  --scrollbar-handle-color-start: #353535;
+  --scrollbar-handle-color-stop: #333333;
+  --scrollbar-background-color-start: #2f2f2f;
+  --scrollbar-background-color-stop: #252525;
 }
 
 .MenuButton
@@ -1166,4 +1171,66 @@ QMenu::icon
   height: 24px;
   width: 24px;
   font-size: 11pt;
+}
+
+QScrollBar:vertical
+{
+  border: var(--dialog-border-size) solid var(--dialog-border-color);
+  background-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--scrollbar-background-color-start), stop: 1 var(--scrollbar-background-color-stop));
+  width: 16px;
+  margin: 21px 0 21px 0;
+}
+
+QScrollBar::handle:vertical
+{
+  background-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
+  min-height: 25px;
+}
+
+QScrollBar::add-line:vertical
+{
+  border: var(--dialog-border-size) solid var(--dialog-border-color);
+  background-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
+  height: 16px;
+  subcontrol-position: bottom;
+  subcontrol-origin: margin;
+}
+QScrollBar::sub-line:vertical
+{
+  border: var(--dialog-border-size) solid var(--dialog-border-color);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
+  height: 16px;
+  subcontrol-position: top;
+  subcontrol-origin: margin;
+}
+
+QScrollBar:horizontal
+{
+  border: var(--dialog-border-size) solid var(--dialog-border-color);
+  background-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--scrollbar-background-color-start), stop: 1 var(--scrollbar-background-color-stop));
+  height: 16px;
+  margin: 21px 0 21px 0;
+}
+
+QScrollBar::handle:horizontal
+{
+  background-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
+  min-width: 25px;
+}
+
+QScrollBar::add-line:horizontal
+{
+  border: var(--dialog-border-size) solid var(--dialog-border-color);
+  background-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
+  width: 16px;
+  subcontrol-position: bottom;
+  subcontrol-origin: margin;
+}
+QScrollBar::sub-line:horizontal
+{
+  border: var(--dialog-border-size) solid var(--dialog-border-color);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
+  width: 16px;
+  subcontrol-position: top;
+  subcontrol-origin: margin;
 }

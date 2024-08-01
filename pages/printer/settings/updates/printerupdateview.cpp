@@ -73,15 +73,23 @@ void PrinterUpdateView::updateStateUpdateEvent()
 
 void PrinterUpdateView::updateAllButtonClickEvent()
 {
-    m_printer->console()->machineUpdateFull();
+    if(m_printer->isOnline())
+    {
+        m_updateWidget->setEmptyIcon(Settings::getThemeIcon("update-icon"));
+        m_updateWidget->setEmptyText("Updating All");
+        m_updateWidget->clear();
+        m_printer->console()->machineUpdateFull();
+    }
 }
 
 void PrinterUpdateView::refreshButtonClickEvent()
 {
     if(m_printer->isOnline())
     {
+        m_updateWidget->setEmptyIcon(Settings::getThemeIcon("refresh-icon"));
+        m_updateWidget->setEmptyText("Refreshing");
         m_updateWidget->clear();
-        m_printer->console()->machineUpdateStatus();
+        m_printer->console()->machineUpdateRefresh();
     }
 }
 
@@ -89,6 +97,10 @@ void PrinterUpdateView::itemUpdateRequestedEvent(PrinterUpdateItem *item)
 {
     if(m_printer->status() != Printer::Offline && m_printer->status() != Printer::Printing)
     {
+        m_updateWidget->setEmptyIcon(Settings::getThemeIcon("refresh-icon"));
+        m_updateWidget->setEmptyText(QString("Updating Client \"%1\"").arg(item->title()));
+        m_updateWidget->clear();
+
         if(!item->title().isEmpty() && item->title() == QString("klipper"))
             m_printer->console()->machineUpdateKlipper();
         else if(!item->title().isEmpty() && item->title() == QString("moonraker"))
@@ -100,14 +112,10 @@ void PrinterUpdateView::itemUpdateRequestedEvent(PrinterUpdateItem *item)
 
 void PrinterUpdateView::machineUpdateAllEvent()
 {
-    m_updateWidget->clear();
     m_printer->console()->machineUpdateStatus();
 }
 
 void PrinterUpdateView::machineUpdateClientEvent(QString client)
 {
-    qDebug() << "Updated" << client;
-
-    m_updateWidget->clear();
     m_printer->console()->machineUpdateStatus();
 }

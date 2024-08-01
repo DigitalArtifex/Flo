@@ -27,7 +27,7 @@ void QAnimatedEmptyListItem::setupUi()
     m_iconLabel->setText(QString(""));
     m_iconLabel->setAlignment(Qt::AlignCenter);
 
-    QPixmap pixmap = Settings::getThemeIcon(QString("empty-icon")).pixmap(64,64);
+    QPixmap pixmap = Settings::getThemeIcon(QString("empty-icon")).pixmap(48,48);
     m_iconLabel->setPixmap(pixmap);
 
     m_topSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);

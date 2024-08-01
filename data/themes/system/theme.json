@@ -156,7 +156,15 @@
 		},
 		{
 			"name": "refresh-icon",
-			"icon": "icons8-refresh-64.png" 
+			"icon": "icons8-refresh-64.png"
+		},
+		{
+			"name": "restart-icon",
+			"icon": "icons8-restart-64.png"
+		},
+		{
+			"name": "firmware-icon",
+			"icon": "icons8-firmware-error.png"
 		},
 		{
 			"name": "webcam-icon",
@@ -256,11 +264,19 @@
 		},
 		{
 			"name": "printjob-paused-icon",
-			"icon": "icons8-pause-64.png" 
+			"icon": "icons8-pause-64.png"
+		},
+		{
+			"name": "pause-icon",
+			"icon": "icons8-pause-64.png"
 		},
 		{
 			"name": "printjob-resumed-icon",
-			"icon": "icons8-resume-button-64.png" 
+			"icon": "icons8-resume-button-64.png"
+		},
+		{
+			"name": "resume-icon",
+			"icon": "icons8-resume-button-64.png"
 		},
 		{
 			"name": "printjob-cancelled-icon",
@@ -401,6 +417,14 @@
 		{
 			"name": "user-icon",
 			"icon": "icons8-user-100.png"
+		},
+		{
+			"name": "position-icon",
+			"icon": "icons8-my-location-50.png"
+		},
+		{
+			"name": "save-icon",
+			"icon": "icons8-save-100.png"
 		}
 	]
 }

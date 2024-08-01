@@ -86,6 +86,8 @@ void PrinterSystemWidget::setupUi()
     m_cpuProgress->setFontSize(10);
     m_cpuClusterLayout->addWidget(m_cpuProgress);
 
+    m_cpuLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
+
     //Name label
     m_cpuNameLabel = new QLabel(m_cpuGroupBox);
     m_cpuNameLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -97,43 +99,8 @@ void PrinterSystemWidget::setupUi()
     m_cpuCountLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_cpuLayout->addWidget(m_cpuCountLabel);
 
-    m_cpuLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
-
     m_cpuGroupBox->setLayout(m_cpuLayout);
     m_centralLayout->addWidget(m_cpuGroupBox);
-
-    //Setup memory group box
-    m_memoryGroupBox = new QGroupBox(this);
-    m_memoryGroupBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_memoryLayout = new QVBoxLayout(m_memoryGroupBox);
-    m_memoryGroupBox->setTitle(QString("Memory"));
-    m_memoryGroupBox->setFixedWidth(125);
-
-    //memory Usage Progress bar
-    m_memoryProgress = new CircularProgressBar(m_memoryGroupBox, CircularProgressBar::Percent);
-    m_memoryProgress->setFixedSize(100,100);
-    m_memoryProgress->setFontSize(10);
-    m_memoryLayout->addWidget(m_memoryProgress);
-
-    //Capacity label
-    m_memoryCapacityLabel = new QLabel(m_memoryGroupBox);
-    m_memoryCapacityLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_memoryLayout->addWidget(m_memoryCapacityLabel);
-
-    //Used label
-    m_memoryUsedLabel = new QLabel(m_memoryGroupBox);
-    m_memoryUsedLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_memoryLayout->addWidget(m_memoryUsedLabel);
-
-    //Available label
-    m_memoryAvailableLabel = new QLabel(m_memoryGroupBox);
-    m_memoryAvailableLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_memoryLayout->addWidget(m_memoryAvailableLabel);
-
-    m_memoryLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
-
-    m_memoryGroupBox->setLayout(m_memoryLayout);
-    m_centralLayout->addWidget(m_memoryGroupBox);
 
     //Setup Temperature group box
     //m_temperatureGroupBox = new QGroupBox(this);
@@ -156,10 +123,42 @@ void PrinterSystemWidget::setupUi()
     m_peakTemperatureLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_cpuLayout->addWidget(m_peakTemperatureLabel);
 
-    //m_temperatureLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
+    m_cpuLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
 
-    //m_temperatureGroupBox->setLayout(m_temperatureLayout);
-    //m_centralLayout->addWidget(m_temperatureGroupBox);
+    //Setup memory group box
+    m_memoryGroupBox = new QGroupBox(this);
+    m_memoryGroupBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_memoryLayout = new QVBoxLayout(m_memoryGroupBox);
+    m_memoryGroupBox->setTitle(QString("Memory"));
+    m_memoryGroupBox->setFixedWidth(125);
+
+    //memory Usage Progress bar
+    m_memoryProgress = new CircularProgressBar(m_memoryGroupBox, CircularProgressBar::Percent);
+    m_memoryProgress->setFixedSize(100,100);
+    m_memoryProgress->setFontSize(10);
+    m_memoryLayout->addWidget(m_memoryProgress);
+
+    m_memoryLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
+
+    //Capacity label
+    m_memoryCapacityLabel = new QLabel(m_memoryGroupBox);
+    m_memoryCapacityLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_memoryLayout->addWidget(m_memoryCapacityLabel);
+
+    //Used label
+    m_memoryUsedLabel = new QLabel(m_memoryGroupBox);
+    m_memoryUsedLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_memoryLayout->addWidget(m_memoryUsedLabel);
+
+    //Available label
+    m_memoryAvailableLabel = new QLabel(m_memoryGroupBox);
+    m_memoryAvailableLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_memoryLayout->addWidget(m_memoryAvailableLabel);
+
+    m_memoryLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
+
+    m_memoryGroupBox->setLayout(m_memoryLayout);
+    m_centralLayout->addWidget(m_memoryGroupBox);
 
     //Setup SD group box
     m_sdGroupBox = new QGroupBox(this);

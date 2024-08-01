@@ -63,7 +63,7 @@ void PrinterUpdateItem::setupUi()
 
     m_updateButton = new QToolButton(this);
     m_updateButton->setIcon(Settings::getThemeIcon(QString("update-icon")));
-    m_updateButton->setIconSize(QSize(32,32));
+    m_updateButton->setIconSize(QSize(16,16));
     m_updateButton->setFixedSize(35,35);
 
     connect(m_updateButton, SIGNAL(clicked(bool)), this, SLOT(updateActionTriggered(bool)));

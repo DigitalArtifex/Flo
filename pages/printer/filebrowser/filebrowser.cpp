@@ -106,9 +106,7 @@ void FileBrowser::setupUi()
     m_actionBar->setLayout(m_actionBarLayout);
     m_layout->addWidget(m_actionBar, 0, 0, 1, 2);
 
-    if(m_mode == Page)
-        m_filebrowserWidget = new FileBrowserWidget(this, FileBrowserWidget::Page);
-    else
+
         m_filebrowserWidget = new FileBrowserWidget(this, FileBrowserWidget::Widget);
 
     m_filebrowserWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -160,7 +158,10 @@ void FileBrowser::setupUi()
     m_sideBar->setLayout(m_sideBarLayout);
 
     if(m_mode == Page)
-        m_layout->addWidget(m_sideBar, 1, 1, 1, 1);
+    {
+
+        //m_layout->addWidget(m_sideBar, 1, 1, 1, 1);
+    }
     else
     {
         m_upDirectoryButton->setFixedSize(32,32);
