@@ -20,8 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     //showMaximized();
 
-    setFixedSize(1440,810);
-
     m_titleOpacityEffect = new QGraphicsOpacityEffect(this);
     ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);
     m_titleOpacityAnimation = new QPropertyAnimation(m_titleOpacityEffect, "opacity");
@@ -30,8 +28,20 @@ MainWindow::MainWindow(QWidget *parent)
     Settings::load();
     setStyleSheet(Settings::currentTheme());
 
+    m_graphicsScene = new QGraphicsScene(this);
+    ui->windowWidget->setParent(0);
+
+    QGraphicsProxyWidget *proxy = m_graphicsScene->addWidget(ui->windowWidget);
+    proxy->setPos(0,0);
+    proxy->setZValue(1);
+    ui->graphicsView->setScene(m_graphicsScene);
+
+    setFixedSize(1440,810);
+    ui->windowWidget->setFixedSize(1440, 810);
+    ui->windowWidget->setEnabled(true);
+
     m_initTimer = new QTimer(this);
-    m_initTimer->setInterval(1000);
+    m_initTimer->setInterval(50);
     m_initTimer->setSingleShot(true);
 
     connect(m_initTimer, SIGNAL(timeout()), this, SLOT(on_initAsync()));
@@ -175,7 +185,7 @@ void MainWindow::online()
     }
 
     for(int i = 0; i < m_printerPages.count(); i++)
-        m_printerPages[i]->resize(m_pageSize);
+        m_printerPages[i]->setFixedSize(m_pageSize);
 
     setupPowerActions();
 
@@ -188,9 +198,9 @@ void MainWindow::online()
 
 void MainWindow::setupUiClasses()
 {
-    this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Window"));
+    ui->windowWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Window"));
     ui->PageContainer->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContainer"));
-    ui->emergencyStopButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "EmergencyStopButton"));
+    //ui->emergencyStopButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "EmergencyStopButton"));
     //_settingsPage->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
 
     ui->menuBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuBar"));
@@ -223,7 +233,7 @@ void MainWindow::on_dashboardMenuButton_toggled(MenuButton* button)
         DashboardPage *dashboard = new DashboardPage();
         m_dashboardPage = new QAnimatedWidget(ui->PageContainer);
         m_dashboardPage->setWidget(dashboard);
-        m_dashboardPage->resize(m_pageSize);
+        m_dashboardPage->setFixedSize(m_pageSize);
         m_dashboardPage->setHidden(true);
     }
 
@@ -245,7 +255,7 @@ void MainWindow::on_settingsMenuButton_toggled(MenuButton* button)
         m_settingsPage = new QAnimatedWidget(ui->PageContainer);
         m_settingsPage->setWidget(settings);
         m_settingsPage->setHidden(true);
-        m_settingsPage->resize(m_pageSize);
+        m_settingsPage->setFixedSize(m_pageSize);
         connect(m_settingsPage, SIGNAL(printerAdded(PrinterDefinition)), this, SLOT(on_settingsPage_printerAdded(PrinterDefinition)));
     }
 
@@ -275,7 +285,7 @@ void MainWindow::on_nextPage_animationIn_finished()
     for(int i = 0; i < m_printerButtons.count(); i++)
         m_printerButtons[i]->setEnabled(true);
 
-    update();
+    style()->polish(this);
 }
 
 void MainWindow::on_titleOpacityAnimation_finished()
@@ -411,13 +421,13 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     m_pagePositionOut = QPoint(this->width(), ui->menuBar->height());
 
     if(m_dashboardPage)
-        m_dashboardPage->resize(m_pageSize);
+        m_dashboardPage->setFixedSize(m_pageSize);
 
     if(m_settingsPage)
-        m_settingsPage->resize(m_pageSize);
+        m_settingsPage->setFixedSize(m_pageSize);
 
     for(int i = 0; i < m_printerPages.count(); i++)
-        m_printerPages[i]->resize(m_pageSize);
+        m_printerPages[i]->setFixedSize(m_pageSize);
 }
 
 

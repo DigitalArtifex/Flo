@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QLabel>
+#include <QStyle>
 
 #include <QGraphicsView>
 #include <QGraphicsVideoItem>

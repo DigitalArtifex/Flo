@@ -6,6 +6,9 @@
 #include <QGraphicsOpacityEffect>
 #include <QSizePolicy>
 #include <QGridLayout>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsProxyWidget>
 
 #include <QChart>
 #include <QChartView>
@@ -129,5 +132,8 @@ private:
     QAnimatedWidget *m_nextPage = nullptr;
     QParallelAnimationGroup *m_pageAnimationGroup;
 
+    //for faster ui rendering
+    QGraphicsView *m_graphicsView = nullptr;
+    QGraphicsScene *m_graphicsScene = nullptr;
 };
 #endif // MAINWINDOW_H

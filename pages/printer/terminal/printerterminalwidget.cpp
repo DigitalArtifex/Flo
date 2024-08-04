@@ -3,7 +3,7 @@
 PrinterTerminalWidget::PrinterTerminalWidget(QWidget *parent)
     : QAnimatedListWidget(parent)
 {
-    m_scrollAreaContents->layout()->setContentsMargins(9,9,9,9);
+    m_scrollAreaContents->layout()->setContentsMargins(0,0,0,0);
     m_scrollAreaContents->layout()->setSpacing(9);
 }
 

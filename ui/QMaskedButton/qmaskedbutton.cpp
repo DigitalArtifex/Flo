@@ -79,7 +79,7 @@ void QMaskedButton::mousePressEvent(QMouseEvent *event)
         m_click_animation->start();
 
         setProperty("pressed", true);
-        update();
+        style()->polish(this);
 
         m_clickTimer = new QTimer(this);
         connect(m_clickTimer, SIGNAL(timeout()), this, SLOT(on_clickTimer_timeout()));
@@ -113,7 +113,7 @@ void QMaskedButton::mouseReleaseEvent(QMouseEvent *event)
         {
             setProperty("pressed", false);
             setProperty("longPressed", false);
-            update();
+            style()->polish(this);
 
             emit clicked(this);
         }
@@ -121,7 +121,7 @@ void QMaskedButton::mouseReleaseEvent(QMouseEvent *event)
         {
             setProperty("pressed", false);
             setProperty("longPressed", false);
-            update();
+            style()->polish(this);
 
             emit longPressed(this);
         }
@@ -167,7 +167,7 @@ void QMaskedButton::setPixmap(const QPixmap &pixmap)
     m_pixmap = pixmap;
     m_mask = pixmap.createHeuristicMask();
 
-    update();
+    style()->polish(this);
 }
 
 void QMaskedButton::setHoverPixmap(const QPixmap &pixmap)
@@ -191,12 +191,11 @@ void QMaskedButton::enterEvent(QEnterEvent *event)
 
         m_hover_animation->setStartValue(m_hover_opacity);
         m_hover_animation->setEndValue(1.0);
-        m_hover_animation->setDuration(100);
+        m_hover_animation->setDuration(15);
         m_hover_animation->start();
 
         setProperty("hover", true);
-        update();
-        m_hover_animation->start();
+        style()->polish(this);
     }
 }
 
@@ -205,15 +204,15 @@ void QMaskedButton::leaveEvent(QEvent *event)
     if(m_hover_animation->state() == QPropertyAnimation::Running)
         m_hover_animation->stop();
 
-    m_hover_animation->setStartValue(m_hover_opacity);
-    m_hover_animation->setEndValue(0.0);
-    m_hover_animation->setDuration(100);
-    m_hover_animation->start();
-
     setProperty("hover", false);
     setProperty("pressed", false);
     setProperty("longPressed", false);
     setProperty("opacity", 1.0);
+
+    m_hover_animation->setStartValue(m_hover_opacity);
+    m_hover_animation->setEndValue(0.0);
+    m_hover_animation->setDuration(15);
+    m_hover_animation->start();
 
     if(m_clickTimer)
     {
@@ -221,5 +220,5 @@ void QMaskedButton::leaveEvent(QEvent *event)
         m_clickTimer = nullptr;
     }
 
-    update();
+    style()->polish(this);
 }

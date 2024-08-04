@@ -100,7 +100,8 @@ void FileBrowserItem::setupUi()
 
         m_titleLabel = new QLabel(this);
         m_titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        m_titleLabel->setWordWrap(true);
+        m_titleLabel->setWordWrap(false);
+        m_titleLabel->setToolTip(m_file.name);
         m_titleLabel->setText(m_file.name);
         m_titleLabel->setProperty("class", "FileBrowserItemTitle");
 

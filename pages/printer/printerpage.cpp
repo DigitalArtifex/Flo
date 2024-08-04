@@ -618,7 +618,7 @@ void PrinterPage::on_printerUpdate(Printer *printer)
             addFanLabels(printerFans[name], name);
     }
 
-    update();
+    style()->polish(this);
 }
 
 Printer *PrinterPage::printer() const

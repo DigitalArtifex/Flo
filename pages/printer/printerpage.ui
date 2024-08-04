@@ -157,13 +157,13 @@
                   <widget class="QFrame" name="settingsFrame">
                    <property name="minimumSize">
                     <size>
-                     <width>420</width>
+                     <width>360</width>
                      <height>0</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>420</width>
+                     <width>360</width>
                      <height>16777215</height>
                     </size>
                    </property>

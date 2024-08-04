@@ -23,7 +23,7 @@ QWebcamWidget::QWebcamWidget(QString source, QWidget *parent) : QWidget(parent)
     m_videoLabel = new QLabel(this);
     m_videoLabel->setScaledContents(true);
     m_videoLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Subwidget"));
-    m_videoLabel->resize(size);
+    m_videoLabel->setFixedSize(size);
     m_layout->addWidget(m_videoLabel);
 
     m_webcamSink = new QVideoSink(this);
@@ -40,14 +40,14 @@ QWebcamWidget::QWebcamWidget(QString source, QWidget *parent) : QWidget(parent)
     m_infoLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WebcamInfo"));
     m_infoLabel->setVisible(false);
 
-    connect(m_webcamSink, SIGNAL(videoFrameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
+    //connect(m_webcamSink, SIGNAL(videoFrameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
 
-    connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
+    //connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
 
-    play();
-    update();
+    //play();
+    style()->polish(this);
 
-    connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
+    //connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
 }
 
 QWebcamWidget::~QWebcamWidget()
@@ -123,7 +123,7 @@ void QWebcamWidget::resizeEvent(QResizeEvent *event)
     //get the aspect ratio for 16:9
     QSize size;
     qreal ratio = ((qreal)9/16);
-    qint32 width = this->width();
+    qint32 width = event->size().width();
     width -= layout()->contentsMargins().left();
     width -= layout()->contentsMargins().right();
     width = qFloor(width);
@@ -134,7 +134,7 @@ void QWebcamWidget::resizeEvent(QResizeEvent *event)
     size.setHeight(height);
 
     if(m_videoLabel)
-        m_videoLabel->resize(size);
+        m_videoLabel->setFixedSize(size);
 
     QWidget::resizeEvent(event);
 }

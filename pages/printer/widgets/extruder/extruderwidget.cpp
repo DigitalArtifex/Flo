@@ -43,7 +43,7 @@ void ExtruderWidget::setUiClasses()
 
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
 
-    update();
+    style()->polish(this);
 }
 
 void ExtruderWidget::setStyleSheet(QString &styleSheet)
@@ -52,7 +52,7 @@ void ExtruderWidget::setStyleSheet(QString &styleSheet)
 
     setIcons();
 
-    update();
+    style()->polish(this);
 }
 
 void ExtruderWidget::setIcons()
@@ -78,7 +78,7 @@ void ExtruderWidget::setIcons()
     pixmap = Settings::getThemeIcon("settings-icon").pixmap(18,18);
     ui->settingsFrameIcon->setPixmap(pixmap);
 
-    update();
+    style()->polish(this);
 }
 
 void ExtruderWidget::on_extrsuionFactorSlider_valueChanged(int value)
