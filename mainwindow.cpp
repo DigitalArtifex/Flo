@@ -18,15 +18,12 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowFlag(Qt::FramelessWindowHint);
     this->setWindowIcon(QIcon(":/images/application-icon"));
 
-    //showMaximized();
-
     m_titleOpacityEffect = new QGraphicsOpacityEffect(this);
     ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);
     m_titleOpacityAnimation = new QPropertyAnimation(m_titleOpacityEffect, "opacity");
     m_titleOpacityAnimation->setDuration(500);
 
     Settings::load();
-    setStyleSheet(Settings::currentTheme());
 
     m_graphicsScene = new QGraphicsScene(this);
     ui->windowWidget->setParent(0);
@@ -36,13 +33,18 @@ MainWindow::MainWindow(QWidget *parent)
     proxy->setZValue(1);
     ui->graphicsView->setScene(m_graphicsScene);
 
-    setFixedSize(1440,810);
-    ui->windowWidget->setFixedSize(1440, 810);
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect  screenGeometry = screen->geometry();
+
+    setFixedSize(screenGeometry.size());
+    ui->windowWidget->setFixedSize(screenGeometry.size());
     ui->windowWidget->setEnabled(true);
 
     m_initTimer = new QTimer(this);
     m_initTimer->setInterval(50);
     m_initTimer->setSingleShot(true);
+
+    ui->windowWidget->setStyleSheet(Settings::currentTheme());
 
     connect(m_initTimer, SIGNAL(timeout()), this, SLOT(on_initAsync()));
     m_initTimer->start();
@@ -92,7 +94,7 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
 
     m_pageSize = QSize(width, height);
     m_pagePositionIn = QPoint(0, 0);
-    m_pagePositionOut = QPoint(m_pageSize.width(), m_pageSize.height());
+    m_pagePositionOut = QPoint(0, m_pageSize.height());
 
     if(page)
     {
