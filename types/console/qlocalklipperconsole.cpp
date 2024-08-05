@@ -23,6 +23,7 @@ QLocalKlipperConsole::~QLocalKlipperConsole()
 
 void QLocalKlipperConsole::shutdown()
 {
+
 }
 
 void QLocalKlipperConsole::sendCommand(KlipperMessage message, bool immediate)

@@ -40,11 +40,10 @@ QWebcamWidget::QWebcamWidget(QString source, QWidget *parent) : QWidget(parent)
     m_infoLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WebcamInfo"));
     m_infoLabel->setVisible(false);
 
-    //connect(m_webcamSink, SIGNAL(videoFrameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
+    connect(m_webcamSink, SIGNAL(videoFrameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
+    connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
 
-    //connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
-
-    //play();
+    play();
     style()->polish(this);
 
     //connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
@@ -155,7 +154,7 @@ void QWebcamWidget::on_playbackRateChanged(qreal rate)
 {
     QString fps = QString::number(rate);
     m_infoLabel->setText(fps);
-    update();
+    //update();
 }
 
 void QWebcamWidget::videoFrameChangeEvent(QVideoFrame frame)
@@ -164,8 +163,8 @@ void QWebcamWidget::videoFrameChangeEvent(QVideoFrame frame)
         qDebug() << "invalid frame";
 
     QImage image = frame.toImage();
-    m_videoLabel->setPixmap(QPixmap::fromImage(image).scaledToWidth(m_videoLabel->width(), Qt::SmoothTransformation));
-    update();
+    m_videoLabel->setPixmap(QPixmap::fromImage(image));
+    //update();
 }
 
 QString QWebcamWidget::info() const
