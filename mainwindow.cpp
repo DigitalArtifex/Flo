@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_titleOpacityEffect = new QGraphicsOpacityEffect(this);
     ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);
     m_titleOpacityAnimation = new QPropertyAnimation(m_titleOpacityEffect, "opacity");
-    m_titleOpacityAnimation->setDuration(500);
+    m_titleOpacityAnimation->setDuration(250);
 
     Settings::load();
 
@@ -97,7 +97,7 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
         delete m_titleOpacityAnimation;
 
     m_titleOpacityAnimation = new QPropertyAnimation(m_titleOpacityEffect, "opacity");
-    m_titleOpacityAnimation->setDuration(500);
+    m_titleOpacityAnimation->setDuration(250);
 
     connect(m_titleOpacityAnimation, SIGNAL(finished()), this, SLOT(on_titleOpacityAnimation_finished()));
 
@@ -109,10 +109,10 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
     m_titleOpacityAnimation->start();
 
     //Page
-    qint32 width = this->width() - ui->menuFrame->width();
-    qint32 height = this->height() - ui->menuBar->height();
+    //qint32 width = this->width() - ui->menuFrame->width();
+    //qint32 height = this->height() - ui->menuBar->height();
 
-    m_pageSize = QSize(width, height);
+    m_pageSize = ui->PageContainer->size();
     m_pagePositionIn = QPoint(0, 0);
     m_pagePositionOut = QPoint(0, m_pageSize.height());
 
@@ -124,12 +124,12 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
         m_nextPage = page;
         m_nextPage->setOpacityIn(1);
         m_nextPage->setOpacityOut(0);
-        m_nextPage->setPositionIn(m_pagePositionIn);
-        m_nextPage->setPositionOut(QPoint(0, ypos));
         m_nextPage->setDuration(500);
 
         connect(m_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
-        m_nextPage->setHidden(false);
+        m_nextPage->setGeometry(0,0,m_pageSize.width(),m_pageSize.height());
+        m_nextPage->show();
+        m_nextPage->lower();
         m_nextPage->animateIn();
     }
 
@@ -139,11 +139,10 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
 
         m_currentPage->setOpacityIn(1);
         m_currentPage->setOpacityOut(0);
-        m_currentPage->setPositionIn(m_pagePositionIn);
-        m_currentPage->setPositionOut(QPoint(0, m_pageSize.height()));
+        m_currentPage->setGeometry(0,0,m_pageSize.width(),m_pageSize.height());
         m_currentPage->setDuration(500);
 
-        ui->PageContainer->layout()->removeWidget(m_currentPage);
+        //ui->PageContainer->layout()->removeWidget(m_currentPage);
 
         m_currentPage->animateOut();
     }
@@ -254,9 +253,11 @@ void MainWindow::on_dashboardMenuButton_toggled(MenuButton* button)
     {
         DashboardPage *dashboard = new DashboardPage();
         m_dashboardPage = new QAnimatedWidget(ui->PageContainer);
+        m_dashboardPage->setGeometry(0,0,m_pageSize.width(),m_pageSize.height());
+        m_dashboardPage->show();
+        m_dashboardPage->setFixedSize(m_pageSize);
         m_dashboardPage->setWidget(dashboard);
         m_dashboardPage->setFixedSize(m_pageSize);
-        m_dashboardPage->setHidden(true);
     }
 
     changePage(m_dashboardPage, QString("Dashboard"));
@@ -275,10 +276,11 @@ void MainWindow::on_settingsMenuButton_toggled(MenuButton* button)
     {
         SettingsPage *settings = new SettingsPage();
         m_settingsPage = new QAnimatedWidget(ui->PageContainer);
-        m_settingsPage->setWidget(settings);
-        m_settingsPage->setHidden(true);
+        m_settingsPage->setGeometry(0,0,m_pageSize.width(),m_pageSize.height());
+        m_settingsPage->show();
         m_settingsPage->setFixedSize(m_pageSize);
-        connect(m_settingsPage, SIGNAL(printerAdded(PrinterDefinition)), this, SLOT(on_settingsPage_printerAdded(PrinterDefinition)));
+        m_settingsPage->setWidget(settings);
+        //connect(m_settingsPage, SIGNAL(printerAdded(PrinterDefinition)), this, SLOT(on_settingsPage_printerAdded(PrinterDefinition)));
     }
 
     changePage(m_settingsPage, QString("Settings"));
@@ -293,6 +295,12 @@ void MainWindow::on_nextPage_animationIn_finished()
 {
     disconnect(m_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
     ui->PageContainer->layout()->addWidget(m_nextPage);
+
+    if(m_currentPage)
+    {
+        m_currentPage->lower();
+        m_currentPage->hide();
+    }
 
     m_currentPage = m_nextPage;
     m_nextPage = nullptr;

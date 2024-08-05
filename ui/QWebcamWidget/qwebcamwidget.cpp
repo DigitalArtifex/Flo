@@ -1,9 +1,10 @@
 #include "qwebcamwidget.h"
 
-QWebcamWidget::QWebcamWidget(QString source, QWidget *parent) : QWidget(parent)
+QWebcamWidget::QWebcamWidget(QString source, QWidget *parent) : QFrame(parent)
 {
     m_layout = new QGridLayout(this);
     m_layout->setContentsMargins(0,0,0,0);
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Subwidget"));
 
     //get the aspect ratio for 16:9
     QSize size;
@@ -22,7 +23,6 @@ QWebcamWidget::QWebcamWidget(QString source, QWidget *parent) : QWidget(parent)
 
     m_videoLabel = new QLabel(this);
     m_videoLabel->setScaledContents(true);
-    m_videoLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Subwidget"));
     m_videoLabel->setFixedSize(size);
     m_layout->addWidget(m_videoLabel);
 
@@ -43,7 +43,7 @@ QWebcamWidget::QWebcamWidget(QString source, QWidget *parent) : QWidget(parent)
     connect(m_webcamSink, SIGNAL(videoFrameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
     connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
 
-    play();
+    //play();
     style()->polish(this);
 
     //connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
@@ -119,6 +119,8 @@ void QWebcamWidget::stop()
 
 void QWebcamWidget::resizeEvent(QResizeEvent *event)
 {
+    QWidget::resizeEvent(event);
+
     //get the aspect ratio for 16:9
     QSize size;
     qreal ratio = ((qreal)9/16);
@@ -134,37 +136,50 @@ void QWebcamWidget::resizeEvent(QResizeEvent *event)
 
     if(m_videoLabel)
         m_videoLabel->setFixedSize(size);
-
-    QWidget::resizeEvent(event);
 }
 
 void QWebcamWidget::hideEvent(QHideEvent *event)
 {
-    pause();
     QWidget::hideEvent(event);
+    pause();
 }
 
 void QWebcamWidget::showEvent(QShowEvent *event)
 {
-    play();
     QWidget::showEvent(event);
+    play();
 }
 
 void QWebcamWidget::on_playbackRateChanged(qreal rate)
 {
     QString fps = QString::number(rate);
     m_infoLabel->setText(fps);
-    //update();
 }
 
 void QWebcamWidget::videoFrameChangeEvent(QVideoFrame frame)
 {
-    if(!frame.isValid())
-        qDebug() << "invalid frame";
+    bool frameUpdate = false;
 
-    QImage image = frame.toImage();
-    m_videoLabel->setPixmap(QPixmap::fromImage(image));
-    //update();
+    if(m_lastFrameTime > 0)
+    {
+        qreal time = QDateTime::currentDateTime().toSecsSinceEpoch();
+        qreal span = time - m_lastFrameTime;
+        qreal threshold = (qreal)1/m_frameRate;
+
+        if(span >= threshold)
+            frameUpdate = true;
+    }
+    else
+        frameUpdate = true;
+
+    if(frameUpdate)
+    {
+        if(!frame.isValid())
+            qDebug() << "invalid frame";
+
+        QImage image = frame.toImage();
+        m_videoLabel->setPixmap(QPixmap::fromImage(image));
+    }
 }
 
 QString QWebcamWidget::info() const

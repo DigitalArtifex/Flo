@@ -1,6 +1,7 @@
 #ifndef QWEBCAMWIDGET_H
 #define QWEBCAMWIDGET_H
 
+#include "qdatetime.h"
 #include <QFrame>
 #include <QObject>
 #include <QWidget>
@@ -19,7 +20,7 @@
 
 #include <QResizeEvent>
 
-class QWebcamWidget : public QWidget
+class QWebcamWidget : public QFrame
 {
     Q_OBJECT
 public:
@@ -68,6 +69,9 @@ private:
     QWidget *m_overlayWidget = nullptr;
     QLabel *m_overlayIconLabel = nullptr;
     QLabel *m_overlayTextLabel = nullptr;
+
+    qreal m_lastFrameTime = 0;
+    qint16 m_frameRate = 2;
 };
 
 #endif // QWEBCAMWIDGET_H
