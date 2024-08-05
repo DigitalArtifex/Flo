@@ -97,6 +97,8 @@ void PrinterTerminalItem::setErrorMessage(QString title, QString message)
     m_isErrorMessage = true;
 
     setProperty("status", QVariant::fromValue<QString>("error"));
+
+    style()->polish(this);
 }
 
 KlipperMessage PrinterTerminalItem::message() const
@@ -115,7 +117,7 @@ void PrinterTerminalItem::setMessage(const KlipperMessage &message)
     if(method == QString("printer.gcode.script"))
     {
         QJsonObject paramsObject = m_message.document()["params"].toObject();
-        m_messageMethodLabel->setText(paramsObject["script"].toString());
+        m_messageMethodLabel->setText(QString("GCode: %1").arg(paramsObject["script"].toString()));
     }
     else
         m_messageMethodLabel->setText(method);

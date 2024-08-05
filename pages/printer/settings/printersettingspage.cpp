@@ -27,6 +27,11 @@ PrinterSettingsPage::PrinterSettingsPage(Printer *printer, QWidget *parent)
 
     m_systemView = new PrinterSystemView(m_printer, this);
     ui->statusWidget->layout()->addWidget(m_systemView);
+
+    ui->scrollArea->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    ui->scrollAreaWidgetContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
+
+    style()->polish(this);
 }
 
 PrinterSettingsPage::~PrinterSettingsPage()

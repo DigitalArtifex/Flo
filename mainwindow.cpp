@@ -46,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->graphicsView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
+    Settings::set("ui-opengl", true);
+
     if(Settings::get("ui-opengl").toBool())
     {
         QOpenGLWidget *gl = new QOpenGLWidget();

@@ -25,6 +25,9 @@ public:
     void addErrorMessage(QString title, QString message);
 
 protected:
+    virtual void showEvent(QShowEvent *event);
+
+protected:
     QMap<qint64, PrinterTerminalItem*> m_itemMap;
 };
 

@@ -30,6 +30,7 @@ protected slots:
 protected:
     virtual void setupUi();
     virtual void sendCommand();
+    virtual void showEvent(QShowEvent *event);
 
 private:
     QGridLayout *m_layout = nullptr;

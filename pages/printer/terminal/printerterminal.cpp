@@ -68,6 +68,7 @@ void PrinterTerminal::setupUi()
 
     m_terminal = new PrinterTerminalWidget(this);
     m_layout->addWidget(m_terminal, 0,0,1,2);
+    m_terminal->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
 
     m_commandEdit = new QTextEdit();
     m_commandEdit->setFixedHeight(32);
@@ -150,4 +151,11 @@ void PrinterTerminal::sendCommand()
     }
     else
         m_printer->console()->sendCommand(commandString, KlipperMessage::User);
+}
+
+void PrinterTerminal::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+
+    m_commandEdit->setFocus();
 }

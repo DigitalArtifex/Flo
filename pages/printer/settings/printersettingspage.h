@@ -2,6 +2,7 @@
 #define PRINTERSETTINGSPAGE_H
 
 #include <QFrame>
+#include <QStyle>
 
 #include "pages/printer/filebrowser/filebrowser.h"
 

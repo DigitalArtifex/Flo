@@ -47,7 +47,22 @@ void QLocalKlipperConsole::sendCommand(KlipperMessage message, bool immediate)
     }
     else
     {
-        m_messageOutbox.append(message);
+        //m_messageOutbox.append(message);
+        m_awaitingResponse = true;
+
+        QByteArray document = message.toRpc(QJsonDocument::Compact);
+        m_klipperMessageBuffer[message["id"].toInt()] = message;
+
+        qint64 length = m_moonrakerSocket->write(document);
+
+        qDebug() << "Console Command: " << message["method"].toString();
+
+        if(length != document.length())
+        {
+            qDebug() << QString("Failed to write data") << length << document.length();
+        }
+
+        emit commandSent(message);
     }
 }
 
