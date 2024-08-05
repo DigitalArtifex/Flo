@@ -189,13 +189,14 @@ void QMaskedButton::enterEvent(QEnterEvent *event)
         if(m_hover_animation->state() == QPropertyAnimation::Running)
             m_hover_animation->stop();
 
+        setProperty("hover", true);
+
+        style()->polish(this);
+
         m_hover_animation->setStartValue(m_hover_opacity);
         m_hover_animation->setEndValue(1.0);
         m_hover_animation->setDuration(15);
         m_hover_animation->start();
-
-        setProperty("hover", true);
-        style()->polish(this);
     }
 }
 
@@ -209,6 +210,8 @@ void QMaskedButton::leaveEvent(QEvent *event)
     setProperty("longPressed", false);
     setProperty("opacity", 1.0);
 
+    style()->polish(this);
+
     m_hover_animation->setStartValue(m_hover_opacity);
     m_hover_animation->setEndValue(0.0);
     m_hover_animation->setDuration(15);
@@ -219,6 +222,4 @@ void QMaskedButton::leaveEvent(QEvent *event)
         delete m_clickTimer;
         m_clickTimer = nullptr;
     }
-
-    style()->polish(this);
 }

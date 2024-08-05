@@ -10,6 +10,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsProxyWidget>
 #include <QScreen>
+#include <QOpenGLWidget>
 
 #include <QChart>
 #include <QChartView>

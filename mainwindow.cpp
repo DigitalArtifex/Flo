@@ -44,10 +44,28 @@ MainWindow::MainWindow(QWidget *parent)
     m_initTimer->setInterval(50);
     m_initTimer->setSingleShot(true);
 
-    ui->windowWidget->setStyleSheet(Settings::currentTheme());
+    ui->graphicsView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
-    connect(m_initTimer, SIGNAL(timeout()), this, SLOT(on_initAsync()));
-    m_initTimer->start();
+    if(Settings::get("ui-opengl").toBool())
+    {
+        QOpenGLWidget *gl = new QOpenGLWidget();
+        QSurfaceFormat format;
+        format.setSamples(4);
+        gl->setFormat(format);
+#ifdef RASPBERRYPI
+#endif
+        ui->graphicsView->setViewport(gl);
+    }
+
+    ui->windowWidget->setStyleSheet(Settings::currentTheme());
+    ui->menuBar->setStyleSheet(Settings::currentTheme());
+    ui->windowWidget->setStyleSheet(Settings::currentTheme());
+    ui->graphicsView->setStyleSheet(Settings::currentTheme());
+
+    //connect(m_initTimer, SIGNAL(timeout()), this, SLOT(on_initAsync()));
+    //m_initTimer->start();
+
+    on_initAsync();
 }
 
 MainWindow::~MainWindow()

@@ -233,7 +233,7 @@ void PrinterPage::setupUiClasses()
     ui->zOffsetGroupBox->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
     ui->toolheadControlGroupBox->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
 
-    ui->pageOverview->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageOverview"));
+    //ui->pageOverview->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageOverview"));
 
     ui->settingsFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
     ui->fileGroupBox->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));

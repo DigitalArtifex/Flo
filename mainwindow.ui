@@ -47,6 +47,15 @@
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
+      <property name="backgroundBrush">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>17</red>
+         <green>17</green>
+         <blue>17</blue>
+        </color>
+       </brush>
+      </property>
       <property name="cacheMode">
        <set>QGraphicsView::CacheBackground</set>
       </property>

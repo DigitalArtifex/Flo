@@ -1,6 +1,6 @@
 QT       += core gui charts network multimedia multimediawidgets datavisualization
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets openglwidgets
 
 CONFIG += c++17
 
@@ -292,7 +292,7 @@ RESOURCES += \
 linux {
     contains(QMAKE_HOST.arch, arm.*):{
         DEFINES -= LOCAL_PRINTER_DRIVE_AS_SD_INFO
-
+        DEFINES += RASPBERRYPI
     }
     else{
         DEFINES += LOCAL_PRINTER_DRIVE_AS_SD_INFO
