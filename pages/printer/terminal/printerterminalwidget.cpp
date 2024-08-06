@@ -8,9 +8,9 @@ PrinterTerminalWidget::PrinterTerminalWidget(QWidget *parent)
     m_scrollAreaContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
 }
 
-void PrinterTerminalWidget::addMessage(KlipperMessage message)
+void PrinterTerminalWidget::addMessage(KlipperMessage *message)
 {
-    if(message.origin == KlipperMessage::User)
+    if(message->origin == KlipperMessage::User)
     {
         m_scrollAreaContents->layout()->setContentsMargins(9,9,9,9);
         PrinterTerminalItem *item = new PrinterTerminalItem(this);
@@ -19,7 +19,7 @@ void PrinterTerminalWidget::addMessage(KlipperMessage message)
         item->setOpacityOut(0);
         item->setDuration(100);
 
-        m_itemMap[message.id] = item;
+        m_itemMap[message->id] = item;
 
         addItem(item);
     }

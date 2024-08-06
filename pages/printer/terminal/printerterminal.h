@@ -20,7 +20,7 @@ public:
     ~PrinterTerminal();
 
 protected slots:
-    void on_console_message(KlipperMessage message);
+    void on_console_message(KlipperMessage *message);
     void on_console_response(KlipperResponse response);
 
     void on_commandEdit_returnPressed();

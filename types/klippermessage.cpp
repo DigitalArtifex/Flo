@@ -31,7 +31,7 @@ QByteArray KlipperMessage::toRpc(QJsonDocument::JsonFormat format)
 }
 
 
-QJsonObject KlipperMessage::document()
+QJsonObject KlipperMessage::document() const
 {
     return this->rootObject;
 }
@@ -41,4 +41,44 @@ void KlipperMessage::setDocument(QJsonObject object)
     object["jsonrpc"] = "2.0";
     object["id"] = this->id;
     this->rootObject = object;
+}
+
+KlipperResponse KlipperMessage::response() const
+{
+    return m_response;
+}
+
+void KlipperMessage::startTimer()
+{
+    if(!m_responseTimer)
+    {
+        m_responseTimer = new QTimer(this);
+        m_responseTimer->setInterval(timeout);
+        m_responseTimer->setSingleShot(true);
+    }
+
+    if(!m_responseTimer->isActive())
+        m_responseTimer->start();
+    else
+    {
+        m_responseTimer->stop();
+        m_responseTimer->start();
+    }
+}
+
+void KlipperMessage::stopTimer()
+{
+    if(m_responseTimer && m_responseTimer->isActive())
+        m_responseTimer->stop();
+}
+
+void KlipperMessage::setResponse(const KlipperResponse &response)
+{
+    m_response = response;
+    stopTimer();
+}
+
+void KlipperMessage::responseTimerTimeout()
+{
+    emit responseTimeout(document()["id"].toInt());
 }

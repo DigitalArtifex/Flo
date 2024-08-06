@@ -71,7 +71,7 @@ public:
 
     virtual void shutdown() = 0;
 
-    virtual void sendCommand(KlipperMessage message, bool immediate = false) = 0;
+    virtual void sendCommand(KlipperMessage *message, bool immediate = false) = 0;
     virtual void sendCommand(QString command, KlipperMessage::MessageOrigin origin = KlipperMessage::System, bool immediate = false) = 0;
     virtual void connectToMoonraker() = 0;
     virtual void disconnectKlipper() = 0;
@@ -213,7 +213,7 @@ protected:
 signals:
     void startup();
 
-    void commandSent(KlipperMessage data);
+    void commandSent(KlipperMessage *data);
     void responseReceived(KlipperResponse response);
     void printerUpdateReceived(KlipperResponse response);
     void commandLock();
@@ -367,6 +367,8 @@ protected slots:
     //Client Management
     virtual void on_clientIdentifier(KlipperResponse response);
 
+    virtual void messageResponseTimeout(int id);
+
 protected:
     virtual void sendError(QString message);
     virtual void addState(ConsoleState state);
@@ -380,10 +382,10 @@ protected:
 
     QQueue<QByteArray> m_messageDataQueue;
     QQueue<StartupFunction> m_startupSequence;
-    QQueue<KlipperMessage> m_messageOutbox;
+    QQueue<KlipperMessage*> m_messageOutbox;
     QMap<QString, ParserFunction> m_parserMap;
     QMap<QString, ParserFunction> m_actionMap;
-    QMap<int, KlipperMessage> m_klipperMessageBuffer;
+    QMap<int, KlipperMessage*> m_klipperMessageBuffer;
     QMap<QString, KlipperCommand> m_klipperCommands;
 
     QStringList m_subscriptionObjects;

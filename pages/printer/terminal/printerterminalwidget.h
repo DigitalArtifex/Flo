@@ -20,7 +20,7 @@ class PrinterTerminalWidget : public QAnimatedListWidget
 public:
     PrinterTerminalWidget(QWidget *parent = nullptr);
 
-    void addMessage(KlipperMessage message);
+    void addMessage(KlipperMessage *message);
     void addResponse(KlipperResponse response);
     void addErrorMessage(QString title, QString message);
 

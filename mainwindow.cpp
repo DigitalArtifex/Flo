@@ -52,10 +52,16 @@ MainWindow::MainWindow(QWidget *parent)
     {
         QOpenGLWidget *gl = new QOpenGLWidget();
         QSurfaceFormat format;
-        format.setSamples(4);
-        gl->setFormat(format);
+
+        format.setSwapBehavior(QSurfaceFormat::TripleBuffer);
+
 #ifdef RASPBERRYPI
+        format.setSamples(1);
+#else
+        format.setSamples(4);
 #endif
+
+        gl->setFormat(format);
         ui->graphicsView->setViewport(gl);
     }
 
@@ -391,6 +397,11 @@ void MainWindow::updateStyleSheet()
 
     if(m_settingsPage != nullptr)
         m_settingsPage->setStyleSheet(style);
+
+    ui->windowWidget->setStyleSheet(Settings::currentTheme());
+    ui->menuBar->setStyleSheet(Settings::currentTheme());
+    ui->windowWidget->setStyleSheet(Settings::currentTheme());
+    ui->graphicsView->setStyleSheet(Settings::currentTheme());
 }
 
 void MainWindow::showPopup()

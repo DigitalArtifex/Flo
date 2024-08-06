@@ -78,7 +78,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverConfig);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverFileRoots);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverWebcamList);
-    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverAnnouncementsList);
+    //m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverAnnouncementsList);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerInfo);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerObjectsList);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerSubscribe);
@@ -133,10 +133,10 @@ void QAbstractKlipperConsole::addState(QAbstractKlipperConsole::ConsoleState sta
     m_state = (ConsoleState)(m_state | state);
 
     if(hasState(Connected))
-        removeState((ConsoleState)(Offline | Connecting));
+        removeState(Offline);
 
     if(hasState(Offline))
-        removeState((ConsoleState)(Connected | Connecting));
+        removeState(Connected);
 }
 
 void QAbstractKlipperConsole::removeState(ConsoleState state)
@@ -247,19 +247,19 @@ QAbstractSocket *QAbstractKlipperConsole::moonrakerSocket() const
 
 void QLocalKlipperConsole::sendCommand(QString command, KlipperMessage::MessageOrigin origin, bool forced)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     messageObject["method"] = command;
-    message.setDocument(messageObject);
-    message.origin = origin;
+    message->setDocument(messageObject);
+    message->origin = origin;
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::getFileList(QString directory)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["path"] = directory;
@@ -267,15 +267,15 @@ void QAbstractKlipperConsole::getFileList(QString directory)
     paramsObject["extended"] = true;
     messageObject["method"] = "server.files.get_directory";
     messageObject["params"] = paramsObject;
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::deleteFile(QString file)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "server.files.delete_file";
@@ -283,7 +283,7 @@ void QAbstractKlipperConsole::deleteFile(QString file)
     paramsObject["path"] = file;
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -291,8 +291,8 @@ void QAbstractKlipperConsole::deleteFile(QString file)
 void QAbstractKlipperConsole::deleteFile(KlipperFile file)
 {
 
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "server.files.delete_file";
@@ -300,15 +300,15 @@ void QAbstractKlipperConsole::deleteFile(KlipperFile file)
     paramsObject["path"] = file.fileLocation();
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::moveFile(QString source, QString destination)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "server.files.move";
@@ -317,15 +317,15 @@ void QAbstractKlipperConsole::moveFile(QString source, QString destination)
     paramsObject["dest"] = destination;
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::copyFile(QString source, QString destination)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "server.files.copy";
@@ -334,30 +334,30 @@ void QAbstractKlipperConsole::copyFile(QString source, QString destination)
     paramsObject["dest"] = destination;
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::createDirectory(QString directory)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "server.files.post_directory";
     paramsObject["path"] = directory;
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::deleteDirectory(QString directory)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["path"] = directory;
@@ -365,15 +365,15 @@ void QAbstractKlipperConsole::deleteDirectory(QString directory)
 
     messageObject["method"] = "server.files.delete_directory";
     messageObject["params"] = paramsObject;
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::startPrint(QString file)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "printer.print.start";
@@ -381,87 +381,87 @@ void QAbstractKlipperConsole::startPrint(QString file)
     paramsObject["filename"] = file;
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::pausePrint()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
 
     messageObject["method"] = "printer.print.pause";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::resumePrint()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
 
     messageObject["method"] = "printer.print.resume";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::cancelPrint()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
 
     messageObject["method"] = "printer.print.cancel";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::machineShutdown()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
 
     messageObject["method"] = "machine.shutdown";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::machineReboot()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
 
     messageObject["method"] = "machine.reboot";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::machineSystemInfo()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
 
     messageObject["method"] = "machine.system_info";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -469,8 +469,8 @@ void QAbstractKlipperConsole::machineSystemInfo()
 void QAbstractKlipperConsole::machineServiceRestart(QString service)
 {
 
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "machine.services.restart";
@@ -478,57 +478,57 @@ void QAbstractKlipperConsole::machineServiceRestart(QString service)
     paramsObject["service"] = service;
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::machineServiceStop(QString service)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["service"] = service;
     messageObject["params"] = paramsObject;
     messageObject["method"] = "machine.services.stop";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::machineServiceStart(QString service)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["service"] = service;
     messageObject["params"] = paramsObject;
     messageObject["method"] = "machine.services.start";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::machinePeripheralsUSB()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["params"] = paramsObject;
     messageObject["method"] = "machine.peripherals.usb";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -536,36 +536,36 @@ void QAbstractKlipperConsole::machinePeripheralsUSB()
 void QAbstractKlipperConsole::machinePeripheralsSerial()
 {
 
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["params"] = paramsObject;
     messageObject["method"] = "machine.peripherals.serial";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::machinePeripheralsVideo()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["params"] = paramsObject;
     messageObject["method"] = "machine.peripherals.video";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::machinePeripheralsCanbus(qint32 canBus)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     QString canBusName = QString("can") + QString::number(canBus);
@@ -574,15 +574,15 @@ void QAbstractKlipperConsole::machinePeripheralsCanbus(qint32 canBus)
     messageObject["params"] = paramsObject;
     messageObject["method"] = "machine.peripherals.canbus";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::machineProcStats()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["params"] = paramsObject;
@@ -594,7 +594,7 @@ void QAbstractKlipperConsole::machineProcStats()
             return;
     }
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -608,8 +608,8 @@ void QAbstractKlipperConsole::machineUpdateStatus()
     messageObject["method"] = "machine.update.status";
     messageObject["params"] = paramsObject;
 
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -623,8 +623,8 @@ void QAbstractKlipperConsole::machineUpdateRefresh()
     messageObject["method"] = "machine.update.refresh";
     messageObject["params"] = paramsObject;
 
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -636,11 +636,11 @@ void QAbstractKlipperConsole::machineUpdateFull()
     messageObject["method"] = "machine.update.full";
 
     //Add it as the message document to be converted to RPC later
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     //Method only returns ok
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
@@ -652,11 +652,11 @@ void QAbstractKlipperConsole::machineUpdateMoonraker()
     messageObject["method"] = "machine.update.moonraker";
 
     //Add it as the message document to be converted to RPC later
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     //Method only returns ok
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
@@ -668,11 +668,11 @@ void QAbstractKlipperConsole::machineUpdateKlipper()
     messageObject["method"] = "machine.update.klipper";
 
     //Add it as the message document to be converted to RPC later
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     //Method only returns ok
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
@@ -689,11 +689,11 @@ void QAbstractKlipperConsole::machineUpdateClient(QString client)
     messageObject["params"] = paramsObject;
 
     //Add it as the message document to be converted to RPC later
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     //Method only returns ok
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
@@ -705,11 +705,11 @@ void QAbstractKlipperConsole::machineUpdateSystem()
     messageObject["method"] = "machine.update.system";
 
     //Add it as the message document to be converted to RPC later
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     //Method only returns ok
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
@@ -727,11 +727,11 @@ void QAbstractKlipperConsole::machineUpdateRecover(QString name, bool hardRecove
     messageObject["params"] = paramsObject;
 
     //Add it as the message document to be converted to RPC later
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     //Method only returns ok
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
@@ -748,29 +748,29 @@ void QAbstractKlipperConsole::machineUpdateRollback(QString name)
     messageObject["params"] = paramsObject;
 
     //Add it as the message document to be converted to RPC later
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     //Method only returns ok
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::sendGcode(QString gcode, KlipperMessage::MessageOrigin origin)
 {
-    KlipperMessage message;
-    message.origin = origin;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    message->origin = origin;
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["script"] = gcode;
     messageObject["params"] = paramsObject;
     messageObject["method"] = "printer.gcode.script";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
-    m_waitForOkId = message.id;
+    m_waitForOkId = message->id;
 
     sendCommand(message);
 }
@@ -778,72 +778,72 @@ void QAbstractKlipperConsole::sendGcode(QString gcode, KlipperMessage::MessageOr
 void QAbstractKlipperConsole::printerInfo()
 {
 
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "printer.info";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::restartKlipper()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "printer.restart";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     m_printer->m_statusMessage = QString("Restarting printer\nRestarting");
     m_printer->m_status = Printer::Offline;
     m_printer->emitUpdate();
 
-    //_waitForOkId = message.id;
+    //_waitForOkId = message->id;
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::restartFirmware()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "printer.firmware_restart";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     m_printer->m_statusMessage = QString("Restarting printer\nRestarting");
     m_printer->m_status = Printer::Offline;
     m_printer->emitUpdate();
 
-    //_waitForOkId = message.id;
+    //_waitForOkId = message->id;
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::printerObjectsList()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "printer.objects.list";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::printerSubscribe()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
     QJsonObject objectArray;
 
@@ -859,72 +859,72 @@ void QAbstractKlipperConsole::printerSubscribe()
     messageObject["method"] = "printer.objects.subscribe";
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::printerEmergencyStop()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "printer.emergency_stop";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::printerQueryEndstops()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "printer.query_endstops.status";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverInfo()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "server.info";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverConfig()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "server.config";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverFileRoots()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     messageObject["method"] = "server.files.roots";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -932,15 +932,15 @@ void QAbstractKlipperConsole::serverFileRoots()
 void QAbstractKlipperConsole::serverFilesMetadata(QString fileName)
 {
     qDebug() << "Requesting metadata" << fileName;
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["filename"] = fileName;
     messageObject["params"] = paramsObject;
     messageObject["method"] = "server.files.metadata";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -960,71 +960,71 @@ void QAbstractKlipperConsole::serverFilesMetadata(KlipperFile file)
 
 void QAbstractKlipperConsole::serverTemperatureStore()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["include_monitors"] = false;
     messageObject["method"] = "server.temperature_store";
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverGcodeStore()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["include_monitors"] = false;
     messageObject["method"] = "server.gcode_store";
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverLogsRollover()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     messageObject["method"] = "server.logs.rollover";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverWebsocketId()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     messageObject["method"] = "server.websocket.id";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverWebcamList()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     messageObject["method"] = "server.webcams.list";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverWebcamCreate(System::Webcam webcam)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["name"] = webcam.name;
@@ -1045,15 +1045,15 @@ void QAbstractKlipperConsole::serverWebcamCreate(System::Webcam webcam)
     messageObject["method"] = "server.webcams.post_item";
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverWebcamUpdate(System::Webcam webcam)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["name"] = webcam.name;
@@ -1075,15 +1075,15 @@ void QAbstractKlipperConsole::serverWebcamUpdate(System::Webcam webcam)
     messageObject["method"] = "server.webcams.post_item";
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverWebcamDelete(System::Webcam webcam)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["uid"] = webcam.uid;
@@ -1091,15 +1091,15 @@ void QAbstractKlipperConsole::serverWebcamDelete(System::Webcam webcam)
     messageObject["method"] = "server.webcams.delete_item";
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverAnnouncementsList(bool includeDismissed)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["include_dismissed"] = includeDismissed;
@@ -1107,27 +1107,27 @@ void QAbstractKlipperConsole::serverAnnouncementsList(bool includeDismissed)
     messageObject["method"] = "server.announcements.list";
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverAnnouncementsUpdate()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
 
     messageObject["method"] = "server.announcements.update";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverAnnouncementDismiss(QString entryId, qint64 waketime)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["entry_id"] = entryId;
@@ -1138,19 +1138,19 @@ void QAbstractKlipperConsole::serverAnnouncementDismiss(QString entryId, qint64 
     messageObject["method"] = "server.announcements.dismiss";
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::serverJobQueueStatus()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
 
     messageObject["method"] = "server.job_queue.status";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -1160,8 +1160,8 @@ void QAbstractKlipperConsole::serverJobQueueStart()
     QJsonObject messageObject;
     messageObject["method"] = "server.job_queue.start";
 
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -1171,8 +1171,8 @@ void QAbstractKlipperConsole::serverJobQueuePause()
     QJsonObject messageObject;
     messageObject["method"] = "server.job_queue.pause";
 
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -1189,8 +1189,8 @@ void QAbstractKlipperConsole::serverJobQueueAdd(QStringList filenames)
     messageObject["method"] = "server.job_queue.post_job";
     messageObject["params"] = paramsObject;
 
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -1204,8 +1204,8 @@ void QAbstractKlipperConsole::serverJobQueueJump(QString id)
     messageObject["method"] = "server.job_queue.jump";
     messageObject["params"] = paramsObject;
 
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -1222,16 +1222,16 @@ void QAbstractKlipperConsole::serverJobQueueDelete(QStringList ids)
     messageObject["method"] = "server.job_queue.delete_job";
     messageObject["params"] = paramsObject;
 
-    KlipperMessage message;
-    message.setDocument(messageObject);
+    KlipperMessage *message = new KlipperMessage();
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::clientIdentifier()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["client_name"] = "FLO Beta";
@@ -1242,15 +1242,15 @@ void QAbstractKlipperConsole::clientIdentifier()
     messageObject["method"] = "server.connection.identify";
     messageObject["params"] = paramsObject;
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::accessLogin(QString username, QString password, QString source)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["username"] = username;
@@ -1260,39 +1260,39 @@ void QAbstractKlipperConsole::accessLogin(QString username, QString password, QS
     messageObject["params"] = paramsObject;
     messageObject["method"] = "access.login";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::accessLogout()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
 
     messageObject["method"] = "access.logout";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::accessGetUser()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
 
     messageObject["method"] = "access.get_user";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::accessCreateUser(QString username, QString password)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["username"] = username;
@@ -1301,15 +1301,15 @@ void QAbstractKlipperConsole::accessCreateUser(QString username, QString passwor
     messageObject["params"] = paramsObject;
     messageObject["method"] = "access.post_user";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::accessDeleteUser(QString username)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["username"] = username;
@@ -1317,27 +1317,27 @@ void QAbstractKlipperConsole::accessDeleteUser(QString username)
     messageObject["params"] = paramsObject;
     messageObject["method"] = "access.delete_user";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::accessUsersList()
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
 
     messageObject["method"] = "access.users.list";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
 
 void QAbstractKlipperConsole::accessUserPasswordReset(QString password, QString newPassword)
 {
-    KlipperMessage message;
-    QJsonObject messageObject = message.document();
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
 
     paramsObject["new_password"] = newPassword;
@@ -1346,7 +1346,7 @@ void QAbstractKlipperConsole::accessUserPasswordReset(QString password, QString 
     messageObject["params"] = paramsObject;
     messageObject["method"] = "access.user.password";
 
-    message.setDocument(messageObject);
+    message->setDocument(messageObject);
 
     sendCommand(message);
 }
@@ -1419,7 +1419,7 @@ void QAbstractKlipperConsole::on_messageReady()
     QByteArray responseData = m_messageDataQueue.dequeue();
     QJsonParseError responseDocumentError;
     QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
-    KlipperMessage origin;
+    KlipperMessage *origin;
 
     if(responseDocumentError.error != QJsonParseError::NoError)
     {
@@ -1433,9 +1433,9 @@ void QAbstractKlipperConsole::on_messageReady()
     if(responseData == QByteArray("ok"))
     {
         origin = m_klipperMessageBuffer[response["id"].toInt()];
-        response["request"] = origin.document();
-        response["method"] = origin["method"];
-        response.origin = (KlipperResponse::ResponseOrigin)m_klipperMessageBuffer[response["id"].toInt()].origin;
+        response["request"] = origin->document();
+        response["method"] = origin->document()["method"];
+        response.origin = (KlipperResponse::ResponseOrigin)m_klipperMessageBuffer[response["id"].toInt()]->origin;
     }
     else
     {
@@ -1449,9 +1449,12 @@ void QAbstractKlipperConsole::on_messageReady()
         if(!response.rootObject.contains("method"))
         {
             origin = m_klipperMessageBuffer[response["id"].toInt()];
-            response["request"] = origin.document();
-            response["method"] = origin["method"];
-            response.origin = (KlipperResponse::ResponseOrigin)m_klipperMessageBuffer[response["id"].toInt()].origin;
+            origin->stopTimer();
+            disconnect(origin, SIGNAL(responseTimeout(int)), this, SLOT(messageResponseTimeout(int)));
+
+            response["request"] = origin->document();
+            response["method"] = origin->document()["method"];
+            response.origin = (KlipperResponse::ResponseOrigin)m_klipperMessageBuffer[response["id"].toInt()]->origin;
             m_klipperMessageBuffer.remove(response["id"].toInt());
         }
 
@@ -1548,11 +1551,11 @@ void QAbstractKlipperConsole::on_messageReady()
             if(!m_startupSequence.count())
                 emit startup();
         }
-        else if(!m_messageOutbox.isEmpty())
+        /*else if(!m_messageOutbox.isEmpty())
         {
             KlipperMessage message = m_messageOutbox.dequeue();
             sendCommand(message, true);
-        }
+        }*/
 
         emit responseReceived(response);
     }
@@ -4492,4 +4495,9 @@ void QAbstractKlipperConsole::on_clientIdentifier(KlipperResponse response)
         if(result.contains("connection_id"))
             m_printer->clientIdentifier().setWebsocketId(result["connection_id"].toInt());
     }
+}
+
+void QAbstractKlipperConsole::messageResponseTimeout(int id)
+{
+    sendCommand(m_klipperMessageBuffer[id]);
 }

@@ -26,45 +26,31 @@ void QLocalKlipperConsole::shutdown()
 
 }
 
-void QLocalKlipperConsole::sendCommand(KlipperMessage message, bool immediate)
+void QLocalKlipperConsole::sendCommand(KlipperMessage *message, bool immediate)
 {
-    if(!m_awaitingResponse || immediate)
+    Q_UNUSED(immediate)
+
+    //m_messageOutbox.append(message);
+    m_awaitingResponse = true;
+
+    QByteArray document = message->toRpc(QJsonDocument::Compact);
+
+    if(!m_klipperMessageBuffer.contains(message->document()["id"].toInt()))
+        m_klipperMessageBuffer[message->document()["id"].toInt()] = message;
+
+    connect(message, SIGNAL(responseTimeout(int)), this, SLOT(messageResponseTimeout(int)));
+    message->startTimer();
+
+    qint64 length = m_moonrakerSocket->write(document);
+
+    qDebug() << "Console Command: " << message->document()["method"].toString();
+
+    if(length != document.length())
     {
-        m_awaitingResponse = true;
-
-        QByteArray document = message.toRpc(QJsonDocument::Compact);
-        m_klipperMessageBuffer[message["id"].toInt()] = message;
-
-        qint64 length = m_moonrakerSocket->write(document);
-
-        qDebug() << "Console Command: " << message["method"].toString();
-
-        if(length != document.length())
-        {
-            qDebug() << QString("Failed to write data") << length << document.length();
-        }
-
-        emit commandSent(message);
+        qDebug() << QString("Failed to write data") << length << document.length();
     }
-    else
-    {
-        //m_messageOutbox.append(message);
-        m_awaitingResponse = true;
 
-        QByteArray document = message.toRpc(QJsonDocument::Compact);
-        m_klipperMessageBuffer[message["id"].toInt()] = message;
-
-        qint64 length = m_moonrakerSocket->write(document);
-
-        qDebug() << "Console Command: " << message["method"].toString();
-
-        if(length != document.length())
-        {
-            qDebug() << QString("Failed to write data") << length << document.length();
-        }
-
-        emit commandSent(message);
-    }
+    emit commandSent(message);
 }
 
 void QLocalKlipperConsole::connectToMoonraker()

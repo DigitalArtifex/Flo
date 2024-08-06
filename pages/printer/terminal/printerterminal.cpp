@@ -9,7 +9,7 @@ PrinterTerminal::PrinterTerminal(Printer *printer, QWidget *parent)
     setupUi();
 
     connect(m_printer->console(), SIGNAL(responseReceived(KlipperResponse)), this, SLOT(on_console_response(KlipperResponse)));
-    connect(m_printer->console(), SIGNAL(commandSent(KlipperMessage)), this, SLOT(on_console_message(KlipperMessage)));
+    connect(m_printer->console(), SIGNAL(commandSent(KlipperMessage*)), this, SLOT(on_console_message(KlipperMessage*)));
 }
 
 PrinterTerminal::~PrinterTerminal()
@@ -19,7 +19,7 @@ PrinterTerminal::~PrinterTerminal()
     delete m_layout;
 }
 
-void PrinterTerminal::on_console_message(KlipperMessage message)
+void PrinterTerminal::on_console_message(KlipperMessage *message)
 {
     if(m_terminal)
         m_terminal->addMessage(message);

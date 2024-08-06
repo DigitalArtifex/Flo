@@ -18,7 +18,7 @@ public:
     PrinterTerminalItem(QWidget *parent = nullptr);
     ~PrinterTerminalItem();
 
-    KlipperMessage message() const;
+    KlipperMessage *message() const;
     void setMessage(const KlipperMessage &message);
 
     KlipperResponse response() const;
@@ -33,7 +33,7 @@ protected:
     virtual void setupUi();
 
 private:
-    KlipperMessage m_message;
+    KlipperMessage *m_message;
     KlipperResponse m_response;
 
     //UI
@@ -42,6 +42,8 @@ private:
     QLabel *m_messageTimestampLabel = nullptr;
     QLabel *m_messageMethodLabel = nullptr;
     QLabel *m_responseMessageLabel = nullptr;
+
+    QDateTime m_timestamp;
 
     bool m_isErrorMessage = false;
 };

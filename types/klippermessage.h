@@ -5,12 +5,13 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QDateTime>
+#include <QTimer>
 
-class KlipperMessage
+#include "klipperresponse.h"
+
+class KlipperMessage : public QObject
 {
-
-    QJsonObject rootObject;
-
+    Q_OBJECT
     static int currentID;
     static int getID();
 
@@ -39,12 +40,31 @@ public:
 
     int timeout = 3000; //in ms
 
-    QJsonObject document();
+    QJsonObject document() const;
     void setDocument(QJsonObject object);
 
     QJsonValueRef operator[](QString key) {
         return this->rootObject[key];
     }
+
+    KlipperResponse response() const;
+
+    void startTimer();
+    void stopTimer();
+
+signals:
+    void responseTimeout(int id);
+
+public slots:
+    void setResponse(const KlipperResponse &response);
+
+protected slots:
+    void responseTimerTimeout();
+
+private:
+    QJsonObject rootObject;
+    QTimer *m_responseTimer = nullptr;
+    KlipperResponse m_response;
 };
 
 #endif // KLIPPERMESSAGE_H
