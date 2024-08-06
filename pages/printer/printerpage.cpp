@@ -836,12 +836,12 @@ void PrinterPage::on_positionApplyButton_clicked()
 void PrinterPage::printerStartupEvent(Printer *printer)
 {
     m_printerOfflineScreen->lower();
-    m_printerOfflineScreen->setHidden(true);
+    m_printerOfflineScreen->hide();
 }
 
 void PrinterPage::printerDisconnectEvent(Printer *printer)
 {
     m_printerOfflineScreen->raise();
-    m_printerOfflineScreen->setHidden(false);
+    m_printerOfflineScreen->show();
 }
 

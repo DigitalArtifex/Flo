@@ -85,6 +85,8 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
 
     m_progressSteps = m_startupSequence.count();
 
+    connect(this, SIGNAL(messageReady()), this, SLOT(on_messageReady()));
+
     loadKlipperCommands();
 }
 
@@ -1372,11 +1374,8 @@ void QAbstractKlipperConsole::on_moonrakerSocket_readyRead()
 {
     if(m_moonrakerSocket->isOpen())
     {
-        while(m_moonrakerSocket->bytesAvailable() > 0)
-        {
-            QByteArray incoming = m_moonrakerSocket->readAll();
-            m_dataBuffer += incoming;
-        }
+        QByteArray incoming = m_moonrakerSocket->readAll();
+        m_dataBuffer += incoming;
     }
 
     QString okPattern;
@@ -1407,7 +1406,7 @@ void QAbstractKlipperConsole::on_moonrakerSocket_readyRead()
 
         m_messageDataQueue.enqueue(responseData);
 
-        on_messageReady();
+        emit messageReady();
     }
 }
 
@@ -1551,6 +1550,11 @@ void QAbstractKlipperConsole::on_messageReady()
             if(!m_startupSequence.count())
                 emit startup();
         }
+        if(hasState(Connecting) && m_klipperMessageBuffer.isEmpty())
+        {
+            removeState(Connecting);
+        }
+
         /*else if(!m_messageOutbox.isEmpty())
         {
             KlipperMessage message = m_messageOutbox.dequeue();

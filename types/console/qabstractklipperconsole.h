@@ -278,6 +278,8 @@ signals:
     void accessUserDeleted(const System::User &user);
     void accessUserPasswordResetSuccessful();
 
+    void messageReady();
+
 protected slots:
     //Socket slots
     virtual void on_moonrakerSocket_readyRead();
