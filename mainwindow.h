@@ -75,9 +75,11 @@ private slots:
     void on_closeAction_triggered(bool checked);
     void on_powerButton_clicked();
 
-    void on_settingsPage_printerAdded(PrinterDefinition definition);
     void on_loadingAnimation_finished();
     void on_initAsync();
+
+    void on_printerPoolPrinterAdded(Printer* printer);
+    void on_printerPoolPrinterRemoved(Printer* printer);
 
     virtual void resizeEvent(QResizeEvent *event);
 

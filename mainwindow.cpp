@@ -187,7 +187,7 @@ void MainWindow::online()
     m_titleOpacityEffect = new QGraphicsOpacityEffect(this);
 
     PrinterDefinitionList printers = Flo::settings()->printers();
-    ui->menuButtonLayout->removeWidget(m_settingsButton);
+    //ui->menuButtonLayout->removeWidget(m_settingsButton);
 
     foreach(PrinterDefinition definition, printers)
     {
@@ -196,7 +196,6 @@ void MainWindow::online()
         QAnimatedWidget *animatedPage = new QAnimatedWidget(this);
         animatedPage->setWidget(printerPage);
         animatedPage->setHidden(true);
-        ui->PageContainer->layout()->addWidget(animatedPage);
 
         MenuButton *printerButton = new MenuButton(m_printerPages.count(), this);
         printerButton->setIcon(QString("printer-icon"));
@@ -230,6 +229,9 @@ void MainWindow::online()
 
     on_dashboardMenuButton_toggled(m_dashboardButton);
     //on_settingsMenuButton_toggled(m_settingsButton);
+
+    connect(PrinterPool::instance(), SIGNAL(printerAdded(Printer*)), this, SLOT(on_printerPoolPrinterAdded(Printer*)));
+    connect(PrinterPool::instance(), SIGNAL(printerRemoved(Printer*)), this, SLOT(on_printerPoolPrinterRemoved(Printer*)));
 }
 
 void MainWindow::setupUiClasses()
@@ -295,7 +297,6 @@ void MainWindow::on_settingsMenuButton_toggled(MenuButton* button)
         m_settingsPage->show();
         m_settingsPage->setFixedSize(m_pageSize);
         m_settingsPage->setWidget(settings);
-        //connect(m_settingsPage, SIGNAL(printerAdded(PrinterDefinition)), this, SLOT(on_settingsPage_printerAdded(PrinterDefinition)));
     }
 
     changePage(m_settingsPage, QString("Settings"));
@@ -505,8 +506,53 @@ void MainWindow::on_powerButton_clicked()
     on_closeAction_triggered(true);
 }
 
-void MainWindow::on_settingsPage_printerAdded(PrinterDefinition definition)
+void MainWindow::on_printerPoolPrinterAdded(Printer* printer)
 {
+    ui->menuButtonLayout->removeWidget(m_settingsButton);
+
+    PrinterPage *printerPage = new PrinterPage(printer, this);
+
+    QAnimatedWidget *animatedPage = new QAnimatedWidget(this);
+    animatedPage->setWidget(printerPage);
+    animatedPage->setHidden(true);
+
+    MenuButton *printerButton = new MenuButton(m_printerPages.count(), this);
+    printerButton->setIcon(QString("printer-icon"));
+    printerButton->setText(printer->name());
+    ui->menuButtonLayout->addWidget(printerButton);
+
+    m_printerPages.append(animatedPage);
+    m_printerButtons.append(printerButton);
+
+    connect(printerButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_printerMenuButton_toggled(MenuButton*)));
+
+    ui->menuButtonLayout->addWidget(m_settingsButton);
+}
+
+void MainWindow::on_printerPoolPrinterRemoved(Printer* printer)
+{
+    foreach(QAnimatedWidget *widget, m_printerPages)
+    {
+        PrinterPage *page = qobject_cast<PrinterPage*>(widget->widget());
+
+        if(page && page->printer()->id() == printer->id())
+        {
+            foreach(MenuButton *button, m_printerButtons)
+            {
+                if(button->getId() == m_printerPages.indexOf(widget))
+                {
+                    ui->menuButtonLayout->removeWidget(button);
+                    m_printerButtons.removeAll(button);
+                    delete button;
+                    break;
+                }
+            }
+
+            m_printerPages.removeAll(widget);
+            delete widget;
+            break;
+        }
+    }
 }
 
 void MainWindow::on_loadingAnimation_finished()
