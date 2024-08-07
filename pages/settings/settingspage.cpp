@@ -99,7 +99,7 @@ SettingsPage::SettingsPage(QWidget *parent) :
 
     connect(m_systemActionButton, SIGNAL(clicked()), this, SLOT(systemActionButtonClickEvent()));
 
-    connect(m_printerListWidget, SIGNAL(itemSelected(PrinterListItem*)), this, SLOT(on_printerListWidget_itemSelected(PrinterListItem*)));
+    connect(m_printerListWidget, SIGNAL(itemSelected(PrinterListItem*)), this, SLOT(printerListWidgetItemSelectedEvent(PrinterListItem*)));
 
     setProperty("class", "Page");
     ui->actionBar->setProperty("class", "PageActionBar");
