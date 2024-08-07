@@ -29,6 +29,10 @@ protected slots:
     void userListChangedEvent();
     void addUserButtonClickedEvent(bool checked);
 
+    void on_systemUserCreated(System::User user);
+    void on_systemUserDeleted(System::User user);
+    void on_userDeleteRequest(System::User user);
+
 private:
     System *m_system = nullptr;
     QMap<QString, PrinterUserCard*> m_userCards;

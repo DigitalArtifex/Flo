@@ -33,15 +33,6 @@ void PrinterUserCard::setupUi()
     m_iconLabel->setAlignment(Qt::AlignCenter);
     m_iconLabel->setPixmap(Settings::getThemeIcon("user-icon").pixmap(100,100));
     m_centralLayout->addWidget(m_iconLabel);
-
-/*    m_userNameLabel = new QLabel(m_centralWidget);
-    m_userNameLabel->setText(QString("Username: %1").arg(m_user.username));
-    m_centralLayout->addWidget(m_userNameLabel);
-
-    m_userSourceLabel = new QLabel(m_centralWidget);
-    m_userSourceLabel->setText(QString("Source: %1").arg(m_user.source));
-    m_centralLayout->addWidget(m_userSourceLabel);
-*/
     setTitle(m_user.username);
 
     QDateTime time = QDateTime::fromSecsSinceEpoch(m_user.createdOn);
@@ -77,5 +68,19 @@ void PrinterUserCard::editButtonClickEvent(bool checked)
 
 void PrinterUserCard::removeButtonClickEvent(bool checked)
 {
+    emit userDeleteRequest(m_user);
+}
 
+System::User PrinterUserCard::user() const
+{
+    return m_user;
+}
+
+void PrinterUserCard::setUser(const System::User &user)
+{
+    m_user = user;
+
+    QDateTime time = QDateTime::fromSecsSinceEpoch(m_user.createdOn);
+    m_userCreatedLabel->setText(QString("Created: %1").arg(time.toString("MM/dd/yy")));
+    setTitle(m_user.username);
 }

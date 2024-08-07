@@ -34,6 +34,9 @@ void PrinterUsersView::setupUi()
 
     setCentralWidget(m_centralWidget);
 
+    connect(m_system, SIGNAL(userCreated(User)), this, SLOT(on_systemUserCreated(System::User)));
+    connect(m_system, SIGNAL(userDeleted(User)), this, SLOT(on_systemUserDeleted(System::User)));
+
     connect(m_system, SIGNAL(userListChanged()), this, SLOT(userListChangedEvent()));
     connect(m_addUserButton, SIGNAL(clicked(bool)), this, SLOT(addUserButtonClickedEvent(bool)));
 }
@@ -45,15 +48,21 @@ void PrinterUsersView::userListChangedEvent()
     m_centralLayout->removeWidget(m_addUserButton);
     m_centralLayout->removeItem(m_spacer);
 
+    foreach(PrinterUserCard *card, m_userCards)
+    {
+        m_centralLayout->removeWidget(card);
+        m_userCards.remove(card->user().username);
+        delete card;
+    }
+
     foreach(System::User user, users)
     {
-        if(!m_userCards.contains(user.username))
-        {
-            PrinterUserCard *userCard = new PrinterUserCard(user, m_centralWidget);
-            m_centralLayout->addWidget(userCard);
+        PrinterUserCard *userCard = new PrinterUserCard(user, m_centralWidget);
+        m_centralLayout->addWidget(userCard);
 
-            m_userCards[user.username] = userCard;
-        }
+        m_userCards[user.username] = userCard;
+
+        connect(userCard, SIGNAL(userDeleteRequest(System::User)), this, SLOT(on_userDeleteRequest(System::User)));
     }
 
     m_centralLayout->addWidget(m_addUserButton);
@@ -73,4 +82,21 @@ void PrinterUsersView::addUserButtonClickedEvent(bool checked)
 
         m_system->createUser(username, password);
     }
+
+    delete editor;
+}
+
+void PrinterUsersView::on_systemUserCreated(System::User user)
+{
+
+}
+
+void PrinterUsersView::on_systemUserDeleted(System::User user)
+{
+
+}
+
+void PrinterUsersView::on_userDeleteRequest(System::User user)
+{
+    m_system->deleteUser(user);
 }

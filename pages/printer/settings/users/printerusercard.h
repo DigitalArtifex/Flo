@@ -16,7 +16,13 @@ public:
     explicit PrinterUserCard(System::User user, QWidget *parent = nullptr);
     ~PrinterUserCard();
 
+    System::User user() const;
+
+public slots:
+    void setUser(const System::User &user);
+
 signals:
+    void userDeleteRequest(System::User user);
 
 protected slots:
     void setupUi();
