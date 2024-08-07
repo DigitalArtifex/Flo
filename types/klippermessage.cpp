@@ -30,53 +30,64 @@ QByteArray KlipperMessage::toRpc(QJsonDocument::JsonFormat format)
     return document;
 }
 
-QString KlipperMessage::toUri()
+QString KlipperMessage::toUri(bool parameterEncoded)
 {
     QString method = rootObject["method"].toString();
+    QString uri;
 
     //change the few that don't conform to a direct conversion
-    if(method == "server.files.get_directory")
-        method = "server.files.directory";
+    if(method.contains("get_"))
+        method.remove("get_");
+    else if(method.contains("post_"))
+        method.remove("post_");
+    else if(method.contains("delete_"))
+        method.remove("delete_");
 
     method.replace('.', '/');
 
-    QJsonObject paramsObject = rootObject["params"].toObject();
-    QStringList paramKeys = paramsObject.keys();
-    QString params;
-
-    foreach(QString key, paramKeys)
+    if(parameterEncoded)
     {
-        switch(paramsObject[key].type())
+        QJsonObject paramsObject = rootObject["params"].toObject();
+        QStringList paramKeys = paramsObject.keys();
+        QString params;
+
+        foreach(QString key, paramKeys)
         {
-            case QJsonValue::Null:
-            params += QString("&%1").arg(key);
-                break;
-            case QJsonValue::Bool:
-                if(paramsObject[key].toBool())
-                    params += QString("&%1=%2").arg(key).arg("true");
-                else
-                    params += QString("&%1=%2").arg(key).arg("false");
-                break;
-            case QJsonValue::Double:
-                params += QString("&%1=%2").arg(key).arg(paramsObject[key].toDouble());
-                break;
-            case QJsonValue::String:
-                params += QString("&%1=%2").arg(key).arg(paramsObject[key].toString());
-                break;
-            case QJsonValue::Array:
-            case QJsonValue::Object:
-            case QJsonValue::Undefined:
-                break;
+            switch(paramsObject[key].type())
+            {
+                case QJsonValue::Null:
+                params += QString("&%1").arg(key);
+                    break;
+                case QJsonValue::Bool:
+                    if(paramsObject[key].toBool())
+                        params += QString("&%1=%2").arg(key).arg("true");
+                    else
+                        params += QString("&%1=%2").arg(key).arg("false");
+                    break;
+                case QJsonValue::Double:
+                    params += QString("&%1=%2").arg(key).arg(paramsObject[key].toDouble());
+                    break;
+                case QJsonValue::String:
+                    params += QString("&%1=%2").arg(key).arg(paramsObject[key].toString());
+                    break;
+                case QJsonValue::Array:
+                case QJsonValue::Object:
+                case QJsonValue::Undefined:
+                    break;
+            }
         }
-    }
 
-    if(params.startsWith('&'))
-    {
-        params.removeAt(0);
-        params.insert(0, '?');
-    }
+        if(params.startsWith('&'))
+        {
+            params.removeAt(0);
+            params.insert(0, '?');
+        }
 
-    QString uri = QString("/%1%2").arg(method).arg(params);
+        uri = QString("/%1%2").arg(method).arg(params);
+    }
+    else
+        uri = QString("/%1").arg(method);
+
 
     return uri;
 }

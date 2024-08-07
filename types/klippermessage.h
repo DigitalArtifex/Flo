@@ -37,7 +37,7 @@ public:
     int id = 0;
 
     QByteArray toRpc(QJsonDocument::JsonFormat format = QJsonDocument::Compact);
-    QString toUri();
+    QString toUri(bool parameterEncoded = true);
 
     int timeout = 3000; //in ms
 

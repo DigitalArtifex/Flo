@@ -3344,8 +3344,13 @@ void QAbstractKlipperConsole::accessCreateUser(QString username, QString passwor
             }
             );
 
+    QString postData = QString("{\n\"username\": \"%1\"\n\"password\": \"%2\"\n}").arg(username).arg(password);
+
     QString uri = m_host + message->toUri();
-    manager->get(QNetworkRequest(uri));
+    QNetworkRequest request = QNetworkRequest(uri);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    manager->post(request, postData.toUtf8());
 }
 
 void QAbstractKlipperConsole::accessDeleteUser(QString username)
@@ -3396,8 +3401,12 @@ void QAbstractKlipperConsole::accessDeleteUser(QString username)
             }
             );
 
+    QString postData = QString("{\n\"username\": \"%1\"\n}").arg(username);
     QString uri = m_host + message->toUri();
-    manager->get(QNetworkRequest(uri));
+    QNetworkRequest request = QNetworkRequest(uri);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    manager->sendCustomRequest(request, "DELETE", postData.toUtf8());
 }
 
 void QAbstractKlipperConsole::accessUsersList()
@@ -6530,9 +6539,9 @@ void QAbstractKlipperConsole::on_accessCreateUser(KlipperResponse response)
 
         m_printer->system()->setAccessDetails(accessDetails);
 
-        accessGetUser();
-
         emit accessUserCreated(accessDetails.user);
+
+        accessUsersList();
     }
 }
 
@@ -6543,6 +6552,31 @@ void QAbstractKlipperConsole::on_accessDeleteUser(KlipperResponse response)
         QJsonObject result = response["result"].toObject();
         System::User user;
 
+        if(result.contains("username"))
+        {
+            user.username = result["username"].toString();
+            user.source = result["source"].toString();
+
+            for(int i = 0; i < m_printer->system()->userList().count(); i++)
+            {
+                System::User checkedUser = m_printer->system()->userList().at(i);
+
+                if(user.username == checkedUser.username)
+                {
+                    accessUsersList();
+
+                    emit accessUserDeleted(user);
+
+                    break;
+                }
+            }
+
+            emit accessUserDeleted(user);
+
+            accessUsersList();
+        }
+
+        /*
         user.username = result["username"].toString();
         user.source = result["source"].toString();
 
@@ -6552,13 +6586,14 @@ void QAbstractKlipperConsole::on_accessDeleteUser(KlipperResponse response)
 
             if(user.username == checkedUser.username)
             {
-                m_printer->system()->userList().remove(i);
+                accessUsersList();
 
                 emit accessUserDeleted(user);
 
                 break;
             }
         }
+        */
     }
 }
 
