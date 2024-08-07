@@ -29,7 +29,7 @@ public:
 
     virtual void resizeEvent(QResizeEvent *event);
 
-private slots:
+protected slots:
     //Printer Pool
     void on_printerPool_printerRemoved(Printer *printer);
     void on_printerPool_printerAdded(Printer *printer);

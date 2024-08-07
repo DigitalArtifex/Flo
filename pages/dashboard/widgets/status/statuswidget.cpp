@@ -86,7 +86,6 @@ void StatusWidget::setupJobPage()
 
     connect(PrinterPool::instance(), SIGNAL(printJobStarted(PrintJob*)), this, SLOT(on_printerPool_jobStarted(PrintJob*)));
     connect(PrinterPool::instance(), SIGNAL(printJobFinished(PrintJob*)), this, SLOT(on_printerPool_jobFinished(PrintJob*)));
-    connect(PrinterPool::instance(), SIGNAL(printJobUpdated(PrintJob*)), this, SLOT(on_printerPool_jobUpdated(PrintJob*)));
 }
 
 void StatusWidget::setupEnergyPage()

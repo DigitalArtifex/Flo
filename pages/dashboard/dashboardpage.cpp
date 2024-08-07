@@ -61,7 +61,7 @@ void DashboardPage::loadPrinters()
         }
         if(!found)
         {
-            PrinterWidget *widget = new PrinterWidget();
+            PrinterWidget *widget = new PrinterWidget(ui->scrollAreaWidgetContents);
             Printer *printer = PrinterPool::getPrinterById(definition.id);
 
             if(printer == nullptr)
@@ -141,7 +141,7 @@ void DashboardPage::on_printerPool_printerRemoved(Printer *printer)
 
 void DashboardPage::on_printerPool_printerAdded(Printer *printer)
 {
-    PrinterWidget *widget = new PrinterWidget();
+    PrinterWidget *widget = new PrinterWidget(ui->scrollAreaWidgetContents);
     widget->setPrinter(printer);
     m_printerWidgets.append(widget);
     ui->scrollAreaWidgetContents->layout()->addWidget(widget);
