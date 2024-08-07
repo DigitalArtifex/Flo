@@ -7,6 +7,8 @@ Dialog::Dialog(QWidget *parent, Qt::WindowFlags flags)
     if(Settings::get("theme-frameless-dialogs").toBool())
         setWindowFlag(Qt::FramelessWindowHint);
 
+    setWindowFlag(Qt::Popup);
+
     setProperty("class", QString("Dialog"));
 }
 

@@ -25,14 +25,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     Settings::load();
 
-    m_graphicsScene = new QGraphicsScene(this);
-    ui->windowWidget->setParent(0);
-
-    QGraphicsProxyWidget *proxy = m_graphicsScene->addWidget(ui->windowWidget);
-    proxy->setPos(0,0);
-    proxy->setZValue(1);
-    ui->graphicsView->setScene(m_graphicsScene);
-
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect  screenGeometry = screen->geometry();
 
@@ -46,10 +38,18 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->graphicsView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
-    Settings::set("ui-opengl", true);
+    //Settings::set("ui-opengl", true);
 
     if(Settings::get("ui-opengl").toBool())
     {
+        m_graphicsScene = new QGraphicsScene(this);
+        ui->windowWidget->setParent(0);
+
+        QGraphicsProxyWidget *proxy = m_graphicsScene->addWidget(ui->windowWidget);
+        proxy->setPos(0,0);
+        proxy->setZValue(1);
+        ui->graphicsView->setScene(m_graphicsScene);
+
         QOpenGLWidget *gl = new QOpenGLWidget();
         QSurfaceFormat format;
 
@@ -58,12 +58,21 @@ MainWindow::MainWindow(QWidget *parent)
 #ifdef RASPBERRYPI
         format.setSamples(1);
 #else
-        format.setSamples(4);
+        format.setSamples(2);
 #endif
 
         gl->setFormat(format);
         ui->graphicsView->setViewport(gl);
     }
+    else
+    {
+        ui->centralwidget->layout()->removeWidget(ui->graphicsView);
+        ui->graphicsView->setFixedSize(0,0);
+        ui->graphicsView->lower();
+        ui->graphicsView->hide();
+        ui->centralwidget->layout()->addWidget(ui->windowWidget);
+    }
+
 
     ui->windowWidget->setStyleSheet(Settings::currentTheme());
     ui->menuBar->setStyleSheet(Settings::currentTheme());
