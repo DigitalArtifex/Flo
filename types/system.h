@@ -561,6 +561,7 @@ public:
     void updateProcStats();
 
     void createUser(QString username, QString password);
+    void deleteUser(System::User user);
 
 public slots:
     void setNetworkStats(const QMap<QString, NetworkStatsEntry> &NetworkStats);
@@ -578,8 +579,17 @@ signals:
     void mcuChanged();
     void userListChanged();
 
+    void userCreated(User user);
+    void userDeleted(User user);
+    void userUpdated(User user);
+
 protected:
     void update();
+
+private slots:
+    void on_systemUserCreated(User user);
+    void on_systemUserDeleted(User user);
+    void on_systemUserUpdated(User user);
 
 private:
     qint64                           m_driveCapacity = 0;

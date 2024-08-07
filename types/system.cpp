@@ -5,6 +5,9 @@ System::System(Printer *printer, QObject *parent)
     : QObject{parent}
 {
     m_console = printer->console();
+
+    connect(m_console, SIGNAL(accessUserCreated(System::User)), this, SLOT(on_systemUserCreated(User)));
+    connect(m_console, SIGNAL(accessUserDeleted(System::User)), this, SLOT(on_systemUserDeleted(User)));
 }
 
 System::~System()
@@ -348,9 +351,29 @@ void System::createUser(QString username, QString password)
     m_console->accessCreateUser(username, password);
 }
 
+void System::deleteUser(User user)
+{
+    m_console->accessDeleteUser(user.username);
+}
+
 void System::update()
 {
     emit updated();
+}
+
+void System::on_systemUserCreated(User user)
+{
+    emit userCreated(user);
+}
+
+void System::on_systemUserDeleted(User user)
+{
+    emit userDeleted(user);
+}
+
+void System::on_systemUserUpdated(User user)
+{
+    emit userUpdated(user);
 }
 
 void System::setUserList(const QList<User> &userList)
