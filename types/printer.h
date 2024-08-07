@@ -47,7 +47,8 @@ public:
         Printing = 0x00010000,
         Paused = (Ready | Printing),
         Cancelled = (Error | Printing),
-        Offline = 0x10000000
+        Offline = 0x10000000,
+        Connecting = 0x01000000
     };
 
     struct ProbeData

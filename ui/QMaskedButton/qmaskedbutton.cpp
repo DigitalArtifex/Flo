@@ -136,7 +136,7 @@ void QMaskedButton::paintEvent(QPaintEvent *event)
     image.fill(Qt::transparent);
 
     QPainter painter(this);
-    painter.setRenderHints(QPainter::Antialiasing | QPainter::LosslessImageRendering);
+    //painter.setRenderHints(QPainter::Antialiasing | QPainter::LosslessImageRendering);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     painter.drawImage(QRect(), image);
 

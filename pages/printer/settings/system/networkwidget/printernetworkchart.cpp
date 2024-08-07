@@ -149,7 +149,7 @@ void PrinterNetworkChart::systemNetworkStatsChanged()
     else
         Settings::set(QString("energy_tracker_update_interval"), m_updateTimerInterval);
 
-    if(!m_updateTimer)
+    /*if(!m_updateTimer)
     {
         m_updateTimer = new QTimer(this);
         m_updateTimer->setInterval(m_updateTimerInterval);
@@ -157,7 +157,7 @@ void PrinterNetworkChart::systemNetworkStatsChanged()
         connect(m_updateTimer, SIGNAL(timeout()), this, SLOT(updateTimerTimeoutEvent()));
         m_updateTimer->setSingleShot(true);
         m_updateTimer->start();
-    }
+    }*/
 }
 
 void PrinterNetworkChart::setStyleSheet(QString &styleSheet)

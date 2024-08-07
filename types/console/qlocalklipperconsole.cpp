@@ -5,6 +5,7 @@ QLocalKlipperConsole::QLocalKlipperConsole(Printer *printer, QObject *parent)
     : QAbstractKlipperConsole(printer,parent)
 {
     m_printer = printer;
+    m_host = QString("http://localhost");
 
     QLocalSocket *socket = new QLocalSocket(parent);
     setMoonrakerSocket((QAbstractSocket*)socket);

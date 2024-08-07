@@ -19,6 +19,9 @@
 #include <QTimer>
 #include <QStorageInfo>
 #include <QtConcurrent/QtConcurrent>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 
 #include "../klipperfile.h"
 #include "../klippermessage.h"
@@ -284,6 +287,7 @@ protected slots:
     //Socket slots
     virtual void on_moonrakerSocket_readyRead();
     virtual void on_messageReady();
+    virtual void parseResponse(KlipperResponse response);
     virtual void responseReceivedEvent();
 
     //Timer slots
@@ -401,6 +405,7 @@ protected:
     QString m_moonrakerLocation;
     QString m_moonrakerVersion;
     QString m_progressText;
+    QString m_host;
 
     qreal m_progress = 0.0;
     qint64 m_progressSteps = 0;

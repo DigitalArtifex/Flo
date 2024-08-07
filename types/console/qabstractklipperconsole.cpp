@@ -46,10 +46,12 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     m_parserMap[QString("machine.services.start")] = (ParserFunction)&QAbstractKlipperConsole::on_machineServiceStart;
     m_parserMap[QString("machine.proc_stats")] = (ParserFunction)&QAbstractKlipperConsole::on_machineProcStats;
     m_parserMap[QString("notify_proc_stat_update")] = (ParserFunction)&QAbstractKlipperConsole::on_machineProcStats;
+
     m_parserMap[QString("machine.peripherals.usb")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsUSB;
     m_parserMap[QString("machine.peripherals.serial")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsSerial;
     m_parserMap[QString("machine.peripherals.video")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsVideo;
     m_parserMap[QString("machine.peripherals.canbus")] = (ParserFunction)&QAbstractKlipperConsole::on_machinePeripheralsCanbus;
+
     m_parserMap[QString("machine.update.status")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateStatus;
     m_parserMap[QString("machine.update.refresh")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateStatus;
     m_parserMap[QString("machine.update.full")] = (ParserFunction)&QAbstractKlipperConsole::on_machineUpdateFull;
@@ -69,18 +71,18 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     //Startup commands to get base information
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::clientIdentifier);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::accessUsersList);
-    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverInfo);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineSystemInfo);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineProcStats);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machinePeripheralsUSB);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machinePeripheralsSerial);
-    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineUpdateRefresh);
+    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::machineUpdateStatus);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverConfig);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverFileRoots);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverWebcamList);
-    //m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverAnnouncementsList);
-    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerInfo);
+    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverAnnouncementsList);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerObjectsList);
+    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerInfo);
+    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverInfo);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerSubscribe);
 
     m_progressSteps = m_startupSequence.count();
@@ -271,7 +273,43 @@ void QAbstractKlipperConsole::getFileList(QString directory)
     messageObject["params"] = paramsObject;
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::deleteFile(QString file)
@@ -287,7 +325,43 @@ void QAbstractKlipperConsole::deleteFile(QString file)
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::deleteFile(KlipperFile file)
@@ -304,7 +378,43 @@ void QAbstractKlipperConsole::deleteFile(KlipperFile file)
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::moveFile(QString source, QString destination)
@@ -321,7 +431,43 @@ void QAbstractKlipperConsole::moveFile(QString source, QString destination)
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::copyFile(QString source, QString destination)
@@ -338,7 +484,43 @@ void QAbstractKlipperConsole::copyFile(QString source, QString destination)
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::createDirectory(QString directory)
@@ -353,7 +535,43 @@ void QAbstractKlipperConsole::createDirectory(QString directory)
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::deleteDirectory(QString directory)
@@ -369,7 +587,43 @@ void QAbstractKlipperConsole::deleteDirectory(QString directory)
     messageObject["params"] = paramsObject;
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::startPrint(QString file)
@@ -383,11 +637,43 @@ void QAbstractKlipperConsole::startPrint(QString file)
     paramsObject["filename"] = file;
     messageObject["params"] = paramsObject;
 
-    message->setDocument(messageObject);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    m_waitForOkId = message->id;
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
 
-    sendCommand(message);
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::pausePrint()
@@ -399,9 +685,43 @@ void QAbstractKlipperConsole::pausePrint()
 
     message->setDocument(messageObject);
 
-    m_waitForOkId = message->id;
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::resumePrint()
@@ -413,9 +733,43 @@ void QAbstractKlipperConsole::resumePrint()
 
     message->setDocument(messageObject);
 
-    m_waitForOkId = message->id;
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::cancelPrint()
@@ -427,9 +781,43 @@ void QAbstractKlipperConsole::cancelPrint()
 
     message->setDocument(messageObject);
 
-    m_waitForOkId = message->id;
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineShutdown()
@@ -439,9 +827,43 @@ void QAbstractKlipperConsole::machineShutdown()
 
     messageObject["method"] = "machine.shutdown";
 
-    message->setDocument(messageObject);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineReboot()
@@ -451,9 +873,43 @@ void QAbstractKlipperConsole::machineReboot()
 
     messageObject["method"] = "machine.reboot";
 
-    message->setDocument(messageObject);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineSystemInfo()
@@ -465,7 +921,43 @@ void QAbstractKlipperConsole::machineSystemInfo()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineServiceRestart(QString service)
@@ -482,9 +974,43 @@ void QAbstractKlipperConsole::machineServiceRestart(QString service)
 
     message->setDocument(messageObject);
 
-    m_waitForOkId = message->id;
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineServiceStop(QString service)
@@ -497,11 +1023,43 @@ void QAbstractKlipperConsole::machineServiceStop(QString service)
     messageObject["params"] = paramsObject;
     messageObject["method"] = "machine.services.stop";
 
-    message->setDocument(messageObject);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    m_waitForOkId = message->id;
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
 
-    sendCommand(message);
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineServiceStart(QString service)
@@ -514,11 +1072,43 @@ void QAbstractKlipperConsole::machineServiceStart(QString service)
     messageObject["params"] = paramsObject;
     messageObject["method"] = "machine.services.start";
 
-    message->setDocument(messageObject);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    m_waitForOkId = message->id;
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
 
-    sendCommand(message);
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machinePeripheralsUSB()
@@ -532,7 +1122,43 @@ void QAbstractKlipperConsole::machinePeripheralsUSB()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machinePeripheralsSerial()
@@ -547,7 +1173,43 @@ void QAbstractKlipperConsole::machinePeripheralsSerial()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machinePeripheralsVideo()
@@ -561,7 +1223,43 @@ void QAbstractKlipperConsole::machinePeripheralsVideo()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machinePeripheralsCanbus(qint32 canBus)
@@ -578,7 +1276,43 @@ void QAbstractKlipperConsole::machinePeripheralsCanbus(qint32 canBus)
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineProcStats()
@@ -588,17 +1322,47 @@ void QAbstractKlipperConsole::machineProcStats()
     QJsonObject paramsObject;
 
     messageObject["params"] = paramsObject;
-    messageObject["method"] = "machine.proc.stats";
-
-    foreach(KlipperMessage outbound, m_messageOutbox)
-    {
-        if(outbound.document()["method"].toString() == "machine.proc.stats")
-            return;
-    }
+    messageObject["method"] = "machine.proc_stats";
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineUpdateStatus()
@@ -613,13 +1377,48 @@ void QAbstractKlipperConsole::machineUpdateStatus()
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineUpdateRefresh()
 {
     QJsonObject paramsObject;
-    paramsObject["refresh"] = true;
 
     QJsonObject messageObject;
     messageObject["method"] = "machine.update.refresh";
@@ -628,7 +1427,43 @@ void QAbstractKlipperConsole::machineUpdateRefresh()
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineUpdateFull()
@@ -641,10 +1476,43 @@ void QAbstractKlipperConsole::machineUpdateFull()
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    //Method only returns ok
-    m_waitForOkId = message->id;
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineUpdateMoonraker()
@@ -657,10 +1525,43 @@ void QAbstractKlipperConsole::machineUpdateMoonraker()
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    //Method only returns ok
-    m_waitForOkId = message->id;
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineUpdateKlipper()
@@ -673,10 +1574,43 @@ void QAbstractKlipperConsole::machineUpdateKlipper()
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    //Method only returns ok
-    m_waitForOkId = message->id;
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineUpdateClient(QString client)
@@ -694,10 +1628,43 @@ void QAbstractKlipperConsole::machineUpdateClient(QString client)
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    //Method only returns ok
-    m_waitForOkId = message->id;
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineUpdateSystem()
@@ -710,10 +1677,43 @@ void QAbstractKlipperConsole::machineUpdateSystem()
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    //Method only returns ok
-    m_waitForOkId = message->id;
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineUpdateRecover(QString name, bool hardRecover)
@@ -732,10 +1732,43 @@ void QAbstractKlipperConsole::machineUpdateRecover(QString name, bool hardRecove
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    //Method only returns ok
-    m_waitForOkId = message->id;
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::machineUpdateRollback(QString name)
@@ -753,10 +1786,43 @@ void QAbstractKlipperConsole::machineUpdateRollback(QString name)
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    //Method only returns ok
-    m_waitForOkId = message->id;
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    sendCommand(message);
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::sendGcode(QString gcode, KlipperMessage::MessageOrigin origin)
@@ -770,11 +1836,43 @@ void QAbstractKlipperConsole::sendGcode(QString gcode, KlipperMessage::MessageOr
     messageObject["params"] = paramsObject;
     messageObject["method"] = "printer.gcode.script";
 
-    message->setDocument(messageObject);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
 
-    m_waitForOkId = message->id;
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
 
-    sendCommand(message);
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::printerInfo()
@@ -788,7 +1886,45 @@ void QAbstractKlipperConsole::printerInfo()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                qDebug() << responseDocumentError.errorString();
+                qDebug() << responseData;
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::restartKlipper()
@@ -839,7 +1975,43 @@ void QAbstractKlipperConsole::printerObjectsList()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::printerSubscribe()
@@ -851,7 +2023,10 @@ void QAbstractKlipperConsole::printerSubscribe()
 
     //Leave each object null to receive the full report
     foreach(QString object, m_subscriptionObjects)
-        objectArray[object];
+    {
+        if(!object.startsWith("tmc"))
+            objectArray[object];
+    }
 
     if(!objectArray.contains("mcu"))
         objectArray["mcu"];
@@ -876,7 +2051,43 @@ void QAbstractKlipperConsole::printerEmergencyStop()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::printerQueryEndstops()
@@ -889,7 +2100,43 @@ void QAbstractKlipperConsole::printerQueryEndstops()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverInfo()
@@ -902,7 +2149,43 @@ void QAbstractKlipperConsole::serverInfo()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverConfig()
@@ -915,7 +2198,43 @@ void QAbstractKlipperConsole::serverConfig()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverFileRoots()
@@ -928,7 +2247,43 @@ void QAbstractKlipperConsole::serverFileRoots()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverFilesMetadata(QString fileName)
@@ -944,7 +2299,43 @@ void QAbstractKlipperConsole::serverFilesMetadata(QString fileName)
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverFilesMetadata(KlipperFile file)
@@ -972,7 +2363,43 @@ void QAbstractKlipperConsole::serverTemperatureStore()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverGcodeStore()
@@ -987,7 +2414,43 @@ void QAbstractKlipperConsole::serverGcodeStore()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverLogsRollover()
@@ -998,7 +2461,43 @@ void QAbstractKlipperConsole::serverLogsRollover()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverWebsocketId()
@@ -1020,7 +2519,44 @@ void QAbstractKlipperConsole::serverWebcamList()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    qDebug() << "URI" << uri;
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverWebcamCreate(System::Webcam webcam)
@@ -1049,7 +2585,43 @@ void QAbstractKlipperConsole::serverWebcamCreate(System::Webcam webcam)
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverWebcamUpdate(System::Webcam webcam)
@@ -1079,7 +2651,43 @@ void QAbstractKlipperConsole::serverWebcamUpdate(System::Webcam webcam)
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverWebcamDelete(System::Webcam webcam)
@@ -1095,7 +2703,43 @@ void QAbstractKlipperConsole::serverWebcamDelete(System::Webcam webcam)
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverAnnouncementsList(bool includeDismissed)
@@ -1111,7 +2755,43 @@ void QAbstractKlipperConsole::serverAnnouncementsList(bool includeDismissed)
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverAnnouncementsUpdate()
@@ -1123,7 +2803,43 @@ void QAbstractKlipperConsole::serverAnnouncementsUpdate()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverAnnouncementDismiss(QString entryId, qint64 waketime)
@@ -1142,7 +2858,43 @@ void QAbstractKlipperConsole::serverAnnouncementDismiss(QString entryId, qint64 
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverJobQueueStatus()
@@ -1154,7 +2906,43 @@ void QAbstractKlipperConsole::serverJobQueueStatus()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverJobQueueStart()
@@ -1165,7 +2953,43 @@ void QAbstractKlipperConsole::serverJobQueueStart()
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverJobQueuePause()
@@ -1176,7 +3000,43 @@ void QAbstractKlipperConsole::serverJobQueuePause()
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverJobQueueAdd(QStringList filenames)
@@ -1194,7 +3054,43 @@ void QAbstractKlipperConsole::serverJobQueueAdd(QStringList filenames)
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverJobQueueJump(QString id)
@@ -1209,7 +3105,43 @@ void QAbstractKlipperConsole::serverJobQueueJump(QString id)
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::serverJobQueueDelete(QStringList ids)
@@ -1227,7 +3159,43 @@ void QAbstractKlipperConsole::serverJobQueueDelete(QStringList ids)
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::clientIdentifier()
@@ -1288,7 +3256,43 @@ void QAbstractKlipperConsole::accessGetUser()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::accessCreateUser(QString username, QString password)
@@ -1305,7 +3309,43 @@ void QAbstractKlipperConsole::accessCreateUser(QString username, QString passwor
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::accessDeleteUser(QString username)
@@ -1321,7 +3361,43 @@ void QAbstractKlipperConsole::accessDeleteUser(QString username)
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::accessUsersList()
@@ -1333,7 +3409,43 @@ void QAbstractKlipperConsole::accessUsersList()
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 void QAbstractKlipperConsole::accessUserPasswordReset(QString password, QString newPassword)
@@ -1350,7 +3462,43 @@ void QAbstractKlipperConsole::accessUserPasswordReset(QString password, QString 
 
     message->setDocument(messageObject);
 
-    sendCommand(message);
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+        (
+            manager,
+            &QNetworkAccessManager::finished,
+            this, [=](QNetworkReply *reply) {
+
+                if (reply->error()) {
+                    qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                    return;
+                }
+
+                QByteArray responseData = reply->readAll();
+                QJsonParseError responseDocumentError;
+                QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+                if(responseDocumentError.error != QJsonParseError::NoError)
+                {
+                    sendError("Invalid response from server");
+                    return;
+                }
+
+                KlipperResponse response;
+                response["method"] = messageObject["method"];
+                response["request"] = messageObject;
+                response["result"] = responseDocument["result"];
+                response["id"] = messageObject["id"];
+                response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+                parseResponse(response);
+            }
+            );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
 }
 
 QAbstractKlipperConsole::ConnectionLocation QAbstractKlipperConsole::connectionLoaction() const
@@ -1378,24 +3526,7 @@ void QAbstractKlipperConsole::on_moonrakerSocket_readyRead()
         m_dataBuffer += incoming;
     }
 
-    QString okPattern;
-    okPattern = QString("[") + QString(m_eof) + QString("|][o|O][k|K]");
-
-    QRegularExpression okExpression(okPattern);
-    QRegularExpressionMatch okMatch = okExpression.match(QString::fromUtf8(m_dataBuffer));
-
-    if(okMatch.hasMatch())
-    {
-        QString ok = okMatch.captured();
-
-        if(ok.contains(m_eof))
-            ok.remove(m_eof);
-
-        m_dataBuffer.replace(ok.toStdString(), "");
-
-        m_messageDataQueue.enqueue("ok");
-    }
-    else if(m_dataBuffer.contains((char)0x03))
+    if(m_dataBuffer.contains((char)0x03))
     {
         int index = m_dataBuffer.indexOf((char)0x03);
         QByteArray responseData = m_dataBuffer.mid(0, index + 1);
@@ -1429,34 +3560,23 @@ void QAbstractKlipperConsole::on_messageReady()
     KlipperResponse response;
     response.rootObject = responseDocument.object();
 
-    if(responseData == QByteArray("ok"))
+    if(!response.rootObject.contains("error"))
+        response.status = KlipperResponse::OK;
+
+    response.setId(response["id"].toInt());
+
+    response.timestamp = QDateTime::currentDateTime();
+
+    if(!response.rootObject.contains("method"))
     {
         origin = m_klipperMessageBuffer[response["id"].toInt()];
+        origin->stopTimer();
+        disconnect(origin, SIGNAL(responseTimeout(int)), this, SLOT(messageResponseTimeout(int)));
+
         response["request"] = origin->document();
         response["method"] = origin->document()["method"];
         response.origin = (KlipperResponse::ResponseOrigin)m_klipperMessageBuffer[response["id"].toInt()]->origin;
-    }
-    else
-    {
-        if(!response.rootObject.contains("error"))
-            response.status = KlipperResponse::OK;
-
-        response.setId(response["id"].toInt());
-
-        response.timestamp = QDateTime::currentDateTime();
-
-        if(!response.rootObject.contains("method"))
-        {
-            origin = m_klipperMessageBuffer[response["id"].toInt()];
-            origin->stopTimer();
-            disconnect(origin, SIGNAL(responseTimeout(int)), this, SLOT(messageResponseTimeout(int)));
-
-            response["request"] = origin->document();
-            response["method"] = origin->document()["method"];
-            response.origin = (KlipperResponse::ResponseOrigin)m_klipperMessageBuffer[response["id"].toInt()]->origin;
-            m_klipperMessageBuffer.remove(response["id"].toInt());
-        }
-
+        m_klipperMessageBuffer.remove(response["id"].toInt());
     }
 
     //For some reason I am getting params returned for status updates.
@@ -1524,7 +3644,15 @@ void QAbstractKlipperConsole::on_messageReady()
             }
         }
     }
-    else if(m_parserMap.contains(response["method"].toString()))
+    else
+    {
+        parseResponse(response);
+    }
+}
+
+void QAbstractKlipperConsole::parseResponse(KlipperResponse response)
+{
+    if(m_parserMap.contains(response["method"].toString()))
     {
         QString key = response["method"].toString();
         ParserFunction parser = m_parserMap[key];
@@ -1533,10 +3661,9 @@ void QAbstractKlipperConsole::on_messageReady()
 
     if(!response["method"].toString().startsWith("notify"))
     {
-        qDebug() << "Console Received: " << response["method"];
+        qDebug() << "Console Response" << response["method"].toString();
 
-        if(m_klipperMessageBuffer.isEmpty())
-            m_awaitingResponse = false;
+        emit responseReceived(response);
 
         if(m_startupSequence.count())
         {
@@ -1546,22 +3673,13 @@ void QAbstractKlipperConsole::on_messageReady()
             emit startupProgress("Connecting", m_progress);
             StartupFunction function = m_startupSequence.dequeue();
             (this->*function)();
-
-            if(!m_startupSequence.count())
-                emit startup();
         }
-        if(hasState(Connecting) && m_klipperMessageBuffer.isEmpty())
+        else if(hasState(Connecting))
         {
+            emit startupProgress("Connected", 1);
             removeState(Connecting);
+            emit startup();
         }
-
-        /*else if(!m_messageOutbox.isEmpty())
-        {
-            KlipperMessage message = m_messageOutbox.dequeue();
-            sendCommand(message, true);
-        }*/
-
-        emit responseReceived(response);
     }
 }
 
@@ -1577,7 +3695,7 @@ void QAbstractKlipperConsole::on_klipperRestartTimer_timeout()
 
 void QAbstractKlipperConsole::sendError(QString message)
 {
-
+    qDebug() << message;
 }
 
 void QAbstractKlipperConsole::on_deleteFile(KlipperResponse response)
@@ -2319,8 +4437,6 @@ void QAbstractKlipperConsole::on_machinePeripheralsCanbus(KlipperResponse respon
 
 void QAbstractKlipperConsole::on_machineUpdateStatus(KlipperResponse response)
 {
-    qDebug() << response.document();
-
     if(response[QString("result")].isObject())
     {
         //Get the base update state
