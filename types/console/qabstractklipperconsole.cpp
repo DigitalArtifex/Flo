@@ -4786,6 +4786,7 @@ void QAbstractKlipperConsole::on_printerObjectsQuery(KlipperResponse response)
         {
             QJsonObject constraintsObject = mcuObject["mcu_constants"].toObject();
             mcu.hardwareVersion = constraintsObject["MCU"].toString();
+            mcu.frequency = mcuObject["CLOCK_FREQ"].toInteger();
         }
 
         if(mcuObject.contains("last_stats"))
@@ -4793,7 +4794,6 @@ void QAbstractKlipperConsole::on_printerObjectsQuery(KlipperResponse response)
             QJsonObject statsObject = resultObject["last_stats"].toObject();
 
             mcu.awake = statsObject["mcu_awake"].toDouble();
-            mcu.frequency = statsObject["freq"].toInteger();
             mcu.bytesAvailable = statsObject["bytes_available"].toInteger();
             mcu.bytesInvalid = statsObject["bytes_invalid"].toInteger();
             mcu.bytesRead = statsObject["bytes_read"].toInteger();
