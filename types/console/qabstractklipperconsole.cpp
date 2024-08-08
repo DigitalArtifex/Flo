@@ -2073,7 +2073,7 @@ void QAbstractKlipperConsole::printerObjectsQuery(QString &object)
     );
 
     //QString uri = m_host + message->toUri();
-    QString uri = QString("http://%1%2?%3").arg(m_host).arg(message->toUri()).arg(object);
+    QString uri = QString("%1%2?%3").arg(m_host, message->toUri(), object);
     manager->get(QNetworkRequest(uri));
 }
 
