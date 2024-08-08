@@ -126,7 +126,9 @@ public:
     virtual void printerInfo();
     virtual void restartKlipper();
     virtual void restartFirmware();
+    virtual void printerMCUInfo();
     virtual void printerObjectsList();
+    virtual void printerObjectsQuery(QString &object);
     virtual void printerSubscribe();
     virtual void printerEmergencyStop();
     virtual void printerQueryEndstops();
@@ -340,6 +342,7 @@ protected slots:
     virtual void on_restartKlipper(KlipperResponse response);
     virtual void on_restartFirmware(KlipperResponse response);
     virtual void on_printerObjectsList(KlipperResponse response);
+    virtual void on_printerObjectsQuery(KlipperResponse response);
     virtual void on_printerSubscribe(KlipperResponse response);
     virtual void on_printerEmergencyStop(KlipperResponse response);
     virtual void on_printerQueryEndstops(KlipperResponse response);

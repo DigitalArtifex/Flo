@@ -426,6 +426,8 @@ public:
         qreal maxStepperError = 0;
 
         QString serial;
+        QString firmwareVersion;
+        QString hardwareVersion;
 
         qint64 bytesInvalid = 0;
         qint64 bytesRead = 0;

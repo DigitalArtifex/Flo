@@ -7,6 +7,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     m_parserMap[QString("printer.info")] = (ParserFunction)&QAbstractKlipperConsole::on_printerInfo;
     m_parserMap[QString("printer.objects.list")] = (ParserFunction)&QAbstractKlipperConsole::on_printerObjectsList;
     m_parserMap[QString("printer.objects.subscribe")] = (ParserFunction)&QAbstractKlipperConsole::on_printerSubscribe;
+    m_parserMap[QString("printer.objects.query")] = (ParserFunction)&QAbstractKlipperConsole::on_printerObjectsQuery;
     m_parserMap[QString("notify_status_update")] = (ParserFunction)&QAbstractKlipperConsole::on_printerSubscribe;
     m_parserMap[QString("printer.print.start")] = (ParserFunction)&QAbstractKlipperConsole::on_startPrint;
     m_parserMap[QString("printer.print.pause")] = (ParserFunction)&QAbstractKlipperConsole::on_pausePrint;
@@ -83,6 +84,7 @@ QAbstractKlipperConsole::QAbstractKlipperConsole(Printer *printer, QObject *pare
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerObjectsList);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerInfo);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::serverInfo);
+    m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerMCUInfo);
     m_startupSequence.enqueue((StartupFunction)&QAbstractKlipperConsole::printerSubscribe);
 
     m_progressSteps = m_startupSequence.count();
@@ -1965,6 +1967,12 @@ void QAbstractKlipperConsole::restartFirmware()
     sendCommand(message);
 }
 
+void QAbstractKlipperConsole::printerMCUInfo()
+{
+    QString object = "mcu";
+    printerObjectsQuery(object);
+}
+
 void QAbstractKlipperConsole::printerObjectsList()
 {
     KlipperMessage *message = new KlipperMessage();
@@ -1972,6 +1980,59 @@ void QAbstractKlipperConsole::printerObjectsList()
     QJsonObject paramsObject;
 
     messageObject["method"] = "printer.objects.list";
+
+    message->setDocument(messageObject);
+
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+
+    QObject::connect
+    (
+        manager,
+        &QNetworkAccessManager::finished,
+        this, [=](QNetworkReply *reply) {
+
+            if (reply->error()) {
+                qDebug() << reply->errorString() << messageObject["method"].toString() << reply->url() ;
+                return;
+            }
+
+            QByteArray responseData = reply->readAll();
+            QJsonParseError responseDocumentError;
+            QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
+
+            if(responseDocumentError.error != QJsonParseError::NoError)
+            {
+                sendError("Invalid response from server");
+                return;
+            }
+
+            KlipperResponse response;
+            response["method"] = messageObject["method"];
+            response["request"] = messageObject;
+            response["result"] = responseDocument["result"];
+            response["id"] = messageObject["id"];
+            response["timestamp"] = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+
+            parseResponse(response);
+        }
+    );
+
+    QString uri = m_host + message->toUri();
+    manager->get(QNetworkRequest(uri));
+}
+
+void QAbstractKlipperConsole::printerObjectsQuery(QString &object)
+{
+    KlipperMessage *message = new KlipperMessage();
+    QJsonObject messageObject = message->document();
+    QJsonObject paramsObject;
+    QJsonArray objectsArray;
+
+    objectsArray.append(object);
+
+    paramsObject["objects"] = objectsArray;
+    messageObject["method"] = "printer.objects.query";
 
     message->setDocument(messageObject);
 
@@ -4688,6 +4749,63 @@ void QAbstractKlipperConsole::on_printerObjectsList(KlipperResponse response)
                     m_subscriptionObjects.append(objectsArray.at(i).toString());
             }
         }
+    }
+}
+
+void QAbstractKlipperConsole::on_printerObjectsQuery(KlipperResponse response)
+{
+    if(!response.document().contains("result"))
+    {
+        //error
+        qDebug() << "Query object did not return result";
+        return;
+    }
+
+    QJsonObject resultObject = response["result"].toObject();
+
+    if(!resultObject.contains("status"))
+    {
+        //error
+        qDebug() << "Query object did not return status";
+        return;
+    }
+
+    QJsonObject statusObject = response["status"].toObject();
+
+    if(statusObject.contains("mcu"))
+    {
+        QJsonObject mcuObject = statusObject["mcu"].toObject();
+        System::MCU mcu = m_printer->system()->mcu();
+
+        if(mcuObject.contains("mcu_version"))
+            mcu.firmwareVersion = mcuObject["mcu_version"].toString();
+
+        if(mcuObject.contains("mcu_constraints"))
+        {
+            QJsonObject constraintsObject = mcuObject["mcu_constraints"].toObject();
+            mcu.hardwareVersion = constraintsObject["MCU"].toString();
+        }
+
+        if(mcuObject.contains("last_stats"))
+        {
+            QJsonObject statsObject = resultObject["last_stats"].toObject();
+
+            mcu.awake = statsObject["mcu_awake"].toDouble();
+            mcu.frequency = statsObject["frequency"].toInteger();
+            mcu.bytesAvailable = statsObject["bytes_available"].toInteger();
+            mcu.bytesInvalid = statsObject["bytes_invalid"].toInteger();
+            mcu.bytesRead = statsObject["bytes_read"].toInteger();
+            mcu.bytesWritten = statsObject["bytes_write"].toInteger();
+            mcu.bytesRetransmitted = statsObject["bytes_retransmit"].toInteger();
+            mcu.bytesUpcoming = statsObject["bytes_upcoming"].toInteger();
+            mcu.devAverage = statsObject["mcu_task_stddev"].toDouble();
+            mcu.taskAverage = statsObject["mcu_task_avg"].toDouble();
+            mcu.sequenceRecieved = statsObject["receive_seq"].toInteger();
+            mcu.sequenceSent = statsObject["send_seq"].toInteger();
+            mcu.sequenceRetransmitted = statsObject["retransmit_seq"].toInteger();
+        }
+
+        m_printer->system()->setMcu(mcu);
     }
 }
 
