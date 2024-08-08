@@ -41,9 +41,10 @@ private:
 
     CircularProgressBar *m_mcuAverageProgressBar = nullptr;
 
-    QLabel *m_sdUsedLabel = nullptr;
-    QLabel *m_sdAvailableLabel = nullptr;
-    QLabel *m_sdCapacityLabel = nullptr;
+    QLabel *m_frequencyLabel = nullptr;
+    QLabel *m_hardwareLabel = nullptr;
+    QLabel *m_firmwareLabel = nullptr;
+    QLabel *m_wakeTimeLabel = nullptr;
 
     QWidget *m_centralWidget = nullptr;
     QWidget *m_progressWidget = nullptr;

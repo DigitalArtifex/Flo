@@ -40,19 +40,24 @@ void PrinterDriveWidget::setupUi()
     m_sdLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
 
     //Capacity label
-    m_sdCapacityLabel = new QLabel(m_sdGroupBox);
-    m_sdCapacityLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_sdLayout->addWidget(m_sdCapacityLabel);
-
-    //Used label
-    m_sdUsedLabel = new QLabel(m_sdGroupBox);
-    m_sdUsedLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_sdLayout->addWidget(m_sdUsedLabel);
+    m_wakeTimeLabel = new QLabel(m_sdGroupBox);
+    m_wakeTimeLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_sdLayout->addWidget(m_wakeTimeLabel);
 
     //Available label
-    m_sdAvailableLabel = new QLabel(m_sdGroupBox);
-    m_sdAvailableLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_sdLayout->addWidget(m_sdAvailableLabel);
+    m_firmwareLabel = new QLabel(m_sdGroupBox);
+    m_firmwareLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_sdLayout->addWidget(m_firmwareLabel);
+
+    //Available label
+    m_hardwareLabel = new QLabel(m_sdGroupBox);
+    m_hardwareLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_sdLayout->addWidget(m_hardwareLabel);
+
+    //Used label
+    m_frequencyLabel = new QLabel(m_sdGroupBox);
+    m_frequencyLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_sdLayout->addWidget(m_frequencyLabel);
 
     m_sdLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
 
@@ -67,9 +72,12 @@ void PrinterDriveWidget::systemMCUChanged()
 {
     m_mcu = m_system->mcu();
 
-    m_sdCapacityLabel->setText(QString("Wake Time: %1").arg(QString::number(m_mcu.awake, 'f', 2)));
-    m_sdUsedLabel->setText(QString("Frequency: %1MHz").arg(QString::number(((m_mcu.frequency / 1024) / 1024), 'f', 2)));
-    //m_sdAvailableLabel->setText(QString("Wake Time: %1").arg(QString::number(m_mcu.taskAverage, 'f', 2)));
+    m_wakeTimeLabel->setText(QString("Wake Time: %1").arg(QString::number(m_mcu.awake, 'f', 2)));
+    m_frequencyLabel->setText(QString("Frequency: %1MHz").arg(QString::number(((m_mcu.frequency / 1024) / 1024), 'f', 2)));
+    m_firmwareLabel->setText(QString("Firmware: %1").arg(m_mcu.firmwareVersion));
+    m_hardwareLabel->setText(QString("Hardware: %1").arg(m_mcu.hardwareVersion));
+
+    m_mcuAverageProgressBar->setProgress(m_mcu.taskAverage);
 }
 
 void PrinterDriveWidget::convertDriveBytes(qreal &bytes, QString &label)
