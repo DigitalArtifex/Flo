@@ -27,18 +27,17 @@ void PrinterSystemWidget::systemUpdateEvent()
     QString cpuType;
 
     if(!m_system->cpuInfo().model.isEmpty())
-        cpuName = QString("Processor: %1").arg(m_system->cpuInfo().model);
+        cpuName = QString("%1").arg(m_system->cpuInfo().model);
     else if(!m_system->cpuInfo().description.isEmpty())
-        cpuName = QString("Processor: %1").arg(m_system->cpuInfo().description);
+        cpuName = QString("%1").arg(m_system->cpuInfo().description);
 
-    if(cpuName.length() > 16)
-        cpuName = QString("%1...").arg(cpuName.mid(0,16));
+    cpuName = QString("Processor: %1...").arg(cpuName.left(16));
 
     if(!m_system->cpuInfo().processor.isEmpty())
         cpuType = QString("Type: %1").arg(m_system->cpuInfo().processor);
 
     QString cpuCount = QString("Cores: %1").arg(m_system->cpuInfo().cpuCount);
-    QString peakTemperature = QString("Peak: %1°").arg(QString::number(m_peakTemperature, 'f', 2));
+    QString peakTemperature = QString("Peak Temperature: %1°C").arg(QString::number(m_peakTemperature, 'f', 2));
 
     m_cpuCountLabel->setText(cpuCount);
     m_cpuNameLabel->setText(cpuName);
