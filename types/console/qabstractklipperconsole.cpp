@@ -2027,11 +2027,12 @@ void QAbstractKlipperConsole::printerObjectsQuery(QString &object)
     KlipperMessage *message = new KlipperMessage();
     QJsonObject messageObject = message->document();
     QJsonObject paramsObject;
-    QJsonArray objectsArray;
+    QJsonObject objectsArray;
 
-    objectsArray.append(object);
+    objectsArray[object];
 
     paramsObject["objects"] = objectsArray;
+    messageObject["params"] = paramsObject;
     messageObject["method"] = "printer.objects.query";
 
     message->setDocument(messageObject);
@@ -2071,7 +2072,8 @@ void QAbstractKlipperConsole::printerObjectsQuery(QString &object)
         }
     );
 
-    QString uri = m_host + message->toUri();
+    //QString uri = m_host + message->toUri();
+    QString uri = QString("http://%1%2?%3").arg(m_host).arg(message->toUri()).arg(object);
     manager->get(QNetworkRequest(uri));
 }
 
@@ -4770,7 +4772,7 @@ void QAbstractKlipperConsole::on_printerObjectsQuery(KlipperResponse response)
         return;
     }
 
-    QJsonObject statusObject = response["status"].toObject();
+    QJsonObject statusObject = resultObject["status"].toObject();
 
     if(statusObject.contains("mcu"))
     {
@@ -4780,9 +4782,9 @@ void QAbstractKlipperConsole::on_printerObjectsQuery(KlipperResponse response)
         if(mcuObject.contains("mcu_version"))
             mcu.firmwareVersion = mcuObject["mcu_version"].toString();
 
-        if(mcuObject.contains("mcu_constraints"))
+        if(mcuObject.contains("mcu_constants"))
         {
-            QJsonObject constraintsObject = mcuObject["mcu_constraints"].toObject();
+            QJsonObject constraintsObject = mcuObject["mcu_constants"].toObject();
             mcu.hardwareVersion = constraintsObject["MCU"].toString();
         }
 
@@ -4791,7 +4793,7 @@ void QAbstractKlipperConsole::on_printerObjectsQuery(KlipperResponse response)
             QJsonObject statsObject = resultObject["last_stats"].toObject();
 
             mcu.awake = statsObject["mcu_awake"].toDouble();
-            mcu.frequency = statsObject["frequency"].toInteger();
+            mcu.frequency = statsObject["freq"].toInteger();
             mcu.bytesAvailable = statsObject["bytes_available"].toInteger();
             mcu.bytesInvalid = statsObject["bytes_invalid"].toInteger();
             mcu.bytesRead = statsObject["bytes_read"].toInteger();

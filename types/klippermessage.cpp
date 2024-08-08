@@ -72,7 +72,9 @@ QString KlipperMessage::toUri(bool parameterEncoded)
                     break;
                 case QJsonValue::Array:
                 case QJsonValue::Object:
+                    break;
                 case QJsonValue::Undefined:
+                    params += QString("&%1").arg(key);
                     break;
             }
         }
