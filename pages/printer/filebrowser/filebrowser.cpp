@@ -519,6 +519,7 @@ void FileBrowser::fileDoubleClickEvent(QAnimatedListItem *item)
             {
                 QString theme = Settings::currentTheme();
                 m_filePreview = new FilePreviewWindow(fileItem->file(), m_printer, this);
+                m_filePreview->resize(700, 350);
                 m_filePreview->setStyleSheet(theme);
 
                 int ret = m_filePreview->exec();

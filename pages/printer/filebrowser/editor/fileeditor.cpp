@@ -14,6 +14,8 @@ FileEditor::FileEditor(Printer *printer, QWidget *parent)
     setWindowFlag(Qt::FramelessWindowHint);
     setWindowFlag(Qt::Popup);
 
+    ui->textEdit->setFontPointSize(11);
+
     m_highlighter = new QSourceHighliter(ui->textEdit->document());
     m_highlighter->setCurrentLanguage(QSourceHighliter::CodeGCode);
     m_highlighter->setTheme(QSourceHighliter::System);
