@@ -327,6 +327,8 @@ void FileBrowser::uploadFileButtonClickEvent()
 
         refreshButtonClickEvent();
     }
+    else
+        hideOverlay();
 }
 
 void FileBrowser::newFolderButtonClickEvent()
