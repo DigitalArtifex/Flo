@@ -72,8 +72,8 @@ void PrinterDriveWidget::systemMCUChanged()
 {
     m_mcu = m_system->mcu();
 
-    m_wakeTimeLabel->setText(QString("Wake Time: %1").arg(QString::number(m_mcu.awake, 'f', 2)));
-    m_frequencyLabel->setText(QString("Frequency: %1MHz").arg(QString::number(((m_mcu.frequency / 1024) / 1024), 'f', 2)));
+    m_wakeTimeLabel->setText(QString("Wake Time: %1").arg(QString::number(m_mcu.awake, 'f', 4)));
+    m_frequencyLabel->setText(QString("Frequency: %1MHz").arg(QString::number((((qreal)m_mcu.frequency / 1024) / 1024), 'f', 2)));
     m_firmwareLabel->setText(QString("Firmware: %1").arg(m_mcu.firmwareVersion));
     m_hardwareLabel->setText(QString("Hardware: %1").arg(m_mcu.hardwareVersion));
 
