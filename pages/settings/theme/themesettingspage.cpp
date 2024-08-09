@@ -13,7 +13,7 @@ ThemeSettingsPage::ThemeSettingsPage(QWidget *parent)
 
     QPixmap pixmap = Settings::getThemeIcon("cancel-icon").pixmap(32,32);
     m_cancelButton = new QIconButton(ui->footerWidget);
-    m_cancelButton->setFixedHeight(50);
+    m_cancelButton->setFixedSize(250, 50);
     m_cancelButton->setText("Cancel");
     m_cancelButton->setPixmap(pixmap);
     layout->addWidget(m_cancelButton,0,0);
@@ -23,7 +23,7 @@ ThemeSettingsPage::ThemeSettingsPage(QWidget *parent)
 
     pixmap = Settings::getThemeIcon("accept-icon").pixmap(32,32);
     m_acceptButton = new QIconButton(ui->footerWidget);
-    m_acceptButton->setFixedHeight(50);
+    m_acceptButton->setFixedSize(250, 50);
     m_acceptButton->setText("Accept");
     m_acceptButton->setPixmap(pixmap);
     layout->addWidget(m_acceptButton,0,2);
