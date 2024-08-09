@@ -4786,7 +4786,7 @@ void QAbstractKlipperConsole::on_printerObjectsQuery(KlipperResponse response)
         {
             QJsonObject constraintsObject = mcuObject["mcu_constants"].toObject();
             mcu.hardwareVersion = constraintsObject["MCU"].toString();
-            mcu.frequency = mcuObject["CLOCK_FREQ"].toInteger();
+            mcu.frequency = constraintsObject["CLOCK_FREQ"].toDouble();
         }
 
         if(mcuObject.contains("last_stats"))
@@ -5438,19 +5438,31 @@ void QAbstractKlipperConsole::on_printerSubscribe(KlipperResponse response)
         QJsonObject mcuObject = resultObject["last_stats"].toObject();
         System::MCU mcu = m_printer->system()->mcu();
 
-        mcu.awake = mcuObject["mcu_awake"].toDouble();
-        mcu.frequency = mcuObject["frequency"].toInteger();
-        mcu.bytesAvailable = mcuObject["bytes_available"].toInteger();
-        mcu.bytesInvalid = mcuObject["bytes_invalid"].toInteger();
-        mcu.bytesRead = mcuObject["bytes_read"].toInteger();
-        mcu.bytesWritten = mcuObject["bytes_write"].toInteger();
-        mcu.bytesRetransmitted = mcuObject["bytes_retransmit"].toInteger();
-        mcu.bytesUpcoming = mcuObject["bytes_upcoming"].toInteger();
-        mcu.devAverage = mcuObject["mcu_task_stddev"].toDouble();
-        mcu.taskAverage = mcuObject["mcu_task_avg"].toDouble();
-        mcu.sequenceRecieved = mcuObject["receive_seq"].toInteger();
-        mcu.sequenceSent = mcuObject["send_seq"].toInteger();
-        mcu.sequenceRetransmitted = mcuObject["retransmit_seq"].toInteger();
+        if(mcuObject.contains("mcu_awake"))
+            mcu.awake = mcuObject["mcu_awake"].toDouble();
+        //mcu.frequency = mcuObject["freq"].toInteger();
+        if(mcuObject.contains("bytes_available"))
+            mcu.bytesAvailable = mcuObject["bytes_available"].toInteger();
+        if(mcuObject.contains("bytes_invalid"))
+            mcu.bytesInvalid = mcuObject["bytes_invalid"].toInteger();
+        if(mcuObject.contains("bytes_read"))
+            mcu.bytesRead = mcuObject["bytes_read"].toInteger();
+        if(mcuObject.contains("bytes_write"))
+            mcu.bytesWritten = mcuObject["bytes_write"].toInteger();
+        if(mcuObject.contains("bytes_retransmit"))
+            mcu.bytesRetransmitted = mcuObject["bytes_retransmit"].toInteger();
+        if(mcuObject.contains("bytes_upcoming"))
+            mcu.bytesUpcoming = mcuObject["bytes_upcoming"].toInteger();
+        if(mcuObject.contains("mcu_task_stddev"))
+            mcu.devAverage = mcuObject["mcu_task_stddev"].toDouble();
+        if(mcuObject.contains("mcu_task_avg"))
+            mcu.taskAverage = mcuObject["mcu_task_avg"].toDouble();
+        if(mcuObject.contains("receive_seq"))
+            mcu.sequenceRecieved = mcuObject["receive_seq"].toInteger();
+        if(mcuObject.contains("send_seq"))
+            mcu.sequenceSent = mcuObject["send_seq"].toInteger();
+        if(mcuObject.contains("retransmit_seq"))
+            mcu.sequenceRetransmitted = mcuObject["retransmit_seq"].toInteger();
 
         m_printer->system()->setMcu(mcu);
     }
