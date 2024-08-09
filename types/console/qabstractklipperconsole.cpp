@@ -4223,11 +4223,10 @@ void QAbstractKlipperConsole::on_machineProcStats(KlipperResponse response)
 
             foreach(QString key, keys)
             {
-                usage += cpuLoadArray[key].toDouble();
                 cpuInfo.coreUsage.append(cpuLoadArray[key].toDouble());
             }
 
-            cpuInfo.usage = (usage / cpuInfo.cpuCount);
+            cpuInfo.usage = cpuLoadArray.begin().value().toDouble();
         }
 
         if(result.contains("cpu_temp"))
