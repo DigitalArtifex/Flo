@@ -639,6 +639,8 @@ void QAbstractKlipperConsole::startPrint(QString file)
     paramsObject["filename"] = file;
     messageObject["params"] = paramsObject;
 
+    message->setDocument(messageObject);
+
     QNetworkAccessManager *manager = new QNetworkAccessManager();
 
     QObject::connect
@@ -829,6 +831,8 @@ void QAbstractKlipperConsole::machineShutdown()
 
     messageObject["method"] = "machine.shutdown";
 
+    message->setDocument(messageObject);
+
     QNetworkAccessManager *manager = new QNetworkAccessManager();
 
     QObject::connect
@@ -874,6 +878,8 @@ void QAbstractKlipperConsole::machineReboot()
     QJsonObject messageObject = message->document();
 
     messageObject["method"] = "machine.reboot";
+
+    message->setDocument(messageObject);
 
     QNetworkAccessManager *manager = new QNetworkAccessManager();
 
@@ -1025,6 +1031,8 @@ void QAbstractKlipperConsole::machineServiceStop(QString service)
     messageObject["params"] = paramsObject;
     messageObject["method"] = "machine.services.stop";
 
+    message->setDocument(messageObject);
+
     QNetworkAccessManager *manager = new QNetworkAccessManager();
 
     QObject::connect
@@ -1073,6 +1081,8 @@ void QAbstractKlipperConsole::machineServiceStart(QString service)
     paramsObject["service"] = service;
     messageObject["params"] = paramsObject;
     messageObject["method"] = "machine.services.start";
+
+    message->setDocument(messageObject);
 
     QNetworkAccessManager *manager = new QNetworkAccessManager();
 
@@ -1784,7 +1794,7 @@ void QAbstractKlipperConsole::machineUpdateRollback(QString name)
     messageObject["method"] = "machine.update.rollback";
     messageObject["params"] = paramsObject;
 
-    //Add it as the message document to be converted to RPC later
+    //Add it as the message document to be converted to RPC/URI later
     KlipperMessage *message = new KlipperMessage();
     message->setDocument(messageObject);
 
@@ -1837,6 +1847,8 @@ void QAbstractKlipperConsole::sendGcode(QString gcode, KlipperMessage::MessageOr
     paramsObject["script"] = gcode;
     messageObject["params"] = paramsObject;
     messageObject["method"] = "printer.gcode.script";
+
+    message->setDocument(messageObject);
 
     QNetworkAccessManager *manager = new QNetworkAccessManager();
 
