@@ -19,10 +19,10 @@ public:
     ~PrinterTerminalItem();
 
     KlipperMessage *message() const;
-    void setMessage(const KlipperMessage &message);
+    void setMessage(const KlipperMessage *message);
 
     KlipperResponse response() const;
-    void setResponse(const KlipperResponse &response);
+    void setResponse(const KlipperResponse response);
 
     void setErrorMessage(QString title, QString message);
 
@@ -30,7 +30,7 @@ public:
     void setIsErrorMessage(bool isErrorMessage);
 
 protected:
-    virtual void setupUi();
+    void setupUi();
 
 private:
     KlipperMessage *m_message;

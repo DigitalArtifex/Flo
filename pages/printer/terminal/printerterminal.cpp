@@ -39,6 +39,8 @@ void PrinterTerminal::on_commandEdit_returnPressed()
 void PrinterTerminal::on_commandEdit_textChanged()
 {
     QString text = m_commandEdit->toPlainText();
+
+    //emulate return pressed from line edit
     if(text.contains(QString("\n")))
     {
         text.remove("\n");
