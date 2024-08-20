@@ -10,6 +10,8 @@ I do not recommend running this on anything less than a RaspberryPi 5 in it's cu
     broken.
 - Confirmed not to work with Gnome4x. There seems to be an issue with the windowcapture methods that are needed for the current implementation of the Bed Mesh Viewer
 - Only tested with KDE wayland on an Ubuntu core (Kubuntu 24.04) and raspberrypios-minimal with KDE installed and configured
+- Only controls local instances of Klipper. Remote control is in the works
+- Code base is a mess
 
 # Depends
 
