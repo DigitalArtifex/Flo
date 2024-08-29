@@ -7,6 +7,7 @@
 
 class QGCodeMacro {
     Q_GADGET
+
 public:
     QString macro;
     QString description;

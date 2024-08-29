@@ -9,10 +9,6 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    QKlipper/QKlipperInstance/qklipperinstance.cpp \
-    QKlipper/QKlipperTransaction/qklippermessage.cpp \
-    QKlipper/QKlipperTransaction/qklipperresponse.cpp \
-    QKlipper/QKlipperTransaction/qklippertransaction.cpp \
     QSourceHighlite/languagedata.cpp \
     QSourceHighlite/qsourcehighliter.cpp \
     QSourceHighlite/qsourcehighliterthemes.cpp \
@@ -92,6 +88,7 @@ SOURCES += \
     types/chamber.cpp \
     types/clientidentifier.cpp \
     types/console/qabstractklipperconsole.cpp \
+    types/console/qklipperremoteconsole.cpp \
     types/console/qlocalklipperconsole.cpp \
     types/endstopstatus.cpp \
     types/extruder.cpp \
@@ -124,10 +121,6 @@ SOURCES += \
     validators/QHttpValidator/qhttpvalidator.cpp
 
 HEADERS += \
-    QKlipper/QKlipperInstance/qklipperinstance.h \
-    QKlipper/QKlipperTransaction/qklippermessage.h \
-    QKlipper/QKlipperTransaction/qklipperresponse.h \
-    QKlipper/QKlipperTransaction/qklippertransaction.h \
     QSourceHighlite/languagedata.h \
     QSourceHighlite/qsourcehighliter.h \
     QSourceHighlite/qsourcehighliterthemes.h \
@@ -206,6 +199,7 @@ HEADERS += \
     types/chamber.h \
     types/clientidentifier.h \
     types/console/qabstractklipperconsole.h \
+    types/console/qklipperremoteconsole.h \
     types/console/qlocalklipperconsole.h \
     types/endstopstatus.h \
     types/extruder.h \

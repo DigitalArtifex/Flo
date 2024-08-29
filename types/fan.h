@@ -22,8 +22,9 @@ public:
     void setPrinter(Printer *printer);
 
 private:
-    qreal m_speed;
-    qreal m_rpm;
+    qreal m_speed = 0;
+    qreal m_rpm = 0;
+    bool m_isControllable = 0;
 
     Printer *m_printer;
 };
