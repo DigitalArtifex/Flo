@@ -13,6 +13,7 @@ I do not recommend running this on anything less than a RaspberryPi 5 in it's cu
 - moonraker
 - klipper
 
+# Setup
 ## gstreamer1-0 (Ubuntu 24.04)
 
 ```
@@ -35,4 +36,24 @@ cmake -B build -DCMAKE_PREFIX_PATH="/opt/Qt/6.8.0/gcc_64/lib/cmake/Qt6/" -DQUAZI
 cmake --build build --config Release
 sudo cmake --install build
 sudo cp /usr/local/lib/libquazip* /usr/lib
+```
+
+## Building/Running FLO
+
+It is important to note than FLO uses QtMultimedia to process webcam streams. While QtMultimedia defaults to FFMPEG, there are several known issues
+that can occur while using this backend. If you have any issues (i.e. system lockups, scan lines etc) it may be necessary to specify the native backend
+for your system. For example, on Linux the native backend is `gstreamer` and therefore would set the environment variable `QT_MEDIA_BACKEND=gstreamer`. 
+
+### Temporarily Set QT_MEDIA_BACKEND
+
+![alt text](https://github.com/DigitalArtifex/Flo/blob/main/data/screenshots/build_env.png)
+
+If you would like to temporarily set the backend for testing purposes, you can add it to Flo's Project settings under `Build Environment`
+
+### Permanently Set QT_MEDIA_BACKEND
+
+To make the environment variable permanent, we will need to add a line in `~/.profile`. Open a terminal and execute the following command
+
+```
+echo export QT_MEDIA_BACKEND=gstreamer >> ~/.profile
 ```
