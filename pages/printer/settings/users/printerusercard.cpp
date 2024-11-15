@@ -2,7 +2,7 @@
 
 #include "system/settings.h"
 
-PrinterUserCard::PrinterUserCard(System::User user, QWidget *parent)
+PrinterUserCard::PrinterUserCard(QKlipperUser user, QWidget *parent)
     : CardWidget{CardWidget::SubWidget, parent}
 {
     m_user = user;
@@ -12,13 +12,8 @@ PrinterUserCard::PrinterUserCard(System::User user, QWidget *parent)
 
 PrinterUserCard::~PrinterUserCard()
 {
-    delete m_userNameLabel;
-    delete m_iconLabel;
-    delete m_userSourceLabel;
-    delete m_editButton;
-    delete m_deleteButton;
-    delete m_centralLayout;
-    delete m_centralWidget;
+    m_centralLayout->deleteLater();
+    m_centralWidget->deleteLater();
 }
 
 void PrinterUserCard::setupUi()
@@ -33,9 +28,9 @@ void PrinterUserCard::setupUi()
     m_iconLabel->setAlignment(Qt::AlignCenter);
     m_iconLabel->setPixmap(Settings::getThemeIcon("user-icon").pixmap(100,100));
     m_centralLayout->addWidget(m_iconLabel);
-    setTitle(m_user.username);
+    setTitle(m_user.username());
 
-    QDateTime time = QDateTime::fromSecsSinceEpoch(m_user.createdOn);
+    QDateTime time = QDateTime::fromSecsSinceEpoch(m_user.createdOn());
 
     m_userCreatedLabel = new QLabel(m_centralWidget);
     m_userCreatedLabel->setText(QString("Created: %1").arg(time.toString("MM/dd/yy")));
@@ -71,16 +66,16 @@ void PrinterUserCard::removeButtonClickEvent(bool checked)
     emit userDeleteRequest(m_user);
 }
 
-System::User PrinterUserCard::user() const
+QKlipperUser PrinterUserCard::user() const
 {
     return m_user;
 }
 
-void PrinterUserCard::setUser(const System::User &user)
+void PrinterUserCard::setUser(const QKlipperUser &user)
 {
     m_user = user;
 
-    QDateTime time = QDateTime::fromSecsSinceEpoch(m_user.createdOn);
+    QDateTime time = QDateTime::fromSecsSinceEpoch(m_user.createdOn());
     m_userCreatedLabel->setText(QString("Created: %1").arg(time.toString("MM/dd/yy")));
-    setTitle(m_user.username);
+    setTitle(m_user.username());
 }

@@ -7,22 +7,22 @@
 
 #include "ui/common/cardwidget/cardwidget.h"
 
-#include "types/system.h"
+#include <QKlipper/qklipper.h>
 
 class PrinterUserCard : public CardWidget
 {
     Q_OBJECT
 public:
-    explicit PrinterUserCard(System::User user, QWidget *parent = nullptr);
+    explicit PrinterUserCard(QKlipperUser user, QWidget *parent = nullptr);
     ~PrinterUserCard();
 
-    System::User user() const;
+    QKlipperUser user() const;
 
 public slots:
-    void setUser(const System::User &user);
+    void setUser(const QKlipperUser &user);
 
 signals:
-    void userDeleteRequest(System::User user);
+    void userDeleteRequest(QKlipperUser user);
 
 protected slots:
     void setupUi();
@@ -30,7 +30,7 @@ protected slots:
     void removeButtonClickEvent(bool checked);
 
 private:
-    System::User m_user;
+    QKlipperUser m_user;
 
     QVBoxLayout *m_centralLayout = nullptr;
 

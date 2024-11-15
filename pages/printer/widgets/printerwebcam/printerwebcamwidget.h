@@ -20,8 +20,7 @@
 
 #include "empty/emptyprinterwebcamframe.h"
 
-#include "../../../../types/printer.h"
-#include "../../../../types/system.h"
+#include <QKlipper/qklipper.h>
 #include "../../../../ui/QWebcamWidget/qwebcamwidget.h"
 
 class PrinterWebcamWidget : public QFrame
@@ -29,13 +28,16 @@ class PrinterWebcamWidget : public QFrame
     Q_OBJECT
     Q_PROPERTY(bool isAnimating READ animating WRITE setAnimating NOTIFY animatingChanged FINAL)
 public:
-    PrinterWebcamWidget(Printer *printer, QWidget *parent = nullptr);
+    PrinterWebcamWidget(QKlipperInstance *instance, QWidget *parent = nullptr);
     ~PrinterWebcamWidget();
 
-    virtual void setStyleSheet(QString &styleSheet);
-
     bool animating() const;
+
+public slots:
+    void setupIcons();
     void setAnimating(bool animating);
+
+    void setStyleSheet(const QString &styleSheet);
 
 signals:
     void animatingChanged(bool);
@@ -43,20 +45,22 @@ signals:
 protected:
     void setupUi();
     void setupUiClasses();
-    void setIcons();
 
     void setupWebcam0();
     void setupWebcam1();
     void setupWebcam2();
     void setupWebcam3();
 
-protected slots:
-    void on_printer_update(Printer *printer);
-
     virtual void resizeEvent(QResizeEvent *event);
 
+protected slots:
+    void onSystemWebcamsChanged();
+    void onInstanceOnline(QKlipperInstance *instance);
+    void onInstanceOffline(QKlipperInstance *instance);
+    void onWebcamThumbnailUpdate();
+
 private:
-    Printer *m_printer = nullptr;
+    QKlipperInstance *m_instance = nullptr;
 
     QWebcamWidget *m_webcamFrame = nullptr;
     QWebcamWidget *m_webcamFrame_1 = nullptr;
@@ -69,7 +73,7 @@ private:
 
     QGridLayout *m_layout = nullptr;
 
-    QTimer *m_delayTimer = nullptr;
+    QTimer *m_thumbnailTimer = nullptr;
     bool m_animating = false;
 
     QString m_webcamUrl;

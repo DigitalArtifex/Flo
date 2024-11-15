@@ -2,10 +2,10 @@
 
 #include "system/settings.h"
 
-PrinterUpdateView::PrinterUpdateView(Printer *printer, QWidget *parent)
+PrinterUpdateView::PrinterUpdateView(QKlipperSystem *system, QWidget *parent)
     : QFrame{parent}
 {
-    m_printer = printer;
+    m_system = system;
 
     setupUi();
 }
@@ -53,9 +53,10 @@ void PrinterUpdateView::setupUi()
     m_updateAllButton->setIcon(Settings::getThemeIcon(QString("update-icon")));
     m_refreshButton->setIcon(Settings::getThemeIcon(QString("refresh-icon")));
 
-    connect(m_printer->system(), SIGNAL(updateStateUpdate()), this, SLOT(updateStateUpdateEvent()));
-    connect(m_printer->console(), SIGNAL(machineUpdatedClient(QString)), this, SLOT(machineUpdateClientEvent(QString)));
-    connect(m_printer->console(), SIGNAL(machineUpdatedFull()), this, SLOT(machineUpdateClientEvent(QString)));
+    connect(m_system->updateState(), SIGNAL(packagesChanged()), this, SLOT(updateStateUpdateEvent()));
+    connect(m_system->updateState(), SIGNAL(systemPackagesChanged()), this, SLOT(updateStateUpdateEvent()));
+    // connect(m_printer->console(), SIGNAL(machineUpdatedClient(QString)), this, SLOT(machineUpdateClientEvent(QString)));
+    // connect(m_printer->console(), SIGNAL(machineUpdatedFull()), this, SLOT(machineUpdateClientEvent(QString)));
     connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(refreshButtonClickEvent()));
     connect(m_updateAllButton, SIGNAL(clicked()), this, SLOT(updateAllButtonClickEvent()));
     connect(m_updateWidget, SIGNAL(itemUpdateRequested(PrinterUpdateItem*)), this, SLOT(itemUpdateRequestedEvent(PrinterUpdateItem*)));
@@ -68,54 +69,68 @@ void PrinterUpdateView::setupUi()
 
 void PrinterUpdateView::updateStateUpdateEvent()
 {
-    m_updateWidget->setUpdateState(m_printer->system()->updateState());
+    m_updateWidget->setUpdateState(m_system->updateState());
 }
 
 void PrinterUpdateView::updateAllButtonClickEvent()
 {
-    if(m_printer->isOnline())
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(parent());
+
+    if(instance)
     {
+        QKlipperError error;
+
         m_updateWidget->setEmptyIcon(Settings::getThemeIcon("update-icon"));
         m_updateWidget->setEmptyText("Updating All");
         m_updateWidget->clear();
-        m_printer->console()->machineUpdateFull();
+        instance->console()->machineUpdateFull(&error);
+
+        if(error.type() != QKlipperError::NoError)
+            updateStateUpdateEvent();
+        else
+        {
+            //handle error
+        }
     }
 }
 
 void PrinterUpdateView::refreshButtonClickEvent()
 {
-    if(m_printer->isOnline())
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(parent());
+
+    if(instance)
     {
         m_updateWidget->setEmptyIcon(Settings::getThemeIcon("refresh-icon"));
         m_updateWidget->setEmptyText("Refreshing");
         m_updateWidget->clear();
-        m_printer->console()->machineUpdateRefresh();
+        instance->console()->machineUpdateRefresh();
     }
 }
 
 void PrinterUpdateView::itemUpdateRequestedEvent(PrinterUpdateItem *item)
 {
-    if(m_printer->status() != Printer::Offline && m_printer->status() != Printer::Printing)
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(parent());
+
+    if(instance)
     {
         m_updateWidget->setEmptyIcon(Settings::getThemeIcon("refresh-icon"));
         m_updateWidget->setEmptyText(QString("Updating Client \"%1\"").arg(item->title()));
         m_updateWidget->clear();
 
+        QKlipperError error;
+
         if(!item->title().isEmpty() && item->title() == QString("klipper"))
-            m_printer->console()->machineUpdateKlipper();
+            instance->console()->machineUpdateKlipper(&error);
         else if(!item->title().isEmpty() && item->title() == QString("moonraker"))
-            m_printer->console()->machineUpdateMoonraker();
+            instance->console()->machineUpdateMoonraker(&error);
         else if(!item->title().isEmpty())
-            m_printer->console()->machineUpdateClient(item->title());
+            instance->console()->machineUpdateClient(item->title(), &error);
+
+        if(error.type() != QKlipperError::NoError)
+            updateStateUpdateEvent();
+        else
+        {
+            //handle error
+        }
     }
-}
-
-void PrinterUpdateView::machineUpdateAllEvent()
-{
-    m_printer->console()->machineUpdateStatus();
-}
-
-void PrinterUpdateView::machineUpdateClientEvent(QString client)
-{
-    m_printer->console()->machineUpdateStatus();
 }

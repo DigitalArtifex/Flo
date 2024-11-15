@@ -10,47 +10,77 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
+#include <QBuffer>
 #include <QFile>
 #include <QDir>
 #include <QDirIterator>
 #include <QRegularExpression>
+#include <QBitmap>
+#include <QRandomGenerator>
+#include <QMessageBox>
+
+#include <QSettings>
+#include <QtSvg/QSvgRenderer>
 
 #include <QIcon>
 
 #include <QFontDatabase>
+#include <QColorTransform>
+#include <QuaZip-Qt5-1.4/quazip/quazip.h>
+#include <QuaZip-Qt5-1.4/quazip/quazipfile.h>
 
-#include "../types/printer.h"
+#include "QKlipper/qklipper.h"
+
 #include "QVariableSytleSheet/qvariablestylesheet.h"
+#include "validators/QMoonrakerDirectoryValidator/qmoonrakerdirectoryvalidator.h"
 
-class Settings
+class Settings : public QObject
 {
-    static QMap<QString,QVariant> settings;
+    Q_OBJECT
     static QMap<QString,QVariant> themeSettings;
     static QMap<QString, QString> themeMap;
-    static QMap<QString,QIcon> iconMap;
+    static QMap<QString,QIcon> m_iconMap;
+    static QMap<QString, QString> m_iconNames;
     static QString m_loadedTheme;
 
     static void loadThemes();
 
 public:
+
+    enum AnimationStyle
+    {
+        SlideTop,
+        SlideBottom,
+        SlideRight,
+        SlideLeft
+    };
+
+    enum EffectsStyle
+    {
+        Blur,
+        Opacity
+    };
+
     static void load();
     static void save();
     static void reset();
+    static void removeInstance(QKlipperInstance *instance);
 
-    static QVariant get(QString key);
+    static QVariant get(QString key, QVariant value = QVariant());
     static void set(QString key, QVariant value);
 
     static QString getTheme(QString key);
-    static QIcon getThemeIcon(QString key);
+    static QIcon getThemeIcon(QString key, QColor color = QColor());
     static QStringList getThemeList();
-    static void setTheme(QString key);
+    void setTheme(QString key);
+    static QStringList themeList();
+    static bool saveTheme(const QString &name, const QVariableStyleSheet &sheet);
 
-    static Printer *defaultPrinter();
-    static void addPrinter(PrinterDefinition printer);
-    static void removePrinter(PrinterDefinition printer);
-    static void setDefaultPrinter(PrinterDefinition printer);
-    static void updatePrinter(PrinterDefinition printer);
-    static PrinterDefinitionList printers();
+    static QKlipperInstance *defaultPrinter();
+    static void addPrinter(QKlipperInstance* printer);
+    static void removePrinter(QKlipperInstance* printer);
+    static void setDefaultPrinter(QKlipperInstance* printer);
+    static void updatePrinter(QKlipperInstance* printer);
 
     static Settings *instance();
 
@@ -61,13 +91,61 @@ public:
 
     static QVariableStyleSheet theme();
 
+    static AnimationStyle animationInStyle();
+    static AnimationStyle animationOutStyle();
+    static qint16 animationDuration();
+    static bool isAnimationEnabled();
+
+    static bool isAnimationEffectsEnabled();
+
+    static EffectsStyle animationEffectInStyle();
+
+    static EffectsStyle animationEffectOutStyle();
+
+signals:
+    void currentThemeChanged();
+
+public slots:
+    void onInstanceOnline(QKlipperInstance *instance);
+
+    static void setIsAnimationEffectsEnabled(bool isAnimationEffectsEnabled);
+
+    static void setAnimationDuration(qint16 animationDuration);
+
+    static void setIsAnimationEnabled(bool isAnimationEnabled);
+
+    static void setAnimationOutStyle(AnimationStyle animationOutStyle);
+
+    static void setAnimationInStyle(AnimationStyle animationInStyle);
+
+    static void setAnimationEffectInStyle(EffectsStyle animationEffectInStyle);
+
+    static void setAnimationEffectOutStyle(EffectsStyle animationEffectOutStyle);
+
 private:
+    explicit Settings();
+
+    static bool inflateSettingsDirectory();
+    static bool scanForKlipperInstances();
+
     static Settings *m_instance;
     static QVariableStyleSheet m_theme;
-    static PrinterDefinitionList m_printers;
+    static QList<QKlipperInstance*> m_instances;
     static QString m_currentTheme;
 
     static QString m_digitalFontFamily;
+    static bool m_instanceCreated;
+
+    static bool           m_isAnimationEnabled;
+    static AnimationStyle m_animationInStyle;
+    static AnimationStyle m_animationOutStyle;
+    static qint16         m_animationDuration;
+
+    static bool           m_isAnimationEffectsEnabled;
+    static EffectsStyle   m_animationEffectInStyle;
+    static EffectsStyle   m_animationEffectOutStyle;
+
+    static QStringList m_requestedIcons;
 };
 
 #endif // SETTINGS_H

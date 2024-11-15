@@ -2,7 +2,7 @@
 #define PRINTERSYSTEMVIEW_H
 
 #include <QWidget>
-
+#include <QKlipper/qklipper.h>
 #include "systemwidget/printersystemwidget.h"
 #include "drivewidget/printerdrivewidget.h"
 #include "networkwidget/printernetworkwidget.h"
@@ -11,7 +11,7 @@ class PrinterSystemView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PrinterSystemView(Printer *printer, QWidget *parent = nullptr);
+    explicit PrinterSystemView(QKlipperInstance *printer, QWidget *parent = nullptr);
     ~PrinterSystemView();
 
 signals:
@@ -20,7 +20,7 @@ protected slots:
     void setupUi();
 
 private:
-    Printer *m_printer = nullptr;
+    QKlipperInstance *m_instance = nullptr;
 
     QWidget *m_centralWidget = nullptr;
 

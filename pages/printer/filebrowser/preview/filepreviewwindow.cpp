@@ -2,26 +2,26 @@
 
 #include "system/settings.h"
 
-FilePreviewWindow::FilePreviewWindow(KlipperFile file, Printer *printer, QWidget *parent) :
+FilePreviewWindow::FilePreviewWindow(QKlipperFile *file, QKlipperInstance *instance, QWidget *parent) :
     Dialog(parent)
 {
     m_file = file;
-    m_printer = printer;
+    m_instance = instance;
 
-    connect(m_printer->console(), SIGNAL(serverMetadataResult(KlipperFile::Metadata)), this, SLOT(metaDataResultEvent(KlipperFile::Metadata)));
+    connect(m_file, SIGNAL(metadataChanged()), this, SLOT(onFileMetaDataChanged()));
     setupUi();
 
     showLoadingScreen();
-    m_printer->console()->serverFilesMetadata(file);
+    m_instance->console()->serverFilesMetadata(file);
 }
 
 FilePreviewWindow::~FilePreviewWindow()
 {
     if(m_contentLayout)
-        delete m_contentLayout;
+        m_contentLayout->deleteLater();
 
     if(m_contentWidget)
-        delete m_contentWidget;
+        m_contentWidget->deleteLater();
 }
 
 void FilePreviewWindow::setupUi()
@@ -41,7 +41,7 @@ void FilePreviewWindow::setupUi()
 
     //setup name label
     m_nameLabel = new QLabel(this);
-    m_nameLabel->setText(QString("%1\n").arg(tr(m_file.name.toStdString().c_str())));
+    m_nameLabel->setText(QString("%1\n").arg(tr(m_file->filename().toStdString().c_str())));
     m_nameLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "DialogHeading"));
     m_contentLayout->addWidget(m_nameLabel, 0, 0, 1, 2);
 
@@ -61,55 +61,55 @@ void FilePreviewWindow::setupUi()
 
     //setup profile label
     m_FilamentNameLabel = new QLabel(this);
-    m_FilamentNameLabel->setText(QString("Profile: ") + QString::number(m_file.metadata.layerHeight));
+    m_FilamentNameLabel->setText(QString("Profile: ") + QString::number(m_file->metadata().layerHeight));
     m_FilamentNameLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "DialogInfo"));
     m_contentLayout->addWidget(m_FilamentNameLabel, 2, 1, 1, 1);
 
     //setup nozzle temp label
     m_nozzleTemperatureLabel = new QLabel(this);
-    m_nozzleTemperatureLabel->setText(QString("Extruder Temperature: ") + QString::number(m_file.metadata.layerHeight));
+    m_nozzleTemperatureLabel->setText(QString("Extruder Temperature: ") + QString::number(m_file->metadata().layerHeight));
     m_nozzleTemperatureLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "DialogInfo"));
     m_contentLayout->addWidget(m_nozzleTemperatureLabel, 3, 1, 1, 1);
 
     //setup bed temp label
     m_bedTemperatureLabel = new QLabel(this);
-    m_bedTemperatureLabel->setText(QString("Bed Temperature: ") + QString::number(m_file.metadata.layerHeight));
+    m_bedTemperatureLabel->setText(QString("Bed Temperature: ") + QString::number(m_file->metadata().layerHeight));
     m_bedTemperatureLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "DialogInfo"));
     m_contentLayout->addWidget(m_bedTemperatureLabel, 4, 1, 1, 1);
 
     //setup layer height label
     m_layerHeightLabel = new QLabel(this);
-    m_layerHeightLabel->setText(QString("Layer height: ") + QString::number(m_file.metadata.layerHeight));
+    m_layerHeightLabel->setText(QString("Layer height: ") + QString::number(m_file->metadata().layerHeight));
     m_layerHeightLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "DialogInfo"));
     m_contentLayout->addWidget(m_layerHeightLabel, 5, 1, 1, 1);
 
     //setup object height label
     m_objectHeightLabel = new QLabel(this);
-    m_objectHeightLabel->setText(QString("Object height: ") + QString::number(m_file.metadata.objectHeight));
+    m_objectHeightLabel->setText(QString("Object height: ") + QString::number(m_file->metadata().objectHeight));
     m_objectHeightLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "DialogInfo"));
     m_contentLayout->addWidget(m_objectHeightLabel, 6, 1, 1, 1);
 
     //setup filament use label
     m_filamentTotalLabel = new QLabel(this);
-    m_filamentTotalLabel->setText(QString("Filament Total: %1").arg(m_file.metadata.filamentTotal));
+    m_filamentTotalLabel->setText(QString("Filament Total: %1").arg(m_file->metadata().filamentTotal));
     m_filamentTotalLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "DialogInfo"));
     m_contentLayout->addWidget(m_filamentTotalLabel, 7, 1, 1, 1);
 
     //setup nozzle diameter label
     m_nozzleDiameterLabel = new QLabel(this);
-    m_nozzleDiameterLabel->setText(QString("Nozzle Diameter: %1").arg(m_file.metadata.filamentTotal));
+    m_nozzleDiameterLabel->setText(QString("Nozzle Diameter: %1").arg(m_file->metadata().filamentTotal));
     m_nozzleDiameterLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "DialogInfo"));
     m_contentLayout->addWidget(m_nozzleDiameterLabel, 8, 1, 1, 1);
 
     //setup estimated time label
     m_estimatedTimeLabel = new QLabel(this);
-    m_estimatedTimeLabel->setText(QString("Estimated Print Time: ") + QString::number(m_file.metadata.estimatedTime));
+    m_estimatedTimeLabel->setText(QString("Estimated Print Time: ") + QString::number(m_file->metadata().estimatedTime));
     m_estimatedTimeLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "DialogInfo"));
     m_contentLayout->addWidget(m_estimatedTimeLabel, 9, 1, 1, 1);
 
     //setup slicer details label
     m_slicerVersionLabel = new QLabel(this);
-    m_slicerVersionLabel->setText(QString("%1 (%2)").arg(m_file.metadata.slicer).arg(m_file.metadata.slicerVersion));
+    m_slicerVersionLabel->setText(QString("%1 (%2)").arg(m_file->metadata().slicer).arg(m_file->metadata().slicerVersion));
     m_slicerVersionLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "DialogInfo"));
     m_contentLayout->addWidget(m_slicerVersionLabel, 10, 1, 1, 1);
 
@@ -122,19 +122,15 @@ void FilePreviewWindow::setupUi()
     m_footerLayout = new QHBoxLayout(m_footerWidget);
     m_layout->addWidget(m_footerWidget);
 
-    QPixmap pixmap = Settings::getThemeIcon("cancel-icon").pixmap(22,22);
-
     m_cancelButton = new QIconButton(this);
-    m_cancelButton->setPixmap(pixmap);
+    m_cancelButton->setIcon(Settings::getThemeIcon(QString("cancel-icon")));
     m_cancelButton->setText(QString("Cancel"));
     m_cancelButton->setFixedHeight(50);
     m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_footerLayout->addWidget(m_cancelButton);
 
-    pixmap = Settings::getThemeIcon("print-icon").pixmap(22,22);
-
     m_applyButton = new QIconButton(this);
-    m_applyButton->setPixmap(pixmap);
+    m_applyButton->setIcon(Settings::getThemeIcon(QString("print-icon")));
     m_applyButton->setText(QString("Print"));
     m_applyButton->setFixedHeight(50);
     m_applyButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -167,25 +163,20 @@ void FilePreviewWindow::cancelButtonClickEvent()
     done(QDialog::Rejected);
 }
 
-void FilePreviewWindow::metaDataResultEvent(KlipperFile::Metadata metadata)
+void FilePreviewWindow::onFileMetaDataChanged()
 {
     //Filename is stored without the path data
     QString name;
 
-    if(!m_file.path.isEmpty())
-        name = QString("%1/%2").arg(m_file.path).arg(m_file.name);
+    if(!m_file->path().isEmpty())
+        name = QString("%1/%2").arg(m_file->path()).arg(m_file->filename());
     else
-        name = QString("%1").arg(m_file.name);
+        name = QString("%1").arg(m_file->filename());
 
-    if(metadata.filename == name)
-        m_file.metadata = metadata;
-    else
-        return;
-
-    if(!metadata.thumbnails.isEmpty())
+    if(!m_file->metadata().thumbnails.isEmpty())
     {
-        QString url = m_printer->system()->hostname() + QString("/");
-        url += metadata.thumbnails[0].relativePath;
+        QString url = m_instance->system()->hostname() + QString("/");
+        url += m_file->metadata().thumbnails[0].relativePath;
 
         QPixmap pixmap(url);
 
@@ -194,30 +185,30 @@ void FilePreviewWindow::metaDataResultEvent(KlipperFile::Metadata metadata)
     }
 
     if(m_layerHeightLabel)
-        m_layerHeightLabel->setText(QString("Layer height:    %1 mm").arg(m_file.metadata.layerHeight));
+        m_layerHeightLabel->setText(QString("Layer height:    %1 mm").arg(m_file->metadata().layerHeight));
 
     if(m_objectHeightLabel)
-        m_objectHeightLabel->setText(QString("Object height:    %1 mm").arg(m_file.metadata.objectHeight));
+        m_objectHeightLabel->setText(QString("Object height:    %1 mm").arg(m_file->metadata().objectHeight));
 
     if(m_FilamentNameLabel)
-        m_FilamentNameLabel->setText(QString("Profile:    %1").arg(m_file.metadata.filamentName));
+        m_FilamentNameLabel->setText(QString("Profile:    %1").arg(m_file->metadata().filamentName));
 
     if(m_bedTemperatureLabel)
-        m_bedTemperatureLabel->setText(QString("Bed Temperature:    %1 C").arg(m_file.metadata.firstLayerBedTemp));
+        m_bedTemperatureLabel->setText(QString("Bed Temperature:    %1 C").arg(m_file->metadata().firstLayerBedTemp));
 
     if(m_nozzleTemperatureLabel)
-        m_nozzleTemperatureLabel->setText(QString("Extruder Temperature:    %1 C").arg(m_file.metadata.firstLayerExtruderTemp));
+        m_nozzleTemperatureLabel->setText(QString("Extruder Temperature:    %1 C").arg(m_file->metadata().firstLayerExtruderTemp));
 
     if(m_nozzleDiameterLabel)
-        m_nozzleDiameterLabel->setText(QString("Extrusion Diameter:    %1 mm").arg(m_file.metadata.nozzleDiameter));
+        m_nozzleDiameterLabel->setText(QString("Extrusion Diameter:    %1 mm").arg(m_file->metadata().nozzleDiameter));
 
     if(m_slicerVersionLabel)
-        m_slicerVersionLabel->setText(QString("Slicer:    %1 (%2)").arg(m_file.metadata.slicer).arg(m_file.metadata.slicerVersion));
+        m_slicerVersionLabel->setText(QString("Slicer:    %1 (%2)").arg(m_file->metadata().slicer).arg(m_file->metadata().slicerVersion));
 
     if(m_filamentTotalLabel)
     {
-        qreal total = m_file.metadata.filamentTotal;
-        qreal weight = m_file.metadata.filamentTotalWeight;
+        qreal total = m_file->metadata().filamentTotal;
+        qreal weight = m_file->metadata().filamentTotalWeight;
         QString unit("mm");
         QString weightUnit("g");
 
@@ -244,7 +235,7 @@ void FilePreviewWindow::metaDataResultEvent(KlipperFile::Metadata metadata)
 
     if(m_estimatedTimeLabel)
     {
-        qint64 timeInSeconds = m_file.metadata.estimatedTime;
+        qint64 timeInSeconds = m_file->metadata().estimatedTime;
 
         const qint64 secondsPerDay = 86400;
         qint64 days = timeInSeconds / secondsPerDay;
@@ -295,7 +286,7 @@ void FilePreviewWindow::metaDataResultEvent(KlipperFile::Metadata metadata)
         hideLoadingScreen();
 }
 
-KlipperFile FilePreviewWindow::file() const
+QKlipperFile *FilePreviewWindow::file() const
 {
     return m_file;
 }

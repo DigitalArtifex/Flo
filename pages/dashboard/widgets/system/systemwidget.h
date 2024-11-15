@@ -5,7 +5,7 @@
 #include <QLabel>
 #include <QMovie>
 
-#include "../../../../types/printer.h"
+#include <QKlipper/qklipper.h>
 #include "../../../../ui/circularprogressbar.h"
 #include "../../../../ui/widgetanimation.h"
 
@@ -22,16 +22,19 @@ public:
     ~SystemWidget();
 
     void setUiClasses();
-    void setPrinter(Printer *printer);
+    void setPrinter(QKlipperInstance *printer);
 
     virtual void setStyleSheet(QString styleSheet);
 
 private slots:
-    void on_printer_systemUpdate(Printer *printer);
-    void on_printer_klipperDisconnected(Printer *printer);
-    void on_printer_klipperConnected(Printer *printer);
+    void on_printer_klipperDisconnected(QKlipperInstance *printer);
+    void on_printer_klipperConnected(QKlipperInstance *printer);
 
     void on_loadingAnimation_finished();
+
+    void onSystemMemoryStatsChanged();
+    void onSystemCpuInfoChanged();
+    void onSystemHostnameChanged();
 
     //Private Functions
 private:
@@ -43,7 +46,7 @@ private:
 private:
     Ui::SystemWidget *ui;
 
-    Printer *m_printer = nullptr;
+    QKlipperInstance *m_instance = nullptr;
 
     CircularProgressBar *m_systemCpuLoadProgressBar;
     CircularProgressBar *m_systemMemoryLoadProgressBar;

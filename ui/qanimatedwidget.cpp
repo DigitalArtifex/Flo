@@ -210,7 +210,7 @@ void QAnimatedWidget::setWidget(QWidget *widget)
     if(m_widget)
     {
         m_layout->removeWidget(m_widget);
-        delete m_widget;
+        m_widget->deleteLater();
         m_widget = nullptr;
     }
 
@@ -256,7 +256,7 @@ void QAnimatedWidget::on_animationFinal_finished()
     if(m_snapshotLabel)
     {
         m_snapshotLabel->hide();
-        delete m_snapshotLabel;
+        m_snapshotLabel->deleteLater();
         m_snapshotLabel = nullptr;
     }
 
@@ -272,10 +272,12 @@ void QAnimatedWidget::setWidthOut(qint32 widthOut)
     m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Width));
 }
 
-void QAnimatedWidget::setStyleSheet(QString styleSheet)
+void QAnimatedWidget::setStyleSheet(const QString &styleSheet)
 {
     if(m_widget)
         m_widget->setStyleSheet(styleSheet);
+
+    QWidget::setStyleSheet(styleSheet);
 }
 
 void QAnimatedWidget::resizeEvent(QResizeEvent *event)

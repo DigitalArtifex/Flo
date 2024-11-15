@@ -7,8 +7,8 @@
 
 #include "energyconsumptionchart.h"
 
-#include "../../../../../types/printer.h"
-#include "../../../../../system/printerpool.h"
+#include <QKlipper/qklipper.h>
+#include <system/qklipperinstancepool.h>
 
 class EnergyConsumptionWidget : public QWidget
 {
@@ -22,7 +22,7 @@ signals:
 protected:
     void setupUi();
 
-    void printerAddedEvent(Printer *printer);
+    void printerAddedEvent(QKlipperInstance *printer);
 
 private:
     EnergyConsumptionChart *m_energyWidget = nullptr;

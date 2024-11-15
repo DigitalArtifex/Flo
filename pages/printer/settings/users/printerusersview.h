@@ -13,13 +13,13 @@
 #include "ui/common/cardwidget/cardwidget.h"
 #include "ui/QIconButton/qiconbutton.h"
 
-#include "types/printer.h"
+#include <QKlipper/qklipper.h>
 
 class PrinterUsersView : public CardWidget
 {
     Q_OBJECT
 public:
-    explicit PrinterUsersView(Printer *printer, QWidget *parent = nullptr);
+    explicit PrinterUsersView(QKlipperInstance *instance, QWidget *parent = nullptr);
     ~PrinterUsersView();
 
 signals:
@@ -29,12 +29,10 @@ protected slots:
     void userListChangedEvent();
     void addUserButtonClickedEvent(bool checked);
 
-    void on_systemUserCreated(System::User user);
-    void on_systemUserDeleted(System::User user);
-    void on_userDeleteRequest(System::User user);
+    void on_userDeleteRequest(QKlipperUser user);
 
 private:
-    System *m_system = nullptr;
+    QKlipperInstance *m_instnace = nullptr;
     QMap<QString, PrinterUserCard*> m_userCards;
 
     QHBoxLayout *m_centralLayout = nullptr;

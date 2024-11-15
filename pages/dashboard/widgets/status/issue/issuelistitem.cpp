@@ -51,11 +51,11 @@ IssueListItem::IssueListItem(QString title, QString source, QString message, QWi
 
 IssueListItem::~IssueListItem()
 {
-    delete m_iconLabel;
-    delete m_iconContainer;
-    delete m_titleLabel;
-    delete m_sourceLabel;
-    delete m_messageLabel;
+    m_iconLabel->deleteLater();
+    m_iconContainer->deleteLater();
+    m_titleLabel->deleteLater();
+    m_sourceLabel->deleteLater();
+    m_messageLabel->deleteLater();
 }
 
 void IssueListItem::setupUi()

@@ -14,34 +14,54 @@ AdjustmentScrewItemFrame::AdjustmentScrewItemFrame(QWidget *parent)
 
 AdjustmentScrewItemFrame::~AdjustmentScrewItemFrame()
 {
-    setParent(nullptr);
-    //_adjustmentScrew = nullptr;
     delete ui;
 }
 
-Q3DPrintBed::AdjustmentScrew *AdjustmentScrewItemFrame::adjustmentScrew() const
+QKlipperAdjustmentScrew *AdjustmentScrewItemFrame::adjustmentScrew() const
 {
-    return nullptr;//_adjustmentScrew;
+    return m_adjustmentScrew;
 }
 
-void AdjustmentScrewItemFrame::setAdjustmentScrew(Q3DPrintBed::AdjustmentScrew *adjustmentScrew)
+void AdjustmentScrewItemFrame::setAdjustmentScrew(QKlipperAdjustmentScrew *adjustmentScrew)
 {
-    //_adjustmentScrew = adjustmentScrew;
+    m_adjustmentScrew = adjustmentScrew;
 
-    ui->adjustmentLabel->setText(adjustmentScrew->adjustment.amount);
-    ui->screwNameLabel->setText(adjustmentScrew->name);
+    ui->screwNameLabel->setText(m_adjustmentScrew->name());
+    onAdjustmentScrewAmountChanged();
 
+    QObject::connect(m_adjustmentScrew, SIGNAL(adjustmentChanged()), this, SLOT(onAdjustmentScrewAmountChanged()));
+}
+
+void AdjustmentScrewItemFrame::setupIcons()
+{
     QPixmap pixmap;
 
-    switch(adjustmentScrew->adjustment.direction)
+    switch(m_adjustmentScrew->adjustment().direction)
     {
-    case Q3DPrintBed::AdjustmentScrew::Adjustment::Clockwise:
-        pixmap = Settings::getThemeIcon(QString("clockwise-icon")).pixmap(ui->iconLabel->size());
-        break;
-    case Q3DPrintBed::AdjustmentScrew::Adjustment::CounterClockwise:
-        pixmap = Settings::getThemeIcon(QString("counter-clockwise-icon")).pixmap(ui->iconLabel->size());
-        break;
+        case QKlipperAdjustmentScrew::Adjustment::NotSet:
+        case QKlipperAdjustmentScrew::Adjustment::Clockwise:
+            pixmap = Settings::getThemeIcon(QString("clockwise-icon")).pixmap(ui->iconLabel->size());
+            break;
+        case QKlipperAdjustmentScrew::Adjustment::CounterClockwise:
+            pixmap = Settings::getThemeIcon(QString("counter-clockwise-icon")).pixmap(ui->iconLabel->size());
+            break;
     }
 
     ui->iconLabel->setPixmap(pixmap);
+}
+
+void AdjustmentScrewItemFrame::setStyleSheet(const QString &styleSheet)
+{
+    setupIcons();
+
+    QFrame::setStyleSheet(styleSheet);
+}
+
+void AdjustmentScrewItemFrame::onAdjustmentScrewAmountChanged()
+{
+    if(!m_adjustmentScrew)
+        return;
+
+    ui->adjustmentLabel->setText(m_adjustmentScrew->adjustment().amount);
+    setupIcons();
 }

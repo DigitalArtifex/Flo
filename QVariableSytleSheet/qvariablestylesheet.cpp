@@ -2,17 +2,13 @@
 
 QVariableStyleSheet::QVariableStyleSheet(QString stylesheet)
 {
-    m_stylesheet = stylesheet;
+    m_rawStyleSheet = stylesheet;
+    process();
 }
 
-void QVariableStyleSheet::setStyleSheet(QString stylesheet)
+void QVariableStyleSheet::process()
 {
-    m_stylesheet = stylesheet;
-}
-
-QString QVariableStyleSheet::process()
-{
-    QString theme = m_stylesheet;
+    QString theme = m_rawStyleSheet;
 
     //Process CSS variables in QSS
     theme.remove(commentExpression);
@@ -28,7 +24,7 @@ QString QVariableStyleSheet::process()
         QString root = rootMatch.captured(0);
 
         theme.remove(rootExpression);
-        m_rawStyleSheet = theme;
+        m_rawStyleSheetBody = theme;
 
         QRegularExpressionMatchIterator variableIterator = variableExpression.globalMatch(root.toUtf8());
         while(variableIterator.hasNext())
@@ -74,7 +70,7 @@ QString QVariableStyleSheet::process()
         }
     }
 
-    return theme;
+    m_stylesheet = theme;
 }
 
 QMap<QString, QString> QVariableStyleSheet::variables() const
@@ -87,12 +83,45 @@ void QVariableStyleSheet::setVariables(const QMap<QString, QString> &variables)
     m_variables = variables;
 }
 
-QString QVariableStyleSheet::rawStyleSheet() const
+void QVariableStyleSheet::setValue(QString name, QVariant value)
 {
-    return m_rawStyleSheet;
+    m_variables[name] = value.toString();
 }
 
-void QVariableStyleSheet::setRawStyleSheet(const QString &newRawStyleSheet)
+QString QVariableStyleSheet::rawStyleSheet() const
 {
-    m_rawStyleSheet = newRawStyleSheet;
+    QString rootHeader(":root\n{\n");
+
+    for(QMapIterator<QString,QString> iterator(m_variables); iterator.hasNext();)
+    {
+        iterator.next();
+        QString variableString = QString("    --%1: %2;\n").arg(iterator.key(), iterator.value());
+        rootHeader += variableString;
+    }
+
+    rootHeader += "}\n";
+
+    rootHeader += m_rawStyleSheetBody;
+    return rootHeader;
+}
+
+void QVariableStyleSheet::setRawStyleSheet(const QString &rawStyleSheet)
+{
+    m_rawStyleSheet = rawStyleSheet;
+    process();
+}
+
+QString QVariableStyleSheet::rawStyleSheetBody() const
+{
+    return m_rawStyleSheetBody;
+}
+
+void QVariableStyleSheet::setRawStyleSheetBody(const QString &styleSheetBody)
+{
+    m_rawStyleSheetBody = styleSheetBody;
+}
+
+QString QVariableStyleSheet::stylesheet() const
+{
+    return m_stylesheet;
 }

@@ -1,7 +1,7 @@
 #include "dashboardpage.h"
 #include "ui_dashboardpage.h"
 #include "../../system/settings.h"
-#include "../../system/printerpool.h"
+#include "../../system/qklipperinstancepool.h"
 
 DashboardPage::DashboardPage(QWidget *parent) :
     QFrame(parent),
@@ -21,39 +21,30 @@ DashboardPage::DashboardPage(QWidget *parent) :
     setUiClasses();
     loadPrinters();
 
-    connect(PrinterPool::instance(), SIGNAL(printerAdded(Printer*)), this, SLOT(on_printerPool_printerAdded(Printer*)));
-    connect(PrinterPool::instance(), SIGNAL(printerRemoved(Printer*)), this, SLOT(on_printerPool_printerRemoved(Printer*)));
+    connect(QKlipperInstancePool::pool(), SIGNAL(instanceAdded(QKlipperInstance*)), this, SLOT(onInstanceAdded(QKlipperInstance*)));
+    connect(QKlipperInstancePool::pool(), SIGNAL(instanceRemoved(QKlipperInstance*)), this, SLOT(onInstanceRemoved(QKlipperInstance*)));
 
     setStyleSheet(Settings::currentTheme());
 }
 
 DashboardPage::~DashboardPage()
 {
-    delete ui;
-
-    if(m_systemWidget)
-        delete m_systemWidget;
-
-    if(m_statusWidget)
-        delete m_statusWidget;
-
-    for(int i = 0; i < m_printerWidgets.count(); i++)
-        delete m_printerWidgets[i];
-
     if(m_layout)
-        delete m_layout;
+        m_layout->deleteLater();
+
+    delete ui;
 }
 
 void DashboardPage::loadPrinters()
 {
-    PrinterDefinitionList printers = Settings::printers();
+    QKlipperInstanceList printers = QKlipperInstancePool::klipperInstances();
 
-    foreach(PrinterDefinition definition, printers)
+    foreach(QKlipperInstance *definition, printers)
     {
         bool found = false;
         foreach(PrinterWidget *widget, m_printerWidgets)
         {
-            if(widget->printer()->id() == definition.id)
+            if(widget->printer()->id() == definition->id())
             {
                 found = true;
                 break;
@@ -62,19 +53,15 @@ void DashboardPage::loadPrinters()
         if(!found)
         {
             PrinterWidget *widget = new PrinterWidget(ui->scrollAreaWidgetContents);
-            Printer *printer = PrinterPool::getPrinterById(definition.id);
 
-            if(printer == nullptr)
-                printer = new Printer(definition);
-
-            widget->setPrinter(printer);
+            widget->setPrinter(definition);
             m_printerWidgets.append(widget);
             ui->scrollAreaWidgetContents->layout()->addWidget(widget);
 
-            if(definition.defaultPrinter)
+            if(!m_selectedWidget)
             {
                 m_selectedWidget = widget;
-                m_systemWidget->setPrinter(printer);
+                m_systemWidget->setPrinter(definition);
             }
         }
     }
@@ -125,24 +112,24 @@ void DashboardPage::resizeEvent(QResizeEvent *event)
         m_statusWidget->setFixedSize(QSize(statusWidth, statusHeight));
 }
 
-void DashboardPage::on_printerPool_printerRemoved(Printer *printer)
+void DashboardPage::onInstanceAdded(QKlipperInstance *instance)
+{
+    PrinterWidget *widget = new PrinterWidget(ui->scrollAreaWidgetContents);
+    widget->setPrinter(instance);
+    m_printerWidgets.append(widget);
+    ui->scrollAreaWidgetContents->layout()->addWidget(widget);
+}
+
+void DashboardPage::onInstanceRemoved(QKlipperInstance *instance)
 {
     for(int i = 0; i < m_printerWidgets.count(); i++)
     {
-        if(printer->id() == m_printerWidgets[i]->printer()->id())
+        if(instance->id() == m_printerWidgets[i]->printer()->id())
         {
             PrinterWidget *widget = m_printerWidgets[i];
             ui->scrollAreaWidgetContents->layout()->removeWidget(m_printerWidgets[i]);
             m_printerWidgets.removeAt(i);
-            delete widget;
+            widget->deleteLater();
         }
     }
-}
-
-void DashboardPage::on_printerPool_printerAdded(Printer *printer)
-{
-    PrinterWidget *widget = new PrinterWidget(ui->scrollAreaWidgetContents);
-    widget->setPrinter(printer);
-    m_printerWidgets.append(widget);
-    ui->scrollAreaWidgetContents->layout()->addWidget(widget);
 }

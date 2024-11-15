@@ -11,19 +11,28 @@ class QVariableStyleSheet
 public:
     QVariableStyleSheet(QString stylesheet = QString(""));
 
-    void setStyleSheet(QString stylesheet);
-    QString process();
+    QString stylesheet() const;
+
+    void process();
 
     QMap<QString, QString> variables() const;
     void setVariables(const QMap<QString, QString> &variables);
+    void setValue(QString name, QVariant value);
 
     QString rawStyleSheet() const;
 
-    void setRawStyleSheet(const QString &newRawStyleSheet);
+    void setRawStyleSheet(const QString &rawStyleSheet);
+
+    QString rawStyleSheetBody() const;
+    void setRawStyleSheetBody(const QString &styleSheetBody);
+
+signals:
+    void styleSheetChanged();
 
 private:
     QString m_stylesheet;
     QString m_rawStyleSheet;
+    QString m_rawStyleSheetBody;
 
     QMap<QString, QString> m_variables;
     QRegularExpression rootExpression = QRegularExpression("^:root\\s*{\\s*(--[a-zA-Z0-9\\-\\_]+:\\s*[a-zA-Z0-9\\-\\_\\#]+;\\s*)*}\\s*", QRegularExpression::MultilineOption);

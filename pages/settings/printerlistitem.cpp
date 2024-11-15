@@ -8,6 +8,7 @@ PrinterListItem::PrinterListItem(QWidget *parent) :
 {
     ui->setupUi(this);
     setUiClasses();
+
     this->setProperty("pressed", false);
     this->setProperty("selected", false);
 }
@@ -17,28 +18,28 @@ PrinterListItem::~PrinterListItem()
     delete ui;
 }
 
-void PrinterListItem::setPrinterDefinition(PrinterDefinition definition)
+void PrinterListItem::setInstance(QKlipperInstance *instance)
 {
-    m_definition = definition;
-    ui->printerName->setText(m_definition.name);
-    ui->instanceLocation->setText(m_definition.instanceLocation);
+    m_definition = instance;
+    ui->printerName->setText(instance->name());
+    ui->instanceLocation->setText(instance->instanceLocation());
+    ui->addressLabel->setText(QString("Address: ") + m_definition->address());
+    ui->portLabel->setText(QString("Port: ") + QString::number(m_definition->port()));
 
-    if(definition.defaultPrinter)
-        ui->defaultLabel->setText(QString("Default Printer: Yes"));
-    else
-        ui->defaultLabel->setText(QString("Default Printer: No"));
+    if(!m_definition->thumbnail().isNull())
+        ui->iconLabel->setPixmap(QPixmap::fromImage(m_definition->thumbnail()).scaled(ui->iconLabel->size()));
 
-    if(definition.autoConnect)
-        ui->autoConnectLabel->setText(QString("Auto Connect: Yes"));
-    else
-        ui->autoConnectLabel->setText(QString("Auto Connect: No"));
+    connect(instance, SIGNAL(addressChanged()), this, SLOT(onAddressChanged()));
+    connect(instance, SIGNAL(portChanged()), this, SLOT(onPortChanged()));
+    connect(instance, SIGNAL(nameChanged()), this, SLOT(onInstanceNameChanged()));
+    connect(instance, SIGNAL(thumbnailChanged()), this, SLOT(onInstanceThumbnailChanged()));
 }
 
 void PrinterListItem::setUiClasses()
 {
     ui->printerName->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PrinterListItemName" ));
-    ui->autoConnectLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PrinterListItemInfo" ));
-    ui->defaultLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PrinterListItemInfo" ));
+    ui->portLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PrinterListItemInfo" ));
+    ui->addressLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PrinterListItemInfo" ));
     this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PrinterListItem" ));
 }
 
@@ -55,7 +56,7 @@ bool PrinterListItem::selected()
     return this->property("selected").toBool();
 }
 
-PrinterDefinition PrinterListItem::printerDefinition()
+QKlipperInstance *PrinterListItem::instance()
 {
     return m_definition;
 }
@@ -64,6 +65,30 @@ void PrinterListItem::clickTimeout()
 {
     if(this->m_pressed)
         this->m_longPress = true;
+}
+
+void PrinterListItem::onInstanceNameChanged()
+{
+    if(m_definition)
+        ui->printerName->setText(m_definition->name());
+}
+
+void PrinterListItem::onAddressChanged()
+{
+    if(m_definition)
+        ui->addressLabel->setText(m_definition->address());
+}
+
+void PrinterListItem::onPortChanged()
+{
+    if(m_definition)
+        ui->portLabel->setText(QString::number(m_definition->port()));
+}
+
+void PrinterListItem::onInstanceThumbnailChanged()
+{
+    if(!m_definition->thumbnail().isNull())
+        ui->iconLabel->setPixmap(QPixmap::fromImage(m_definition->thumbnail()).scaled(ui->iconLabel->size()));
 }
 
 void PrinterListItem::mousePressEvent(QMouseEvent *event)
@@ -93,7 +118,7 @@ void PrinterListItem::mouseReleaseEvent(QMouseEvent *event)
         {
             m_clickTimer->stop();
             disconnect(this->m_clickTimer, SIGNAL(timeout()), this, SLOT(clickTimeout()));
-            delete m_clickTimer;
+            m_clickTimer->deleteLater();
             m_clickTimer = NULL;
         }
 

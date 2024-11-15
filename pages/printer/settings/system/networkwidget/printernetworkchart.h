@@ -13,16 +13,14 @@
 #include <QList>
 #include <QDateTime>
 
-#include "../../../../../types/printer.h"
+#include <QKlipper/qklipper.h>
 
 class PrinterNetworkChart : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PrinterNetworkChart(System *system, QWidget *parent = nullptr);
+    explicit PrinterNetworkChart(QKlipperSystem *system, QWidget *parent = nullptr);
     ~PrinterNetworkChart();
-
-    void trackPrinter(Printer *printer);
 
 signals:
 
@@ -31,13 +29,11 @@ protected:
     void setupTimer();
 
 protected slots:
-    void updateTimerTimeoutEvent();
     void systemNetworkStatsChanged();
     virtual void setStyleSheet(QString &styleSheet);
 
 private:
-    System *m_system = nullptr;
-    QTimer *m_updateTimer = nullptr;
+    QKlipperSystem *m_system = nullptr;
     qint64 m_updateTimerInterval = 500; //ms
     QChart *m_chart = nullptr;
     QChartView *m_view = nullptr;

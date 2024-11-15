@@ -1,6 +1,6 @@
 #include "temperaturegraph.h"
 #include "ui_temperaturegraph.h"
-#include "../../system/settings.h"
+#include "system/settings.h"
 
 TemperatureGraph::TemperatureGraph(QWidget *parent) :
     QFrame(parent),

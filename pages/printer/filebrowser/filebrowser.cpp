@@ -4,7 +4,7 @@
 #include "filebrowseritem.h"
 #include "ui/messagedialog.h"
 
-FileBrowser::FileBrowser(Printer *printer, QString root, QWidget *parent, Mode mode) :
+FileBrowser::FileBrowser(QKlipperInstance *printer, QString root, QWidget *parent, Mode mode) :
     QWidget(parent)
 {
     m_rootDirectory = root;
@@ -20,42 +20,28 @@ FileBrowser::FileBrowser(Printer *printer, QString root, QWidget *parent, Mode m
 
 FileBrowser::~FileBrowser()
 {
-    delete m_upDirectoryButton;
-    delete m_currentDirectoryLabel;
-    delete m_refreshButton;
-    delete m_newFolderButton;
-    delete m_uploadFileButton;
-    delete m_downloadFolderButton;
+    if(m_overlay)
+        m_overlay->deleteLater();
 
-    delete m_actionBarLayout;
-    delete m_actionBar;
+    if(m_editor)
+        m_editor->deleteLater();
 
-    delete m_thumbnailLabel;
-    delete m_printFileButton;
-    delete m_editFileButton;
-    delete m_deleteFileButton;
-
-    delete m_sideBarLayout;
-    delete m_sideBar;
-
-    delete m_layout;
-
-    delete m_overlay;
-    delete m_editor;
+    if(m_layout)
+        m_layout->deleteLater();
 }
 
-Printer *FileBrowser::printer() const
+QKlipperInstance *FileBrowser::printer() const
 {
-    return m_printer;
+    return m_instance;
 }
 
-void FileBrowser::setPrinter(Printer *printer)
+void FileBrowser::setPrinter(QKlipperInstance *printer)
 {
     m_startup = true;
-    m_printer = printer;
+    m_instance = printer;
 
-    connect(m_printer, SIGNAL(directoryListing(QString,QString,QList<KlipperFile>,Printer*)), this, SLOT(printerFileListingEvent(QString,QString,QList<KlipperFile>,Printer*)));
-    connect(m_printer, SIGNAL(startup(Printer*)), this, SLOT(printerStartupEvent(Printer*)));
+    connect(m_instance->server(), SIGNAL(fileListChanged(QString)), this, SLOT(onServerFileListChanged(QString)));
+    connect(m_instance, SIGNAL(connected(QKlipperInstance*)), this, SLOT(onInstanceConnected(QKlipperInstance*)));
 }
 
 void FileBrowser::setupUi()
@@ -107,7 +93,7 @@ void FileBrowser::setupUi()
     m_layout->addWidget(m_actionBar, 0, 0, 1, 2);
 
 
-        m_filebrowserWidget = new FileBrowserWidget(this, FileBrowserWidget::Widget);
+    m_filebrowserWidget = new FileBrowserWidget(this, FileBrowserWidget::Widget);
 
     m_filebrowserWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_layout->addWidget(m_filebrowserWidget, 1, 0, 1, 1);
@@ -128,7 +114,7 @@ void FileBrowser::setupUi()
         m_printFileButton = new QIconButton(this);
         m_printFileButton->setFixedSize(250,50);
         m_printFileButton->setText("Print File");
-        m_printFileButton->setPixmap(pixmap);
+        m_printFileButton->setIcon(Settings::getThemeIcon("print-icon"));
 
         m_printFileButton->setEnabled(false);
         m_sideBarLayout->addWidget(m_printFileButton, 2, 0, 1, 1);
@@ -137,7 +123,7 @@ void FileBrowser::setupUi()
         m_editFileButton = new QIconButton(this);
         m_editFileButton->setFixedSize(250,50);
         m_editFileButton->setText("Edit File");
-        m_editFileButton->setPixmap(pixmap);
+        m_editFileButton->setIcon(Settings::getThemeIcon("edit-icon"));
 
         m_printFileButton->setEnabled(false);
         m_sideBarLayout->addWidget(m_editFileButton, 3, 0, 1, 1);
@@ -149,29 +135,20 @@ void FileBrowser::setupUi()
         m_deleteFileButton = new QIconButton(this);
         m_deleteFileButton->setFixedSize(250,50);
         m_deleteFileButton->setText("Delete File");
-        m_deleteFileButton->setPixmap(pixmap);
+        m_deleteFileButton->setIcon(Settings::getThemeIcon("delete-icon"));
 
         m_printFileButton->setEnabled(false);
         m_sideBarLayout->addWidget(m_deleteFileButton, 5, 0, 1, 1);
     }
 
     m_sideBar->setLayout(m_sideBarLayout);
+    m_upDirectoryButton->setFixedSize(32,32);
+    m_newFolderButton->setFixedSize(32,32);
+    m_uploadFileButton->setFixedSize(32,32);
+    m_downloadFolderButton->setFixedSize(32,32);
+    m_refreshButton->setFixedSize(32,32);
 
-    if(m_mode == Page)
-    {
-
-        //m_layout->addWidget(m_sideBar, 1, 1, 1, 1);
-    }
-    else
-    {
-        m_upDirectoryButton->setFixedSize(32,32);
-        m_newFolderButton->setFixedSize(32,32);
-        m_uploadFileButton->setFixedSize(32,32);
-        m_downloadFolderButton->setFixedSize(32,32);
-        m_refreshButton->setFixedSize(32,32);
-
-        m_actionBarLayout->setContentsMargins(4,4,4,4);
-    }
+    m_actionBarLayout->setContentsMargins(4,4,4,4);
 
     setLayout(m_layout);
 
@@ -194,7 +171,7 @@ void FileBrowser::setupUi()
         else
             m_printFileButton->setHidden(false);
 
-        m_editor = new FileEditor(m_printer, this);
+        m_editor = new FileEditor(m_instance, this);
         m_editor->hide();
     }
     else
@@ -206,24 +183,17 @@ void FileBrowser::setupUi()
 
 void FileBrowser::setupConnections()
 {
-    connect(m_uploadFileButton, SIGNAL(clicked(bool)), this, SLOT(uploadFileButtonClickEvent()));
-    connect(m_newFolderButton, SIGNAL(clicked(bool)), this, SLOT(newFolderButtonClickEvent()));
-    connect(m_downloadFolderButton, SIGNAL(clicked(bool)), this, SLOT(downloadFolderButtonClickEvent()));
-    connect(m_refreshButton, SIGNAL(clicked(bool)), this, SLOT(refreshButtonClickEvent()));
-    connect(m_upDirectoryButton, SIGNAL(clicked(bool)), this, SLOT(upDirectoryButtonClickEvent()));
+    connect(m_uploadFileButton, SIGNAL(clicked()), this, SLOT(uploadFileButtonClickEvent()));
+    connect(m_newFolderButton, SIGNAL(clicked()), this, SLOT(newFolderButtonClickEvent()));
+    connect(m_downloadFolderButton, SIGNAL(clicked()), this, SLOT(downloadFolderButtonClickEvent()));
+    connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(refreshButtonClickEvent()));
+    connect(m_upDirectoryButton, SIGNAL(clicked()), this, SLOT(upDirectoryButtonClickEvent()));
 
-    connect(m_filebrowserWidget, SIGNAL(itemSelected(QAnimatedListItem*)), this, SLOT(fileBrowserWidgetFileSelectedEvent(QAnimatedListItem*)));
-    connect(m_filebrowserWidget, SIGNAL(itemDoubleClicked(QAnimatedListItem*)), this, SLOT(fileDoubleClickEvent(QAnimatedListItem*)));
+    connect(m_filebrowserWidget, SIGNAL(itemSelected(QAnimatedListItem*)), this, SLOT(onFileBrowserWidgetFileSelected(QAnimatedListItem*)));
+    connect(m_filebrowserWidget, SIGNAL(itemDoubleClicked(QAnimatedListItem*)), this, SLOT(onFileBrowserWidgetItemDoubleClicked(QAnimatedListItem*)));
     connect(m_filebrowserWidget, SIGNAL(itemDeleteRequested(FileBrowserItem*)), this, SLOT(itemDeleteRequestedEvent(FileBrowserItem*)));
     connect(m_filebrowserWidget, SIGNAL(itemEditRequested(FileBrowserItem*)), this, SLOT(itemEditRequestedEvent(FileBrowserItem*)));
     connect(m_filebrowserWidget, SIGNAL(itemPrintRequested(FileBrowserItem*)), this, SLOT(itemPrintRequestedEvent(FileBrowserItem*)));
-
-    if(m_mode == Page)
-    {
-        connect(m_editFileButton, SIGNAL(clicked(bool)), this, SLOT(editFileButtonClickEvent()));
-        connect(m_printFileButton, SIGNAL(clicked(bool)), this, SLOT(printFileButtonClickEvent()));
-        connect(m_deleteFileButton, SIGNAL(clicked(bool)), this, SLOT(deleteFileButtonClickEvent()));
-    }
 }
 
 void FileBrowser::setStyleSheet(const QString &styleSheet)
@@ -314,7 +284,7 @@ void FileBrowser::uploadFileButtonClickEvent()
 
             if(file.open(QFile::ReadOnly))
             {
-                m_printer->console()->uploadFile(
+                m_instance->console()->serverFileUpload(
                     m_rootDirectory,
                     m_currentDirectory,
                     fileName,
@@ -356,10 +326,10 @@ void FileBrowser::refreshButtonClickEvent()
 {
     showOverlay(QString("Refreshing Directory"), QString("refresh-icon"));
 
-    m_currentDirectoryLabel->setText(m_rootDirectory + QString("/") + m_currentDirectory);
+    m_currentDirectoryLabel->setText(m_rootDirectory + QString("/") + m_currentDirectory + QString("/"));
 
     m_filebrowserWidget->clear();
-    m_printer->getFiles(m_rootDirectory, m_currentDirectory);
+    m_instance->console()->serverFilesList(m_rootDirectory + QString("/") + m_currentDirectory);
 }
 
 void FileBrowser::upDirectoryButtonClickEvent()
@@ -381,7 +351,7 @@ void FileBrowser::printFileButtonClickEvent()
     if(!m_filePreview && fileItem)
     {
         QString theme = Settings::currentTheme();
-        m_filePreview = new FilePreviewWindow(fileItem->file(), m_printer, this);
+        m_filePreview = new FilePreviewWindow(fileItem->file(), m_instance, this);
         m_filePreview->setWindowFlag(Qt::Popup);
         m_filePreview->setStyleSheet(theme);
 
@@ -390,9 +360,9 @@ void FileBrowser::printFileButtonClickEvent()
         switch(ret)
         {
         case QDialog::Accepted:
-            if(m_printer->status() == Printer::Ready)
+            if(m_instance->printer()->status() == QKlipperPrinter::Ready)
             {
-                m_printer->print(fileItem->file());
+                m_instance->console()->printerPrintStart(fileItem->file());
             }
             else
             {
@@ -426,7 +396,7 @@ void FileBrowser::deleteFileButtonClickEvent()
 {
     QMessageBox msgBox;
     msgBox.setText("Confirm Delete");
-    msgBox.setInformativeText("Are you sure you want to delete this file?");
+    msgBox.setInformativeText("Are you sure you want to this file?");
     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Ok);
     int ret = msgBox.exec();
@@ -434,54 +404,62 @@ void FileBrowser::deleteFileButtonClickEvent()
     switch(ret)
     {
     case QMessageBox::Ok:
-        m_printer->console()->deleteFile(m_filebrowserWidget->selectedItem()->file());
+        m_instance->console()->serverFileDelete(m_filebrowserWidget->selectedItem()->file());
         break;
     default:
         break;
     }
 }
 
-void FileBrowser::printerFileListingEvent(QString root, QString directory, QList<KlipperFile> files, Printer *printer)
+void FileBrowser::onInstanceConnected(QKlipperInstance *instance)
 {
-    if(root != m_rootDirectory)
-        return;
+    Q_UNUSED(instance)
 
-    if(m_mode == Page && m_overlay)
-        m_overlay->animateOut();
+    m_instance->console()->serverFilesList(m_rootDirectory + QString("/") + m_currentDirectory);
+}
 
-    m_currentDirectory = directory;
+void FileBrowser::onServerFileListChanged(const QString &directory)
+{
+    QString thisDirectory;
 
     if(m_currentDirectory.isEmpty())
-        m_upDirectoryButton->setEnabled(false);
+        thisDirectory = m_rootDirectory + QString("/");
     else
-        m_upDirectoryButton->setEnabled(true);
+        thisDirectory = m_rootDirectory + QString("/") + m_currentDirectory + QString("/");
 
-    m_currentDirectoryLabel->setText(root + QString("/") + directory);
+    if(directory == thisDirectory)
+    {
+        QKlipperFileList files = m_instance->server()->fileList(thisDirectory);
 
-    m_filebrowserWidget->clear();
-    m_filebrowserWidget->setFiles(files);
+        if(m_mode == Page && m_overlay)
+            m_overlay->animateOut();
 
-    m_refreshButton->setEnabled(true);
-    m_uploadFileButton->setEnabled(true);
-    m_newFolderButton->setEnabled(true);
-    m_downloadFolderButton->setEnabled(files.count() > 0);
+        if(m_currentDirectory.isEmpty())
+            m_upDirectoryButton->setEnabled(false);
+        else
+            m_upDirectoryButton->setEnabled(true);
 
-    hideOverlay();
+        m_currentDirectoryLabel->setText(thisDirectory);
+
+        m_filebrowserWidget->clear();
+        m_filebrowserWidget->setFiles(files);
+
+        m_refreshButton->setEnabled(true);
+        m_uploadFileButton->setEnabled(true);
+        m_newFolderButton->setEnabled(true);
+        m_downloadFolderButton->setEnabled(files.count() > 0);
+
+        hideOverlay();
+    }
 }
 
-void FileBrowser::printerStartupEvent(Printer *printer)
-{
-    if(m_mode == Widget)
-        printer->getFiles(m_rootDirectory, m_currentDirectory);
-}
-
-void FileBrowser::fileBrowserWidgetFileSelectedEvent(QAnimatedListItem *item)
+void FileBrowser::onFileBrowserWidgetFileSelected(QAnimatedListItem *item)
 {
     if(item)
     {
         if(m_mode == Page)
         {
-            if((m_printer->status() == Printer::Ready))
+            if(m_instance->printer()->status() == QKlipperPrinter::Ready)
                 m_printFileButton->setEnabled(true);
             else
                 m_printFileButton->setEnabled(false);
@@ -490,9 +468,11 @@ void FileBrowser::fileBrowserWidgetFileSelectedEvent(QAnimatedListItem *item)
         if(((FileBrowserItem*)item)->isDirectory())
         {
             if(m_currentDirectory.isEmpty())
-                m_currentDirectory = ((FileBrowserItem*)item)->file().name;
+                m_currentDirectory = ((FileBrowserItem*)item)->file()->filename();
             else
-                m_currentDirectory += QString("/") + ((FileBrowserItem*)item)->file().name;
+                m_currentDirectory += ((FileBrowserItem*)item)->file()->filename();
+
+            m_currentDirectory.remove(m_rootDirectory);
 
             refreshButtonClickEvent();
         }
@@ -509,7 +489,7 @@ void FileBrowser::fileBrowserWidgetFileSelectedEvent(QAnimatedListItem *item)
     }
 }
 
-void FileBrowser::fileDoubleClickEvent(QAnimatedListItem *item)
+void FileBrowser::onFileBrowserWidgetItemDoubleClicked(QAnimatedListItem *item)
 {
     FileBrowserItem *fileItem = qobject_cast<FileBrowserItem*>(item);
 
@@ -517,10 +497,10 @@ void FileBrowser::fileDoubleClickEvent(QAnimatedListItem *item)
     {
         if(!fileItem->isDirectory())
         {
-            if(fileItem->file().type == KlipperFile::GCode)
+            if(fileItem->file()->fileType() == QKlipperFile::GCode)
             {
                 QString theme = Settings::currentTheme();
-                m_filePreview = new FilePreviewWindow(fileItem->file(), m_printer, this);
+                m_filePreview = new FilePreviewWindow(fileItem->file(), m_instance, this);
                 m_filePreview->resize(700, 350);
                 m_filePreview->setStyleSheet(theme);
 
@@ -528,8 +508,8 @@ void FileBrowser::fileDoubleClickEvent(QAnimatedListItem *item)
 
                 if(ret == QDialog::Accepted)
                 {
-                    if(m_printer->isReady())
-                        m_printer->print(fileItem->file());
+                    if(m_instance->printer()->status() == QKlipperPrinter::Ready)
+                        m_instance->console()->printerPrintStart(fileItem->file());
                     else
                     {
                         MessageDialog *message = new MessageDialog(this);
@@ -538,25 +518,25 @@ void FileBrowser::fileDoubleClickEvent(QAnimatedListItem *item)
 
                         message->exec();
 
-                        delete message;
+                        message->deleteLater();
                     }
                 }
 
-                delete m_filePreview;
+                m_filePreview->deleteLater();
             }
 
             else
             {
-                m_editor = new FileEditor(m_printer, this);
+                m_editor = new FileEditor(m_instance, this);
                 m_editor->setFile(fileItem->file());
 
                 int ret = m_editor->exec();
-                delete m_editor;
+                m_editor->deleteLater();
 
                 switch(ret)
                 {
                 case FileEditor::SaveAndRestart:
-                    m_printer->console()->restartKlipper();
+                    m_instance->console()->restartKlipper();
                     break;
 
                 default:
@@ -574,7 +554,7 @@ void FileBrowser::overlayAnimatedOutEvent()
         m_overlay->lower();
         m_overlay->setHidden(true);
 
-        delete m_overlay;
+        m_overlay->deleteLater();
         m_overlay = nullptr;
     }
 }
@@ -595,20 +575,20 @@ void FileBrowser::newFolderDialogAcceptEvent(QString value)
 
     if(m_newFolderDialog)
     {
-        delete m_newFolderDialog;
+        m_newFolderDialog->deleteLater();
         m_newFolderDialog = nullptr;
     }
 
     showOverlay(QString("Creating Folder"), QString("folder-icon"));
 
-    m_printer->console()->createDirectory(path);
+    m_instance->console()->serverDirectoryPost(path);
 }
 
 void FileBrowser::newFolderDialogRejectEvent()
 {
     if(m_newFolderDialog)
     {
-        delete m_newFolderDialog;
+        m_newFolderDialog->deleteLater();
         m_newFolderDialog = nullptr;
     }
 }
@@ -617,7 +597,7 @@ void FileBrowser::itemDeleteRequestedEvent(FileBrowserItem *item)
 {
     QMessageBox msgBox;
     msgBox.setText("Confirm Delete");
-    msgBox.setInformativeText("Are you sure you want to delete this file?");
+    msgBox.setInformativeText("Are you sure you want to this file?");
     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Ok);
     int ret = msgBox.exec();
@@ -625,7 +605,7 @@ void FileBrowser::itemDeleteRequestedEvent(FileBrowserItem *item)
     switch(ret)
     {
     case QMessageBox::Ok:
-        m_printer->console()->deleteFile(item->file());
+        m_instance->console()->serverFileDelete(item->file());
         break;
     default:
         break;
@@ -640,10 +620,10 @@ void FileBrowser::itemEditRequestedEvent(FileBrowserItem *item)
 
 void FileBrowser::itemPrintRequestedEvent(FileBrowserItem *item)
 {
-    if(!m_filePreview && item->file().type == KlipperFile::GCode)
+    if(!m_filePreview && item->file()->fileType() == QKlipperFile::GCode)
     {
         QString theme = Settings::currentTheme();
-        m_filePreview = new FilePreviewWindow(item->file(), m_printer, this);
+        m_filePreview = new FilePreviewWindow(item->file(), m_instance, this);
         m_filePreview->setWindowFlag(Qt::Popup);
         m_filePreview->setStyleSheet(theme);
 
@@ -652,9 +632,9 @@ void FileBrowser::itemPrintRequestedEvent(FileBrowserItem *item)
         switch(ret)
         {
             case QDialog::Accepted:
-                if(m_printer->status() == Printer::Ready)
+                if(m_instance->printer()->status() == QKlipperPrinter::Ready)
                 {
-                    m_printer->print(item->file());
+                    m_instance->console()->printerPrintStart(item->file());
                 }
                 else
                 {

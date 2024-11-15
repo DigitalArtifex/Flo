@@ -4,8 +4,8 @@
 #include <QObject>
 #include <QWidget>
 
-#include "../../../../../types/printer.h"
-#include "../../../../../system/printerpool.h"
+#include <QKlipper/qklipper.h>
+#include "system/qklipperinstancepool.h"
 #include "../../../../../ui/list/qanimatedlistwidget.h"
 
 #include "issuelistitem.h"
@@ -16,10 +16,10 @@ class IssueListWidget : public QAnimatedListWidget
 public:
     IssueListWidget(QWidget *parent = nullptr);
 
-    void addIssue(QString title, QString source, QString message);
+    void addIssue(QString source, QKlipperError &error);
 
 private slots:
-    void on_printerPool_printerError(QString title, QString message, Printer *printer);
+    void onInstanceError(QKlipperInstance *instance, QKlipperError &error);
     void itemRemoveRequestEvent(IssueListItem *item);
 
 private:

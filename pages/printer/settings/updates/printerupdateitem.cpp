@@ -2,7 +2,7 @@
 
 #include "system/settings.h"
 
-PrinterUpdateItem::PrinterUpdateItem(QString name, System::UpdateState::PackageState state, QWidget *parent)
+PrinterUpdateItem::PrinterUpdateItem(QString name, QKlipperUpdatePackage state, QWidget *parent)
     : QAnimatedListItem{parent}
 {
     m_title = name;
@@ -52,26 +52,38 @@ void PrinterUpdateItem::setupUi()
     m_titleLabel->setText(m_title);
 
     m_versionLabel = new QLabel(this);
-    m_versionLabel->setText(m_packageState.fullVersionString);
+    m_versionLabel->setText(m_packageState.fullVersionString());
 
     //_spacer = new QSpacerItem(10,10, QSizePolicy::Ignored, QSizePolicy::Expanding);
 
     m_branchLabel = new QLabel(this);
-    m_branchLabel->setText(m_packageState.branch);
+    m_branchLabel->setText(m_packageState.branch());
     m_branchLabel->setFixedWidth(64);
     m_branchLabel->setAlignment(Qt::AlignRight);
-
-    m_updateButton = new QToolButton(this);
-    m_updateButton->setIcon(Settings::getThemeIcon(QString("update-icon")));
-    m_updateButton->setIconSize(QSize(16,16));
-    m_updateButton->setFixedSize(35,35);
-
-    connect(m_updateButton, SIGNAL(clicked(bool)), this, SLOT(updateActionTriggered(bool)));
 
     m_layout->addWidget(m_titleLabel,0,1,1,1);
     m_layout->addWidget(m_versionLabel,0,2,1,1);
     m_layout->addWidget(m_branchLabel,0,3,1,1);
-    m_layout->addWidget(m_updateButton,0,4,1,1);
+
+    if(m_packageState.currentHash() != m_packageState.remoteHash())
+    {
+        m_updateButton = new QToolButton(this);
+        m_updateButton->setIcon(Settings::getThemeIcon(QString("update-icon")));
+        m_updateButton->setIconSize(QSize(16,16));
+        m_updateButton->setFixedSize(35,35);
+
+        m_layout->addWidget(m_updateButton,0,4,1,1);
+
+        connect(m_updateButton, SIGNAL(clicked(bool)), this, SLOT(updateActionTriggered(bool)));
+
+        QString title = QString("%1 (%2 Behind)").arg(m_title, QString::number(m_packageState.commitsBehind().count()));
+        m_titleLabel->setText(title);
+    }
+    else
+    {
+        QString title = QString("%1 (Up to date)").arg(m_title);
+        m_titleLabel->setText(title);
+    }
 
     m_branchLabel->setProperty("class", "FileWidgetItemDetails");
     m_versionLabel->setProperty("class", "FileWidgetItemDetails");
@@ -99,12 +111,12 @@ void PrinterUpdateItem::setTitle(const QString &newTitle)
     m_title = newTitle;
 }
 
-System::UpdateState::PackageState PrinterUpdateItem::packageState() const
+QKlipperUpdatePackage PrinterUpdateItem::packageState() const
 {
     return m_packageState;
 }
 
-void PrinterUpdateItem::setPackageState(const System::UpdateState::PackageState &newPackageState)
+void PrinterUpdateItem::setPackageState(const QKlipperUpdatePackage &newPackageState)
 {
     m_packageState = newPackageState;
 }

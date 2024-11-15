@@ -3,30 +3,34 @@
 
 #include "../../../system/settings.h"
 
-PrinterOfflineScreen::PrinterOfflineScreen(Printer *printer, QWidget *parent)
+PrinterOfflineScreen::PrinterOfflineScreen(QKlipperInstance *printer, QWidget *parent)
     : QFrame(parent)
     , ui(new Ui::PrinterOfflineScreen)
 {
     ui->setupUi(this);
 
-    connect(printer->console(), SIGNAL(startupProgress(QString,qreal)), this, SLOT(printerConnectingProgressEvent(QString,qreal)));
-    connect(printer->console(), SIGNAL(moonrakerConnected()), this, SLOT(printerConnectingEvent()));
+    m_instance = printer;
+    connect(printer->console(), SIGNAL(startupSequenceProgressChanged()), this, SLOT(printerConnectingProgressChanged()));
+    connect(printer->console(), SIGNAL(connectionStateChanged()), this, SLOT(printerConnectingEvent()));
 
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PopupOverlay"));
 
-    QPixmap pixmap = Settings::getThemeIcon(QString("no-connection-icon")).pixmap(64,64);
+    QPixmap pixmap = Settings::getThemeIcon(QString("no-connection-icon")).pixmap(100,100);
     ui->printerOfflineIcon->setPixmap(pixmap);
 
-    pixmap = Settings::getThemeIcon(QString("connect-icon")).pixmap(24,24);
     m_connectButton = new QIconButton(this);
-    m_connectButton->setFixedHeight(35);
+    m_connectButton->setFixedHeight(50);
+    m_connectButton->setIcon(Settings::getThemeIcon(QString("connect-icon")));
     m_connectButton->setText(QString("Connect to ") + printer->name());
     m_connectButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    connect(m_connectButton, SIGNAL(clicked()), this, SLOT(onConnectPrinterButtonPressed()));
 
     ui->gridLayout->removeWidget(ui->progressBar);
     ui->gridLayout->addWidget(m_connectButton, ui->gridLayout->rowCount(), 0, 1, 3);
     ui->gridLayout->addWidget(ui->progressBar, ui->gridLayout->rowCount(), 0, 1, 3);
     ui->progressBar->setVisible(false);
+    ui->progressBar->setValue(0);
 }
 
 PrinterOfflineScreen::~PrinterOfflineScreen()
@@ -36,22 +40,52 @@ PrinterOfflineScreen::~PrinterOfflineScreen()
 
 void PrinterOfflineScreen::setStyleSheet(QString &styleSheet)
 {
+    QPixmap pixmap = Settings::getThemeIcon(QString("no-connection-icon")).pixmap(100,100);
+    ui->printerOfflineIcon->setPixmap(pixmap);
+
+    m_connectButton->setIcon(Settings::getThemeIcon(QString("connect-icon")));
+
     QFrame::setStyleSheet(styleSheet);
 }
 
 void PrinterOfflineScreen::printerConnectingEvent()
 {
-    m_connectButton->setVisible(false);
-    ui->progressBar->setVisible(true);
+    if(m_instance->console()->hasConnectionState(QKlipperConsole::Syncronized))
+    {
+        m_connectButton->setVisible(false);
+        ui->progressBar->setVisible(false);
+
+        if(isVisible())
+            hide();
+    }
+    else if(m_instance->console()->hasConnectionState(QKlipperConsole::Connecting))
+    {
+        m_connectButton->setVisible(false);
+        ui->progressBar->setVisible(true);
+
+        if(!isVisible())
+            show();
+    }
 }
 
-void PrinterOfflineScreen::printerConnectingProgressEvent(QString title, qreal progress)
+void PrinterOfflineScreen::printerConnectingProgressChanged()
 {
-    m_connectButton->setVisible(false);
-    ui->progressBar->setVisible(true);
+    int progress = ((int)(m_instance->console()->startupSequenceProgress() * 100));
+    ui->progressBar->setValue(progress);
+}
 
-    ui->label->setText(title);
-    ui->progressBar->setValue(((int)(progress * 100)));
+void PrinterOfflineScreen::printerConnectingTextChanged()
+{
+    ui->label->setText(m_instance->console()->startupSequenceText());
+}
 
-    qDebug() << progress;
+void PrinterOfflineScreen::onConnectPrinterButtonPressed()
+{
+    if(m_instance && !m_instance->isConnected())
+    {
+        m_connectButton->setEnabled(false);
+        m_connectButton->setText("Connecting");
+        m_instance->connect();
+        ui->progressBar->setValue(0);
+    }
 }

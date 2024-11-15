@@ -3,20 +3,17 @@
 
 #include "../../../../../../system/settings.h"
 
-BedMeshEmptyFrame::BedMeshEmptyFrame(Q3DPrintBed *bed, QWidget *parent)
+BedMeshEmptyFrame::BedMeshEmptyFrame(QKlipperPrintBed *bed, QWidget *parent)
     : QFrame(parent)
     , ui(new Ui::BedMeshEmptyFrame)
 {
     ui->setupUi(this);
-    ui->homeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
-
-    QPixmap pixmap = Settings::getThemeIcon("no-data-icon").pixmap(ui->iconLabel->size());
-    ui->iconLabel->setPixmap(pixmap);
 
     m_printerBed = bed;
-    connect(m_printerBed->printer()->toolhead(), SIGNAL(updated()), this, SLOT(on_toolhead_updated()));
-    connect(m_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(on_toolhead_homing()));
-    connect(m_printerBed->printer()->toolhead(), SIGNAL(homed()), this, SLOT(on_toolhead_homed()));
+    connect(m_printerBed->printer()->toolhead(), SIGNAL(isHomingChanged()), this, SLOT(onToolheadHomingChanged()));
+    connect(m_printerBed->printer()->toolhead(), SIGNAL(isHomedChanged()), this, SLOT(onToolheadHomingChanged()));
+
+    setupIcons();
 }
 
 BedMeshEmptyFrame::~BedMeshEmptyFrame()
@@ -24,18 +21,25 @@ BedMeshEmptyFrame::~BedMeshEmptyFrame()
     delete ui;
 }
 
-void BedMeshEmptyFrame::on_toolhead_homing()
+void BedMeshEmptyFrame::setupIcons()
 {
-    ui->label->setText("Homing Toolhead");
+    QPixmap pixmap = Settings::getThemeIcon("no-data-icon").pixmap(ui->iconLabel->size());
+    ui->iconLabel->setPixmap(pixmap);
+    ui->homeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
 }
 
-void BedMeshEmptyFrame::on_toolhead_homed()
+void BedMeshEmptyFrame::setStyleSheet(const QString &styleSheet)
 {
-    ui->label->setText("No Data Found");
+    setupIcons();
+    QFrame::setStyleSheet(styleSheet);
 }
 
-void BedMeshEmptyFrame::on_toolhead_updated()
+void BedMeshEmptyFrame::onToolheadHomingChanged()
 {
+    if(m_printerBed->printer()->toolhead()->isHoming())
+        ui->label->setText("Homing Toolhead");
+    else
+        ui->label->setText("No Data Found");
 
     if(m_printerBed->printer()->toolhead()->isHomed())
     {
@@ -51,9 +55,8 @@ void BedMeshEmptyFrame::on_toolhead_updated()
 
 void BedMeshEmptyFrame::on_homeButton_clicked()
 {
-    m_printerBed->printer()->toolhead()->homeAll();
+    m_printerBed->printer()->toolhead()->home();
 }
-
 
 void BedMeshEmptyFrame::on_calibrateButton_clicked()
 {

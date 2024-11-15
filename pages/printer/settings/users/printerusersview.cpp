@@ -2,19 +2,22 @@
 
 #include "system/settings.h"
 
-PrinterUsersView::PrinterUsersView(Printer *printer, QWidget *parent)
+PrinterUsersView::PrinterUsersView(QKlipperInstance *instance, QWidget *parent)
     : CardWidget{CardWidget::Widget, parent}
 {
     setTitle("User Management");
 
-    m_system = printer->system();
+    m_instnace = instance;
 
     setupUi();
 }
 
 PrinterUsersView::~PrinterUsersView()
 {
-
+    if(m_centralLayout)
+        m_centralLayout->deleteLater();
+    if(m_centralWidget)
+        m_centralWidget->deleteLater();
 }
 
 void PrinterUsersView::setupUi()
@@ -34,16 +37,13 @@ void PrinterUsersView::setupUi()
 
     setCentralWidget(m_centralWidget);
 
-    connect(m_system, SIGNAL(userCreated(User)), this, SLOT(on_systemUserCreated(System::User)));
-    connect(m_system, SIGNAL(userDeleted(User)), this, SLOT(on_systemUserDeleted(System::User)));
-
-    connect(m_system, SIGNAL(userListChanged()), this, SLOT(userListChangedEvent()));
+    connect(m_instnace->server(), SIGNAL(userListChanged()), this, SLOT(userListChangedEvent()));
     connect(m_addUserButton, SIGNAL(clicked(bool)), this, SLOT(addUserButtonClickedEvent(bool)));
 }
 
 void PrinterUsersView::userListChangedEvent()
 {
-    QList<System::User> users = m_system->userList();
+    QList<QKlipperUser> users = m_instnace->server()->userList();
 
     m_centralLayout->removeWidget(m_addUserButton);
     m_centralLayout->removeItem(m_spacer);
@@ -51,18 +51,18 @@ void PrinterUsersView::userListChangedEvent()
     foreach(PrinterUserCard *card, m_userCards)
     {
         m_centralLayout->removeWidget(card);
-        m_userCards.remove(card->user().username);
-        delete card;
+        m_userCards.remove(card->user().username());
+        card->deleteLater();
     }
 
-    foreach(System::User user, users)
+    foreach(QKlipperUser user, users)
     {
         PrinterUserCard *userCard = new PrinterUserCard(user, m_centralWidget);
         m_centralLayout->addWidget(userCard);
 
-        m_userCards[user.username] = userCard;
+        m_userCards[user.username()] = userCard;
 
-        connect(userCard, SIGNAL(userDeleteRequest(System::User)), this, SLOT(on_userDeleteRequest(System::User)));
+        connect(userCard, SIGNAL(userDeleteRequest(QKlipperUser)), this, SLOT(on_userDeleteRequest(QKlipperUser)));
     }
 
     m_centralLayout->addWidget(m_addUserButton);
@@ -80,23 +80,13 @@ void PrinterUsersView::addUserButtonClickedEvent(bool checked)
         QString username = editor->username();
         QString password = editor->password();
 
-        m_system->createUser(username, password);
+        m_instnace->console()->accessCreateUser(username, password);
     }
 
-    delete editor;
+    editor->deleteLater();
 }
 
-void PrinterUsersView::on_systemUserCreated(System::User user)
+void PrinterUsersView::on_userDeleteRequest(QKlipperUser user)
 {
-
-}
-
-void PrinterUsersView::on_systemUserDeleted(System::User user)
-{
-
-}
-
-void PrinterUsersView::on_userDeleteRequest(System::User user)
-{
-    m_system->deleteUser(user);
+    m_instnace->console()->accessDeleteUser(user.username());
 }

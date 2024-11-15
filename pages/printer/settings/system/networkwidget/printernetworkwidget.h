@@ -6,7 +6,7 @@
 #include <QSpacerItem>
 #include <QLabel>
 
-#include "types/system.h"
+#include <QKlipper/qklipper.h>
 #include "ui/common/cardwidget/cardwidget.h"
 #include "printernetworkchart.h"
 
@@ -14,7 +14,7 @@ class PrinterNetworkWidget : public CardWidget
 {
     Q_OBJECT
 public:
-    explicit PrinterNetworkWidget(System *system, QWidget *parent = nullptr);
+    explicit PrinterNetworkWidget(QKlipperSystem *system, QWidget *parent = nullptr);
 
 signals:
 
@@ -22,7 +22,7 @@ protected:
     void setupUi();
 
 private:
-    System *m_system = nullptr;
+    QKlipperSystem *m_system = nullptr;
     QVBoxLayout *m_centralLayout = nullptr;
     QWidget *m_centralWidget = nullptr;
 

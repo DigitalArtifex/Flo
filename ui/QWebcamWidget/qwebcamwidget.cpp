@@ -1,52 +1,19 @@
 #include "qwebcamwidget.h"
 
-QWebcamWidget::QWebcamWidget(QString source, QWidget *parent) : QFrame(parent)
+#include "system/settings.h"
+
+QWebcamWidget::QWebcamWidget(QString source, QWidget *parent, int timeout) : QWidget(parent)
 {
-    m_layout = new QGridLayout(this);
-    m_layout->setContentsMargins(0,0,0,0);
-    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Subwidget"));
+    setupUi();
 
-    //get the aspect ratio for 16:9
-    QSize size;
-    qreal ratio = ((qreal)9/16);
-    qint32 width = this->width();
-    width -= layout()->contentsMargins().left();
-    width -= layout()->contentsMargins().right();
-    width = qFloor(width);
+    m_webcamThread = new QThread(this);
+    m_webcamSource = new QWebcamSource(5000, m_webcamThread);
+    m_webcamSource->setSource(source);
+    m_webcamSource->moveToThread(m_webcamThread);
 
-    qint32 height = qFloor((qreal)width * ratio);
-
-    size.setWidth(width);
-    size.setHeight(height);
-
-    setLayout(m_layout);
-
-    m_videoLabel = new QLabel(this);
-    m_videoLabel->setScaledContents(true);
-    m_videoLabel->setFixedSize(size);
-    m_layout->addWidget(m_videoLabel);
-
-    m_webcamSink = new QVideoSink(this);
-
-    m_player = new QMediaPlayer(m_videoLabel);
-    m_player->setSource(source);
-    m_player->setVideoSink(m_webcamSink);
-
-    m_nameLabel = new QLabel(this);
-    m_nameLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WebcamTitle"));
-    m_nameLabel->setVisible(false);
-
-    m_infoLabel = new QLabel(this);
-    m_infoLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WebcamInfo"));
-    m_infoLabel->setVisible(false);
-
-    connect(m_webcamSink, SIGNAL(videoFrameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
-    connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
-
-    //play();
-    style()->polish(this);
-
-    //connect(m_player, SIGNAL(playbackRateChanged(qreal)), this, SLOT(on_playbackRateChanged(qreal)));
+    connect(m_webcamSource, SIGNAL(frameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
+    connect(m_webcamSource, SIGNAL(stateChanged()), this, SLOT(webcamSourceStateChanged()));
+    setupIcons();
 }
 
 QWebcamWidget::~QWebcamWidget()
@@ -58,27 +25,38 @@ QWebcamWidget::~QWebcamWidget()
     }
 
     if(m_nameLabel)
+    {
+        m_layout->removeWidget(m_videoLabel);
         m_nameLabel->deleteLater();
+    }
 
     if(m_infoLabel)
+    {
+        m_layout->removeWidget(m_videoLabel);
         m_infoLabel->deleteLater();
+    }
 
-    if(m_webcamSink)
-        m_webcamSink->deleteLater();
+    if(m_webcamSource)
+    {
+        m_webcamSource->stop();
+        m_webcamSource->deleteLater();
+    }
 
-    if(m_player)
-        m_player->deleteLater();
+    if(m_webcamThread)
+    {
+        if(m_webcamThread->isRunning())
+            m_webcamThread->requestInterruption();
+
+        m_webcamThread->deleteLater();
+    }
 
     if(m_layout)
-        delete m_layout;
+        m_layout->deleteLater();
 }
 
 void QWebcamWidget::setSource(QString &source)
 {
-    if(m_player)
-        m_player->setSource(source);
-
-    m_source = source;
+    m_webcamSource->setSource(source);
 }
 
 void QWebcamWidget::setTitle(QString &title)
@@ -101,53 +79,54 @@ void QWebcamWidget::hideInfo()
 
 void QWebcamWidget::play()
 {
-    if(m_player && !m_player->isPlaying())
-        m_player->play();
+    m_webcamSource->play();
 }
 
 void QWebcamWidget::pause()
 {
-    if(m_player && m_player->isPlaying())
-        m_player->pause();
+    m_webcamSource->pause();
 }
 
 void QWebcamWidget::stop()
 {
-    if(m_player && m_player->isPlaying())
-        m_player->stop();
+    m_webcamSource->stop();
 }
 
 void QWebcamWidget::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
 
-    //get the aspect ratio for 16:9
-    QSize size;
-    qreal ratio = ((qreal)9/16);
-    qint32 width = event->size().width();
-    width -= layout()->contentsMargins().left();
-    width -= layout()->contentsMargins().right();
-    width = qFloor(width);
-
-    qint32 height = qFloor((qreal)width * ratio);
-
-    size.setWidth(width);
-    size.setHeight(height);
-
-    if(m_videoLabel)
-        m_videoLabel->setFixedSize(size);
+    if(m_overlayWidget)
+        m_overlayWidget->resize(event->size());
 }
 
 void QWebcamWidget::hideEvent(QHideEvent *event)
 {
-    QWidget::hideEvent(event);
     pause();
+    QWidget::hideEvent(event);
 }
 
 void QWebcamWidget::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
     play();
+}
+
+void QWebcamWidget::paintEvent(QPaintEvent *event)
+{
+    if(!m_lastFrame.isNull())
+    {
+        QPainter painter;
+
+        painter.begin(this);
+        painter.setRenderHint(QPainter::LosslessImageRendering);
+        painter.setRenderHint(QPainter::Antialiasing);
+
+        painter.drawPixmap(rect(), m_lastFrame, m_lastFrame.rect());
+        painter.end();
+    }
+
+    QWidget::paintEvent(event);
 }
 
 void QWebcamWidget::on_playbackRateChanged(qreal rate)
@@ -158,28 +137,149 @@ void QWebcamWidget::on_playbackRateChanged(qreal rate)
 
 void QWebcamWidget::videoFrameChangeEvent(QVideoFrame frame)
 {
-    bool frameUpdate = false;
-
-    if(m_lastFrameTime > 0)
+    if(frame.isValid())
     {
-        qreal time = QDateTime::currentDateTime().toSecsSinceEpoch();
-        qreal span = time - m_lastFrameTime;
-        qreal threshold = (qreal)1/m_frameRate;
+        m_lastFrame = QPixmap::fromImage(frame.toImage());
 
-        if(span >= threshold)
-            frameUpdate = true;
+        if(m_lastFrame.size() != size())
+            m_lastFrame.scaled(size(), Qt::KeepAspectRatio, Qt::FastTransformation);
+
+        setupIcons();
+
+        emit frameChanged();
+        update();
     }
-    else
-        frameUpdate = true;
+}
 
-    if(frameUpdate)
+void QWebcamWidget::webcamSourceStateChanged()
+{
+    switch(m_webcamSource->state())
     {
-        if(!frame.isValid())
-            qDebug() << "invalid frame";
-
-        QImage image = frame.toImage();
-        m_videoLabel->setPixmap(QPixmap::fromImage(image));
+        case QWebcamSource::Connecting:
+            if(m_overlayWidget)
+            {
+                m_overlayTextLabel->setText("Connecting");
+                m_overlayWidget->raise();
+                m_overlayWidget->setHidden(false);
+            }
+            break;
+        case QWebcamSource::Connected:
+            if(m_overlayWidget)
+            {
+                m_overlayTextLabel->setText("Connected");
+                m_overlayWidget->raise();
+                m_overlayWidget->setHidden(true);
+            }
+            break;
+        case QWebcamSource::Paused:
+            if(m_overlayWidget)
+            {
+                m_overlayTextLabel->setText("Paused");
+                m_overlayWidget->raise();
+                m_overlayWidget->setHidden(false);
+            }
+            break;
+        case QWebcamSource::None:
+        case QWebcamSource::NoConnection:
+            if(m_overlayWidget)
+            {
+                m_overlayTextLabel->setText("No Connection");
+                m_overlayWidget->raise();
+                m_overlayWidget->setHidden(false);
+            }
+            break;
+        case QWebcamSource::InvalidFrame:
+            if(m_overlayWidget)
+            {
+                m_overlayTextLabel->setText("Invalid Frame");
+                m_overlayWidget->raise();
+                m_overlayWidget->setHidden(false);
+            }
+            break;
     }
+
+    setupIcons();
+}
+
+QWebcamSource::State QWebcamWidget::state() const
+{
+    return m_webcamSource->state();
+}
+
+void QWebcamWidget::setupUi()
+{
+    m_layout = new QGridLayout(this);
+    m_layout->setContentsMargins(0,0,0,0);
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WebcamWidget"));
+
+    setLayout(m_layout);
+
+    m_nameLabel = new QLabel(this);
+    m_nameLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WebcamTitle"));
+    m_nameLabel->setVisible(false);
+
+    m_infoLabel = new QLabel(this);
+    m_infoLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WebcamInfo"));
+    m_infoLabel->setVisible(false);
+
+    m_overlayWidget = new QWidget(this);
+    m_overlayWidget->setGeometry(geometry());
+    m_overlayWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    m_overlayLayout = new QGridLayout(m_overlayWidget);
+    m_overlayLayout->setContentsMargins(0,0,0,0);
+    m_infoLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PopupOverlay"));
+    m_overlayWidget->setLayout(m_layout);
+
+    m_overlayTopSpacer = new QSpacerItem(10,10, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_overlayLayout->addItem(m_overlayTopSpacer,0,0);
+
+    m_overlayIconLabel = new QLabel(this);
+    m_overlayIconLabel->setFixedSize(32,32);
+    m_overlayLayout->addWidget(m_overlayIconLabel, 1, 0, Qt::AlignCenter);
+
+    m_overlayTextLabel = new QLabel(this);
+    m_overlayTextLabel->setText(QString("No connection"));
+    m_overlayTextLabel->setAlignment(Qt::AlignHCenter);
+    m_overlayLayout->addWidget(m_overlayTextLabel, 2, 0, Qt::AlignCenter);
+
+    m_overlayBottomSpacer = new QSpacerItem(10,10, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_overlayLayout->addItem(m_overlayBottomSpacer,3,0);
+}
+
+QPixmap QWebcamWidget::lastFrame() const
+{
+    return m_lastFrame;
+}
+
+void QWebcamWidget::setupIcons()
+{
+    QPixmap pixmap;
+
+    switch(m_webcamSource->state())
+    {
+        case QWebcamSource::Connecting:
+        case QWebcamSource::Connected:
+            pixmap = Settings::getThemeIcon("no-video-icon").pixmap(28,28); //find a connecting icon
+            break;
+        case QWebcamSource::Paused:
+            pixmap = Settings::getThemeIcon("pause-icon").pixmap(28,28);
+            break;
+        case QWebcamSource::None:
+        case QWebcamSource::NoConnection:
+        case QWebcamSource::InvalidFrame:
+            pixmap = Settings::getThemeIcon("no-video-icon").pixmap(28,28);
+            break;
+    }
+
+    m_overlayIconLabel->setPixmap(pixmap);
+}
+
+void QWebcamWidget::setStyleSheet(const QString &styleSheet)
+{
+    setupIcons();
+
+    QWidget::setStyleSheet(styleSheet);
 }
 
 QString QWebcamWidget::info() const
@@ -195,5 +295,5 @@ void QWebcamWidget::setInfo(const QString &info)
 
 QString QWebcamWidget::source() const
 {
-    return m_source;
+    return m_webcamSource->source().toString();
 }

@@ -2,7 +2,7 @@
 #define THEMESETTINGSPAGE_H
 
 #include <QWidget>
-#include "system/settings.h"
+#include <system/settings.h>
 #include "ui/QIconButton/qiconbutton.h"
 
 #include "QSourceHighlite/qsourcehighliter.h"
@@ -22,12 +22,17 @@ public:
     void reset();
     void apply();
 
-private:
-    Ui::ThemeSettingsPage *ui;
+    void resizeEvent(QResizeEvent *event);
 
-    QIconButton *m_acceptButton = nullptr;
-    QIconButton *m_cancelButton = nullptr;
-    QSpacerItem *m_footerSpacer = nullptr;
+private slots:
+    void on_themeVariableResetButton_clicked();
+    void on_themeVariableAddButton_clicked();
+
+    void on_variableTableWidget_cellDoubleClicked(int row, int column);
+
+private:
+    void addThemeVariable(const QString &name, const QString &value);
+    Ui::ThemeSettingsPage *ui;
 
     QSourceHighlite::QSourceHighliter *m_highlighter;
 };

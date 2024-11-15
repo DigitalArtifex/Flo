@@ -13,7 +13,7 @@
 #include <QSpacerItem>
 #include <QToolButton>
 
-#include "../../../../../types/printjob.h"
+#include <QKlipper/qklipper.h>
 #include "../../../../../ui/list/qanimatedlistitem.h"
 
 class IssueListItem : public QAnimatedListItem
@@ -33,8 +33,6 @@ protected slots:
     void on_closeButton_clicked();
 
 private:
-    PrintJob *m_job;
-
     QLabel *m_titleLabel = nullptr;
     QLabel *m_sourceLabel = nullptr;
     QLabel *m_messageLabel = nullptr;

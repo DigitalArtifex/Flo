@@ -11,8 +11,7 @@
 #include <QLabel>
 #include <QMovie>
 
-#include "types/printer.h"
-#include "types/klipperfile.h"
+#include <QKlipper/qklipper.h>
 #include "ui/QIconButton/qiconbutton.h"
 
 #include "ui/common/dialog/dialog.h"
@@ -21,10 +20,10 @@ class FilePreviewWindow : public Dialog
 {
     Q_OBJECT
 public:
-    explicit FilePreviewWindow(KlipperFile file, Printer *printer, QWidget *parent = nullptr);
+    explicit FilePreviewWindow(QKlipperFile *file, QKlipperInstance *instance, QWidget *parent = nullptr);
     ~FilePreviewWindow();
 
-    KlipperFile file() const;
+    QKlipperFile *file() const;
 
     virtual void setStyleSheet(QString &styleSheet);
 
@@ -34,11 +33,11 @@ protected:
 protected slots:
     void applyButtonClickEvent();
     void cancelButtonClickEvent();
-    void metaDataResultEvent(KlipperFile::Metadata metadata);
+    void onFileMetaDataChanged();
 
 private:
-    KlipperFile m_file;
-    Printer *m_printer = nullptr;
+    QKlipperFile *m_file;
+    QKlipperInstance *m_instance = nullptr;
 
     QGridLayout *m_contentLayout = nullptr;
     QVBoxLayout *m_layout = nullptr;

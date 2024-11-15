@@ -189,7 +189,7 @@ void QAnimatedListItem::mouseReleaseEvent(QMouseEvent *event)
 
         if(m_clickTimer)
         {
-            delete m_clickTimer;
+            m_clickTimer->deleteLater();
             m_clickTimer = nullptr;
         }
 

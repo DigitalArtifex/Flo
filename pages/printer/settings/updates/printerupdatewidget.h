@@ -10,7 +10,7 @@
 #include "printerupdateitem.h"
 
 #include "ui/list/qanimatedlistwidget.h"
-#include "types/system.h"
+#include <QKlipper/qklipper.h>
 
 class PrinterUpdateWidget : public QAnimatedListWidget
 {
@@ -19,8 +19,8 @@ public:
     explicit PrinterUpdateWidget(QWidget *parent);
     ~PrinterUpdateWidget();
 
-    System::UpdateState updateState() const;
-    void setUpdateState(const System::UpdateState &newUpdateState);
+    QKlipperUpdateState *updateState() const;
+    void setUpdateState(QKlipperUpdateState *newUpdateState);
 
 signals:
     void itemUpdateRequested(PrinterUpdateItem *item);
@@ -29,7 +29,7 @@ protected slots:
     void itemUpdateRequestedEvent(PrinterUpdateItem* item);
 
 private:
-    System::UpdateState m_updateState;
+    QKlipperUpdateState *m_updateState;
 };
 
 #endif // PRINTERUPDATEWIDGET_H

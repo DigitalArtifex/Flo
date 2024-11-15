@@ -9,14 +9,13 @@
 #include <QBitmap>
 
 #include "../../../../../ui/QMaskedButton/qmaskedbutton.h"
-#include "../../../../../types/toolhead.h"
-#include "../../../../../types/printer.h"
+#include <QKlipper/qklipper.h>
 
 class ToolHeadControlFrame : public QFrame
 {
     Q_OBJECT
 public:
-    ToolHeadControlFrame(Toolhead *toolhead, QWidget *parent);
+    ToolHeadControlFrame(QKlipperToolHead *toolhead, QWidget *parent);
     ~ToolHeadControlFrame();
 
     qreal increment() const;
@@ -46,7 +45,7 @@ private:
     QMaskedButton *m_zDownWidget = nullptr;
     QMaskedButton *m_homeWidget = nullptr;
 
-    Toolhead *m_toolhead = nullptr;
+    QKlipperToolHead *m_toolhead = nullptr;
 
     qreal m_increment = 1.0;
 };

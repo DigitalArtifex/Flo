@@ -38,7 +38,8 @@ public:
     void setWidthIn(qint32 widthIn);
     void setWidthOut(qint32 widthOut);
 
-    virtual void setStyleSheet(QString styleSheet);
+public slots:
+    virtual void setStyleSheet(const QString &styleSheet);
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);

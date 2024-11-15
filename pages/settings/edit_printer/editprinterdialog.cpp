@@ -1,7 +1,9 @@
 #include "editprinterdialog.h"
+#include "system/qklipperinstancepool.h"
 #include "ui_editprinterdialog.h"
 
-#include "../../../system/printerpool.h"
+#include <system/settings.h>
+
 #include "../../../validators/QHexColorValidator/qhexcolorvalidator.h"
 
 EditPrinterDialog::EditPrinterDialog(QWidget *parent)
@@ -9,11 +11,34 @@ EditPrinterDialog::EditPrinterDialog(QWidget *parent)
     , ui(new Ui::EditPrinterDialog)
 {
     ui->setupUi(this);
-    ui->printerInstanceLocationEdit->setValidator(new QMoonrakerValidator());
-    ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
     connect(ui->printerInstanceLocationEdit, SIGNAL(textChanged(QString)), this, SLOT(on_printerInstanceLocationEdit_textChanged(QString)));
 
     ui->colorEdit->setValidator(new QHexColorValidator());
+    ui->printerInstanceLocationEdit->setValidator(new QMoonrakerValidator());
+
+    m_resetButton = new QIconButton(ui->buttonBox);
+    m_resetButton->setIcon(Settings::getThemeIcon("refresh-icon"));
+    m_resetButton->setText("Reset");
+    ui->buttonBoxLayout->addWidget(m_resetButton);
+
+    m_buttonBoxSpacer = new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Fixed);
+    ui->buttonBoxLayout->addSpacerItem(m_buttonBoxSpacer);
+
+    m_applyButton = new QIconButton(ui->buttonBox);
+    m_applyButton->setIcon(Settings::getThemeIcon("accept-icon"));
+    m_applyButton->setText("Apply");
+    ui->buttonBoxLayout->addWidget(m_applyButton);
+
+    m_cancelButton = new QIconButton(ui->buttonBox);
+    m_cancelButton->setIcon(Settings::getThemeIcon("cancel-icon"));
+    m_cancelButton->setText("Cancel");
+    ui->buttonBoxLayout->addWidget(m_cancelButton);
+
+    connect(m_resetButton, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
+    connect(m_applyButton, SIGNAL(clicked()), this, SLOT(onApplyButtonClicked()));
+    connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
+
+    reset();
 }
 
 EditPrinterDialog::~EditPrinterDialog()
@@ -21,41 +46,108 @@ EditPrinterDialog::~EditPrinterDialog()
     delete ui;
 }
 
-Printer *EditPrinterDialog::printer() const
+QKlipperInstance *EditPrinterDialog::printer() const
 {
-    return m_printer;
+    return m_instance;
 }
 
-void EditPrinterDialog::setPrinter(Printer *printer)
+void EditPrinterDialog::setPrinter(QKlipperInstance *printer, bool newPrinter)
 {
-    m_printer = printer;
-    setWindowTitle(m_printer->name());
+    m_instance = printer;
+    setWindowTitle(m_instance->printer()->name());
 
-    ui->extruderCountSpinBox->setValue(m_printer->toolhead()->extruderCount());
+    m_newPrinter = newPrinter;
+
+    ui->extruderCountSpinBox->setValue(m_instance->printer()->toolhead()->extruderMap().count());
     reset();
 }
 
 void EditPrinterDialog::reset()
 {
-    setWindowTitle(m_printer->name());
-
-    ui->printerNameEdit->setText(m_printer->name());
-    ui->printerInstanceLocationEdit->setText(m_printer->instanceLocation());
-    ui->bedPowerSpinBox->setValue(m_printer->bed()->watts());
-
-    ui->printerAutoConnectCheckBox->setChecked(m_printer->isAutoConnect());
-    ui->printerDefaultPrinterCheckBox->setChecked(m_printer->isDefaultPrinter());
-
-    QList<QDoubleSpinBox*> edits = ui->profileTab->findChildren<QDoubleSpinBox*>();
-
-    for(int c = 0; c < edits.count(); c++)
+    if(!m_instance)
     {
-        if(edits[c] != nullptr)
+        setWindowTitle("New Printer");
+
+        ui->printerNameEdit->setText("");
+        ui->printerInstanceLocationEdit->setText("");
+        ui->bedPowerSpinBox->setValue(0);
+        ui->chamberPowerSpinBox->setValue(0);
+        ui->extruderCountSpinBox->setValue(1);
+
+        QList<QDoubleSpinBox*> edits = ui->profileTab->findChildren<QDoubleSpinBox*>();
+
+        for(int c = 0; c < edits.count(); c++)
         {
-            if (edits[c]->property("extruder").isValid())
+            if(edits[c] != nullptr)
             {
-                int extruder = edits[c]->property("extruder").toInt();
-                edits[c]->setValue(m_printer->powerProfile()[(QString("extruder") + ((extruder > 0) ? QString::number(extruder) : QString("")))]);
+                if (edits[c]->property("extruder").isValid())
+                {
+                    int index = edits[c]->property("extruder").toInt();
+
+                    QString extruderName =QString("extruder") + ((index > 0) ? QString::number(index) : QString(""));
+                    QKlipperExtruder *extruder = nullptr;
+
+                    if(m_instance)
+                        m_instance->printer()->toolhead()->extruder(extruderName);
+
+                    if(extruder)
+                        edits[c]->setValue(0);
+                }
+            }
+        }
+    }
+    else
+    {
+        setWindowTitle(m_instance->name());
+
+        if(!m_instance->isConnected())
+        {
+            QSettings settings;
+
+            //set group to power settings
+            settings.beginGroup(m_instance->id() + "/power");
+
+            m_instance->printer()->bed()->setMaxWatts(settings.value("bed", 360).toDouble());
+
+            if(m_instance->printer()->toolhead()->extruderMap().count())
+            {
+                m_instance->printer()->toolhead()->extruder("extruder")->setMaxWatts(settings.value("extruder", 24).toDouble());
+
+                for(int i = 1; i < m_instance->printer()->toolhead()->extruderMap().count(); i++)
+                {
+                    QString extruderName = QString("extruder%1").arg(QString::number(i));
+                    m_instance->printer()->toolhead()->extruder(extruderName)->setMaxWatts(settings.value(extruderName, 24).toDouble());
+                }
+            }
+        }
+
+        ui->printerNameEdit->setText(m_instance->name());
+        ui->printerInstanceLocationEdit->setText(m_instance->instanceLocation());
+        ui->bedPowerSpinBox->setValue(m_instance->printer()->bed()->maxWatts());
+        ui->extruderCountSpinBox->setValue(m_instance->printer()->toolhead()->extruderMap().count());
+        ui->addressLineEdit->setText(m_instance->address());
+        ui->chamberPowerSpinBox->setValue(m_instance->printer()->chamber()->maxWatts());
+
+        ui->heatedChamberCheckBox->setChecked(m_instance->printer()->hasChamber());
+        ui->heatedChamberCheckBox->setChecked(m_instance->printer()->bed()->type() == QKlipperPrintBed::Heated);
+        ui->colorEdit->setText(m_instance->profileColor());
+
+        QList<QDoubleSpinBox*> edits = ui->profileTab->findChildren<QDoubleSpinBox*>();
+
+        for(int c = 0; c < edits.count(); c++)
+        {
+            if(edits[c] != nullptr)
+            {
+                if (edits[c]->property("extruder").isValid())
+                {
+                    int index = edits[c]->property("extruder").toInt();
+
+                    QString extruderName =QString("extruder") + ((index > 0) ? QString::number(index) : QString(""));
+                    QKlipperExtruder *extruder = m_instance->printer()->toolhead()->extruder(extruderName);
+
+                    if(extruder)
+                        edits[c]->setValue(extruder->maxWatts());
+                }
             }
         }
     }
@@ -70,6 +162,9 @@ void EditPrinterDialog::clear()
 
 void EditPrinterDialog::apply()
 {
+    if(!m_instance)
+        return;
+
     QList<QDoubleSpinBox*> edits = ui->profileTab->findChildren<QDoubleSpinBox*>();
 
     for(int c = 0; c < edits.count(); c++)
@@ -78,44 +173,51 @@ void EditPrinterDialog::apply()
         {
             if (edits[c]->property("extruder").isValid())
             {
-                int extruder = edits[c]->property("extruder").toInt();
+                int index = edits[c]->property("extruder").toInt();
                 qreal extruderPower = edits[c]->text().toFloat();
 
-                m_printer->toolhead()->setExtruderMaxWatts(extruder,extruderPower);
+                QString extruderName =QString("extruder") + ((index > 0) ? QString::number(index) : QString(""));
+                QKlipperExtruder *extruder = m_instance->printer()->toolhead()->extruder(extruderName);
+
+                if(!extruder)
+                {
+                    extruder = new QKlipperExtruder(m_instance->printer()->toolhead());
+                    m_instance->printer()->toolhead()->setExtruder(extruderName, extruder);
+                }
+
+                extruder->setMaxWatts(extruderPower);
             }
         }
     }
 
-    if(ui->printerNameEdit->isModified())
-        m_printer->setName(ui->printerNameEdit->text());
+    m_instance->setName(ui->printerNameEdit->text());
 
-    if(ui->printerInstanceLocationEdit->isModified())
-        m_printer->setInstanceLocation(ui->printerInstanceLocationEdit->text());
+    if(!m_remoteConnection)
+        m_instance->setInstanceLocation(ui->printerInstanceLocationEdit->text());
 
-    m_printer->bed()->setMaxWatts(ui->bedPowerSpinBox->value());
-    m_printer->setApiKey(ui->printerKeyEdit->text());
+    QString address = ui->addressLineEdit->text().toLower();
 
-    PrinterPool::updatePrinter(m_printer->definition());
-    clear();
-    close();
-}
+    if(address.startsWith("http://"))
+        address.remove(0, 7);
+    else if(address.startsWith("ws://"))
+        address.remove(0,5);
 
+    m_instance->printer()->setHasChamber(ui->heatedChamberCheckBox->isChecked());
 
-void EditPrinterDialog::on_buttonBox_clicked(QAbstractButton *button)
-{
-    switch(ui->buttonBox->buttonRole(button))
-    {
-    case QDialogButtonBox::ApplyRole:
-        apply();
-        break;
-    case QDialogButtonBox::ResetRole:
-        reset();
-        break;
-    case QDialogButtonBox::RejectRole:
-    default:
-        clear();
-        break;
-    }
+    if(ui->heatedChamberCheckBox->isChecked())
+        m_instance->printer()->chamber()->setMaxWatts(ui->chamberPowerSpinBox->value());
+    else
+        m_instance->printer()->chamber()->setMaxWatts(0);
+
+    m_instance->setAddress(ui->addressLineEdit->text());
+    m_instance->setPort(ui->portSpinBox->value());
+
+    m_instance->printer()->bed()->setMaxWatts(ui->bedPowerSpinBox->value());
+    m_instance->setApiKey(ui->printerKeyEdit->text());
+
+    m_instance->setProfileColor(ui->colorEdit->text());
+
+    done(QDialog::Accepted);
 }
 
 
@@ -138,7 +240,9 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
             QDoubleSpinBox *m_extruderWattEdit = new QDoubleSpinBox(ui->profileTab);
             m_extruderWattEdit->setProperty("extruder", i);
             m_extruderWattEdit->setAlignment(Qt::AlignRight);
-            m_extruderWattEdit->setValue(m_printer->powerProfile()[(QString("extruder") + ((i > 0) ? QString::number(i) : QString("")))]);
+
+            if(m_instance)
+                m_extruderWattEdit->setValue(m_instance->printer()->powerProfile()[(QString("extruder") + ((i > 0) ? QString::number(i) : QString("")))]);
 
             layout->addWidget(m_extruderLabel, row, 0, 1, 1);
             layout->addWidget(m_extruderWattEdit, row, 1, 1, 3);
@@ -157,7 +261,7 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
                     if (labels[c]->property("extruder") == i)
                     {
                         layout->removeWidget(labels[c]);
-                        delete labels[c];
+                        labels[c]->deleteLater();
                     }
                 }
             }
@@ -171,7 +275,7 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
                     if (edits[c]->property("extruder") == i)
                     {
                         layout->removeWidget(edits[c]);
-                        delete edits[c];
+                        edits[c]->deleteLater();
                     }
                 }
             }
@@ -184,12 +288,6 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
 
 void EditPrinterDialog::on_printerInstanceLocationEdit_textChanged(QString text)
 {
-    if(text.contains(m_httpExpression))
-    {
-        ui->printerKeyEdit->setEnabled(true);
-    }
-    else
-        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(ui->printerInstanceLocationEdit->hasAcceptableInput());
 }
 
 
@@ -212,18 +310,15 @@ void EditPrinterDialog::on_printerKeyEdit_textChanged(const QString &arg1)
     Q_UNUSED(arg1)
 
     if(ui->printerInstanceLocationEdit->hasAcceptableInput())
-        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+        m_applyButton->setEnabled(true);
 }
 
 
 void EditPrinterDialog::on_colorEdit_textChanged(const QString &arg1)
 {
-    Q_UNUSED(arg1)
-
     if(ui->colorEdit->hasAcceptableInput())
-        ui->colorDisplayLabel->setStyleSheet(QString("background-color: ") + ui->colorEdit->text() + QString(";"));
+        ui->colorDisplayLabel->setStyleSheet(QString("background-color: ") + arg1 + QString(";"));
 }
-
 
 void EditPrinterDialog::on_colorPickerButton_clicked()
 {
@@ -231,5 +326,63 @@ void EditPrinterDialog::on_colorPickerButton_clicked()
 
     if(color.isValid())
         ui->colorEdit->setText(color.name());
+}
+
+
+void EditPrinterDialog::on_printerNameEdit_textChanged(const QString &arg1)
+{
+    setWindowTitle(arg1);
+}
+
+void EditPrinterDialog::onResetButtonClicked()
+{
+    reset();
+}
+
+void EditPrinterDialog::onApplyButtonClicked()
+{
+    apply();
+}
+
+void EditPrinterDialog::onCancelButtonClicked()
+{
+    done(QDialog::Rejected);
+}
+
+void EditPrinterDialog::on_addressLineEdit_textChanged(const QString &arg1)
+{
+    if(arg1.length())
+    {
+        QRegularExpressionMatchIterator http = m_httpExpression.globalMatch(arg1);
+
+        if(http.matchType() == QRegularExpression::NormalMatch)
+        {
+            m_remoteConnection = true;
+            ui->printerInstanceLocationEdit->clear();
+            ui->printerInstanceLocationEdit->setEnabled(false);
+            ui->printerKeyEdit->setEnabled(true);
+        }
+        else
+        {
+            m_remoteConnection = false;
+            ui->printerInstanceLocationEdit->setEnabled(true);
+            ui->printerKeyEdit->clear();
+            ui->printerKeyEdit->setEnabled(false);
+        }
+    }
+}
+
+
+void EditPrinterDialog::on_heatedBedCheckbox_toggled(bool checked)
+{
+    ui->bedPowerSpinBox->setEnabled(checked);
+    ui->bedHeaterPowerLabel->setEnabled(checked);
+}
+
+
+void EditPrinterDialog::on_heatedChamberCheckBox_toggled(bool checked)
+{
+    ui->chamberPowerLabel->setEnabled(checked);
+    ui->chamberPowerSpinBox->setEnabled(checked);
 }
 

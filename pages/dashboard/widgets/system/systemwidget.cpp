@@ -27,18 +27,31 @@ SystemWidget::~SystemWidget()
 
 void SystemWidget::setUiClasses()
 {
-    this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "Disconnected" << "ConnectionStatus" ));
+    this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "Disconnected" << "ConnectionStatus" ));
 }
 
-void SystemWidget::setPrinter(Printer *printer)
+void SystemWidget::setPrinter(QKlipperInstance *printer)
 {
-    if(m_printer != nullptr)
-        disconnect(m_printer,SIGNAL(systemUpdate(Printer*)), this, SLOT(on_printer_systemUpdate(Printer*)));
+    if(m_instance != nullptr)
+    {
+        disconnect(m_instance->system(),SIGNAL(cpuInfoChanged()), this, SLOT(onSystemCpuInfoChanged()));
+        disconnect(m_instance->system(),SIGNAL(hostnameChanged()), this, SLOT(onSystemHostnameChanged()));
+        disconnect(m_instance->system()->memoryStats(), SIGNAL(averageChanged()), this, SLOT(onSystemMemoryStatsChanged()));
+        disconnect(m_instance->system()->memoryStats(), SIGNAL(totalChanged()), this, SLOT(onSystemMemoryStatsChanged()));
+        disconnect(m_instance->system()->memoryStats(), SIGNAL(usedChanged()), this, SLOT(onSystemMemoryStatsChanged()));
+    }
 
-    m_printer = printer;
-    connect(m_printer,SIGNAL(systemUpdate(Printer*)), this, SLOT(on_printer_systemUpdate(Printer*)));
-    connect(m_printer,SIGNAL(klipperConnected(Printer*)),this, SLOT(on_printer_klipperConnected(Printer*)));
-    connect(m_printer,SIGNAL(klipperDisconnected(Printer*)),this, SLOT(on_printer_klipperDisconnected(Printer*)));
+    m_instance = printer;
+
+    connect(m_instance->system(),SIGNAL(cpuInfoChanged()), this, SLOT(onSystemCpuInfoChanged()));
+    connect(m_instance->system(),SIGNAL(hostnameChanged()), this, SLOT(onSystemHostnameChanged()));
+    connect(m_instance->system()->memoryStats(), SIGNAL(averageChanged()), this, SLOT(onSystemMemoryStatsChanged()));
+    connect(m_instance->system()->memoryStats(), SIGNAL(totalChanged()), this, SLOT(onSystemMemoryStatsChanged()));
+    connect(m_instance->system()->memoryStats(), SIGNAL(usedChanged()), this, SLOT(onSystemMemoryStatsChanged()));
+
+    onSystemCpuInfoChanged();
+    onSystemHostnameChanged();
+    onSystemMemoryStatsChanged();
 }
 
 void SystemWidget::setStyleSheet(QString styleSheet)
@@ -51,65 +64,12 @@ void SystemWidget::setStyleSheet(QString styleSheet)
     ui->systemIcon->setPixmap(pixmap);
 }
 
-
-void SystemWidget::on_printer_systemUpdate(Printer *printer)
-{
-    qDebug() << "System Update";
-    m_systemCpuLoadProgressBar->setProgress(printer->system()->cpuInfo().usage);
-
-    m_systemMemoryLoadProgressBar->setMaximum(printer->system()->memoryStats().total);
-    m_systemMemoryLoadProgressBar->setProgress(printer->system()->memoryStats().used);
-
-    QString memoryCapacityString("System Memory: ");
-    qreal capacity = printer->system()->memoryStats().total;
-    QString capacityLabel;
-    convertBytes(capacity, capacityLabel);
-    memoryCapacityString += QString::number(capacity, 'f', 2);
-    memoryCapacityString += capacityLabel;
-    ui->memoryCapacityLabel->setText(memoryCapacityString);
-
-    QString memoryAvailableString("Available Memory: ");
-    qreal available = printer->system()->memoryStats().total - printer->system()->memoryStats().used;
-    QString availableLabel;
-    convertBytes(available, availableLabel);
-    memoryAvailableString += QString::number(available, 'f', 2);
-    memoryAvailableString += availableLabel;
-    ui->memoryAvailableLabel->setText(memoryAvailableString);
-
-
-    //Need to find a different way to determine drive space
-    /*
-    QString driveFreeString("Drive Free: ");
-    QString driveFreeValueString;
-    qreal driveFree = printer->system()->driveFree();
-    convertDriveBytes(driveFree, driveFreeValueString);
-    driveFreeString = driveFreeString + QString::number(driveFree) + driveFreeValueString;
-    ui->driveFreeLabel->setText(driveFreeString);
-
-    QString driveUsedString("Drive Used: ");
-    QString driveUsedValueString;
-    qreal driveUsed = printer->system()->driveUsage();
-    convertDriveBytes(driveUsed, driveUsedValueString);
-    driveUsedString = driveUsedString + QString::number(driveUsed) + driveUsedValueString;
-    ui->driveUsedLabel->setText(driveUsedString);
-    QString driveCapacityString("Drive Capacity: ");
-    QString driveCapacityValueString;
-    qreal driveCapacity = printer->system()->driveCapacity();
-    convertDriveBytes(driveCapacity, driveCapacityValueString);
-    driveCapacityString = driveCapacityString + QString::number(driveCapacity) + driveUsedValueString;
-    ui->driveCapacityLabel->setText(driveCapacityString);
-
-    */
-    ui->hostnameLabel->setText(QString("Hostname: ") + printer->system()->hostname());
-    ui->cpuInfoLabel->setText(m_printer->system()->cpuInfo().description);
-}
-
-void SystemWidget::on_printer_klipperDisconnected(Printer *printer)
+void SystemWidget::on_printer_klipperDisconnected(QKlipperInstance *printer)
 {
     showLoadingScreen();
 }
 
-void SystemWidget::on_printer_klipperConnected(Printer *printer)
+void SystemWidget::on_printer_klipperConnected(QKlipperInstance *printer)
 {
     hideLoadingScreen();
 }
@@ -118,13 +78,46 @@ void SystemWidget::on_loadingAnimation_finished()
 {
     m_loadingGif->stop();
 
-    delete m_loadingGif;
-    delete m_loadingLabel;
-    delete m_loadingAnimation;
+    m_loadingGif->deleteLater();
+    m_loadingLabel->deleteLater();
+    m_loadingAnimation->deleteLater();
 
     m_loadingLabel = nullptr;
     m_loadingGif = nullptr;
     m_loadingAnimation = nullptr;
+}
+
+void SystemWidget::onSystemMemoryStatsChanged()
+{
+    m_systemMemoryLoadProgressBar->setMaximum(m_instance->system()->memoryStats()->total());
+    m_systemMemoryLoadProgressBar->setProgress(m_instance->system()->memoryStats()->used());
+
+    QString memoryCapacityString("System Memory: ");
+    qreal capacity = m_instance->system()->memoryStats()->total();
+    QString capacityLabel;
+    convertBytes(capacity, capacityLabel);
+    memoryCapacityString += QString::number(capacity, 'f', 2);
+    memoryCapacityString += capacityLabel;
+    ui->memoryCapacityLabel->setText(memoryCapacityString);
+
+    QString memoryAvailableString("Available Memory: ");
+    qreal available = m_instance->system()->memoryStats()->total() - m_instance->system()->memoryStats()->used();
+    QString availableLabel;
+    convertBytes(available, availableLabel);
+    memoryAvailableString += QString::number(available, 'f', 2);
+    memoryAvailableString += availableLabel;
+    ui->memoryAvailableLabel->setText(memoryAvailableString);
+}
+
+void SystemWidget::onSystemCpuInfoChanged()
+{
+    m_systemCpuLoadProgressBar->setProgress(m_instance->system()->cpuInfo().usage());
+    ui->cpuInfoLabel->setText(m_instance->system()->cpuInfo().description());
+}
+
+void SystemWidget::onSystemHostnameChanged()
+{
+    ui->hostnameLabel->setText(QString("Hostname: ") + m_instance->system()->hostname());
 }
 
 void SystemWidget::convertBytes(qreal &bytes, QString &label)
@@ -182,11 +175,11 @@ void SystemWidget::convertDriveBytes(qreal &bytes, QString &label)
 void SystemWidget::showLoadingScreen()
 {
     if(m_loadingGif != nullptr)
-        delete m_loadingGif;
+        m_loadingGif->deleteLater();
     if(m_loadingLabel != nullptr)
-        delete m_loadingLabel;
+        m_loadingLabel->deleteLater();
     if(m_loadingAnimation != nullptr)
-        delete m_loadingAnimation;
+        m_loadingAnimation->deleteLater();
 
     m_loadingGif = new QMovie(":/images/loading_widget.gif");
     m_loadingLabel = new QLabel(this);

@@ -1,9 +1,0 @@
-{
-    "name": "Printer Information",
-    "type": "preset",
-    "icon": "printer-info",
-    "preset":
-    {
-        "method": "printer.info"
-    }
-}

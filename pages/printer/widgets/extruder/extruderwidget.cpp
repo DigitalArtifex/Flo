@@ -20,17 +20,40 @@ ExtruderWidget::~ExtruderWidget()
     delete ui;
 }
 
-void ExtruderWidget::setExtruder(Extruder *extruder)
+void ExtruderWidget::setExtruder(QKlipperExtruder *extruder)
 {
     m_extruder = extruder;
-    connect(m_extruder->printer()->console(), SIGNAL(extrudersUpdate()), this, SLOT(on_console_extrudersUpdate()));
+    connect(m_extruder, SIGNAL(canExtrudeChanged()), this, SLOT(onExtruderCanExtrudeChanged()));
+    connect(m_extruder, SIGNAL(currentTempChanged()), this, SLOT(onExtruderCurrentTempChanged()));
+    connect(m_extruder, SIGNAL(extrusionFactorChanged()), this, SLOT(onExtruderExtrusionFactorChanged()));
+    connect(m_extruder, SIGNAL(maxTempChanged()), this, SLOT(onExtruderMaxTempChanged()));
+    connect(m_extruder, SIGNAL(pressureAdvanceChanged()), this, SLOT(onExtruderPressureAdvanceChanged()));
+    connect(m_extruder, SIGNAL(smoothTimeChanged()), this, SLOT(onExtruderSmoothTimeChanged()));
+    connect(m_extruder, SIGNAL(targetTempChanged()), this, SLOT(onExtruderTargetTempChanged()));
+
+    connect(m_extruder, SIGNAL(fanChanged()), this, SLOT(onExtruderFanChanged()));
+
+    if(m_extruder->fan())
+        connect(m_extruder->fan(), SIGNAL(speedChanged()), this, SLOT(onExtruderFanSpeedChanged()));
+
+    QKlipperToolHead *toolhead = qobject_cast<QKlipperToolHead*>(m_extruder->parent());
+
+    if(toolhead)
+    {
+        connect(toolhead, SIGNAL(partsFanChanged()), this, SLOT(onPartsFanChanged()));
+
+        if(toolhead->partsFan())
+            connect(toolhead->partsFan(), SIGNAL(speedChanged()), this, SLOT(onPartsFanSpeedChanged()));
+    }
+
+    updateUiValues();
 }
 
 void ExtruderWidget::setUiClasses()
 {
-    ui->statsWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
-    ui->materialWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
-    ui->extruderWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardSubWidget" << "PrinterSubWidget"));
+    ui->statsWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "PrinterSubWidget"));
+    ui->materialWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "PrinterSubWidget"));
+    ui->extruderWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "PrinterSubWidget"));
 
     ui->titleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar"));
     ui->titleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
@@ -41,7 +64,7 @@ void ExtruderWidget::setUiClasses()
     ui->settingsTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar"));
     ui->settingsTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
 
-    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget"));
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget"));
 
     style()->polish(this);
 }
@@ -121,42 +144,6 @@ void ExtruderWidget::on_extrusionFactorSpinBox_valueChanged(double value)
     connect(ui->extrsuionFactorSlider, SIGNAL(valueChanged(int)), this, SLOT(on_extrsuionFactorSlider_valueChanged(int)));
 }
 
-void ExtruderWidget::on_console_extrudersUpdate()
-{
-    //set updating flag to prevent this from registering as a change event
-    m_updating = true;
-
-    //make sure it has not been or is currently being edited
-    if(!ui->targetTempSpinBox->hasFocus() && !m_targetTempEdited)
-        ui->targetTempSpinBox->setValue(m_extruder->targetTemp());
-
-    //make sure it has not been or is currently being edited
-    if(!ui->pressureAdvanceSpinBox->hasFocus() && !m_pressureAdvanceEdited)
-        ui->pressureAdvanceSpinBox->setValue(m_extruder->pressureAdvance());
-
-    //make sure it has not been or is currently being edited
-    if(!ui->smoothTimeSpinBox->hasFocus() && !m_smoothTimeEdited)
-        ui->smoothTimeSpinBox->setValue(m_extruder->smoothTime());
-
-    //make sure it has not been or is currently being edited
-    if(!ui->extrusionFactorSpinBox->hasFocus() && !m_extrusionFactorEdited)
-        ui->extrusionFactorSpinBox->setValue(m_extruder->extrusionFactor());
-
-    ui->dashboardExtruderTargetTempLabel->setText(QString::number(m_extruder->targetTemp()) + QString("°"));
-    m_temperatureProgressBar->setProgress(m_extruder->currentTemp());
-    m_temperatureProgressBar->setMaximum(m_extruder->maxTemp());
-    ui->materialWidget->setEnabled(m_extruder->canExtrude());
-
-    //set fan labels
-    ui->extruderFanValueLabel->setText(QString::number(m_extruder->fan()->speed() * 100) + QString("%"));
-    ui->partsFanValueLabel->setText(QString::number(m_extruder->printer()->toolhead()->fan()->speed() * 100) + QString("%"));
-
-
-    //unset updating flag to resume change events
-    m_updating = false;
-}
-
-
 void ExtruderWidget::on_targetTempSpinBox_valueChanged(double arg1)
 {
     if(!m_updating)
@@ -206,7 +193,8 @@ void ExtruderWidget::on_applyButton_clicked()
     if (m_extruder->pressureAdvance() != ui->pressureAdvanceSpinBox->value() ||
         m_extruder->smoothTime() != ui->smoothTimeSpinBox->value())
     {
-        m_extruder->setPressureAdvance(ui->pressureAdvanceSpinBox->value(), ui->smoothTimeSpinBox->value());
+        m_extruder->setPressureAdvance(ui->pressureAdvanceSpinBox->value());
+        m_extruder->setSmoothTime(ui->smoothTimeSpinBox->value());
     }
 
     //check for changes in extrusion factor
@@ -218,7 +206,7 @@ void ExtruderWidget::on_applyButton_clicked()
     m_pressureAdvanceEdited = false;
     m_extrusionFactorEdited = false;
 
-    on_console_extrudersUpdate();
+    //updateUiValues();
 }
 
 
@@ -232,7 +220,7 @@ void ExtruderWidget::on_resetButton_clicked()
     m_pressureAdvanceEdited = false;
     m_extrusionFactorEdited = false;
 
-    on_console_extrudersUpdate();
+    updateUiValues();
 }
 
 
@@ -250,6 +238,143 @@ void ExtruderWidget::on_retractButton_clicked()
     qreal amount = ui->materialLengthSpinBox->value();
     qreal rate = ui->materialFeedRateSpinBox->value();
 
-    m_extruder->retract(amount, rate);
+    m_extruder->extrude(amount * -1, rate);
+}
+
+void ExtruderWidget::onExtruderCanExtrudeChanged()
+{
+    ui->extrudeButton->setEnabled(m_extruder->canExtrude());
+    ui->retractButton->setEnabled(m_extruder->canExtrude());
+}
+
+void ExtruderWidget::onExtruderCurrentTempChanged()
+{
+    m_temperatureProgressBar->setProgress(m_extruder->currentTemp());
+}
+
+void ExtruderWidget::onExtruderTargetTempChanged()
+{
+    //set updating flag to prevent this from registering as a change event
+    m_updating = true;
+
+    //make sure it has not been or is currently being edited
+    if(!ui->targetTempSpinBox->hasFocus() && !m_targetTempEdited)
+        ui->targetTempSpinBox->setValue(m_extruder->targetTemp());
+
+    ui->dashboardExtruderTargetTempLabel->setText(QString::number(m_extruder->targetTemp()) + QString("°"));
+
+    m_updating = false;
+}
+
+void ExtruderWidget::onExtruderMaxTempChanged()
+{
+    m_temperatureProgressBar->setMaximum(m_extruder->maxTemp());
+}
+
+void ExtruderWidget::onExtruderPressureAdvanceChanged()
+{
+    //set updating flag to prevent this from registering as a change event
+    m_updating = true;
+
+    //make sure it has not been or is currently being edited
+    if(!ui->pressureAdvanceSpinBox->hasFocus() && !m_pressureAdvanceEdited)
+        ui->pressureAdvanceSpinBox->setValue(m_extruder->pressureAdvance());
+
+    m_updating = false;
+}
+
+void ExtruderWidget::onExtruderSmoothTimeChanged()
+{
+    //set updating flag to prevent this from registering as a change event
+    m_updating = true;
+
+    //make sure it has not been or is currently being edited
+    if(!ui->smoothTimeSpinBox->hasFocus() && !m_smoothTimeEdited)
+        ui->smoothTimeSpinBox->setValue(m_extruder->smoothTime());
+
+    m_updating = false;
+}
+
+void ExtruderWidget::onExtruderExtrusionFactorChanged()
+{
+    //set updating flag to prevent this from registering as a change event
+    m_updating = true;
+
+    //make sure it has not been or is currently being edited
+    if(!ui->extrusionFactorSpinBox->hasFocus() && !m_extrusionFactorEdited)
+        ui->extrusionFactorSpinBox->setValue(m_extruder->extrusionFactor());
+
+    m_updating = false;
+}
+
+void ExtruderWidget::onExtruderFanSpeedChanged()
+{
+    //set fan labels
+    ui->extruderFanValueLabel->setText(QString::number(m_extruder->fan()->speed() * 100) + QString("%"));
+}
+
+void ExtruderWidget::onPartsFanSpeedChanged()
+{
+    QKlipperToolHead *toolhead = qobject_cast<QKlipperToolHead*>(m_extruder->parent());
+
+    if(toolhead)
+        ui->partsFanValueLabel->setText(QString::number(toolhead->partsFan()->speed() * 100) + QString("%"));
+}
+
+void ExtruderWidget::onPartsFanChanged()
+{
+    QKlipperToolHead *toolhead = qobject_cast<QKlipperToolHead*>(m_extruder->parent());
+
+    if(toolhead)
+    {
+        if(toolhead->partsFan())
+            connect(toolhead->partsFan(), SIGNAL(speedChanged()), this, SLOT(onPartsFanSpeedChanged()));
+    }
+}
+
+void ExtruderWidget::onExtruderFanChanged()
+{
+    if(m_extruder->fan())
+        connect(m_extruder->fan(), SIGNAL(speedChanged()), this, SLOT(onExtruderFanSpeedChanged()));
+}
+
+void ExtruderWidget::updateUiValues()
+{
+    //set updating flag to prevent this from registering as a change event
+    m_updating = true;
+
+    //set fan labels
+    ui->extruderFanValueLabel->setText(QString::number(m_extruder->fan()->speed() * 100) + QString("%"));
+
+    //get the parent toolhead for the parts fan
+    QKlipperToolHead *toolhead = qobject_cast<QKlipperToolHead*>(m_extruder->parent());
+
+    if(toolhead)
+        ui->partsFanValueLabel->setText(QString::number(toolhead->partsFan()->speed() * 100) + QString("%"));
+
+    ui->materialWidget->setEnabled(true);
+
+    //make sure it has not been or is currently being edited
+    if(!ui->pressureAdvanceSpinBox->hasFocus() && !m_pressureAdvanceEdited)
+        ui->pressureAdvanceSpinBox->setValue(m_extruder->pressureAdvance());
+
+    //make sure it has not been or is currently being edited
+    if(!ui->smoothTimeSpinBox->hasFocus() && !m_smoothTimeEdited)
+        ui->smoothTimeSpinBox->setValue(m_extruder->smoothTime());
+
+    //make sure it has not been or is currently being edited
+    if(!ui->extrusionFactorSpinBox->hasFocus() && !m_extrusionFactorEdited)
+        ui->extrusionFactorSpinBox->setValue(m_extruder->extrusionFactor());
+
+    //make sure it has not been or is currently being edited
+    if(!ui->targetTempSpinBox->hasFocus() && !m_targetTempEdited)
+        ui->targetTempSpinBox->setValue(m_extruder->targetTemp());
+
+    ui->dashboardExtruderTargetTempLabel->setText(QString::number(m_extruder->targetTemp()) + QString("°"));
+    m_temperatureProgressBar->setMaximum(m_extruder->maxTemp());
+    m_temperatureProgressBar->setProgress(m_extruder->currentTemp());
+
+    //unset updating flag to resume change events
+    m_updating = false;
 }
 

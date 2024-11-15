@@ -5,8 +5,7 @@
 #include <QListWidgetItem>
 #include <QTimer>
 #include <QMouseEvent>
-
-#include "../../types/printerdefinition.h"
+#include <QKlipper/qklipper.h>
 
 namespace Ui {
 class PrinterListItem;
@@ -20,12 +19,16 @@ public:
     explicit PrinterListItem(QWidget *parent = nullptr);
     ~PrinterListItem();
 
-    void setPrinterDefinition(PrinterDefinition definition);
+    void setInstance(QKlipperInstance *instance);
     void setUiClasses();
     void setSelected(bool selected);
     bool selected();
 
-    PrinterDefinition printerDefinition();
+    QKlipperInstance *instance();
+
+protected:
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
 
 signals:
     void clicked(PrinterListItem *item);
@@ -34,12 +37,15 @@ signals:
 private slots:
     virtual void clickTimeout();
 
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
+    void onInstanceNameChanged();
+    void onAddressChanged();
+    void onPortChanged();
+    void onInstanceThumbnailChanged();
+
 
 private:
     Ui::PrinterListItem *ui;
-    PrinterDefinition m_definition;
+    QKlipperInstance *m_definition = nullptr;
     bool m_pressed = false;
     bool m_longPress = false;
     bool m_rightClick = false;

@@ -6,6 +6,8 @@
 #include <QSpacerItem>
 #include <QWidget>
 
+#include <QKlipper/qklipper.h>
+
 #include "printjoblistitem.h"
 
 #include "../../../../../ui/list/qanimatedlistwidget.h"
@@ -20,12 +22,12 @@ public:
 
     virtual void setStyleSheet(QString styleSheet);
 
-    void addJob(PrintJob *job);
-    void removeJob(PrintJob *job);
-    void updateJob(PrintJob *job);
+    void addJob(QKlipperPrintJob *job);
+    void removeJob(QKlipperPrintJob *job);
 
 protected slots:
-    void on_printJob_started(PrintJob *printJob);
+    void onPrintJobAdded(QKlipperInstance *instance, QKlipperPrintJob *job);
+    void onPrintJobRemoved(QKlipperInstance *instance, QKlipperPrintJob *job);
     void itemRemoveRequestEvent(PrintJobListItem *item);
 
 private:

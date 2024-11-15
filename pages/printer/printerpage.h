@@ -8,16 +8,17 @@
 
 #include <QShowEvent>
 
+#include <QKlipper/qklipper.h>
+
 #include "widgets/extruder/extruderwidget.h"
-#include "../../types/printer.h"
 
 #include "filebrowser/filebrowser.h"
-#include "bedmesh/q3dprintbedmeshviewer.h"
 #include "offline/printerofflinescreen.h"
 #include "terminal/printerterminal.h"
 
 #include "widgets/printerbed/printerbedwidget.h"
 #include "widgets/printerwebcam/printerwebcamwidget.h"
+#include "widgets/temperature/temperaturewidget.h"
 #include "../../ui/layouts/qflowlayout.h"
 
 #include "widgets/toolhead/control/toolheadcontrolframe.h"
@@ -33,18 +34,15 @@ class PrinterPage : public QFrame
     Q_OBJECT
     Q_PROPERTY(bool isAnimating READ animating WRITE setAnimating NOTIFY animatingChanged FINAL)
 public:
-    explicit PrinterPage(Printer *printer, QWidget *parent = nullptr);
+    explicit PrinterPage(QKlipperInstance *instance, QWidget *parent = nullptr);
     ~PrinterPage();
-    void addExtruder(Extruder *extruder, QString name = QString("Extruder"));
+    void addExtruder(QKlipperExtruder *extruder, QString name = QString("Extruder"));
 
     virtual void setStyleSheet(QString styleSheet);
     void setIcons();
 
-    Printer *printer() const;
-    void setPrinter(Printer *printer);
-
-    virtual void resizeEvent(QResizeEvent *event);
-    virtual void setPrintActionsEnabled(bool enabled);
+    QKlipperPrinter *printer() const;
+    void setPrinter(QKlipperPrinter *printer);
 
     bool animating() const;
     void setAnimating(bool animating);
@@ -52,9 +50,23 @@ public:
 signals:
     void animatingChanged(bool);
 
+protected slots:
+    virtual void setPrintActionsEnabled(bool enabled);
+
 protected:
+    virtual void resizeEvent(QResizeEvent *event);
     virtual void showEvent(QShowEvent *event);
     virtual void hideEvent(QHideEvent *event);
+    void setupAnimations();
+
+    void showFansWidget();
+    void hideFansWidget();
+    void showPositionWidget();
+    void hidePositionWidget();
+    void showZOffsetWidget();
+    void hideZOffsetWidget();
+    void showWebcamWidget();
+    void hideWebcamWidget();
 
 private slots:
     void on_xPosDecreaseButton_clicked();
@@ -63,11 +75,8 @@ private slots:
     void fileBrowserButtonClickEvent();
     void bedMeshViewerButtonClickEvent();
     void settingsButtonClickEvent();
-    void on_printerUpdate(Printer *printer);
 
     void on_homeToolheadButton_clicked();
-
-    void on_restartFirmwareButton_clicked();
 
     void on_posIncrementSelect_currentTextChanged(const QString &arg1);
 
@@ -76,10 +85,6 @@ private slots:
     void on_yPosIncreaseButton_clicked();
     void on_zPosDecreaseButton_clicked();
     void on_zPosIncreaseButton_clicked();
-
-    void on_xHomeButton_clicked();
-    void on_yHomeButton_clicked();
-    void on_zHomeButton_clicked();
 
     void on_xDestinationSpinBox_valueChanged(double arg1);
 
@@ -91,18 +96,43 @@ private slots:
 
     void on_positionApplyButton_clicked();
 
-    void printerStartupEvent(Printer *printer);
-    void printerDisconnectEvent(Printer *printer);
+    void printerStartupEvent();
+    void printerDisconnectEvent();
+
+    void onPrinterStatusChanged();
+    void onPrinterStatusMessageChanged();
+    void onPrinterFansChanged();
+    void onPrinterEndingTimeChanged();
+    void onToolHeadExtrudersChanged();
+    void onToolheadPositionChanged();
+    void onToolHeadDestinationChanged();
+    void onToolHeadPartsFanSpeedChanged();
+
+    void onInstanceError(QKlipperInstance *instance, QKlipperError &error);
+
+    void onFansAnimationFinished();
+    void onPositionAnimationFinished();
+    void onZOffsetAnimationFinished();
+    void onWebcamAnimationFinished();
+
+    void onFansToggleButtonClicked(bool toggled);
+    void onPositionToggleButtonClicked(bool toggled);
+    void onZOffsetToggleButtonClicked(bool toggled);
+    void onWebcamToggleButtonClicked(bool toggled);
+
+    void on_restartButton_clicked();
 
 private:
+    QFrame *m_statusOverlayFrame = nullptr;
+    QLabel *m_statusLabel = nullptr;
 
-    CircularProgressBar *m_chamberTemperatureBar;
-    CircularProgressBar *m_extruderTemperatureBar;
+    CircularProgressBar *m_chamberTemperatureBar = nullptr;
+    CircularProgressBar *m_printProgressBar = nullptr;
+
+    PrinterTemperatureWidget *m_temperatureWidget = nullptr;
 
     FileBrowser *m_fileBrowser = nullptr;
     FileBrowser *m_overviewBrowser = nullptr;
-
-    Q3DPrintBedMeshViewer *m_bedMeshWidget = nullptr;
     PrinterOfflineScreen *m_printerOfflineScreen = nullptr;
     PrinterTerminal *m_terminal = nullptr;
 
@@ -112,14 +142,15 @@ private:
 
     QMap<int, ExtruderWidget*> m_extruderMap;
 
-    Printer *m_printer = nullptr;
+    QKlipperPrinter *m_printer = nullptr;
+    QKlipperInstance *m_instance = nullptr;
 
     PrinterBedWidget *m_printerBedWidget = nullptr;
 
     Ui::PrinterPage *ui;
     void setupUiClasses();
 
-    void addFanLabels(Fan *fan, QString name);
+    void addFanLabels(QKlipperFan *fan, QString name);
 
     QFlowLayout *m_centerLayout = nullptr;
     QSpacerItem *m_centerLayoutBottomSpacer = nullptr;
@@ -140,6 +171,56 @@ private:
     QSpacerItem *m_buttonSpacer = nullptr;
 
     PrinterSettingsPage *m_printerSettingsPage = nullptr;
+
+    //Fan widget animations
+    QPropertyAnimation *m_fansWidgetAnimation = nullptr;
+    QPropertyAnimation *m_fansFrameAnimation = nullptr;
+    QParallelAnimationGroup *m_fansAnimationGroup = nullptr;
+
+    bool m_fansShown = true;
+
+    qint32 m_fansWidgetHeight = 0;
+    qint32 m_fansFrameHeight = 0;
+
+    //Position widget animations
+    QPropertyAnimation *m_positionWidgetAnimation = nullptr;
+    QPropertyAnimation *m_positionFrameAnimation = nullptr;
+    QParallelAnimationGroup *m_positionAnimationGroup = nullptr;
+
+    bool m_positionShown = true;
+
+    qint32 m_positionFrameHeight = 0;
+    qint32 m_positionWidgetHeight = 0;
+
+    //Z Offset Widget Animations
+    QPropertyAnimation *m_zOffsetWidgetAnimation = nullptr;
+    QPropertyAnimation *m_zOffsetFrameAnimation = nullptr;
+    QParallelAnimationGroup *m_zOffsetAnimationGroup = nullptr;
+
+    bool m_zOffsetShown = true;
+
+    qint32 m_zOffsetFrameHeight = 0;
+    qint32 m_zOffsetWidgetHeight = 0;
+
+    //Webcam Widget Animations
+    QPropertyAnimation *m_webcamWidgetAnimation = nullptr;
+    QPropertyAnimation *m_webcamFrameAnimation = nullptr;
+    QParallelAnimationGroup *m_webcamAnimationGroup = nullptr;
+
+    bool m_webcamShown = true;
+
+    qint32 m_webcamFrameHeight = 0;
+    qint32 m_webcamWidgetHeight = 0;
+
+    //Status Widget Animations
+    QPropertyAnimation *m_statusWidgetAnimation = nullptr;
+    QPropertyAnimation *m_statusFrameAnimation = nullptr;
+    QParallelAnimationGroup *m_statusAnimationGroup = nullptr;
+
+    bool m_statusShown = true;
+
+    qint32 m_statusFrameHeight = 0;
+    qint32 m_statusWidgetHeight = 0;
 };
 
 #endif // PRINTERPAGE_H

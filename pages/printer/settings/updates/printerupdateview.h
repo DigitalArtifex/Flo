@@ -6,7 +6,7 @@
 #include <QToolButton>
 #include <QGridLayout>
 
-#include "types/printer.h"
+#include <QKlipper/qklipper.h>
 
 #include "printerupdatewidget.h"
 
@@ -14,7 +14,7 @@ class PrinterUpdateView : public QFrame
 {
     Q_OBJECT
 public:
-    explicit PrinterUpdateView(Printer *printer, QWidget *parent = nullptr);
+    explicit PrinterUpdateView(QKlipperSystem *system, QWidget *parent = nullptr);
     ~PrinterUpdateView();
 
 signals:
@@ -28,11 +28,8 @@ protected slots:
     void refreshButtonClickEvent();
     void itemUpdateRequestedEvent(PrinterUpdateItem *item);
 
-    void machineUpdateAllEvent();
-    void machineUpdateClientEvent(QString client);
-
 private:
-    Printer *m_printer = nullptr;
+    QKlipperSystem *m_system = nullptr;
 
     PrinterUpdateWidget *m_updateWidget = nullptr;
 

@@ -4,7 +4,7 @@
 Dialog::Dialog(QWidget *parent, Qt::WindowFlags flags)
     : QDialog(parent, flags)
 {
-    if(Settings::get("theme-frameless-dialogs").toBool())
+    if(Settings::get("theme/frameless-dialogs").toBool())
         setWindowFlag(Qt::FramelessWindowHint);
 
     setWindowFlag(Qt::Popup);
@@ -15,10 +15,10 @@ Dialog::Dialog(QWidget *parent, Qt::WindowFlags flags)
 Dialog::~Dialog()
 {
     if(m_loadingFrameLayout)
-        delete m_loadingFrameLayout;
+        m_loadingFrameLayout->deleteLater();
 
     if(m_loadingFrame)
-        delete m_loadingFrame;
+        m_loadingFrame->deleteLater();
 }
 
 void Dialog::showLoadingScreen()
@@ -67,6 +67,7 @@ void Dialog::showLoadingScreen()
 
         m_loadingFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "LoadingOverlayFrame"));
         m_loadingFrameText->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DialogHeading"));
+
         style()->polish(m_loadingFrame);
     }
 }
@@ -77,11 +78,11 @@ void Dialog::hideLoadingScreen()
     {
         if(m_loadingFrameLayout)
         {
-            delete m_loadingFrameLayout;
+            m_loadingFrameLayout->deleteLater();
             m_loadingFrameLayout = nullptr;
         }
 
-        delete m_loadingFrame;
+        m_loadingFrame->deleteLater();
         m_loadingFrame = nullptr;
     }
 }

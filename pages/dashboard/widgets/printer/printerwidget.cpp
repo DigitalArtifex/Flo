@@ -16,36 +16,43 @@ PrinterWidget::~PrinterWidget()
     delete ui;
 }
 
-void PrinterWidget::setPrinter(Printer *printer)
+void PrinterWidget::setPrinter(QKlipperInstance *printer)
 {
-    m_printer = printer;
-    connect(m_printer,SIGNAL(printerUpdate(Printer*)),this, SLOT(on_printer_update(Printer*)));
-    connect(m_printer,SIGNAL(klipperConnected(Printer*)),this, SLOT(on_printer_klipperConnected(Printer*)));
-    connect(m_printer,SIGNAL(klipperDisconnected(Printer*)),this, SLOT(on_printer_klipperDisconnected(Printer*)));
-    on_printer_update(printer);
+    //set the instance
+    m_instance = printer;
+
+    //update the gui
+    onInstanceNameChanged();
+    onPrinterStatusChanged();
+    onPrinterPrintEndingChanged();
+
+    //connect to signals
+    connect(m_instance,SIGNAL(nameChanged()),this, SLOT(onInstanceNameChanged()));
+    connect(m_instance->printer(),SIGNAL(statusChanged()),this, SLOT(onPrinterStatusChanged()));
+    connect(m_instance->printer(),SIGNAL(printEndingChanged()),this, SLOT(onPrinterPrintEndingChanged()));
 }
 
-Printer *PrinterWidget::printer()
+QKlipperInstance *PrinterWidget::printer()
 {
-    return m_printer;
+    return m_instance;
 }
 
 void PrinterWidget::setUiClasses()
 {
-    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" ));
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget" ));
 
     ui->menuPage->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
 
     m_cancelPrintButton = new QIconButton(ui->menuPage);
     m_cancelPrintButton->setText("Cancel Print");
     m_cancelPrintButton->setFixedSize(200, 35);
-    m_cancelPrintButton->setPixmap(Settings::getThemeIcon("stop-icon").pixmap(16,16));
+    m_cancelPrintButton->setIcon(Settings::getThemeIcon("stop-icon"));
     ui->menuPage->layout()->addWidget(m_cancelPrintButton);
 
     m_pausePrintButton = new QIconButton(ui->menuPage);
     m_pausePrintButton->setText("Resume Print");
     m_pausePrintButton->setFixedSize(200, 35);
-    m_pausePrintButton->setPixmap(Settings::getThemeIcon("pause-icon").pixmap(16,16));
+    m_pausePrintButton->setIcon(Settings::getThemeIcon("pause-icon"));
     ui->menuPage->layout()->addWidget(m_pausePrintButton);
 
     ui->menuPage->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
@@ -53,13 +60,13 @@ void PrinterWidget::setUiClasses()
     m_restartFirmwareButton = new QIconButton(ui->menuPage);
     m_restartFirmwareButton->setText("Restart Firmware");
     m_restartFirmwareButton->setFixedSize(200, 35);
-    m_restartFirmwareButton->setPixmap(Settings::getThemeIcon("firmware-icon").pixmap(16,16));
+    m_restartFirmwareButton->setIcon(Settings::getThemeIcon("firmware-icon"));
     ui->menuPage->layout()->addWidget(m_restartFirmwareButton);
 
     m_restartKlipperButton = new QIconButton(ui->menuPage);
     m_restartKlipperButton->setText("Restart Klipper");
     m_restartKlipperButton->setFixedSize(200, 35);
-    m_restartKlipperButton->setPixmap(Settings::getThemeIcon("restart-icon").pixmap(16,16));
+    m_restartKlipperButton->setIcon(Settings::getThemeIcon("restart-icon"));
     ui->menuPage->layout()->addWidget(m_restartKlipperButton);
 
     ui->menuPage->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
@@ -67,122 +74,20 @@ void PrinterWidget::setUiClasses()
 
 void PrinterWidget::setStyleSheet(QString styleSheet)
 {
-    QFrame::setStyleSheet(styleSheet);
     QPixmap pixmap;
 
-    if(m_printer == nullptr)
-        pixmap = Settings::getThemeIcon("printer-icon").pixmap(ui->iconLabel->size());
-    else
-    {
-        switch(m_printer->status())
-        {
-        case Printer::Printing:
-            pixmap = Settings::getThemeIcon("printer-printing-icon").pixmap(ui->iconLabel->size());
-            this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Printing" ));
-            break;
-        case Printer::Cancelled:
-            pixmap = Settings::getThemeIcon("printer-error-icon").pixmap(ui->iconLabel->size());
-            this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Cancelled" ));
-            break;
-        case Printer::Paused:
-            pixmap = Settings::getThemeIcon("printer-paused-icon").pixmap(ui->iconLabel->size());
-            this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Paused" ));
-            break;
-        case Printer::Error:
-            pixmap = Settings::getThemeIcon("printer-error-icon").pixmap(ui->iconLabel->size());
-            this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Error" ));
-            break;
-        case Printer::Ready:
-            pixmap = Settings::getThemeIcon("printer-ready-icon").pixmap(ui->iconLabel->size());
-            this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Ready" ));
-            break;
-        case Printer::Offline:
-            pixmap = Settings::getThemeIcon("printer-offline-icon").pixmap(ui->iconLabel->size());
-            this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Offline" ));
-            break;
-        }
-    }
-    ui->iconLabel->setPixmap(pixmap);
+    onPrinterStatusChanged();
+
     ui->quickActionButton->setIcon(Settings::getThemeIcon("menu-icon"));
+    QFrame::setStyleSheet(styleSheet);
 }
 
-void PrinterWidget::on_printer_update(Printer *printer)
-{
-    ui->nameLabel->setText(m_printer->name());
-    ui->etaLabel->setText(QString("ETA: ") + m_printer->printEndTime().toString());
-
-    QString statusText;
-    QPixmap pixmap;
-
-    switch(m_printer->status())
-    {
-    case Printer::Printing:
-        statusText = QString("Printing");
-        m_pausePrintButton->setEnabled(true);
-        m_cancelPrintButton->setEnabled(true);
-        m_restartFirmwareButton->setEnabled(true);
-        m_restartKlipperButton->setEnabled(true);
-        pixmap = Settings::getThemeIcon("printer-printing-icon").pixmap(ui->iconLabel->size());
-        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Printing" ));
-        break;
-    case Printer::Cancelled:
-        statusText = QString("Cancelled");
-        m_pausePrintButton->setEnabled(true);
-        m_cancelPrintButton->setEnabled(false);
-        m_restartFirmwareButton->setEnabled(true);
-        m_restartKlipperButton->setEnabled(true);
-        pixmap = Settings::getThemeIcon("printer-error-icon").pixmap(ui->iconLabel->size());
-        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Cancelled" ));
-        break;
-    case Printer::Paused:
-        statusText = QString("Paused");
-        m_pausePrintButton->setEnabled(true);
-        m_cancelPrintButton->setEnabled(true);
-        m_restartFirmwareButton->setEnabled(true);
-        m_restartKlipperButton->setEnabled(true);
-        pixmap = Settings::getThemeIcon("printer-paused-icon").pixmap(ui->iconLabel->size());
-        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Paused" ));
-        break;
-    case Printer::Error:
-        statusText = QString("Error");
-        m_pausePrintButton->setEnabled(false);
-        m_cancelPrintButton->setEnabled(false);
-        m_restartFirmwareButton->setEnabled(true);
-        m_restartKlipperButton->setEnabled(true);
-        pixmap = Settings::getThemeIcon("printer-error-icon").pixmap(ui->iconLabel->size());
-        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Error" ));
-        break;
-    case Printer::Ready:
-        statusText = QString("Ready");
-        m_pausePrintButton->setEnabled(false);
-        m_cancelPrintButton->setEnabled(false);
-        m_restartFirmwareButton->setEnabled(true);
-        m_restartKlipperButton->setEnabled(true);
-        pixmap = Settings::getThemeIcon("printer-ready-icon").pixmap(ui->iconLabel->size());
-        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Ready" ));
-        break;
-    case Printer::Offline:
-        statusText = QString("Offline");
-        m_pausePrintButton->setEnabled(false);
-        m_cancelPrintButton->setEnabled(false);
-        m_restartFirmwareButton->setEnabled(true);
-        m_restartKlipperButton->setEnabled(true);
-        pixmap = Settings::getThemeIcon("printer-offline-icon").pixmap(ui->iconLabel->size());
-        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "DashboardWidget" << "PrinterWidget" << "Offline" ));
-        break;
-    }
-
-    ui->statusButton->setText(QString("Status: ") + statusText);
-    ui->statusMessageEdit->setText(m_printer->statusMessage());
-    ui->iconLabel->setPixmap(pixmap);
-}
-
-void PrinterWidget::on_printer_klipperDisconnected(Printer *printer)
+void PrinterWidget::on_printer_klipperDisconnected(QKlipperInstance *printer)
 {
     showLoadingScreen();
 }
 
-void PrinterWidget::on_printer_klipperConnected(Printer *printer)
+void PrinterWidget::on_printer_klipperConnected(QKlipperInstance *printer)
 {
     hideLoadingScreen();
     ui->quickActionButton->setChecked(false);
@@ -211,28 +116,28 @@ void PrinterWidget::on_goBackButton_clicked()
 
 void PrinterWidget::on_pausePrintButton_toggled(bool checked)
 {
-    if(checked && m_printer->status() == Printer::Printing)
+    if(checked && m_instance->printer()->status() == QKlipperPrinter::Printing)
     {
-        m_printer->pause();
+        m_instance->printer()->pause();
         m_pausePrintButton->setText(QString("Resume Print"));
-        m_pausePrintButton->setPixmap(Settings::getThemeIcon("resume-icon").pixmap(16,16));
+        m_pausePrintButton->setIcon(Settings::getThemeIcon("resume-icon"));
     }
-    else if(m_printer->status() == Printer::Paused)
+    else if(m_instance->printer()->status() == QKlipperPrinter::Paused)
     {
-        m_printer->resume();
+        m_instance->printer()->resume();
         m_pausePrintButton->setText(QString("Pause Print"));
-        m_pausePrintButton->setPixmap(Settings::getThemeIcon("pause-icon").pixmap(16,16));
+        m_pausePrintButton->setIcon(Settings::getThemeIcon("pause-icon"));
     }
 }
 
 void PrinterWidget::showLoadingScreen()
 {
     if(m_loadingGif != nullptr)
-        delete m_loadingGif;
+        m_loadingGif->deleteLater();
     if(m_loadingLabel != nullptr)
-        delete m_loadingLabel;
+        m_loadingLabel->deleteLater();
     if(m_loadingAnimation != nullptr)
-        delete m_loadingAnimation;
+        m_loadingAnimation->deleteLater();
 
     setGraphicsEffect(nullptr);
 
@@ -267,7 +172,7 @@ void PrinterWidget::on_restartKlipperButton_clicked()
 {
     m_restartKlipperButton->setEnabled(false);
     m_restartFirmwareButton->setEnabled(false);
-    m_printer->console()->restartKlipper();
+    m_instance->printer()->console()->restartKlipper();
 }
 
 void PrinterWidget::on_loadingAnimation_finished()
@@ -276,23 +181,21 @@ void PrinterWidget::on_loadingAnimation_finished()
 
     if(m_loadingGif)
     {
-        delete m_loadingGif;
+        m_loadingGif->deleteLater();
         m_loadingGif = nullptr;
     }
 
     if(m_loadingLabel)
     {
-        delete m_loadingLabel;
+        m_loadingLabel->deleteLater();
         m_loadingLabel = nullptr;
     }
 
     if(m_loadingAnimation)
     {
-        delete m_loadingAnimation;
+        m_loadingAnimation->deleteLater();
         m_loadingAnimation = nullptr;
     }
-
-    on_printer_update(m_printer);
 }
 
 
@@ -300,6 +203,113 @@ void PrinterWidget::on_restartFirmwareButton_clicked()
 {
     m_restartKlipperButton->setEnabled(false);
     m_restartFirmwareButton->setEnabled(false);
-    m_printer->console()->restartFirmware();
+    m_instance->printer()->console()->restartFirmware();
+}
+
+void PrinterWidget::onPrinterStatusChanged()
+{
+    QString statusText;
+    QPixmap pixmap;
+    QColor color;
+
+    switch(m_instance->printer()->status())
+    {
+    case QKlipperPrinter::Printing:
+        statusText = QString("Printing");
+        m_pausePrintButton->setEnabled(true);
+        m_cancelPrintButton->setEnabled(true);
+        m_restartFirmwareButton->setEnabled(true);
+        m_restartKlipperButton->setEnabled(true);
+
+        color = QColor::fromString(Settings::get("theme/icon-warning-color").toString());
+
+        pixmap = Settings::getThemeIcon(QString("printer-icon"), color).pixmap(64,64);
+        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget" << "Printing" ));
+        break;
+    case QKlipperPrinter::Cancelled:
+        statusText = QString("Cancelled");
+        m_pausePrintButton->setEnabled(true);
+        m_cancelPrintButton->setEnabled(false);
+        m_restartFirmwareButton->setEnabled(true);
+        m_restartKlipperButton->setEnabled(true);
+
+        color = QColor::fromString(Settings::get("theme/icon-error-color").toString());
+
+        pixmap = Settings::getThemeIcon(QString("printer-icon"), color).pixmap(64,64);
+        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget" << "Cancelled" ));
+        break;
+    case QKlipperPrinter::Paused:
+        statusText = QString("Paused");
+        m_pausePrintButton->setEnabled(true);
+        m_cancelPrintButton->setEnabled(true);
+        m_restartFirmwareButton->setEnabled(true);
+        m_restartKlipperButton->setEnabled(true);
+
+        color = QColor::fromString(Settings::get("theme/icon-warning-color").toString());
+
+        pixmap = Settings::getThemeIcon(QString("printer-icon"), color).pixmap(64,64);
+        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget" << "Paused" ));
+        break;
+    case QKlipperPrinter::Error:
+        statusText = QString("Error");
+        m_pausePrintButton->setEnabled(false);
+        m_cancelPrintButton->setEnabled(false);
+        m_restartFirmwareButton->setEnabled(true);
+        m_restartKlipperButton->setEnabled(true);
+
+        color = QColor::fromString(Settings::get("theme/icon-error-color").toString());
+
+        pixmap = Settings::getThemeIcon(QString("printer-icon"), color).pixmap(64,64);
+        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget" << "Error" ));
+        break;
+    case QKlipperPrinter::Ready:
+        statusText = QString("Ready");
+        m_pausePrintButton->setEnabled(false);
+        m_cancelPrintButton->setEnabled(false);
+        m_restartFirmwareButton->setEnabled(true);
+        m_restartKlipperButton->setEnabled(true);
+        pixmap = Settings::getThemeIcon(QString("printer-icon")).pixmap(64,64);
+        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget" << "Ready" ));
+        break;
+    case QKlipperPrinter::Connecting:
+        statusText = QString("Connecting");
+        m_pausePrintButton->setEnabled(false);
+        m_cancelPrintButton->setEnabled(false);
+        m_restartFirmwareButton->setEnabled(true);
+        m_restartKlipperButton->setEnabled(true);
+
+        color = QColor::fromString(Settings::get("theme/icon-disabled-color").toString());
+
+        pixmap = Settings::getThemeIcon(QString("printer-icon"), color).pixmap(64,64);
+        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget" << "Offline" ));
+        break;
+    case QKlipperPrinter::Offline:
+    default:
+        statusText = QString("Offline");
+        m_pausePrintButton->setEnabled(false);
+        m_cancelPrintButton->setEnabled(false);
+        m_restartFirmwareButton->setEnabled(true);
+        m_restartKlipperButton->setEnabled(true);
+
+        color = QColor::fromString(Settings::get("theme/icon-disabled-color").toString());
+
+        pixmap = Settings::getThemeIcon(QString("printer-icon"), color).pixmap(64,64);
+        this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget" << "Offline" ));
+        break;
+    }
+
+    ui->statusButton->setText(QString("Status: ") + statusText);
+    ui->statusMessageEdit->setText(m_instance->printer()->statusMessage());
+    ui->iconLabel->setPixmap(pixmap);
+}
+
+void PrinterWidget::onInstanceNameChanged()
+{
+    ui->nameLabel->setText(m_instance->name());
+}
+
+void PrinterWidget::onPrinterPrintEndingChanged()
+{
+    ui->etaLabel->setText(QString("ETA: ") + m_instance->printer()->printEnding().toString());
 }
 

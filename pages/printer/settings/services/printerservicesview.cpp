@@ -1,22 +1,22 @@
 #include "printerservicesview.h"
 
-PrinterServicesView::PrinterServicesView(Printer *printer, QWidget *parent)
+PrinterServicesView::PrinterServicesView(QKlipperInstance *instance, QWidget *parent)
     : QWidget{parent}
 {
-    m_printer = printer;
+    m_printer = instance;
     m_layout = new QFlowLayout(this);
     setLayout(m_layout);
 
-    connect(m_printer->system(), SIGNAL(updated()), this, SLOT(systemUpdateEvent()));
+    connect(m_printer->system(), SIGNAL(serviceStatesChanged()), this, SLOT(onSystemServiceStatesChanged()));
 }
 
 PrinterServicesView::~PrinterServicesView()
 {
     if(m_layout)
-        delete m_layout;
+        m_layout->deleteLater();
 }
 
-void PrinterServicesView::systemUpdateEvent()
+void PrinterServicesView::onSystemServiceStatesChanged()
 {
     QStringList services = m_printer->system()->availableServices();
 
@@ -24,12 +24,16 @@ void PrinterServicesView::systemUpdateEvent()
     {
         if(!m_serviceCards.contains(service))
         {
-            System::ServiceState serviceState = m_printer->system()->serviceStates()[service];
+            QKlipperServiceState serviceState = m_printer->system()->serviceStates()[service];
             PrinterServiceWidget *widget = new PrinterServiceWidget(m_printer->system(), serviceState, this);
 
             m_layout->addWidget(widget);
 
             m_serviceCards.insert(service, widget);
+        }
+        else
+        {
+            m_serviceCards[service]->setServiceState(m_printer->system()->serviceStates()[service]);
         }
     }
 }

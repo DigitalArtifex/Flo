@@ -8,6 +8,12 @@ PrinterUserEditor::PrinterUserEditor(QWidget *parent)
     setupUi();
 }
 
+PrinterUserEditor::~PrinterUserEditor()
+{
+    if(m_centralLayout)
+        m_centralLayout->deleteLater();
+}
+
 QString PrinterUserEditor::password()
 {
     if(m_userPasswordEdit->text() == m_userPasswordVerifyEdit->text())
@@ -55,7 +61,7 @@ void PrinterUserEditor::setupUi()
 
     m_cancelButton = new QIconButton(this);
     m_cancelButton->setText("Cancel");
-    m_cancelButton->setPixmap(Settings::getThemeIcon("cancel-icon").pixmap(32,32));
+    m_cancelButton->setIcon(Settings::getThemeIcon("cancel-icon"));
     m_cancelButton->setMinimumSize(200,50);
     m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_buttonLayout->addWidget(m_cancelButton);
@@ -64,7 +70,7 @@ void PrinterUserEditor::setupUi()
 
     m_acceptButton = new QIconButton(this);
     m_acceptButton->setText("Accept");
-    m_acceptButton->setPixmap(Settings::getThemeIcon("accept-icon").pixmap(32,32));
+    m_acceptButton->setIcon(Settings::getThemeIcon("accept-icon"));
     m_acceptButton->setMinimumSize(200,50);
     m_acceptButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_acceptButton->setEnabled(false);

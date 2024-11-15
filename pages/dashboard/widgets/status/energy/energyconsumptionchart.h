@@ -13,7 +13,7 @@
 #include <QList>
 #include <QDateTime>
 
-#include "../../../../../types/printer.h"
+#include <QKlipper/qklipper.h>
 
 class EnergyConsumptionChart : public QWidget
 {
@@ -22,7 +22,7 @@ public:
     explicit EnergyConsumptionChart(QWidget *parent = nullptr);
     ~EnergyConsumptionChart();
 
-    void trackPrinter(Printer *printer);
+    void trackPrinter(QKlipperInstance *printer);
 
 signals:
 
@@ -43,7 +43,7 @@ private:
     QValueAxis *m_axisY = nullptr;
     QVBoxLayout *m_layout = nullptr;
 
-    QList<Printer*> m_sources;
+    QList<QKlipperInstance*> m_sources;
     QMap<QString, QLineSeries*> m_series;
 
     QLineSeries *m_totalSeries = nullptr;

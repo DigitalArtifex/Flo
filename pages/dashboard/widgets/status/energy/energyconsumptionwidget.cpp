@@ -9,18 +9,18 @@ EnergyConsumptionWidget::EnergyConsumptionWidget(QWidget *parent)
 EnergyConsumptionWidget::~EnergyConsumptionWidget()
 {
     if(m_energyWidget)
-        delete m_energyWidget;
+        m_energyWidget->deleteLater();
 
     if(m_layout)
-        delete m_layout;
+        m_layout->deleteLater();
 }
 
 void EnergyConsumptionWidget::setupUi()
 {
     m_energyWidget = new EnergyConsumptionChart(this);
 
-    foreach(QString key, PrinterPool::keys())
-        m_energyWidget->trackPrinter(PrinterPool::getPrinterById(key));
+    foreach(QKlipperInstance *key, QKlipperInstancePool::klipperInstances())
+        m_energyWidget->trackPrinter(key);
 
     m_layout = new QGridLayout(this);
     m_layout->setContentsMargins(0,0,0,0);
@@ -29,7 +29,7 @@ void EnergyConsumptionWidget::setupUi()
     setLayout(m_layout);
 }
 
-void EnergyConsumptionWidget::printerAddedEvent(Printer *printer)
+void EnergyConsumptionWidget::printerAddedEvent(QKlipperInstance *printer)
 {
     if(m_energyWidget)
         m_energyWidget->trackPrinter(printer);

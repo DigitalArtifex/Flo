@@ -6,7 +6,7 @@
 #include <QLabel>
 #include <QMovie>
 
-#include "../../../../../types/bed.h"
+#include <QKlipper/qklipper.h>
 #include "../../../../../ui/qwidgetanimation.h"
 
 #include "empty/bedmeshemptyframe.h"
@@ -20,11 +20,14 @@ class BedMeshFrame : public QFrame
 {
     Q_OBJECT
 public:
-    explicit BedMeshFrame(Q3DPrintBed *bed, QWidget *parent = nullptr);
+    explicit BedMeshFrame(QKlipperPrintBed *bed, QWidget *parent = nullptr);
     ~BedMeshFrame();
 
     void showLoadingScreen();
     void hideLoadingScreen();
+
+public slots:
+    void setStyleSheet(const QString &styleSheet);
 
 protected:
     void setupIcons();
@@ -33,12 +36,13 @@ protected:
 protected slots:
     void on_loadingAnimation_finished();
 
-    void on_printerBed_calibrating();
-    void on_toolhead_homing();
-    void on_toolhead_homed();
+    void onToolheadHoming();
+    void onToolheadHomed();
 
-    void on_printerBed_bedMeshCalibrated();
-    void on_printerBed_bedMeshCalibrating();
+    void onBedMeshCalibratingFinished();
+    void onBedMeshCalibrating();
+
+    void clearLayout();
 
 private:
     Ui::BedMeshFrame *ui;
@@ -55,7 +59,7 @@ private:
 
     QWidgetAnimation *m_loadingAnimation = nullptr;
 
-    Q3DPrintBed *m_printerBed;
+    QKlipperPrintBed *m_printerBed;
 };
 
 #endif // BEDMESHFRAME_H

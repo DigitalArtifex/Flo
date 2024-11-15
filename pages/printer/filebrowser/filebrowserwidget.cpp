@@ -11,7 +11,7 @@ FileBrowserWidget::~FileBrowserWidget()
 {
 }
 
-void FileBrowserWidget::addFile(KlipperFile file)
+void FileBrowserWidget::addFile(QKlipperFile *file)
 {
     FileBrowserItem *item;
 
@@ -28,7 +28,7 @@ void FileBrowserWidget::addFile(KlipperFile file)
     addItem(item);
 }
 
-void FileBrowserWidget::setFiles(const QList<KlipperFile> &files)
+void FileBrowserWidget::setFiles(const QKlipperFileList &files)
 {
     for(int i = 0; i < files.count(); i++)
     {

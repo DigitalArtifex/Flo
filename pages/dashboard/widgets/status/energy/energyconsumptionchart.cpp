@@ -11,25 +11,25 @@ EnergyConsumptionChart::EnergyConsumptionChart(QWidget *parent)
 EnergyConsumptionChart::~EnergyConsumptionChart()
 {
     if(m_axisX)
-        delete m_axisX;
+        m_axisX->deleteLater();
 
     if(m_axisY)
-        delete m_axisY;
+        m_axisY->deleteLater();
 
     foreach(QString key, m_series.keys())
-        delete m_series[key];
+        m_series[key]->deleteLater();
 
     if(m_chart)
-        delete m_chart;
+        m_chart->deleteLater();
 
     if(m_view)
-        delete m_view;
+        m_view->deleteLater();
 
     if(m_layout)
-        delete m_layout;
+        m_layout->deleteLater();
 }
 
-void EnergyConsumptionChart::trackPrinter(Printer *printer)
+void EnergyConsumptionChart::trackPrinter(QKlipperInstance *printer)
 {
     m_sources.append(printer);
 
@@ -97,8 +97,8 @@ void EnergyConsumptionChart::setupUi()
     QLinearGradient plotAreaGradient;
     plotAreaGradient.setStart(QPointF(0, 1));
     plotAreaGradient.setFinalStop(QPointF(1, 0));
-    plotAreaGradient.setColorAt(0.0, QColor(Settings::get("theme-graph-plot-background-start").toString()));
-    plotAreaGradient.setColorAt(1.0, QColor(Settings::get("theme-graph-plot-background-end").toString()));
+    plotAreaGradient.setColorAt(0.0, QColor(Settings::get("theme/graph-plot-background-start").toString()));
+    plotAreaGradient.setColorAt(1.0, QColor(Settings::get("theme/graph-plot-background-end").toString()));
     plotAreaGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
     m_chart->setPlotAreaBackgroundBrush(plotAreaGradient);
     m_chart->setPlotAreaBackgroundVisible(true);
@@ -106,8 +106,8 @@ void EnergyConsumptionChart::setupUi()
     QLinearGradient backgroundGradient;
     backgroundGradient.setStart(QPointF(0, 0));
     backgroundGradient.setFinalStop(QPointF(0, 1));
-    backgroundGradient.setColorAt(0.0, QColor(Settings::get("theme-graph-background-start").toString()));
-    backgroundGradient.setColorAt(1.0, QColor(Settings::get("theme-graph-background-end").toString()));
+    backgroundGradient.setColorAt(0.0, QColor(Settings::get("theme/graph-background-start").toString()));
+    backgroundGradient.setColorAt(1.0, QColor(Settings::get("theme/graph-background-end").toString()));
     backgroundGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
     m_chart->setBackgroundBrush(backgroundGradient);
 }
@@ -143,15 +143,13 @@ void EnergyConsumptionChart::updateTimerTimeoutEvent()
 
     //qDebug() << "Power Update";
 
-    foreach(Printer *printer, m_sources)
+    foreach(QKlipperInstance *printer, m_sources)
     {
         QString key = printer->id();
-        qreal power = printer->watts();
+        qreal power = printer->printer()->watts();
         wattsTotal += power;
 
         m_series[printer->id()]->append(timestamp.toMSecsSinceEpoch(), qCeil(power));
-
-        //qDebug() << QString("--") + printer->name() + QString(" ") + QString::number(power) + QString("W");
     }
 
     m_series["total"]->append(timestamp.toMSecsSinceEpoch(), wattsTotal);
@@ -162,8 +160,8 @@ void EnergyConsumptionChart::setStyleSheet(QString &styleSheet)
     QLinearGradient plotAreaGradient;
     plotAreaGradient.setStart(QPointF(0, 1));
     plotAreaGradient.setFinalStop(QPointF(1, 0));
-    plotAreaGradient.setColorAt(0.0, QColor(Settings::get("theme-graph-plot-background-start").toString()));
-    plotAreaGradient.setColorAt(1.0, QColor(Settings::get("theme-graph-plot-background-end").toString()));
+    plotAreaGradient.setColorAt(0.0, QColor(Settings::get("theme/graph-plot-background-start").toString()));
+    plotAreaGradient.setColorAt(1.0, QColor(Settings::get("theme/graph-plot-background-end").toString()));
     plotAreaGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
     m_chart->setPlotAreaBackgroundBrush(plotAreaGradient);
     m_chart->setPlotAreaBackgroundVisible(true);
@@ -171,8 +169,8 @@ void EnergyConsumptionChart::setStyleSheet(QString &styleSheet)
     QLinearGradient backgroundGradient;
     backgroundGradient.setStart(QPointF(0, 0));
     backgroundGradient.setFinalStop(QPointF(0, 1));
-    backgroundGradient.setColorAt(0.0, QColor(Settings::get("theme-graph-background-start").toString()));
-    backgroundGradient.setColorAt(1.0, QColor(Settings::get("theme-graph-background-end").toString()));
+    backgroundGradient.setColorAt(0.0, QColor(Settings::get("theme/graph-background-start").toString()));
+    backgroundGradient.setColorAt(1.0, QColor(Settings::get("theme/graph-background-end").toString()));
     backgroundGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
     m_chart->setBackgroundBrush(backgroundGradient);
 

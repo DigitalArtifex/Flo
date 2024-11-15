@@ -3,13 +3,13 @@
 IssueListWidget::IssueListWidget(QWidget *parent) :
     QAnimatedListWidget(parent)
 {
-    connect(PrinterPool::instance(), SIGNAL(printerError(QString,QString,Printer*)), this, SLOT(on_printerPool_printerError(QString,QString,Printer*)));
+    connect(QKlipperInstancePool::pool(), SIGNAL(error(QKlipperInstance*,QKlipperError&)), this, SLOT(onInstanceError(QKlipperInstance*,QKlipperError&)));
     setEmptyText(QString("No Issues Found"));
 }
 
-void IssueListWidget::addIssue(QString title, QString source, QString message)
+void IssueListWidget::addIssue(QString source, QKlipperError &error)
 {
-    IssueListItem *item = new IssueListItem(title, source, message, this);
+    IssueListItem *item = new IssueListItem(error.errorTitle(), source, error.errorString(), this);
     setAnimationSlide(item);
     item->setOpacityIn(1);
     item->setOpacityOut(0);
@@ -20,9 +20,9 @@ void IssueListWidget::addIssue(QString title, QString source, QString message)
     addItem(item);
 }
 
-void IssueListWidget::on_printerPool_printerError(QString title, QString message, Printer *printer)
+void IssueListWidget::onInstanceError(QKlipperInstance *instance, QKlipperError &error)
 {
-    addIssue(title, QString("Printer: ") + printer->name(), message);
+    addIssue(QString("Printer: ") + instance->name(), error);
 }
 
 void IssueListWidget::itemRemoveRequestEvent(IssueListItem *item)

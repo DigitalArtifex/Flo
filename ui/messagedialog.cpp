@@ -49,7 +49,7 @@ void MessageDialog::setupUi()
 
     m_acceptButton = new QIconButton(this);
     m_acceptButton->setText("Okay");
-    m_acceptButton->setPixmap(Settings::getThemeIcon("accept-icon").pixmap(32,32));
+    m_acceptButton->setIcon(Settings::getThemeIcon("accept-icon"));
     m_acceptButton->setMinimumSize(200,50);
     m_acceptButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_centralLayout->addWidget(m_acceptButton);

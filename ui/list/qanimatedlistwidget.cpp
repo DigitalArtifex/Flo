@@ -34,7 +34,7 @@ void QAnimatedListWidget::addItem(QAnimatedListItem *item)
     if(m_emptyListItem)
     {
         m_scrollAreaContents->layout()->removeWidget(m_emptyListItem);
-        delete m_emptyListItem;
+        m_emptyListItem->deleteLater();
         m_emptyListItem = nullptr;
     }
 

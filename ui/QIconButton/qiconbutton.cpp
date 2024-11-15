@@ -8,21 +8,18 @@ QIconButton::QIconButton(QWidget *parent)
 
 QIconButton::~QIconButton()
 {
-    if(m_iconLabel)
-        delete m_iconLabel;
-
     if(m_textLabel)
-        delete m_textLabel;
+        m_textLabel->deleteLater();
 
     if(m_layout)
-        delete m_layout;
+        m_layout->deleteLater();
 }
 
 void QIconButton::mousePressEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton)
     {
-        setProperty("pressed", true);
+        setProperty("clicked", true);
         m_pressed = true;
         style()->polish(this);
     }
@@ -32,7 +29,7 @@ void QIconButton::mouseReleaseEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton && m_pressed)
     {
-        setProperty("pressed", false);
+        setProperty("clicked", false);
         m_pressed = false;
 
         if(!m_checkable)
@@ -64,14 +61,51 @@ void QIconButton::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
+void QIconButton::paintEvent(QPaintEvent *event)
+{
+    QFrame::paintEvent(event);
+
+    QPixmap pixmap;
+
+    QSize size(24,24);
+
+    int x = 10;
+    int y = ((height() / 2) - (size.height() / 2));
+
+    if(property("icon-right").isValid())
+        x = property("icon-right").toInt();
+
+    if(property("icon-top").isValid())
+        y = property("icon-top").toInt();
+
+    if(property("icon-size").isValid())
+        size = property("icon-size").toSize();
+
+    if(isEnabled())
+        pixmap = (m_icon.pixmap(size, QIcon::Normal, QIcon::On));
+    else
+        pixmap = (m_icon.pixmap(size, QIcon::Disabled, QIcon::On));
+
+    QPainter painter;
+
+    painter.begin(this);
+    painter.drawPixmap(QRect(x, y, size.width(), size.height()), pixmap);
+    painter.end();
+}
+
+void QIconButton::changeEvent(QEvent *event)
+{
+    QFrame::changeEvent(event);
+}
+
 bool QIconButton::exclusive() const
 {
     return m_exclusive;
 }
 
-void QIconButton::setExclusive(bool newExclusive)
+void QIconButton::setExclusive(bool exclusive)
 {
-    m_exclusive = newExclusive;
+    m_exclusive = exclusive;
 }
 
 bool QIconButton::isChecked() const
@@ -79,10 +113,10 @@ bool QIconButton::isChecked() const
     return m_checked;
 }
 
-void QIconButton::setChecked(bool newChecked)
+void QIconButton::setChecked(bool checked)
 {
-    setProperty("checked", newChecked);
-    m_checked = newChecked;
+    setProperty("checked", checked);
+    m_checked = checked;
     style()->polish(this);
 }
 
@@ -91,35 +125,34 @@ QString QIconButton::text() const
     return m_text;
 }
 
-void QIconButton::setText(const QString &newText)
+void QIconButton::setText(const QString &text)
 {
-    m_text = newText;
-    m_textLabel->setText(newText);
-    style()->polish(this);
+    m_text = text;
+    m_textLabel->setText(text);
 }
 
-void QIconButton::setStyleSheet(QString &styleSheet)
+void QIconButton::setStyleSheet(const QString &styleSheet)
 {
-
-    if(m_iconLabel)
-        m_iconLabel->setStyleSheet(styleSheet);
-
     if(m_textLabel)
         m_textLabel->setStyleSheet(styleSheet);
 
     QWidget::setStyleSheet(styleSheet);
-    style()->polish(this);
+}
+
+QIcon QIconButton::icon() const
+{
+    return m_icon;
+}
+
+void QIconButton::setIcon(const QIcon &icon)
+{
+    m_icon = icon;
 }
 
 void QIconButton::setupUi()
 {
     m_layout = new QHBoxLayout(this);
     setLayout(m_layout);
-
-    m_iconLabel = new QLabel(this);
-    m_iconLabel->resize(24,24);
-    m_iconLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    m_layout->addWidget(m_iconLabel);
 
     m_textLabel = new QLabel(this);
     m_textLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -128,19 +161,6 @@ void QIconButton::setupUi()
 
     setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "Button"));
     m_textLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "ButtonText"));
-    m_iconLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "ButtonIcon"));
-    style()->polish(this);
-}
-
-QPixmap QIconButton::pixmap() const
-{
-    return m_pixmap;
-}
-
-void QIconButton::setPixmap(const QPixmap &newPixmap)
-{
-    m_pixmap = newPixmap;
-    m_iconLabel->setPixmap(m_pixmap);
     style()->polish(this);
 }
 
@@ -149,8 +169,8 @@ bool QIconButton::isCheckable() const
     return m_checkable;
 }
 
-void QIconButton::setCheckable(bool newCheckable)
+void QIconButton::setCheckable(bool checkable)
 {
-    m_checkable = newCheckable;
+    m_checkable = checkable;
     setChecked(m_checked);
 }

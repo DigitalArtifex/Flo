@@ -1,6 +1,6 @@
 #include "printerlistwidget.h"
 #include "ui_printerlistwidget.h"
-#include "../../system/printerpool.h"
+#include <system/qklipperinstancepool.h>
 
 PrinterListWidget::PrinterListWidget(QWidget *parent) :
     QFrame(parent),
@@ -11,8 +11,8 @@ PrinterListWidget::PrinterListWidget(QWidget *parent) :
     m_spacer = new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Expanding);
     m_items.clear();
 
-    connect(PrinterPool::instance(), SIGNAL(printerAdded(Printer*)), this, SLOT(on_printerPool_printerAdded(Printer*)));
-    connect(PrinterPool::instance(), SIGNAL(printerRemoved(Printer*)), this, SLOT(on_printerPool_printerRemoved(Printer*)));
+    connect(QKlipperInstancePool::pool(), SIGNAL(instanceAdded(QKlipperInstance*)), this, SLOT(onInstanceAdded(QKlipperInstance*)));
+    connect(QKlipperInstancePool::pool(), SIGNAL(instanceRemoved(QKlipperInstance*)), this, SLOT(onInstanceRemoved(QKlipperInstance*)));
 }
 
 PrinterListWidget::~PrinterListWidget()
@@ -20,31 +20,47 @@ PrinterListWidget::~PrinterListWidget()
     delete ui;
 }
 
-void PrinterListWidget::addItem(PrinterDefinition definition)
+void PrinterListWidget::addItem(QKlipperInstance *definition)
 {
+    //Check the list for the item
     bool found = false;
 
     foreach(PrinterListItem *item, m_items)
     {
-        if(item->printerDefinition().id == definition.id)
-        {
+        if(item->instance() == definition)
             found = true;
-            break;
-        }
     }
 
+    //Create the item if it doesn't exist
     if(!found)
     {
         PrinterListItem *item = new PrinterListItem();
-        item->setPrinterDefinition(definition);
+        item->setInstance(definition);
         item->setMinimumHeight(50);
 
         connect(item, SIGNAL(clicked(PrinterListItem*)), this, SLOT(on_itemClicked(PrinterListItem*)));
 
+        //remove the bottom spacer and replace it after adding the new item
         ui->scrollAreaWidgetContents->layout()->removeItem(m_spacer);
         ui->scrollAreaWidgetContents->layout()->addWidget(item);
         ui->scrollAreaWidgetContents->layout()->addItem(m_spacer);
         m_items.append(item);
+    }
+}
+
+void PrinterListWidget::removeItem(QKlipperInstance *instance)
+{
+    //Check the list for the item
+    foreach(PrinterListItem *item, m_items)
+    {
+        if(item->instance() == instance)
+        {
+            //remove the item from the list
+            m_items.removeAll(item);
+
+            //delete the item
+            item->deleteLater();
+        }
     }
 }
 
@@ -67,29 +83,14 @@ void PrinterListWidget::on_itemClicked(PrinterListItem *item)
     emit(itemSelected(m_selectedItem));
 }
 
-void PrinterListWidget::on_printerPool_printerRemoved(Printer *printer)
+void PrinterListWidget::onInstanceRemoved(QKlipperInstance *instance)
 {
-    for(int i = 0; i < m_items.count(); i++)
-    {
-        if(printer->id() == m_items[i]->printerDefinition().id)
-        {
-            PrinterListItem *item = m_items[i];
-            ui->scrollAreaWidgetContents->layout()->removeWidget(m_items[i]);
-            m_items.removeAt(i);
-
-            delete item;
-        }
-    }
+    removeItem(instance);
 }
 
-void PrinterListWidget::on_printerPool_printerAdded(Printer *printer)
+void PrinterListWidget::onInstanceAdded(QKlipperInstance *instance)
 {
-
-}
-
-void PrinterListWidget::on_printerPool_printerUpdated(Printer *printer)
-{
-
+    addItem(instance);
 }
 
 void PrinterListWidget::mousePressEvent(QMouseEvent *event)
@@ -99,8 +100,4 @@ void PrinterListWidget::mousePressEvent(QMouseEvent *event)
 
     m_selectedItem = nullptr;
     emit(itemSelected(m_selectedItem));
-}
-
-void PrinterListWidget::mouseReleaseEvent(QMouseEvent *event)
-{
 }

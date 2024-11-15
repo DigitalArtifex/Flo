@@ -10,8 +10,7 @@
 
 #include <QStyle>
 
-#include "../../../../../../ui/qwidgetanimation.h"
-#include "../../../../../../types/bed.h"
+#include <QKlipper/qklipper.h>
 
 namespace Ui {
 class AdjustmentScrewEmptyFrame;
@@ -22,10 +21,11 @@ class AdjustmentScrewEmptyFrame : public QFrame
     Q_OBJECT
 
 public:
-    explicit AdjustmentScrewEmptyFrame(Q3DPrintBed *bed, QWidget *parent = nullptr);
+    explicit AdjustmentScrewEmptyFrame(QKlipperPrintBed *bed, QWidget *parent = nullptr);
     ~AdjustmentScrewEmptyFrame();
 
-    virtual void setStyleSheet(QString &styleSheet);
+public slots:
+    void setStyleSheet(const QString &styleSheet);
     virtual void setCalibrationEnabled(bool enabled);
 
 signals:
@@ -33,9 +33,8 @@ signals:
 
 private slots:
     void on_calibrateButton_clicked();
-    void on_toolhead_updated();
-    void on_toolhead_homing();
-    void on_toolhead_homed();
+    void onToolheadHoming();
+    void onToolheadHomingFinished();
 
     void on_homeButton_clicked();
 
@@ -47,7 +46,7 @@ private:
     QSpacerItem *m_leftSpacer = nullptr;
     QSpacerItem *m_bottomSpacer = nullptr;
 
-    Q3DPrintBed *m_printerBed = nullptr;
+    QKlipperPrintBed *m_printerBed = nullptr;
 };
 
 #endif // ADJUSTMENTSCREWEMPTYFRAME_H

@@ -7,7 +7,8 @@
 #include <QMovie>
 #include <QLabel>
 
-#include "types/printer.h"
+#include <QKlipper/qklipper.h>
+
 #include "ui/widgetanimation.h"
 #include "ui/qanimatedwidget.h"
 #include "ui/QIconButton/qiconbutton.h"
@@ -24,8 +25,8 @@ public:
     explicit PrinterWidget(QWidget *parent = nullptr);
     ~PrinterWidget();
 
-    void setPrinter(Printer *printer);
-    Printer *printer();
+    void setPrinter(QKlipperInstance *printer);
+    QKlipperInstance *printer();
 
     void setUiClasses();
 
@@ -35,9 +36,8 @@ signals:
     void selected(PrinterWidget *);
 
 private slots:
-    void on_printer_update(Printer *printer);
-    void on_printer_klipperDisconnected(Printer *printer);
-    void on_printer_klipperConnected(Printer *printer);
+    void on_printer_klipperDisconnected(QKlipperInstance *printer);
+    void on_printer_klipperConnected(QKlipperInstance *printer);
 
     void on_quickActionButton_toggled(bool checked);
     void on_statusButton_clicked();
@@ -51,13 +51,17 @@ private slots:
 
     void on_restartFirmwareButton_clicked();
 
+    void onPrinterStatusChanged();
+    void onInstanceNameChanged();
+    void onPrinterPrintEndingChanged();
+
 private:
     void showLoadingScreen();
     void hideLoadingScreen();
 
 private:
     Ui::PrinterWidget *ui;
-    Printer *m_printer = nullptr;
+    QKlipperInstance *m_instance = nullptr;
     QMovie *m_loadingGif = nullptr;
     QLabel *m_loadingLabel = nullptr;
 

@@ -5,8 +5,7 @@
 #include <QFrame>
 #include <QStyle>
 #include "../../../../ui/circularprogressbar.h"
-#include "../../../../types/extruder.h"
-#include "../../../../types/printer.h"
+#include <QKlipper/qklipper.h>
 
 namespace Ui {
 class ExtruderWidget;
@@ -20,7 +19,7 @@ public:
     explicit ExtruderWidget(QWidget *parent = nullptr);
     ~ExtruderWidget();
 
-    void setExtruder(Extruder *extruder);
+    void setExtruder(QKlipperExtruder *extruder);
 
     void setUiClasses();
 
@@ -29,9 +28,7 @@ public:
 
 private slots:
     void on_extrsuionFactorSlider_valueChanged(int value);
-
     void on_extrusionFactorSpinBox_valueChanged(double value);
-    void on_console_extrudersUpdate();
     void on_targetTempSpinBox_valueChanged(double arg1);
     void on_pressureAdvanceSpinBox_valueChanged(double arg1);
     void on_smoothTimeSpinBox_valueChanged(double arg1);
@@ -40,9 +37,23 @@ private slots:
     void on_extrudeButton_clicked();
     void on_retractButton_clicked();
 
+    void onExtruderCanExtrudeChanged();
+    void onExtruderCurrentTempChanged();
+    void onExtruderTargetTempChanged();
+    void onExtruderMaxTempChanged();
+    void onExtruderPressureAdvanceChanged();
+    void onExtruderSmoothTimeChanged();
+    void onExtruderExtrusionFactorChanged();
+    void onExtruderFanSpeedChanged();
+    void onPartsFanSpeedChanged();
+    void onPartsFanChanged();
+    void onExtruderFanChanged();
+
+    void updateUiValues();
+
 private:
     CircularProgressBar *m_temperatureProgressBar;
-    Extruder *m_extruder;
+    QKlipperExtruder *m_extruder;
     Ui::ExtruderWidget *ui;
 
     bool m_updating = false;

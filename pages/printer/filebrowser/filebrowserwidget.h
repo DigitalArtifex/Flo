@@ -4,7 +4,7 @@
 #include <QObject>
 
 #include "../../../ui/list/qanimatedlistwidget.h"
-#include "../../../types/klipperfile.h"
+#include <QKlipper/qklipper.h>
 #include "filebrowseritem.h"
 
 class FileBrowserWidget : public QAnimatedListWidget
@@ -20,8 +20,8 @@ public:
     explicit FileBrowserWidget(QWidget *parent = nullptr, DisplayMode mode = Page);
     ~FileBrowserWidget();
 
-    void addFile(KlipperFile file);
-    void setFiles(const QList<KlipperFile> &files);
+    void addFile(QKlipperFile *file);
+    void setFiles(const QKlipperFileList &files);
 
     FileBrowserItem *selectedItem();
 

@@ -6,6 +6,8 @@
 #include <QIcon>
 #include <QStyle>
 #include <QMouseEvent>
+#include <QPaintEvent>
+#include <QPainter>
 
 namespace Ui {
 class MenuButton;
@@ -34,12 +36,14 @@ signals:
     void clicked(MenuButton *button);
 
 
-private slots:
+protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void paintEvent(QPaintEvent *event);
+    virtual void changeEvent(QEvent *event);
 
 private:
+    QIcon m_icon;
     Ui::MenuButton *ui;
     bool m_checked = false;
     bool m_pressed = false;

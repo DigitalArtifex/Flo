@@ -8,8 +8,9 @@
 #include "empty/adjustmentscrewemptyframe.h"
 #include "item/adjustmentscrewitemframe.h"
 
-#include "../../../../../types/bed.h"
-#include "../../../../../types/printer.h"
+#include <ui/qanimatedwidget.h>
+
+#include <QKlipper/qklipper.h>
 
 namespace Ui {
 class AdjustmentScrewFrame;
@@ -20,23 +21,30 @@ class AdjustmentScrewFrame : public QFrame
     Q_OBJECT
 
 public:
-    explicit AdjustmentScrewFrame(Q3DPrintBed *bed, QWidget *parent = nullptr);
+    explicit AdjustmentScrewFrame(QKlipperPrintBed *bed, QWidget *parent = nullptr);
     ~AdjustmentScrewFrame();
 
     void showLoadingScreen();
     void hideLoadingScreen();
 
+public slots:
+    void setStyleSheet(const QString &styleSheet);
+    void setupIcons();
+
 signals:
 
 private slots:
     void on_recalibrateButton_clicked();
-    void on_printerBed_adjustmentScrewsCalibrated();
-    void on_printerBed_adjustmentScrewsCalibrating();
     void on_loadingAnimation_finished();
 
-    void on_printerBed_calibrating();
-    void on_toolhead_homing();
-    void on_toolhead_homed();
+    void onPrinterBedCalibrating();
+    void onPrinterBedCalibratingFinished();
+    void onAdjustmentScrewsChanged();
+
+    void onToolheadHoming();
+    void onToolheadHomed();
+
+    void clearLayout();
 
 private:
     Ui::AdjustmentScrewFrame *ui;
@@ -51,7 +59,7 @@ private:
 
     AdjustmentScrewEmptyFrame *m_emptyAdjustmentScrewFrame = nullptr;
 
-    Q3DPrintBed *m_printerBed = nullptr;
+    QKlipperPrintBed *m_printerBed = nullptr;
 };
 
 #endif // ADJUSTMENTSCREWFRAME_H

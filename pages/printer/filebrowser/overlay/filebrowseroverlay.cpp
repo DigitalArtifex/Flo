@@ -15,8 +15,6 @@ FileBrowserOverlay::FileBrowserOverlay(QWidget *parent) :
 
 FileBrowserOverlay::~FileBrowserOverlay()
 {
-    if(m_label)
-        delete m_label;
 }
 
 void FileBrowserOverlay::setupUi()

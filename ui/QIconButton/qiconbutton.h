@@ -8,6 +8,8 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPixmap>
+#include <QPainter>
+#include <QIcon>
 
 class QIconButton : public QFrame
 {
@@ -18,28 +20,33 @@ public:
     ~QIconButton();
 
     bool isCheckable() const;
-    void setCheckable(bool newCheckable);
-
-    QPixmap pixmap() const;
-    void setPixmap(const QPixmap &newPixmap);
+    void setCheckable(bool checkable);
 
     QString text() const;
-    void setText(const QString &newText);
+    void setText(const QString &text);
 
-    virtual void setStyleSheet(QString &styleSheet);
 
     bool isChecked() const;
-    void setChecked(bool newChecked);
+    void setChecked(bool checked);
 
     bool exclusive() const;
-    void setExclusive(bool newExclusive);
+    void setExclusive(bool exclusive);
+
+    QIcon icon() const;
+
+public slots:
+    void setIcon(const QIcon &icon);
+    void setStyleSheet(const QString &styleSheet);
 
 protected:
     void setupUi();
 
-protected slots:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void paintEvent(QPaintEvent *event);
+
+    virtual void changeEvent(QEvent *event);
+
 
 signals:
     void clicked();
@@ -51,12 +58,12 @@ private:
     bool m_checkable = false;
     bool m_exclusive = false;
 
-    QPixmap m_pixmap;
     QString m_text;
 
     QHBoxLayout *m_layout = nullptr;
-    QLabel *m_iconLabel = nullptr;
     QLabel *m_textLabel = nullptr;
+
+    QIcon m_icon;
 };
 
 #endif // QICONBUTTON_H

@@ -4,8 +4,8 @@
 #include <QFrame>
 #include <QSpacerItem>
 #include <QMouseEvent>
+#include <QKlipper/qklipper.h>
 
-#include "../../types/printer.h"
 #include "printerlistitem.h"
 
 namespace Ui {
@@ -20,7 +20,8 @@ public:
     explicit PrinterListWidget(QWidget *parent = nullptr);
     ~PrinterListWidget();
 
-    void addItem(PrinterDefinition definition);
+    void addItem(QKlipperInstance *definition);
+    void removeItem(QKlipperInstance *instance);
     PrinterListItem *selectedItem();
 
 signals:
@@ -28,12 +29,11 @@ signals:
 
 private slots:
     void on_itemClicked(PrinterListItem *item);
-    void on_printerPool_printerRemoved(Printer *printer);
-    void on_printerPool_printerAdded(Printer *printer);
-    void on_printerPool_printerUpdated(Printer *printer);
+
+    void onInstanceRemoved(QKlipperInstance *instance);
+    void onInstanceAdded(QKlipperInstance *instance);
 
     virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     Ui::PrinterListWidget *ui;

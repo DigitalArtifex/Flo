@@ -4,7 +4,7 @@
 #include <QFrame>
 #include <QPixmap>
 
-#include "../../../../../../types/bed.h"
+#include <QKlipper/qklipper.h>
 
 namespace Ui {
 class AdjustmentScrewItemFrame;
@@ -18,13 +18,20 @@ public:
     explicit AdjustmentScrewItemFrame(QWidget *parent = nullptr);
     ~AdjustmentScrewItemFrame();
 
-    Q3DPrintBed::AdjustmentScrew *adjustmentScrew() const;
-    void setAdjustmentScrew(Q3DPrintBed::AdjustmentScrew *adjustmentScrew);
+    QKlipperAdjustmentScrew *adjustmentScrew() const;
+    void setAdjustmentScrew(QKlipperAdjustmentScrew *adjustmentScrew);
+
+public slots:
+    void setupIcons();
+    void setStyleSheet(const QString &styleSheet);
+
+protected slots:
+    void onAdjustmentScrewAmountChanged();
 
 private:
     Ui::AdjustmentScrewItemFrame *ui;
 
-    //Q3DPrintBed::AdjustmentScrew *m_adjustmentScrew = nullptr;
+    QKlipperAdjustmentScrew *m_adjustmentScrew = nullptr;
 };
 
 #endif // ADJUSTMENTSCREWITEMFRAME_H

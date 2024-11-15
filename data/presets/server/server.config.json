@@ -1,9 +1,0 @@
-{
-    "name": "Server Config",
-    "type": "preset",
-    "icon": "server-info",
-    "preset":
-    {
-        "method": "server.config"
-    }
-}

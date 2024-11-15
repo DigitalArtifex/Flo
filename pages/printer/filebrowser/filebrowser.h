@@ -13,8 +13,7 @@
 #include <QInputDialog>
 #include <QDialog>
 
-#include "types/printer.h"
-#include "types/klipperfile.h"
+#include <QKlipper/qklipper.h>
 #include "filebrowserwidget.h"
 
 #include "editor/fileeditor.h"
@@ -34,11 +33,11 @@ public:
         Widget
     };
 
-    FileBrowser(Printer *printer, QString root, QWidget *parent = nullptr, Mode mode = Page);
+    FileBrowser(QKlipperInstance *printer, QString root, QWidget *parent = nullptr, Mode mode = Page);
     ~FileBrowser();
 
-    Printer *printer() const;
-    void setPrinter(Printer *printer);
+    QKlipperInstance *printer() const;
+    void setPrinter(QKlipperInstance *printer);
 
     virtual void setupUi();
     virtual void setupConnections();
@@ -63,12 +62,12 @@ private slots:
     void deleteFileButtonClickEvent();
 
     //Printer
-    void printerFileListingEvent(QString root, QString directory, QList<KlipperFile> files, Printer *printer);
-    void printerStartupEvent(Printer *printer);
+    void onInstanceConnected(QKlipperInstance *instance);
+    void onServerFileListChanged(const QString &directory);
 
     //FileBrowserWidget
-    void fileBrowserWidgetFileSelectedEvent(QAnimatedListItem *item);
-    void fileDoubleClickEvent(QAnimatedListItem *item);
+    void onFileBrowserWidgetFileSelected(QAnimatedListItem *item);
+    void onFileBrowserWidgetItemDoubleClicked(QAnimatedListItem *item);
 
     //Overlay
     void overlayAnimatedOutEvent();
@@ -86,7 +85,7 @@ private slots:
 private:
     bool m_startup = true;
 
-    Printer *m_printer = nullptr;
+    QKlipperInstance *m_instance = nullptr;
     QString m_rootDirectory = QString("");
     QString m_currentDirectory = QString("");
 

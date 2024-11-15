@@ -11,7 +11,7 @@
 #include <QToolButton>
 #include <QTimer>
 
-#include "../../../../../types/printjob.h"
+#include <QKlipper/qklipper.h>
 #include "../../../../../ui/list/qanimatedlistitem.h"
 
 class PrintJobListItem : public QAnimatedListItem
@@ -24,8 +24,8 @@ public:
 
     void setupUi();
 
-    PrintJob *printJob();
-    void setPrintJob(PrintJob *job);
+    QKlipperPrintJob *printJob();
+    void setPrintJob(QKlipperPrintJob *job);
 
     virtual void setStyleSheet(const QString &styleSheet);
 
@@ -33,18 +33,17 @@ signals:
     void removeRequest(PrintJobListItem *item);
 
 protected slots:
-    void on_printJob_finished(PrintJob *printJob);
-    void on_printJob_paused(PrintJob *printJob);
-    void on_printJob_resumed(PrintJob *printJob);
-    void on_printJob_cancelled(PrintJob *printJob);
-    void on_printJob_error(PrintJob *printJob);
-    void on_printJob_updated(PrintJob *printJob);
+    void onPrintJobStateChanged();
+    void onPrintJobCurrentLayerChanged();
+    void onPrintJobTotalLayersChanged();
+    void onInstanceNameChanged();
 
     void closeButtonClickEvent();
     void autoRemoveTimerTimeoutEvent();
 
 private:
-    PrintJob *m_job;
+    QKlipperPrintJob *m_job;
+
     QLabel *m_jobNameLabel = nullptr;
     QLabel *m_printerNameLabel = nullptr;
     QLabel *m_timeRemainingLabel = nullptr;

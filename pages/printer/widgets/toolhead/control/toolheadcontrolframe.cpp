@@ -1,6 +1,6 @@
 #include "toolheadcontrolframe.h"
 
-ToolHeadControlFrame::ToolHeadControlFrame(Toolhead *toolhead, QWidget *parent) : QFrame(parent)
+ToolHeadControlFrame::ToolHeadControlFrame(QKlipperToolHead *toolhead, QWidget *parent) : QFrame(parent)
 {
     QPixmap xDownImage(":/images/ui/toolhead/x_down_control_image.png");
     QPixmap xDownClickedImage(":/images/ui/toolhead/x_down_control_image_clicked.png");
@@ -80,31 +80,33 @@ ToolHeadControlFrame::ToolHeadControlFrame(Toolhead *toolhead, QWidget *parent) 
     connect(m_homeWidget, SIGNAL(clicked(QMaskedButton*)), this, SLOT(homeClickEvent()));
 
     m_toolhead = toolhead;
-    connect(m_toolhead, SIGNAL(updated()), this, SLOT(toolheadUpdateEvent()));
+    connect(m_toolhead, SIGNAL(isHomedChanged()), this, SLOT(toolheadUpdateEvent()));
+
+    toolheadUpdateEvent();
 }
 
 ToolHeadControlFrame::~ToolHeadControlFrame()
 {
     if(m_homeWidget)
-        delete m_homeWidget;
+        m_homeWidget->deleteLater();
 
     if(m_xDownWidget)
-        delete m_xDownWidget;
+        m_xDownWidget->deleteLater();
 
     if(m_xUpWidget)
-        delete m_xUpWidget;
+        m_xUpWidget->deleteLater();
 
     if(m_yUpWidget)
-        delete m_yUpWidget;
+        m_yUpWidget->deleteLater();
 
     if(m_yDownWidget)
-        delete m_yDownWidget;
+        m_yDownWidget->deleteLater();
 
     if(m_zUpWidget)
-        delete m_zUpWidget;
+        m_zUpWidget->deleteLater();
 
     if(m_zDownWidget)
-        delete m_zDownWidget;
+        m_zDownWidget->deleteLater();
 }
 
 void ToolHeadControlFrame::resizeEvent(QResizeEvent *event)
@@ -122,8 +124,9 @@ void ToolHeadControlFrame::resizeEvent(QResizeEvent *event)
 
 void ToolHeadControlFrame::xUpClickEvent()
 {
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
     //Move toolhead if printer is online
-    if(m_toolhead->printer()->isOnline())
+    if(printer->status() == QKlipperPrinter::Ready)
     {
         qDebug() << QString("Requesting X Axis movement of ") + QString::number(m_increment);
         m_toolhead->moveX(m_increment);
@@ -134,8 +137,9 @@ void ToolHeadControlFrame::xUpClickEvent()
 
 void ToolHeadControlFrame::xDownClickEvent()
 {
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
     //Move toolhead if printer is online
-    if(m_toolhead->printer()->isOnline())
+    if(printer->status() == QKlipperPrinter::Ready)
     {
         qDebug() << QString("Requesting X Axis movement of ") + QString::number(m_increment * -1);
         m_toolhead->moveX(m_increment * -1);
@@ -146,8 +150,9 @@ void ToolHeadControlFrame::xDownClickEvent()
 
 void ToolHeadControlFrame::yUpClickEvent()
 {
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
     //Move toolhead if printer is online
-    if(m_toolhead->printer()->isOnline())
+    if(printer->status() == QKlipperPrinter::Ready)
     {
         qDebug() << QString("Requesting Y Axis movement of ") + QString::number(m_increment);
         m_toolhead->moveY(m_increment);
@@ -158,8 +163,9 @@ void ToolHeadControlFrame::yUpClickEvent()
 
 void ToolHeadControlFrame::yDownClickEvent()
 {
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
     //Move toolhead if printer is online
-    if(m_toolhead->printer()->isOnline())
+    if(printer->status() == QKlipperPrinter::Ready)
     {
         qDebug() << QString("Requesting Y Axis movement of ") + QString::number(m_increment * -1);
         m_toolhead->moveY(m_increment * -1);
@@ -170,8 +176,9 @@ void ToolHeadControlFrame::yDownClickEvent()
 
 void ToolHeadControlFrame::zUpClickEvent()
 {
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
     //Move toolhead if printer is online
-    if(m_toolhead->printer()->isOnline())
+    if(printer->status() == QKlipperPrinter::Ready)
     {
         qDebug() << QString("Requesting Z Axis movement of ") + QString::number(m_increment);
         m_toolhead->moveZ(m_increment);
@@ -182,8 +189,9 @@ void ToolHeadControlFrame::zUpClickEvent()
 
 void ToolHeadControlFrame::zDownClickEvent()
 {
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
     //Move toolhead if printer is online
-    if(m_toolhead->printer()->isOnline())
+    if(printer->status() == QKlipperPrinter::Ready)
     {
         qDebug() << QString("Requesting Z Axis movement of ") + QString::number(m_increment * -1);
         m_toolhead->moveZ(m_increment * -1);
@@ -194,11 +202,12 @@ void ToolHeadControlFrame::zDownClickEvent()
 
 void ToolHeadControlFrame::homeClickEvent()
 {
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
     //Move toolhead if printer is online
-    if(m_toolhead->printer()->isOnline())
+    if(printer->status() == QKlipperPrinter::Ready)
     {
         qDebug() << QString("Homing toolhead");
-        m_toolhead->homeAll();
+        m_toolhead->home();
     }
     else
         qDebug() << QString("Cannot move toolhead. Printer offline.");

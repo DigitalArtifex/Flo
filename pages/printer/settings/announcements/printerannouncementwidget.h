@@ -10,7 +10,7 @@
 #include "printerannouncementitem.h"
 
 #include "ui/list/qanimatedlistwidget.h"
-#include "types/system.h"
+#include <QKlipper/qklipper.h>
 
 class PrinterAnnouncementWidget : public QAnimatedListWidget
 {
@@ -19,11 +19,8 @@ public:
     explicit PrinterAnnouncementWidget(QWidget *parent);
     ~PrinterAnnouncementWidget();
 
-    System::UpdateState updateState() const;
-    void setUpdateState(const System::UpdateState &newUpdateState);
-
-    QList<System::Announcement> announcements() const;
-    void setAnnouncements(const QList<System::Announcement> &newAnnouncements);
+    QKlipperAnnouncementList announcements() const;
+    void setAnnouncements(const QKlipperAnnouncementList &newAnnouncements);
 
 signals:
     void itemDismissRequested(PrinterAnnouncementItem *item);
@@ -32,8 +29,7 @@ protected slots:
     void itemDismissRequestedEvent(PrinterAnnouncementItem* item);
 
 private:
-    System::UpdateState m_updateState;
-    QList<System::Announcement> m_announcements;
+    QKlipperAnnouncementList m_announcements;
 };
 
 #endif // PRINTERANNOUNCEMENTWIDGET_H

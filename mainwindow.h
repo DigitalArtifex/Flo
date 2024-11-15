@@ -27,7 +27,7 @@
 
 #include "QSourceHighlite/qsourcehighliter.h"
 
-#include "types/console/qabstractklipperconsole.h"
+#include <QKlipper/qklipper.h>
 #include "system/flo.h"
 
 //UI elements
@@ -56,6 +56,9 @@ public:
 
 signals:
 
+protected slots:
+    virtual void resizeEvent(QResizeEvent *event);
+
 private slots:
     void online();
     void updateStyleSheet();
@@ -78,10 +81,10 @@ private slots:
     void on_loadingAnimation_finished();
     void on_initAsync();
 
-    void on_printerPoolPrinterAdded(Printer* printer);
-    void on_printerPoolPrinterRemoved(Printer* printer);
+    void on_printerPoolPrinterAdded(QKlipperInstance* printer);
+    void on_printerPoolPrinterRemoved(QKlipperInstance* printer);
 
-    virtual void resizeEvent(QResizeEvent *event);
+    void onThemeUpdated();
 
 private:
     void consoleSendCommand();

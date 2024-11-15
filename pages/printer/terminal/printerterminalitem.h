@@ -7,8 +7,7 @@
 #include <QLabel>
 #include <QFrame>
 
-#include "../../../types/klippermessage.h"
-#include "../../../types/klipperresponse.h"
+#include <QKlipper/qklipper.h>
 #include "../../../ui/list/qanimatedlistitem.h"
 
 class PrinterTerminalItem : public QAnimatedListItem
@@ -18,23 +17,22 @@ public:
     PrinterTerminalItem(QWidget *parent = nullptr);
     ~PrinterTerminalItem();
 
-    KlipperMessage *message() const;
-    void setMessage(const KlipperMessage *message);
+    QKlipperMessage *message() const;
+    void setMessage(const QKlipperMessage *message);
 
-    KlipperResponse response() const;
-    void setResponse(const KlipperResponse response);
+    QJsonValue response() const;
 
     void setErrorMessage(QString title, QString message);
 
     bool isErrorMessage() const;
     void setIsErrorMessage(bool isErrorMessage);
 
-protected:
+protected slots:
     void setupUi();
+    void onMessageResponseChanged();
 
 private:
-    KlipperMessage *m_message;
-    KlipperResponse m_response;
+    QKlipperMessage *m_message;
 
     //UI
     QGridLayout *m_layout = nullptr;

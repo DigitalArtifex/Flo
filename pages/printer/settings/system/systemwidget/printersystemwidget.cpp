@@ -1,74 +1,31 @@
 #include "printersystemwidget.h"
 
-PrinterSystemWidget::PrinterSystemWidget(Printer *printer, QWidget *parent)
+PrinterSystemWidget::PrinterSystemWidget(QKlipperInstance *instance, QWidget *parent)
     : CardWidget{CardWidget::SubWidget, parent}
 {
     setupUi();
 
     setTitle("System");
 
-    m_system = printer->system();
+    m_system = instance->system();
 
-    connect(m_system, SIGNAL(updated()), this, SLOT(systemUpdateEvent()));
-    connect(m_system, SIGNAL(sdInfoUpdate()), this, SLOT(sdInfoUpdateEvent()));
+    //connect(m_system, SIGNAL(updated()), this, SLOT(onSystemMemoryStatsChanged()));
+    connect(m_system, SIGNAL(cpuInfoChanged()), this, SLOT(onSystemCpuInfoChanged()));
+    connect(m_system, SIGNAL(sdInfoChanged()), this, SLOT(sdInfoUpdateEvent()));
+    connect(m_system->memoryStats(), SIGNAL(totalChanged()), this, SLOT(onSystemMemoryStatsChanged()));
+    connect(m_system->memoryStats(), SIGNAL(usedChanged()), this, SLOT(onSystemMemoryStatsChanged()));
 }
 
 PrinterSystemWidget::~PrinterSystemWidget()
 {
-
+    if(m_centralLayout)
+        m_centralLayout->deleteLater();
+    if(m_centralWidget)
+        m_centralLayout->deleteLater();
 }
 
 void PrinterSystemWidget::systemUpdateEvent()
 {
-    if(m_system->cpuInfo().temp > m_peakTemperature)
-        m_peakTemperature = m_system->cpuInfo().temp;
-
-    QString cpuName;
-    QString cpuType;
-
-    if(!m_system->cpuInfo().model.isEmpty())
-        cpuName = QString("%1").arg(m_system->cpuInfo().model);
-    else if(!m_system->cpuInfo().description.isEmpty())
-        cpuName = QString("%1").arg(m_system->cpuInfo().description);
-
-    cpuName = QString("Processor: %1...").arg(cpuName.left(16));
-
-    if(!m_system->cpuInfo().processor.isEmpty())
-        cpuType = QString("Type: %1").arg(m_system->cpuInfo().processor);
-
-    QString cpuCount = QString("Cores: %1").arg(m_system->cpuInfo().cpuCount);
-    QString peakTemperature = QString("Peak Temperature: %1°C").arg(QString::number(m_peakTemperature, 'f', 2));
-
-    m_cpuCountLabel->setText(cpuCount);
-    m_cpuNameLabel->setText(cpuName);
-    m_temperatureLabel->setText(cpuType);
-    m_peakTemperatureLabel->setText(peakTemperature);
-
-    m_cpuProgress->setProgress(m_system->cpuInfo().usage);
-    m_temperatureProgress->setProgress(m_system->cpuInfo().temp);
-    m_memoryProgress->setMaximum(m_system->memoryStats().total);
-    m_memoryProgress->setProgress(m_system->memoryStats().used);
-
-    qreal capacity = m_system->memoryStats().total;
-    QString capacityLabel;
-    convertBytes(capacity, capacityLabel);
-
-    QString memoryCapacityString = QString("Capacity : %1 %2").arg(QString::number(capacity, 'f', 2)).arg(capacityLabel);
-    m_memoryCapacityLabel->setText(memoryCapacityString);
-
-    qreal available = m_system->memoryStats().total - m_system->memoryStats().used;
-    QString availableLabel;
-    convertBytes(available, availableLabel);
-
-    QString memoryAvailableString = QString("Available : %1 %2").arg(QString::number(available, 'f', 2)).arg(availableLabel);
-    m_memoryAvailableLabel->setText(memoryAvailableString);
-
-    qreal used = m_system->memoryStats().used;
-    QString usedLabel;
-    convertBytes(used, usedLabel);
-
-    QString memoryUsedString = QString("Used : %1 %2").arg(QString::number(used, 'f', 2)).arg(usedLabel);
-    m_memoryUsedLabel->setText(memoryUsedString);
 }
 
 void PrinterSystemWidget::setupUi()
@@ -211,29 +168,86 @@ void PrinterSystemWidget::sdInfoUpdateEvent()
 {
     m_sdInfo = m_system->sdInfo();
 
-    m_sdProgress->setMaximum(m_sdInfo.totalBytes);
-    m_sdProgress->setProgress(m_sdInfo.usedBytes);
+    m_sdProgress->setMaximum(m_sdInfo.totalBytes());
+    m_sdProgress->setProgress(m_sdInfo.usedBytes());
 
-    qreal capacity = m_sdInfo.totalBytes;
+    qreal capacity = m_sdInfo.totalBytes();
     QString capacityLabel;
     convertBytes(capacity, capacityLabel);
 
     QString memoryCapacityString = QString("Capacity: %1 %2").arg(QString::number(capacity, 'f', 2)).arg(capacityLabel);
     m_sdCapacityLabel->setText(memoryCapacityString);
 
-    qreal available = m_sdInfo.availableBytes;
+    qreal available = m_sdInfo.availableBytes();
     QString availableLabel;
     convertBytes(available, availableLabel);
 
     QString memoryAvailableString = QString("Available: %1 %2").arg(QString::number(available, 'f', 2)).arg(availableLabel);
     m_sdAvailableLabel->setText(memoryAvailableString);
 
-    qreal used = m_sdInfo.usedBytes;
+    qreal used = m_sdInfo.usedBytes();
     QString usedLabel;
     convertBytes(used, usedLabel);
 
     QString memoryUsedString = QString("Used: %1 %2").arg(QString::number(used, 'f', 2)).arg(usedLabel);
     m_sdUsedLabel->setText(memoryUsedString);
+}
+
+void PrinterSystemWidget::onSystemCpuInfoChanged()
+{
+    if(m_system->cpuInfo().temp() > m_peakTemperature)
+        m_peakTemperature = m_system->cpuInfo().temp();
+
+    QString cpuName;
+    QString cpuType;
+
+    if(!m_system->cpuInfo().model().isEmpty())
+        cpuName = QString("%1").arg(m_system->cpuInfo().model());
+    else if(!m_system->cpuInfo().description().isEmpty())
+        cpuName = QString("%1").arg(m_system->cpuInfo().description());
+
+    cpuName = QString("Processor: %1...").arg(cpuName.left(16));
+
+    if(!m_system->cpuInfo().processor().isEmpty())
+        cpuType = QString("Type: %1").arg(m_system->cpuInfo().processor());
+
+    QString cpuCount = QString("Cores: %1").arg(m_system->cpuInfo().cpuCount());
+    QString peakTemperature = QString("Peak Temperature: %1°C").arg(QString::number(m_peakTemperature, 'f', 2));
+
+    m_cpuCountLabel->setText(cpuCount);
+    m_cpuNameLabel->setText(cpuName);
+    m_temperatureLabel->setText(cpuType);
+    m_peakTemperatureLabel->setText(peakTemperature);
+
+    m_cpuProgress->setProgress(m_system->cpuInfo().usage());
+    m_temperatureProgress->setProgress(m_system->cpuInfo().temp());
+}
+
+void PrinterSystemWidget::onSystemMemoryStatsChanged()
+{
+    m_memoryProgress->setMaximum(m_system->memoryStats()->total());
+    m_memoryProgress->setProgress(m_system->memoryStats()->used());
+
+    qreal capacity = m_system->memoryStats()->total();
+    QString capacityLabel;
+    convertBytes(capacity, capacityLabel);
+
+    QString memoryCapacityString = QString("Capacity : %1 %2").arg(QString::number(capacity, 'f', 2)).arg(capacityLabel);
+    m_memoryCapacityLabel->setText(memoryCapacityString);
+
+    qreal available = m_system->memoryStats()->total() - m_system->memoryStats()->used();
+    QString availableLabel;
+    convertBytes(available, availableLabel);
+
+    QString memoryAvailableString = QString("Available : %1 %2").arg(QString::number(available, 'f', 2)).arg(availableLabel);
+    m_memoryAvailableLabel->setText(memoryAvailableString);
+
+    qreal used = m_system->memoryStats()->used();
+    QString usedLabel;
+    convertBytes(used, usedLabel);
+
+    QString memoryUsedString = QString("Used : %1 %2").arg(QString::number(used, 'f', 2)).arg(usedLabel);
+    m_memoryUsedLabel->setText(memoryUsedString);
 }
 
 void PrinterSystemWidget::convertBytes(qreal &bytes, QString &label)

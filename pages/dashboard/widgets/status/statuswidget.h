@@ -5,6 +5,8 @@
 #include <QTabWidget>
 #include <QWidget>
 
+#include <QKlipper/qklipper.h>
+
 #include "job/printjoblistwidget.h"
 #include "energy/energyconsumptionwidget.h"
 #include "issue/issuelistwidget.h"
@@ -27,9 +29,8 @@ public:
     virtual void setStyleSheet(QString styleSheet);
 
 protected slots:
-    void on_printerPool_jobStarted(PrintJob *job);
-    void on_printerPool_jobFinished(PrintJob *job);
-    void on_printerPool_jobUpdated(PrintJob *job);
+    void onPrintJobAdded(QKlipperInstance *instance, QKlipperPrintJob *job);
+    void onPrintJobRemoved(QKlipperInstance *instance, QKlipperPrintJob *job);
 
 private:
     void setupJobPage();

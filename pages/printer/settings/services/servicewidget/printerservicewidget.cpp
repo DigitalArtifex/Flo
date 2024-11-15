@@ -2,24 +2,54 @@
 
 #include "system/settings.h"
 
-PrinterServiceWidget::PrinterServiceWidget(System *system, System::ServiceState service, QWidget *parent)
+PrinterServiceWidget::PrinterServiceWidget(QKlipperSystem *system, QKlipperServiceState service, QWidget *parent)
     : CardWidget{CardWidget::SubWidget, parent}
 {
     m_system = system;
     m_service = service;
 
     setupUi();
+}
 
-    connect(m_system, SIGNAL(serviceStatesUpdate()), this, SLOT(serviceStatesUpdateEvent()));
+void PrinterServiceWidget::setServiceState(QKlipperServiceState service)
+{
+    m_service = service;
+
+    QString serviceText = QString("Active State: %1").arg(m_service.activeState());
+    QString stateText = QString("Sub State: %1").arg(m_service.subState());
+
+    m_stateLabel->setText(serviceText);
+    m_subStateLabel->setText(stateText);
+
+    if(m_service.activeState() == QString("active"))
+    {
+        m_restartButton->setEnabled(true);
+        m_startButton->setEnabled(false);
+        m_stopButton->setEnabled(true);
+    }
+    else if(m_service.activeState() == QString("deactivating"))
+    {
+        m_restartButton->setEnabled(false);
+        m_startButton->setEnabled(false);
+        m_stopButton->setEnabled(false);
+
+        //m_system->updateServices();
+    }
+    else
+    {
+        m_restartButton->setEnabled(false);
+        m_startButton->setEnabled(true);
+        m_stopButton->setEnabled(false);
+    }
 }
 
 void PrinterServiceWidget::setupUi()
 {
     setFixedSize(160,175);
-    setTitle(m_service.name);
+    setTitle(m_service.name());
 
-    QString serviceText = QString("Active State: %1").arg(m_service.activeState);
-    QString stateText = QString("Sub State: %1").arg(m_service.subState);
+    QString serviceText = QString("Active State: %1").arg(m_service.activeState());
+    QString stateText = QString("Sub State: %1").arg(m_service.subState());
 
     m_centralWidget = new QWidget(this);
     m_centralLayout = new QVBoxLayout(m_centralWidget);
@@ -66,34 +96,6 @@ void PrinterServiceWidget::setupUi()
 
 void PrinterServiceWidget::serviceStatesUpdateEvent()
 {
-    m_service = m_system->serviceStates()[m_service.name];
-
-    QString serviceText = QString("Active State: %1").arg(m_service.activeState);
-    QString stateText = QString("Sub State: %1").arg(m_service.subState);
-
-    m_stateLabel->setText(serviceText);
-    m_subStateLabel->setText(stateText);
-
-    if(m_service.activeState == QString("active"))
-    {
-        m_restartButton->setEnabled(true);
-        m_startButton->setEnabled(false);
-        m_stopButton->setEnabled(true);
-    }
-    else if(m_service.activeState == QString("deactivating"))
-    {
-        m_restartButton->setEnabled(false);
-        m_startButton->setEnabled(false);
-        m_stopButton->setEnabled(false);
-
-        m_system->updateServices();
-    }
-    else
-    {
-        m_restartButton->setEnabled(false);
-        m_startButton->setEnabled(true);
-        m_stopButton->setEnabled(false);
-    }
 }
 
 void PrinterServiceWidget::stopButtonClickEvent(bool checked)
@@ -104,7 +106,7 @@ void PrinterServiceWidget::stopButtonClickEvent(bool checked)
     m_startButton->setEnabled(false);
     m_stopButton->setEnabled(false);
 
-    m_system->stopService(m_service.name);
+    m_system->stopService(m_service.name());
 }
 
 void PrinterServiceWidget::startButtonClickEvent(bool checked)
@@ -115,7 +117,7 @@ void PrinterServiceWidget::startButtonClickEvent(bool checked)
     m_startButton->setEnabled(false);
     m_stopButton->setEnabled(false);
 
-    m_system->startService(m_service.name);
+    m_system->startService(m_service.name());
 }
 
 void PrinterServiceWidget::restartButtonClickEvent(bool checked)
@@ -126,5 +128,5 @@ void PrinterServiceWidget::restartButtonClickEvent(bool checked)
     m_startButton->setEnabled(false);
     m_stopButton->setEnabled(false);
 
-    m_system->restartService(m_service.name);
+    m_system->restartService(m_service.name());
 }

@@ -2,11 +2,10 @@
 
 #include "system/settings.h"
 
-PrinterAnnouncementView::PrinterAnnouncementView(Printer *printer, QWidget *parent)
+PrinterAnnouncementView::PrinterAnnouncementView(QKlipperInstance *instance, QWidget *parent)
     : QFrame{parent}
 {
-    m_printer = printer;
-
+    m_instance = instance;
     setupUi();
 }
 
@@ -39,24 +38,18 @@ void PrinterAnnouncementView::setupUi()
     m_refreshButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_actionBarLayout->addWidget(m_refreshButton, 0, 2, 1, 1);
 
-    m_updateAllButton = new QToolButton(m_actionBar);
-    m_updateAllButton->setFixedSize(32,32);
-    m_updateAllButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_actionBarLayout->addWidget(m_updateAllButton, 0, 3, 1, 1);
-
     m_actionBar->setLayout(m_actionBarLayout);
     m_layout->addWidget(m_actionBar, 0, 0, 1, 2);
 
     m_updateWidget = new PrinterAnnouncementWidget(this);
     m_layout->addWidget(m_updateWidget);
 
-    m_updateAllButton->setIcon(Settings::getThemeIcon(QString("update-icon")));
     m_refreshButton->setIcon(Settings::getThemeIcon(QString("refresh-icon")));
 
-    connect(m_printer->system(), SIGNAL(updated()), this, SLOT(printSystemUpdateEvent()));
     connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(refreshButtonClickEvent()));
-    connect(m_updateAllButton, SIGNAL(clicked()), this, SLOT(updateAllButtonClickEvent()));
-    connect(m_updateWidget, SIGNAL(itemUpdateRequested(PrinterUpdateItem*)), this, SLOT(itemUpdateRequestedEvent(PrinterUpdateItem*)));
+    //connect(m_updateWidget, SIGNAL(itemUpdateRequested(PrinterUpdateItem*)), this, SLOT(itemUpdateRequestedEvent(PrinterUpdateItem*)));
+
+    connect(m_instance->server(), SIGNAL(announcementsChanged()), this, SLOT(onServerAnnouncementsChanged()));
 
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget"));
     m_actionBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar"));
@@ -64,25 +57,19 @@ void PrinterAnnouncementView::setupUi()
     setLayout(m_layout);
 }
 
-void PrinterAnnouncementView::printSystemUpdateEvent()
+void PrinterAnnouncementView::onServerAnnouncementsChanged()
 {
     m_updateWidget->clear();
-    m_updateWidget->setAnnouncements(m_printer->system()->announcements());
-}
-
-void PrinterAnnouncementView::updateAllButtonClickEvent()
-{
-    m_printer->console()->machineUpdateFull();
+    m_updateWidget->setAnnouncements(m_instance->server()->announcements());
 }
 
 void PrinterAnnouncementView::refreshButtonClickEvent()
 {
     m_updateWidget->clear();
-    m_printer->console()->serverAnnouncementsUpdate();
+    m_instance->console()->serverAnnouncementsUpdate();
 }
 
 void PrinterAnnouncementView::itemDismissRequestedEvent(PrinterAnnouncementItem *item)
 {
-    if(m_printer->status() != Printer::Offline && m_printer->status() != Printer::Printing)
-        m_printer->console()->serverAnnouncementDismiss(item->announcement().entryId);
+    m_instance->console()->serverAnnouncementDismiss(item->announcement().entryId());
 }

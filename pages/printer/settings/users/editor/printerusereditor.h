@@ -9,15 +9,16 @@
 #include "ui/common/dialog/dialog.h"
 #include "ui/QIconButton/qiconbutton.h"
 
-#include "types/system.h"
+#include <QKlipper/qklipper.h>
 
 class PrinterUserEditor : public Dialog
 {
     Q_OBJECT
 public:
     explicit PrinterUserEditor(QWidget *parent = nullptr);
+    ~PrinterUserEditor();
 
-    System::User user();
+    QKlipperUser user();
     QString password();
     QString username();
 

@@ -43,29 +43,8 @@ CardWidget::CardWidget(CardType type, QWidget *parent)
 
 CardWidget::~CardWidget()
 {
-    if(m_titleLabel)
-        delete m_titleLabel;
-
-    if(m_titleBarLayout)
-        delete m_titleBarLayout;
-
-    if(m_titleBarWidget)
-        delete m_titleBarWidget;
-
-    if(m_contentLayout)
-        delete m_contentLayout;
-
-    if(m_contentWidget)
-        delete m_contentWidget;
-
-    if(m_footerLayout)
-        delete m_footerLayout;
-
-    if(m_footerWidget)
-        delete m_footerWidget;
-
     if(m_layout)
-        delete m_layout;
+        m_layout->deleteLater();
 }
 
 void CardWidget::setCentralWidget(QWidget *widget)

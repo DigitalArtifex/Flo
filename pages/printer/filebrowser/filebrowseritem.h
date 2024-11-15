@@ -10,7 +10,7 @@
 #include <QDateTime>
 
 #include "../../../ui/list/qanimatedlistitem.h"
-#include "../../../types/klipperfile.h"
+#include <QKlipper/qklipper.h>
 
 class FileBrowserItem : public QAnimatedListItem
 {
@@ -23,11 +23,11 @@ public:
         Widget
     };
 
-    FileBrowserItem(KlipperFile file, QWidget *parent, DisplayMode mode = Page);
+    FileBrowserItem(QKlipperFile *file, QWidget *parent, DisplayMode mode = Page);
     ~FileBrowserItem();
 
-    KlipperFile file() const;
-    void setFile(const KlipperFile &file);
+    QKlipperFile *file() const;
+    void setFile(QKlipperFile *file);
 
     bool isDirectory() const;
 
@@ -44,7 +44,7 @@ private slots:
     void deleteActionTriggered(bool checked);
 
 private:
-    KlipperFile m_file = KlipperFile();
+    QKlipperFile *m_file = nullptr;
 
     bool m_directory = false;
 

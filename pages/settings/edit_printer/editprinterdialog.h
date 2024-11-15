@@ -7,9 +7,11 @@
 #include <QFileDialog>
 #include <QColorDialog>
 
-#include "../../../types/printer.h"
+#include <QKlipper/qklipper.h>
+#include <system/settings.h>
 
 #include "qmoonrakervalidator.h"
+#include "ui/QIconButton/qiconbutton.h"
 
 namespace Ui {
 class EditPrinterDialog;
@@ -23,15 +25,14 @@ public:
     explicit EditPrinterDialog(QWidget *parent = nullptr);
     ~EditPrinterDialog();
 
-    Printer *printer() const;
-    void setPrinter(Printer *printer);
+    QKlipperInstance *printer() const;
+    void setPrinter(QKlipperInstance *printer, bool newPrinter = false);
 
     void reset();
     void clear();
     void apply();
 
 private slots:
-    void on_buttonBox_clicked(QAbstractButton *button);
     void on_extruderCountSpinBox_valueChanged(int arg1);
     void on_printerInstanceLocationEdit_textChanged(QString text);
     void on_printerBrowseFilesButton_clicked();
@@ -40,12 +41,32 @@ private slots:
 
     void on_colorPickerButton_clicked();
 
+    void on_printerNameEdit_textChanged(const QString &arg1);
+
+    void onResetButtonClicked();
+    void onApplyButtonClicked();
+    void onCancelButtonClicked();
+
+    void on_addressLineEdit_textChanged(const QString &arg1);
+
+    void on_heatedBedCheckbox_toggled(bool checked);
+
+    void on_heatedChamberCheckBox_toggled(bool checked);
+
 private:
     Ui::EditPrinterDialog *ui;
 
+    bool m_newPrinter = true;
+    bool m_remoteConnection = false;
+
     int m_extruderCount = 0;
 
-    Printer *m_printer = nullptr;
+    QKlipperInstance *m_instance = nullptr;
+
+    QIconButton *m_resetButton = nullptr;
+    QIconButton *m_applyButton = nullptr;
+    QIconButton *m_cancelButton = nullptr;
+    QSpacerItem *m_buttonBoxSpacer = nullptr;
 
     QRegularExpression m_httpExpression = QRegularExpression("^\\s*(http|https)\\:\\/\\/");
 };

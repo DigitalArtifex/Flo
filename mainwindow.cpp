@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "system/printerpool.h"
+#include "system/qklipperinstancepool.h"
 
 //Pages
 #include "system/settings.h"
@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     this->setEnabled(false);
     this->setWindowFlag(Qt::FramelessWindowHint);
-    this->setWindowIcon(QIcon(":/images/application-icon"));
+    this->setWindowIcon(QIcon(":/images/flo_beta.png"));
 
     m_titleOpacityEffect = new QGraphicsOpacityEffect(this);
     ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);
@@ -37,8 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_initTimer->setSingleShot(true);
 
     ui->graphicsView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-
-    //Settings::set("ui-opengl", true);
+    ui->graphicsView->setEnabled(true);
 
     if(Settings::get("ui-opengl").toBool())
     {
@@ -58,11 +57,12 @@ MainWindow::MainWindow(QWidget *parent)
 #ifdef RASPBERRYPI
         format.setSamples(1);
 #else
-        format.setSamples(2);
+        format.setSamples(4);
 #endif
 
         gl->setFormat(format);
         ui->graphicsView->setViewport(gl);
+        ui->windowWidget->setEnabled(true);
     }
     else
     {
@@ -79,10 +79,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->windowWidget->setStyleSheet(Settings::currentTheme());
     ui->graphicsView->setStyleSheet(Settings::currentTheme());
 
-    //connect(m_initTimer, SIGNAL(timeout()), this, SLOT(on_initAsync()));
-    //m_initTimer->start();
+    connect(m_initTimer, SIGNAL(timeout()), this, SLOT(on_initAsync()));
+    m_initTimer->start();
 
-    on_initAsync();
+    connect(Settings::instance(), SIGNAL(currentThemeChanged()), this, SLOT(onThemeUpdated()));
 }
 
 MainWindow::~MainWindow()
@@ -108,61 +108,84 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
         m_printerButtons[i]->setEnabled(false);
 
     //Title
-    if(m_titleOpacityAnimation)
-        delete m_titleOpacityAnimation;
 
-    m_titleOpacityAnimation = new QPropertyAnimation(m_titleOpacityEffect, "opacity");
-    m_titleOpacityAnimation->setDuration(250);
-
-    connect(m_titleOpacityAnimation, SIGNAL(finished()), this, SLOT(on_titleOpacityAnimation_finished()));
-
-    m_nextTitle = title;
-    m_titleOpacityAnimation->setStartValue(1);
-    m_titleOpacityAnimation->setEndValue(0);
-    ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);
-
-    m_titleOpacityAnimation->start();
-
-    //Page
-    //qint32 width = this->width() - ui->menuFrame->width();
-    //qint32 height = this->height() - ui->menuBar->height();
-
-    m_pageSize = ui->PageContainer->size();
-    m_pagePositionIn = QPoint(0, 0);
-    m_pagePositionOut = QPoint(0, m_pageSize.height());
-
-    if(page)
+    if(Settings::isAnimationEnabled())
     {
-        int ypos = m_pageSize.height() * -1;
-        ypos -= ui->menuBar->height();
+        if(Settings::isAnimationEffectsEnabled())
+        {
+            if(m_titleOpacityAnimation)
+                m_titleOpacityAnimation->deleteLater();
 
-        m_nextPage = page;
-        m_nextPage->setOpacityIn(1);
-        m_nextPage->setOpacityOut(0);
-        m_nextPage->setDuration(500);
+            if(Settings::animationEffectOutStyle() == Settings::Opacity)
+                m_titleOpacityAnimation = new QPropertyAnimation(m_titleOpacityEffect, "opacity");
+            else if(Settings::animationEffectOutStyle() == Settings::Blur)
+                m_titleOpacityAnimation = new QPropertyAnimation(m_titleOpacityEffect, "blur");
 
-        connect(m_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
-        m_nextPage->setGeometry(0,0,m_pageSize.width(),m_pageSize.height());
-        m_nextPage->show();
-        m_nextPage->lower();
-        m_nextPage->animateIn();
-    }
+            m_titleOpacityAnimation->setDuration(Settings::animationDuration() / 2);
 
-    if(m_currentPage)
-    {
-        connect(m_currentPage, SIGNAL(animatedOut()), this, SLOT(on_currentPage_animationOut_finished()));
+            connect(m_titleOpacityAnimation, SIGNAL(finished()), this, SLOT(on_titleOpacityAnimation_finished()));
 
-        m_currentPage->setOpacityIn(1);
-        m_currentPage->setOpacityOut(0);
-        m_currentPage->setGeometry(0,0,m_pageSize.width(),m_pageSize.height());
-        m_currentPage->setDuration(500);
+            m_nextTitle = title;
+            m_titleOpacityAnimation->setStartValue(1);
+            m_titleOpacityAnimation->setEndValue(0);
+            ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);
 
-        //ui->PageContainer->layout()->removeWidget(m_currentPage);
+            m_titleOpacityAnimation->start();
+        }
 
-        m_currentPage->animateOut();
+        //Page
+        m_pageSize = ui->PageContainer->size();
+        m_pagePositionIn = QPoint(0, 0);
+        m_pagePositionOut = QPoint(0, m_pageSize.height());
+
+        if(page)
+        {
+            int ypos = m_pageSize.height() * -1;
+            ypos -= ui->menuBar->height();
+
+            m_nextPage = page;
+
+            if(Settings::isAnimationEffectsEnabled())
+            {
+                m_nextPage->setOpacityIn(1);
+                m_nextPage->setOpacityOut(0);
+            }
+
+            m_nextPage->setDuration(Settings::animationDuration());
+            m_nextPage->setGeometryIn(QRect(0,0,m_pageSize.width(),m_pageSize.height()));
+
+            connect(m_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
+            m_nextPage->show();
+            m_nextPage->lower();
+            m_nextPage->animateIn();
+        }
+
+        if(m_currentPage)
+        {
+            connect(m_currentPage, SIGNAL(animatedOut()), this, SLOT(on_currentPage_animationOut_finished()));
+
+            if(Settings::isAnimationEffectsEnabled())
+            {
+                m_currentPage->setOpacityIn(1);
+                m_currentPage->setOpacityOut(0);
+            }
+
+            m_currentPage->setGeometry(0,0,m_pageSize.width(),m_pageSize.height());
+            m_currentPage->setDuration(Settings::animationDuration());
+
+            m_currentPage->animateOut();
+        }
+        else
+        {
+        }
     }
     else
     {
+        m_nextTitle = title;
+        m_nextPage = page;
+        on_titleOpacityAnimation_finished();
+        on_currentPage_animationOut_finished();
+        on_nextPage_animationIn_finished();
     }
 }
 
@@ -186,12 +209,12 @@ void MainWindow::online()
 
     m_titleOpacityEffect = new QGraphicsOpacityEffect(this);
 
-    PrinterDefinitionList printers = Flo::settings()->printers();
+    QKlipperInstanceList printers = QKlipperInstancePool::klipperInstances();
     //ui->menuButtonLayout->removeWidget(m_settingsButton);
 
-    foreach(PrinterDefinition definition, printers)
+    foreach(QKlipperInstance *definition, printers)
     {
-        PrinterPage *printerPage = new PrinterPage(Flo::printerPool()->getPrinterById(definition.id), this);
+        PrinterPage *printerPage = new PrinterPage(definition, this);
 
         QAnimatedWidget *animatedPage = new QAnimatedWidget(this);
         animatedPage->setWidget(printerPage);
@@ -199,7 +222,7 @@ void MainWindow::online()
 
         MenuButton *printerButton = new MenuButton(m_printerPages.count(), this);
         printerButton->setIcon(QString("printer-icon"));
-        printerButton->setText(definition.name);
+        printerButton->setText(definition->name());
         ui->menuButtonLayout->addWidget(printerButton);
 
         m_printerPages.append(animatedPage);
@@ -212,7 +235,7 @@ void MainWindow::online()
     {
         m_settingsButton = new MenuButton(3, ui->menuFrame);
         m_settingsButton->setText(QString("Settings"));
-        m_settingsButton->setIcon("setting");
+        m_settingsButton->setIcon("settings-icon");
         m_settingsButton->setChecked(false);
         ui->menuButtonLayout->addWidget(m_settingsButton);
         connect(m_settingsButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_settingsMenuButton_toggled(MenuButton*)));
@@ -230,8 +253,8 @@ void MainWindow::online()
     on_dashboardMenuButton_toggled(m_dashboardButton);
     //on_settingsMenuButton_toggled(m_settingsButton);
 
-    connect(PrinterPool::instance(), SIGNAL(printerAdded(Printer*)), this, SLOT(on_printerPoolPrinterAdded(Printer*)));
-    connect(PrinterPool::instance(), SIGNAL(printerRemoved(Printer*)), this, SLOT(on_printerPoolPrinterRemoved(Printer*)));
+    connect(QKlipperInstancePool::pool(), SIGNAL(instanceAdded(QKlipperInstance*)), this, SLOT(on_printerPoolPrinterAdded(QKlipperInstance*)));
+    connect(QKlipperInstancePool::pool(), SIGNAL(instanceRemoved(QKlipperInstance*)), this, SLOT(on_printerPoolPrinterRemoved(QKlipperInstance*)));
 }
 
 void MainWindow::setupUiClasses()
@@ -252,9 +275,11 @@ void MainWindow::setupUiClasses()
     m_dashboardButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuButton" << "DashboardMenuButton"));
     m_settingsButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuButton" << "DashboardMenuButton"));
 
-
     //Icons
     ui->powerButton->setIcon(Settings::getThemeIcon(QString("power-icon")));
+    ui->applicationIcon->setPixmap(QPixmap(":/images/flo_beta.png"));
+    ui->applicationIcon->setScaledContents(true);
+    ui->applicationIcon->setFixedSize(24,24);
 }
 
 void MainWindow::on_dashboardMenuButton_toggled(MenuButton* button)
@@ -304,13 +329,20 @@ void MainWindow::on_settingsMenuButton_toggled(MenuButton* button)
 
 void MainWindow::on_currentPage_animationOut_finished()
 {
-    disconnect(m_currentPage, SIGNAL(animatedOut()), this, SLOT(on_currentPage_animationOut_finished()));
+    if(Settings::isAnimationEnabled())
+        disconnect(m_currentPage, SIGNAL(animatedOut()), this, SLOT(on_currentPage_animationOut_finished()));
+
+    ui->PageContainer->layout()->removeWidget(m_currentPage);
 }
 
 void MainWindow::on_nextPage_animationIn_finished()
 {
-    disconnect(m_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
+    if(Settings::isAnimationEnabled())
+        disconnect(m_nextPage, SIGNAL(animatedIn()), this, SLOT(on_nextPage_animationIn_finished()));
+
     ui->PageContainer->layout()->addWidget(m_nextPage);
+    m_nextPage->show();
+    m_nextPage->raise();
 
     if(m_currentPage)
     {
@@ -331,20 +363,25 @@ void MainWindow::on_nextPage_animationIn_finished()
     for(int i = 0; i < m_printerButtons.count(); i++)
         m_printerButtons[i]->setEnabled(true);
 
-    style()->polish(this);
+    //style()->polish(this);
 }
 
 void MainWindow::on_titleOpacityAnimation_finished()
 {
-    disconnect(m_titleOpacityAnimation, SIGNAL(finished()), this, SLOT(on_titleOpacityAnimation_finished()));
+    if(Settings::isAnimationEnabled() && Settings::isAnimationEffectsEnabled())
+    {
+        disconnect(m_titleOpacityAnimation, SIGNAL(finished()), this, SLOT(on_titleOpacityAnimation_finished()));
 
-    m_currentTitle = this->m_nextTitle;
-    ui->pageTitle->setText(m_currentTitle);
-    ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);
-    m_nextTitle = "";
-    m_titleOpacityAnimation->setStartValue(0);
-    m_titleOpacityAnimation->setEndValue(1);
-    m_titleOpacityAnimation->start();
+        m_currentTitle = this->m_nextTitle;
+        ui->pageTitle->setText(m_currentTitle);
+        ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);
+        m_nextTitle = "";
+        m_titleOpacityAnimation->setStartValue(0);
+        m_titleOpacityAnimation->setEndValue(1);
+        m_titleOpacityAnimation->start();
+    }
+    else
+        ui->pageTitle->setText(m_currentTitle);
 }
 
 void MainWindow::on_printerMenuButton_toggled(MenuButton* button)
@@ -377,41 +414,57 @@ void MainWindow::updateStyleSheet()
     for(int i = 0; i < m_printerButtons.count(); i++)
         m_printerButtons[i]->setIcon(QString("printer"));
 
-    m_settingsButton->setIcon(QString("settings"));
+    m_settingsButton->setIcon(QString("settings-icon"));
 
     //Dashboard icons should all be the same size
     QPixmap pixmap;
 
-    pixmap = Settings::getThemeIcon("power-icon").pixmap(20,20);
-    ui->powerButton->setIcon(pixmap);
+    //pixmap = Settings::getThemeIcon("power-icon").pixmap(20,20);
 
-    pixmap = Settings::getThemeIcon("refresh-icon").pixmap(16,16);
-    this->m_restartAction->setIcon(pixmap);
+    //pixmap = Settings::getThemeIcon("refresh-icon").pixmap(16,16);
+    this->m_restartAction->setIcon(Settings::getThemeIcon("refresh-icon"));
 
-    pixmap = Settings::getThemeIcon("power-icon").pixmap(16,16);
-    this->m_shutdownAction->setIcon(pixmap);
+    //pixmap = Settings::getThemeIcon("power-icon").pixmap(16,16);
+    this->m_shutdownAction->setIcon(Settings::getThemeIcon("power-icon"));
 
-    pixmap = Settings::getThemeIcon("cancel-icon").pixmap(16,16);
-    this->m_closeAction->setIcon(pixmap);
+    //pixmap = Settings::getThemeIcon("cancel-icon").pixmap(16,16);
+    this->m_closeAction->setIcon(Settings::getThemeIcon("cancel-icon"));
 
-    ui->applicationIcon->setPixmap(QPixmap(":/images/application-icon"));
+    //Icons
+    ui->powerButton->setIcon(Settings::getThemeIcon(QString("power-icon")));
+    ui->applicationIcon->setPixmap(QPixmap(":/images/flo_beta.png"));
     ui->applicationIcon->setScaledContents(true);
 
     this->setStyleSheet(style);
 
-    for(int i = 0; i < m_printerPages.count(); i++)
-        m_printerPages[i]->setStyleSheet(style);
+    if(m_dashboardPage)
+    {
+        DashboardPage *dashboard = qobject_cast<DashboardPage*>(m_dashboardPage->widget());
 
-    if(m_dashboardPage != nullptr)
-        m_dashboardPage->setStyleSheet(style);
+        if(dashboard)
+            dashboard->setStyleSheet(Settings::currentTheme());
+    }
 
-    if(m_settingsPage != nullptr)
-        m_settingsPage->setStyleSheet(style);
+    if(m_settingsPage)
+    {
+        SettingsPage *dashboard = qobject_cast<SettingsPage*>(m_settingsPage->widget());
+
+        if(dashboard)
+            dashboard->setStyleSheet(Settings::currentTheme());
+    }
 
     ui->windowWidget->setStyleSheet(Settings::currentTheme());
     ui->menuBar->setStyleSheet(Settings::currentTheme());
     ui->windowWidget->setStyleSheet(Settings::currentTheme());
     ui->graphicsView->setStyleSheet(Settings::currentTheme());
+
+    for(QAnimatedWidget *page : m_printerPages)
+    {
+        PrinterPage *printerPage = qobject_cast<PrinterPage*>(page->widget());
+
+        if(printerPage)
+            printerPage->setStyleSheet(Settings::currentTheme());
+    }
 }
 
 void MainWindow::showPopup()
@@ -457,7 +510,7 @@ void MainWindow::setupPowerActions()
 void MainWindow::on_initAsync()
 {
     connect(Flo::instance(), SIGNAL(loadingFinished()), this, SLOT(online()));
-    Flo::instance()->start(this);
+    Flo::instance()->start();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
@@ -506,7 +559,7 @@ void MainWindow::on_powerButton_clicked()
     on_closeAction_triggered(true);
 }
 
-void MainWindow::on_printerPoolPrinterAdded(Printer* printer)
+void MainWindow::on_printerPoolPrinterAdded(QKlipperInstance *printer)
 {
     ui->menuButtonLayout->removeWidget(m_settingsButton);
 
@@ -529,7 +582,7 @@ void MainWindow::on_printerPoolPrinterAdded(Printer* printer)
     ui->menuButtonLayout->addWidget(m_settingsButton);
 }
 
-void MainWindow::on_printerPoolPrinterRemoved(Printer* printer)
+void MainWindow::on_printerPoolPrinterRemoved(QKlipperInstance* printer)
 {
     foreach(QAnimatedWidget *widget, m_printerPages)
     {
@@ -543,24 +596,30 @@ void MainWindow::on_printerPoolPrinterRemoved(Printer* printer)
                 {
                     ui->menuButtonLayout->removeWidget(button);
                     m_printerButtons.removeAll(button);
-                    delete button;
+                    button->deleteLater();
                     break;
                 }
             }
 
             m_printerPages.removeAll(widget);
-            delete widget;
+            widget->deleteLater();
             break;
         }
     }
 }
 
+void MainWindow::onThemeUpdated()
+{
+    //setStyleSheet(Settings::currentTheme());
+    updateStyleSheet();
+}
+
 void MainWindow::on_loadingAnimation_finished()
 {
     m_loadingGif->stop();
-    delete m_loadingGif;
-    delete m_loadingLabel;
-    delete m_loadingAnimation;
+    m_loadingGif->deleteLater();
+    m_loadingLabel->deleteLater();
+    m_loadingAnimation->deleteLater();
     m_loadingLabel = nullptr;
     m_loadingGif = nullptr;
     m_loadingAnimation = nullptr;

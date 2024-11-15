@@ -2,7 +2,7 @@
 #define BEDMESHEMPTYFRAME_H
 
 #include <QFrame>
-#include "../../../../../../types/bed.h"
+#include <QKlipper/qklipper.h>
 
 namespace Ui {
 class BedMeshEmptyFrame;
@@ -13,13 +13,16 @@ class BedMeshEmptyFrame : public QFrame
     Q_OBJECT
 
 public:
-    explicit BedMeshEmptyFrame(Q3DPrintBed *bed, QWidget *parent = nullptr);
+    explicit BedMeshEmptyFrame(QKlipperPrintBed *bed, QWidget *parent = nullptr);
     ~BedMeshEmptyFrame();
 
+    void setupIcons();
+
+public slots:
+    void setStyleSheet(const QString &styleSheet);
+
 protected slots:
-    void on_toolhead_homing();
-    void on_toolhead_homed();
-    void on_toolhead_updated();
+    void onToolheadHomingChanged();
 
 private slots:
     void on_homeButton_clicked();
@@ -28,7 +31,7 @@ private slots:
 
 private:
     Ui::BedMeshEmptyFrame *ui;
-    Q3DPrintBed *m_printerBed = nullptr;
+    QKlipperPrintBed *m_printerBed = nullptr;
 };
 
 #endif // BEDMESHEMPTYFRAME_H

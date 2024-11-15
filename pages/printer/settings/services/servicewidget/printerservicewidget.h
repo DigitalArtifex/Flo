@@ -10,13 +10,14 @@
 #include "ui/common/cardwidget/cardwidget.h"
 #include "ui/QIconButton/qiconbutton.h"
 
-#include "types/system.h"
+#include <QKlipper/qklipper.h>
 
 class PrinterServiceWidget : public CardWidget
 {
     Q_OBJECT
 public:
-    explicit PrinterServiceWidget(System *system, System::ServiceState service, QWidget *parent = nullptr);
+    explicit PrinterServiceWidget(QKlipperSystem *system, QKlipperServiceState service, QWidget *parent = nullptr);
+    void setServiceState(QKlipperServiceState service);
 
 signals:
 
@@ -29,8 +30,8 @@ protected slots:
     void restartButtonClickEvent(bool checked = false);
 
 private:
-    System *m_system = nullptr;
-    System::ServiceState m_service;
+    QKlipperSystem *m_system = nullptr;
+    QKlipperServiceState m_service;
 
     QLabel *m_stateLabel = nullptr;
     QLabel *m_subStateLabel = nullptr;

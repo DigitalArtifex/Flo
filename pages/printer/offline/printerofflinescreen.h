@@ -2,7 +2,7 @@
 #define PRINTEROFFLINESCREEN_H
 
 #include <QFrame>
-#include "types/printer.h"
+#include <QKlipper/qklipper.h>
 #include "ui/QIconButton/qiconbutton.h"
 
 namespace Ui {
@@ -14,19 +14,22 @@ class PrinterOfflineScreen : public QFrame
     Q_OBJECT
 
 public:
-    explicit PrinterOfflineScreen(Printer *printer, QWidget *parent = nullptr);
+    explicit PrinterOfflineScreen(QKlipperInstance *printer, QWidget *parent = nullptr);
     ~PrinterOfflineScreen();
 
     virtual void setStyleSheet(QString &styleSheet);
 
 protected slots:
     void printerConnectingEvent();
-    void printerConnectingProgressEvent(QString title, qreal progress);
+    void printerConnectingProgressChanged();
+    void printerConnectingTextChanged();
+    void onConnectPrinterButtonPressed();
 
 private:
     Ui::PrinterOfflineScreen *ui;
 
     QIconButton *m_connectButton = nullptr;
+    QKlipperInstance *m_instance = nullptr;
 };
 
 #endif // PRINTEROFFLINESCREEN_H

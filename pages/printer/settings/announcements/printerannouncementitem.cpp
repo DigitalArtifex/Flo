@@ -2,7 +2,7 @@
 
 #include "system/settings.h"
 
-PrinterAnnouncementItem::PrinterAnnouncementItem(System::Announcement announcement, QWidget *parent)
+PrinterAnnouncementItem::PrinterAnnouncementItem(QKlipperAnnouncement announcement, QWidget *parent)
     : QAnimatedListItem{parent}
 {
     m_announcement = announcement;
@@ -47,15 +47,15 @@ void PrinterAnnouncementItem::setupUi()
     m_titleLabel = new QLabel(this);
     m_titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_titleLabel->setWordWrap(true);
-    m_titleLabel->setText(m_announcement.title);
+    m_titleLabel->setText(m_announcement.title());
 
     m_versionLabel = new QLabel(this);
-    m_versionLabel->setText(m_announcement.source);
+    m_versionLabel->setText(m_announcement.source());
 
     //_spacer = new QSpacerItem(10,10, QSizePolicy::Ignored, QSizePolicy::Expanding);
 
     m_branchLabel = new QLabel(this);
-    m_branchLabel->setText(m_announcement.priority);
+    m_branchLabel->setText(m_announcement.priority());
     m_branchLabel->setFixedWidth(64);
     m_branchLabel->setAlignment(Qt::AlignRight);
 
@@ -87,12 +87,12 @@ void PrinterAnnouncementItem::setupUi()
     setLayout(m_layout);
 }
 
-System::Announcement PrinterAnnouncementItem::announcement() const
+QKlipperAnnouncement PrinterAnnouncementItem::announcement() const
 {
     return m_announcement;
 }
 
-void PrinterAnnouncementItem::setAnnouncement(const System::Announcement &newAnnouncement)
+void PrinterAnnouncementItem::setAnnouncement(const QKlipperAnnouncement &newAnnouncement)
 {
     m_announcement = newAnnouncement;
 }

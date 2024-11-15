@@ -6,16 +6,16 @@
 #include <QToolButton>
 
 #include "ui/list/qanimatedlistitem.h"
-#include "types/system.h"
+#include <QKlipper/qklipper.h>
 
 class PrinterAnnouncementItem : public QAnimatedListItem
 {
     Q_OBJECT
 public:
-    explicit PrinterAnnouncementItem(System::Announcement announcement, QWidget *parent = nullptr);
+    explicit PrinterAnnouncementItem(QKlipperAnnouncement announcement, QWidget *parent = nullptr);
 
-    System::Announcement announcement() const;
-    void setAnnouncement(const System::Announcement &newAnnouncement);
+    QKlipperAnnouncement announcement() const;
+    void setAnnouncement(const QKlipperAnnouncement &newAnnouncement);
 
 signals:
     void dismissRequested(PrinterAnnouncementItem *item);
@@ -26,7 +26,7 @@ protected slots:
     void setupUi();
 
 private:
-    System::Announcement m_announcement;
+    QKlipperAnnouncement m_announcement;
 
     QString m_title;
 

@@ -15,7 +15,7 @@ NewFolderDialog::~NewFolderDialog()
         if(m_layout)
             m_layout->removeWidget(m_lineEdit);
 
-        delete m_lineEdit;
+        m_lineEdit->deleteLater();
     }
 
     if(m_acceptButton)
@@ -23,7 +23,7 @@ NewFolderDialog::~NewFolderDialog()
         if(m_layout)
             m_layout->removeWidget(m_acceptButton);
 
-        delete m_acceptButton;
+        m_acceptButton->deleteLater();
     }
 
     if(m_cancelButton)
@@ -31,11 +31,11 @@ NewFolderDialog::~NewFolderDialog()
         if(m_layout)
             m_layout->removeWidget(m_cancelButton);
 
-        delete m_cancelButton;
+        m_cancelButton->deleteLater();
     }
 
     if(m_layout)
-        delete m_layout;
+        m_layout->deleteLater();
 }
 
 void NewFolderDialog::setupUi()
@@ -52,19 +52,15 @@ void NewFolderDialog::setupUi()
     m_lineEdit->setFixedSize(420, 35);
     m_layout->addWidget(m_lineEdit, 1, 0, 1, 2);
 
-    QPixmap pixmap = Settings::getThemeIcon("cancel-icon").pixmap(22,22);
-
     m_cancelButton = new QIconButton(this);
-    m_cancelButton->setPixmap(pixmap);
+    m_cancelButton->setIcon(Settings::getThemeIcon("cancel-icon"));
     m_cancelButton->setText(QString("Cancel"));
     m_cancelButton->setFixedHeight(50);
     m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_layout->addWidget(m_cancelButton, 2, 0, 1, 1);
 
-    pixmap = Settings::getThemeIcon("accept-icon").pixmap(22,22);
-
     m_acceptButton = new QIconButton(this);
-    m_acceptButton->setPixmap(pixmap);
+    m_acceptButton->setIcon(Settings::getThemeIcon("accept-icon"));
     m_acceptButton->setText(QString("Accept"));
     m_acceptButton->setFixedHeight(50);
     m_acceptButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);

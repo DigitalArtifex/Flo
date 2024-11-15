@@ -4,8 +4,7 @@
 #include <QDialog>
 
 #include "QSourceHighlite/qsourcehighliter.h"
-#include "types/klipperfile.h"
-#include "types/printer.h"
+#include <QKlipper/qklipper.h>
 
 #include "ui/QIconButton/qiconbutton.h"
 #include "ui/common/dialog/dialog.h"
@@ -31,11 +30,11 @@ public:
         Save = 3
     };
 
-    explicit FileEditor(Printer *printer, QWidget *parent = nullptr);
+    explicit FileEditor(QKlipperInstance *instance, QWidget *parent = nullptr);
     ~FileEditor();
 
-    KlipperFile file() const;
-    void setFile(const KlipperFile &file);
+    QKlipperFile *file() const;
+    void setFile(QKlipperFile *file);
 
 private slots:
     void resetButtonClicked();
@@ -47,8 +46,8 @@ private:
     Ui::FileEditor *ui;
 
     QSourceHighlite::QSourceHighliter *m_highlighter;
-    KlipperFile m_file;
-    Printer *m_printer = nullptr;
+    QKlipperFile *m_file;
+    QKlipperInstance *m_instance = nullptr;
 
     QIconButton *m_resetButton = nullptr;
     QIconButton *m_saveButton = nullptr;

@@ -17,6 +17,7 @@
 class QMaskedButton : public QWidget
 {
     Q_OBJECT
+
     Q_PROPERTY(qreal opacity READ widgetOpacity WRITE setOpacity)
     Q_PROPERTY(qreal hover_opacity READ hoverOpacity WRITE setHoverOpacity)
     Q_PROPERTY(qreal click_opacity READ clickOpacity WRITE setClickOpacity)
@@ -57,6 +58,7 @@ private:
     bool m_pressed = false;
     bool m_longPressed = false;
     bool m_hover = false;
+    bool m_updating = false;
 
     QTimer *m_clickTimer = nullptr;
 

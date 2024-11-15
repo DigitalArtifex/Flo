@@ -1,7 +1,7 @@
 #include "statuswidget.h"
 
 #include "../../../../system/settings.h"
-#include "../../../../system/printerpool.h"
+#include <system/qklipperinstancepool.h>
 
 StatusWidget::StatusWidget(QWidget *parent) :
     QTabWidget(parent)
@@ -19,13 +19,13 @@ StatusWidget::StatusWidget(QWidget *parent) :
 StatusWidget::~StatusWidget()
 {
     if(m_printJobList)
-        delete m_printJobList;
+        m_printJobList->deleteLater();
 
     if(m_issueList)
-        delete m_issueList;
+        m_issueList->deleteLater();
 
     if(m_energyConsumption)
-        delete m_energyConsumption;
+        m_energyConsumption->deleteLater();
 }
 
 void StatusWidget::setUiClasses()
@@ -35,22 +35,15 @@ void StatusWidget::setUiClasses()
 
 void StatusWidget::loadPrintJobs()
 {
-    QList<PrintJob*> jobs = PrinterPool::printJobs();
+    QList<QKlipperPrintJob*> jobs = QKlipperInstancePool::printJobs();
 
-    if(jobs.isEmpty())
+    foreach(QKlipperPrintJob *job, jobs)
     {
-        /*PrintJob *job = new PrintJob();
-        job->fileName = QString("No Jobs Running");
-        job->printerName = QString("None");
-        m_printJobList->addJob(job);*/
+        m_printJobList->addJob(job);
     }
-    else
-    {
-        foreach(PrintJob *job, jobs)
-        {
-            m_printJobList->addJob(job);
-        }
-    }
+
+    connect(QKlipperInstancePool::pool(), SIGNAL(printJobAdded(QKlipperInstance*,QKlipperPrintJob*)), this, SLOT(onPrintJobAdded(QKlipperInstance*,QKlipperPrintJob*)));
+    connect(QKlipperInstancePool::pool(), SIGNAL(printJobRemoved(QKlipperInstance*,QKlipperPrintJob*)), this, SLOT(onPrintJobRemoved(QKlipperInstance*,QKlipperPrintJob*)));
 }
 
 void StatusWidget::setStyleSheet(QString styleSheet)
@@ -63,19 +56,14 @@ void StatusWidget::setStyleSheet(QString styleSheet)
     m_printJobList->setStyleSheet(styleSheet);
 }
 
-void StatusWidget::on_printerPool_jobStarted(PrintJob *job)
+void StatusWidget::onPrintJobAdded(QKlipperInstance *instance, QKlipperPrintJob *job)
 {
-
+    m_printJobList->addJob(job);
 }
 
-void StatusWidget::on_printerPool_jobFinished(PrintJob *job)
+void StatusWidget::onPrintJobRemoved(QKlipperInstance *instance, QKlipperPrintJob *job)
 {
-
-}
-
-void StatusWidget::on_printerPool_jobUpdated(PrintJob *job)
-{
-
+    m_printJobList->removeJob(job);
 }
 
 void StatusWidget::setupJobPage()
@@ -84,8 +72,8 @@ void StatusWidget::setupJobPage()
 
     addTab(m_printJobList, Settings::getThemeIcon(QString("list-icon")), QString("Jobs"));
 
-    connect(PrinterPool::instance(), SIGNAL(printJobStarted(PrintJob*)), this, SLOT(on_printerPool_jobStarted(PrintJob*)));
-    connect(PrinterPool::instance(), SIGNAL(printJobFinished(PrintJob*)), this, SLOT(on_printerPool_jobFinished(PrintJob*)));
+    // connect(PrinterPool::instance(), SIGNAL(printJobStarted(PrintJob*)), this, SLOT(on_printerPool_jobStarted(PrintJob*)));
+    // connect(PrinterPool::instance(), SIGNAL(printJobFinished(PrintJob*)), this, SLOT(on_printerPool_jobFinished(PrintJob*)));
 }
 
 void StatusWidget::setupEnergyPage()

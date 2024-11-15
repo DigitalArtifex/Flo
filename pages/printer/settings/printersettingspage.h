@@ -6,7 +6,7 @@
 
 #include "pages/printer/filebrowser/filebrowser.h"
 
-#include "types/printer.h"
+#include <QKlipper/qklipper.h>
 
 #include "updates/printerupdateview.h"
 #include "announcements/printerannouncementview.h"
@@ -23,7 +23,7 @@ class PrinterSettingsPage : public QFrame
     Q_OBJECT
 
 public:
-    explicit PrinterSettingsPage(Printer *printer, QWidget *parent = nullptr);
+    explicit PrinterSettingsPage(QKlipperInstance *instance, QWidget *parent = nullptr);
     ~PrinterSettingsPage();
 
 protected slots:
@@ -31,7 +31,7 @@ protected slots:
 private:
     Ui::PrinterSettingsPage *ui;
 
-    Printer *m_printer = nullptr;
+    QKlipperInstance *m_instance = nullptr;
 
     FileBrowser *m_configBrowser = nullptr;
     PrinterUpdateView *m_updateView = nullptr;

@@ -64,14 +64,14 @@ static QHash<QSourceHighliter::Token, QTextCharFormat> system()
 {
     QHash<QSourceHighliter::Token, QTextCharFormat> m_formats = formats();
 
-    m_formats[QSourceHighliter::Token::CodeBlock].setForeground(QColor::fromString(Settings::get("theme-highlight-block").toString()));
-    m_formats[QSourceHighliter::Token::CodeKeyWord].setForeground(QColor::fromString(Settings::get("theme-highlight-keyword").toString()));
-    m_formats[QSourceHighliter::Token::CodeString].setForeground(QColor::fromString(Settings::get("theme-highlight-string").toString()));
-    m_formats[QSourceHighliter::Token::CodeComment].setForeground(QColor::fromString(Settings::get("theme-highlight-comment").toString()));
-    m_formats[QSourceHighliter::Token::CodeType].setForeground(QColor::fromString(Settings::get("theme-highlight-type").toString()));
-    m_formats[QSourceHighliter::Token::CodeOther].setForeground(QColor::fromString(Settings::get("theme-highlight-other").toString()));
-    m_formats[QSourceHighliter::Token::CodeNumLiteral].setForeground(QColor::fromString(Settings::get("theme-highlight-numerical").toString()));
-    m_formats[QSourceHighliter::Token::CodeBuiltIn].setForeground(QColor::fromString(Settings::get("theme-highlight-builtin").toString()));
+    m_formats[QSourceHighliter::Token::CodeBlock].setForeground(QColor::fromString(Settings::get("theme/highlight-block").toString()));
+    m_formats[QSourceHighliter::Token::CodeKeyWord].setForeground(QColor::fromString(Settings::get("theme/highlight-keyword").toString()));
+    m_formats[QSourceHighliter::Token::CodeString].setForeground(QColor::fromString(Settings::get("theme/highlight-string").toString()));
+    m_formats[QSourceHighliter::Token::CodeComment].setForeground(QColor::fromString(Settings::get("theme/highlight-comment").toString()));
+    m_formats[QSourceHighliter::Token::CodeType].setForeground(QColor::fromString(Settings::get("theme/highlight-type").toString()));
+    m_formats[QSourceHighliter::Token::CodeOther].setForeground(QColor::fromString(Settings::get("theme/highlight-other").toString()));
+    m_formats[QSourceHighliter::Token::CodeNumLiteral].setForeground(QColor::fromString(Settings::get("theme/highlight-numerical").toString()));
+    m_formats[QSourceHighliter::Token::CodeBuiltIn].setForeground(QColor::fromString(Settings::get("theme/highlight-builtin").toString()));
 
     return m_formats;
 }

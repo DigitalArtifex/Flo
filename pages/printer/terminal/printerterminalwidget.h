@@ -7,12 +7,9 @@
 #include <QPair>
 
 #include "../../../ui/list/qanimatedlistwidget.h"
-#include "../../../types/klippermessage.h"
-#include "../../../types/klipperresponse.h"
+#include <QKlipper/qklipper.h>
 
 #include "printerterminalitem.h"
-
-typedef QPair<KlipperMessage, KlipperResponse> KlipperCommunication;
 
 class PrinterTerminalWidget : public QAnimatedListWidget
 {
@@ -20,8 +17,7 @@ class PrinterTerminalWidget : public QAnimatedListWidget
 public:
     PrinterTerminalWidget(QWidget *parent = nullptr);
 
-    void addMessage(KlipperMessage *message);
-    void addResponse(KlipperResponse response);
+    void addMessage(QKlipperMessage *message);
     void addErrorMessage(QString title, QString message);
 
 protected:

@@ -6,7 +6,7 @@
 #include <QToolButton>
 #include <QGridLayout>
 
-#include "types/printer.h"
+#include <QKlipper/qklipper.h>
 
 #include "printerannouncementwidget.h"
 
@@ -14,7 +14,7 @@ class PrinterAnnouncementView : public QFrame
 {
     Q_OBJECT
 public:
-    explicit PrinterAnnouncementView(Printer *printer, QWidget *parent = nullptr);
+    explicit PrinterAnnouncementView(QKlipperInstance *instance, QWidget *parent = nullptr);
     ~PrinterAnnouncementView();
 
 signals:
@@ -23,20 +23,18 @@ protected:
     void setupUi();
 
 protected slots:
-    void printSystemUpdateEvent();
-    void updateAllButtonClickEvent();
+    void onServerAnnouncementsChanged();
     void refreshButtonClickEvent();
     void itemDismissRequestedEvent(PrinterAnnouncementItem *item);
 
 private:
-    Printer *m_printer = nullptr;
+    QKlipperInstance *m_instance = nullptr;
 
     PrinterAnnouncementWidget *m_updateWidget = nullptr;
 
     QLabel *m_titleLabel = nullptr;
 
     QToolButton *m_refreshButton = nullptr;
-    QToolButton *m_updateAllButton = nullptr;
 
     QWidget *m_actionBar = nullptr;
 

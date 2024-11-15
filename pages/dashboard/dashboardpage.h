@@ -3,7 +3,9 @@
 
 #include <QFrame>
 
-#include "../../types/printer.h"
+#include <QKlipper/qklipper.h>
+#include <system/qklipperinstancepool.h>
+
 #include "widgets/printer/printerwidget.h"
 #include "widgets/system/systemwidget.h"
 #include "widgets/status/statuswidget.h"
@@ -31,8 +33,8 @@ public:
 
 protected slots:
     //Printer Pool
-    void on_printerPool_printerRemoved(Printer *printer);
-    void on_printerPool_printerAdded(Printer *printer);
+    void onInstanceAdded(QKlipperInstance *instance);
+    void onInstanceRemoved(QKlipperInstance *instance);
 
 private:
     Ui::DashboardPage *ui;

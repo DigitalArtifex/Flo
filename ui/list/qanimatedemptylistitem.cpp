@@ -9,12 +9,7 @@ QAnimatedEmptyListItem::QAnimatedEmptyListItem(QWidget *parent) : QAnimatedWidge
 
 QAnimatedEmptyListItem::~QAnimatedEmptyListItem()
 {
-    //delete m_label;
-    //delete m_iconLabel;
-    //delete m_topSpacer;
-    //delete m_bottomSpacer;
-    //delete m_middleSpacer;
-    //delete m_layout;
+
 }
 
 void QAnimatedEmptyListItem::setupUi()

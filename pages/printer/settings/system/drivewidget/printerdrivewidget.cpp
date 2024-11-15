@@ -1,13 +1,12 @@
 #include "printerdrivewidget.h"
 
-PrinterDriveWidget::PrinterDriveWidget(System *system, QWidget *parent)
+PrinterDriveWidget::PrinterDriveWidget(QKlipperPrinter *system, QWidget *parent)
     : CardWidget{CardWidget::SubWidget, parent}
 {
-    m_system = system;
+    m_printer = system;
+    m_mcu = m_printer->mcu();
 
     setupUi();
-
-    connect(system, SIGNAL(mcuChanged()), this, SLOT(systemMCUChanged()));
 }
 
 void PrinterDriveWidget::setupUi()
@@ -65,19 +64,48 @@ void PrinterDriveWidget::setupUi()
     m_centralWidget->setLayout(m_centralLayout);
     setCentralWidget(m_centralWidget);
 
-    systemMCUChanged();
+    onPrinterMcuWakeTimeChanged();
+    onPrinterMcuFirmwareVersionChanged();
+    onPrinterMcuHardwareVersionChanged();
+    onPrinterMcuTaskAverageChanged();
+    onPrinterMcuFrequencyChanged();
+
+    connect(m_printer->mcu(), SIGNAL(awakeChanged()), this, SLOT(onPrinterMcuWakeTimeChanged()));
+    connect(m_printer->mcu(), SIGNAL(firmwareVersionChanged()), this, SLOT(onPrinterMcuFirmwareVersionChanged()));
+    connect(m_printer->mcu(), SIGNAL(frequencyChanged()), this, SLOT(onPrinterMcuFrequencyChanged()));
+    connect(m_printer->mcu(), SIGNAL(hardwareVersionChanged()), this, SLOT(onPrinterMcuHardwareVersionChanged()));
+    connect(m_printer->mcu(), SIGNAL(taskAverageChanged()), this, SLOT(onPrinterMcuTaskAverageChanged()));
+    connect(m_printer, SIGNAL(mcuChanged()), this, SLOT(onPrinterMcuChanged()));
 }
 
-void PrinterDriveWidget::systemMCUChanged()
+void PrinterDriveWidget::onPrinterMcuWakeTimeChanged()
 {
-    m_mcu = m_system->mcu();
+    m_wakeTimeLabel->setText(QString("Wake Time: %1").arg(QString::number(m_mcu->awake(), 'f', 4)));
+}
 
-    m_wakeTimeLabel->setText(QString("Wake Time: %1").arg(QString::number(m_mcu.awake, 'f', 4)));
-    m_frequencyLabel->setText(QString("Frequency: %1MHz").arg(QString::number((((qreal)m_mcu.frequency / 1024) / 1024), 'f', 2)));
-    m_firmwareLabel->setText(QString("Firmware: %1").arg(m_mcu.firmwareVersion));
-    m_hardwareLabel->setText(QString("Hardware: %1").arg(m_mcu.hardwareVersion));
+void PrinterDriveWidget::onPrinterMcuFirmwareVersionChanged()
+{
+    m_firmwareLabel->setText(QString("Firmware: %1").arg(m_mcu->firmwareVersion()));
+}
 
-    m_mcuAverageProgressBar->setProgress(m_mcu.taskAverage);
+void PrinterDriveWidget::onPrinterMcuHardwareVersionChanged()
+{
+    m_hardwareLabel->setText(QString("Hardware: %1").arg(m_mcu->hardwareVersion()));
+}
+
+void PrinterDriveWidget::onPrinterMcuTaskAverageChanged()
+{
+    m_mcuAverageProgressBar->setProgress(m_mcu->taskAverage());
+}
+
+void PrinterDriveWidget::onPrinterMcuFrequencyChanged()
+{
+    m_frequencyLabel->setText(QString("Frequency: %1MHz").arg(QString::number((((qreal)m_mcu->frequency() / 1024) / 1024), 'f', 2)));
+}
+
+void PrinterDriveWidget::onPrinterMcuChanged()
+{
+    m_mcu = m_printer->mcu();
 }
 
 void PrinterDriveWidget::convertDriveBytes(qreal &bytes, QString &label)

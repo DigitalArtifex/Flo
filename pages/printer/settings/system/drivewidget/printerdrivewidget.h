@@ -8,30 +8,32 @@
 #include "ui/common/cardwidget/cardwidget.h"
 #include "ui/circularprogressbar.h"
 
-#include "types/system.h"
+#include <QKlipper/qklipper.h>
 
 class PrinterDriveWidget : public CardWidget
 {
     Q_OBJECT
 public:
-    explicit PrinterDriveWidget(System *system, QWidget *parent = nullptr);
+    explicit PrinterDriveWidget(QKlipperPrinter *printer, QWidget *parent = nullptr);
 
 signals:
 
 protected slots:
     void setupUi();
-    void systemMCUChanged();
+    void onPrinterMcuWakeTimeChanged();
+    void onPrinterMcuFirmwareVersionChanged();
+    void onPrinterMcuHardwareVersionChanged();
+    void onPrinterMcuTaskAverageChanged();
+    void onPrinterMcuFrequencyChanged();
+    void onPrinterMcuChanged();
 
     void convertDriveBytes(qreal &bytes, QString &label);
     void convertBytes(qreal &bytes, QString &label);
 
 private:
-    System *m_system = nullptr;
+    QKlipperPrinter *m_printer = nullptr;
 
-    System::SdInfo m_sdInfo;
-    System::VirtualSDCard m_virtualSd;
-
-    System::MCU m_mcu;
+    QKlipperMCU *m_mcu;
 
     QHBoxLayout *m_centralLayout = nullptr;
     QHBoxLayout *m_progressLayout = nullptr;

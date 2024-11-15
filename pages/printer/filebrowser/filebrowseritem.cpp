@@ -1,7 +1,7 @@
 #include "filebrowseritem.h"
 #include "../../../system/settings.h"
 
-FileBrowserItem::FileBrowserItem(KlipperFile file, QWidget *parent, DisplayMode mode) :
+FileBrowserItem::FileBrowserItem(QKlipperFile *file, QWidget *parent, DisplayMode mode) :
     QAnimatedListItem(parent)
 {
     m_displayMode = mode;
@@ -11,44 +11,26 @@ FileBrowserItem::FileBrowserItem(KlipperFile file, QWidget *parent, DisplayMode 
 
 FileBrowserItem::~FileBrowserItem()
 {
-    if(m_iconLabel)
-        delete m_iconLabel;
-
-    if(m_iconContainer)
-        delete m_iconContainer;
-
-    if(m_titleLabel)
-        delete m_titleLabel;
-
-    if(m_sizeLabel)
-        delete m_sizeLabel;
-
-    if(m_modifiedLabel)
-        delete m_modifiedLabel;
-
-    if(m_spacer)
-        delete m_spacer;
-
     if(m_layout)
-        delete m_layout;
+        m_layout->deleteLater();
 }
 
-KlipperFile FileBrowserItem::file() const
+QKlipperFile *FileBrowserItem::file() const
 {
     return m_file;
 }
 
-void FileBrowserItem::setFile(const KlipperFile &file)
+void FileBrowserItem::setFile(QKlipperFile *file)
 {
     m_file = file;
 
-    if(m_file.type == KlipperFile::Directory)
+    if(m_file->fileType() == QKlipperFile::Directory)
         m_directory = true;
 }
 
 bool FileBrowserItem::isDirectory() const
 {
-    return (m_file.type == KlipperFile::Directory);
+    return (m_file->fileType() == QKlipperFile::Directory);
 }
 
 void FileBrowserItem::setupUi()
@@ -84,7 +66,7 @@ void FileBrowserItem::setupUi()
         m_iconLabel->setPixmap(icon);
 
         m_titleLabel = new QLabel(this);
-        m_titleLabel->setText(m_file.name);
+        m_titleLabel->setText(m_file->filename());
 
         if(m_displayMode == Page)
             m_titleLabel->setProperty("class", "FileBrowserItemTitle");
@@ -101,12 +83,12 @@ void FileBrowserItem::setupUi()
         m_titleLabel = new QLabel(this);
         m_titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         m_titleLabel->setWordWrap(false);
-        m_titleLabel->setToolTip(m_file.name);
-        m_titleLabel->setText(m_file.name);
+        m_titleLabel->setToolTip(m_file->filename());
+        m_titleLabel->setText(m_file->filename());
         m_titleLabel->setProperty("class", "FileBrowserItemTitle");
 
         QString sizeFormat = " Bytes";
-        qreal size = m_file.fileSize;
+        qreal size = m_file->fileSize();
 
         if(size > 1024)
         {
@@ -134,7 +116,7 @@ void FileBrowserItem::setupUi()
             m_layout->addWidget(m_titleLabel,0,1,1,3);
             m_layout->addWidget(m_sizeLabel,1,1,1,1);
             m_layout->addWidget(m_modifiedLabel,1,2,1,1);
-            m_modifiedLabel->setText(QDateTime::fromSecsSinceEpoch(m_file.dateModified).toString());
+            m_modifiedLabel->setText(QDateTime::fromSecsSinceEpoch(m_file->dateModified()).toString());
             m_sizeLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         }
 
@@ -143,7 +125,7 @@ void FileBrowserItem::setupUi()
             m_layout->addWidget(m_titleLabel,0,1,1,1);
             m_layout->addWidget(m_sizeLabel,0,2,1,1);
             m_layout->addWidget(m_modifiedLabel,0,3,1,1);
-            m_modifiedLabel->setText(QDateTime::fromSecsSinceEpoch(m_file.dateModified).toString("MM/dd/yy"));
+            m_modifiedLabel->setText(QDateTime::fromSecsSinceEpoch(m_file->dateModified()).toString("MM/dd/yy"));
             m_sizeLabel->setFixedWidth(120);
 
             m_modifiedLabel->setProperty("class", "FileWidgetItemDetails");
@@ -165,7 +147,7 @@ void FileBrowserItem::setupUi()
 
         QMenu *contextMenu = new QMenu(this);
 
-        if(m_file.type == KlipperFile::GCode)
+        if(m_file->fileType() == QKlipperFile::GCode)
             contextMenu->addAction(m_printAction);
 
         contextMenu->addAction(m_editAction);

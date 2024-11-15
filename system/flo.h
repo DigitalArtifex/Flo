@@ -5,7 +5,8 @@
 #include <QUuid>
 #include <QtConcurrent/QtConcurrent>
 
-#include "printerpool.h"
+#include "qklipperinstancepool.h"
+
 #include "settings.h"
 
 
@@ -17,9 +18,9 @@ public:
 
     static QString generatId();
     static Flo *instance();
-    void start(QObject *parent);
+    void start();
 
-    static PrinterPool *printerPool();
+    static QKlipperInstancePool *printerPool();
     static Settings *settings();
 
 signals:
@@ -33,7 +34,7 @@ private:
     void on_loadingFinished();
 
 private:
-    static PrinterPool *m_printerPool;
+    static QKlipperInstancePool *m_printerPool;
     static Settings *m_settings;
 
     static Flo *m_instance;

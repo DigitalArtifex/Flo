@@ -7,8 +7,7 @@
 #include <QVBoxLayout>
 
 #include "ui/common/cardwidget/cardwidget.h"
-#include "types/printer.h"
-#include "types/system.h"
+#include <QKlipper/qklipper.h>
 
 #include "ui/circularprogressbar.h"
 
@@ -16,7 +15,7 @@ class PrinterSystemWidget : public CardWidget
 {
     Q_OBJECT
 public:
-    explicit PrinterSystemWidget(Printer *printer, QWidget *parent = nullptr);
+    explicit PrinterSystemWidget(QKlipperInstance *instance, QWidget *parent = nullptr);
     ~PrinterSystemWidget();
 
 signals:
@@ -26,10 +25,12 @@ protected slots:
     void setupUi();
     void convertBytes(qreal &bytes, QString &label);
     void sdInfoUpdateEvent();
+    void onSystemCpuInfoChanged();
+    void onSystemMemoryStatsChanged();
 
 private:
-    System *m_system = nullptr;
-    System::SdInfo m_sdInfo;
+    QKlipperSystem *m_system = nullptr;
+    QKlipperSdInfo m_sdInfo;
 
     QHBoxLayout *m_centralLayout = nullptr;
     QHBoxLayout *m_cpuClusterLayout = nullptr;

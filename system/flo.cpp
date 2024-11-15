@@ -1,15 +1,14 @@
 #include "flo.h"
 
-PrinterPool *Flo::m_printerPool = nullptr;
 Settings *Flo::m_settings = nullptr;
-
+QKlipperInstancePool *Flo::m_printerPool = nullptr;
 Flo *Flo::m_instance = nullptr;
 
 Flo::Flo(QObject *parent)
     : QObject{parent}
 {
     m_settings = Settings::instance();
-    m_printerPool = PrinterPool::instance();
+    m_printerPool = QKlipperInstancePool::pool();
 }
 
 QString Flo::generatId()
@@ -25,20 +24,19 @@ Flo *Flo::instance()
     return m_instance;
 }
 
-void Flo::start(QObject *parent)
+void Flo::start()
 {
-        on_loading();
-        loadingProgress(QString("Loading Settings"), 0);
+    on_loading();
+    loadingProgress(QString("Loading Settings"), 0);
 
-        Settings::load();
+    Settings::load();
 
-        loadingProgress(QString("Loading Printers"), 30);
-        PrinterPool::loadPrinters(parent);
+    //load the printers
 
-        on_loadingFinished();
+    on_loadingFinished();
 }
 
-PrinterPool *Flo::printerPool()
+QKlipperInstancePool *Flo::printerPool()
 {
     return m_printerPool;
 }

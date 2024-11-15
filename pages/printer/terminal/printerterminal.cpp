@@ -2,33 +2,25 @@
 
 using namespace QSourceHighlite;
 
-PrinterTerminal::PrinterTerminal(Printer *printer, QWidget *parent)
+PrinterTerminal::PrinterTerminal(QKlipperInstance *instance, QWidget *parent)
 {
-    m_printer = printer;
+    m_gcodeExpression = QRegularExpression("^\\s*[g|G|m|M]\\d+", QRegularExpression::MultilineOption);
+    m_instance = instance;
 
     setupUi();
 
-    connect(m_printer->console(), SIGNAL(responseReceived(KlipperResponse)), this, SLOT(on_console_response(KlipperResponse)));
-    connect(m_printer->console(), SIGNAL(commandSent(KlipperMessage*)), this, SLOT(on_console_message(KlipperMessage*)));
+    connect(m_instance->console(), SIGNAL(messageSent(KlipperMessage*)), this, SLOT(on_console_message(KlipperMessage*)));
 }
 
 PrinterTerminal::~PrinterTerminal()
 {
-    delete m_commandEdit;
-    delete m_commandSendButton;
-    delete m_layout;
+    m_layout->deleteLater();
 }
 
-void PrinterTerminal::on_console_message(KlipperMessage *message)
+void PrinterTerminal::on_console_message(QKlipperMessage *message)
 {
-    if(m_terminal)
+    if(m_terminal && message->origin() == QKlipperMessage::User)
         m_terminal->addMessage(message);
-}
-
-void PrinterTerminal::on_console_response(KlipperResponse response)
-{
-    if(m_terminal)
-        m_terminal->addResponse(response);
 }
 
 void PrinterTerminal::on_commandEdit_returnPressed()
@@ -99,19 +91,18 @@ void PrinterTerminal::sendCommand()
     QString commandString = m_commandEdit->toPlainText();
     m_commandEdit->clear();
 
-    QRegularExpression gcodeExpression("^\\s*[g|G|m|M]\\d+", QRegularExpression::MultilineOption);
-    QRegularExpressionMatchIterator match = gcodeExpression.globalMatch(commandString);
+    QRegularExpressionMatchIterator match = m_gcodeExpression.globalMatch(commandString);
 
     QStringList segmentedCommand = commandString.split(QString(" "), Qt::SkipEmptyParts);
 
     //Check if its a gcode
     if(match.hasNext())
-        m_printer->console()->sendGcode(commandString, KlipperMessage::User);
+        m_instance->console()->printerGcodeScript(commandString, nullptr, QKlipperMessage::User);
 
     //Check if its a klipper command instead
-    else if(!segmentedCommand.isEmpty() && m_printer->console()->isKlipperCommand(segmentedCommand[0]))
+    else if(!segmentedCommand.isEmpty() && QKlipperCommand::isKlipperCommand(segmentedCommand[0]))
     {
-        QAbstractKlipperConsole::KlipperCommand command = m_printer->console()->klipperCommand(segmentedCommand[0]);
+        QKlipperCommand *command = new QKlipperCommand(segmentedCommand[0]);
 
         //Check for command validity
         //Start with a valid state for commands with no parameters
@@ -119,7 +110,7 @@ void PrinterTerminal::sendCommand()
         QStringList missingParameters;
 
         //Iterate through required parameters
-        foreach(QString parameter, command.parameters)
+        foreach(QString parameter, command->parameters())
         {
             bool found = false;
 
@@ -142,17 +133,26 @@ void PrinterTerminal::sendCommand()
         }
 
         if(valid)
-            m_printer->console()->sendGcode(commandString, KlipperMessage::User);
+            m_instance->console()->printerGcodeScript(commandString, nullptr, QKlipperMessage::User);
         else
         {
             QString message = QString("Missing parameters: ") + missingParameters.join(QString(", "));
-            message += QString("\n\n") + QString("Help: ") + command.help + QString("\n");
+            message += QString("\n\n") + QString("Help: ") + command->help() + QString("\n");
 
-            m_terminal->addErrorMessage(command.command, message);
+            m_terminal->addErrorMessage(command->command(), message);
         }
     }
     else
-        m_printer->console()->sendCommand(commandString, KlipperMessage::User);
+    {
+        if(m_instance->console()->printerGcodeScript(commandString, nullptr, QKlipperMessage::User))
+        {
+
+        }
+        else
+        {
+
+        }
+    }
 }
 
 void PrinterTerminal::showEvent(QShowEvent *event)

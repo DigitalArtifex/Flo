@@ -9,6 +9,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    QCoreApplication::setOrganizationName("DigitalArtifex");
+    QCoreApplication::setOrganizationDomain("digitalartifex.github.com");
+    QCoreApplication::setApplicationName("Flo");
+
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
@@ -23,5 +27,13 @@ int main(int argc, char *argv[])
     w.init();
     w.show();
 
-    return a.exec();
+    int retcode = a.exec();
+
+    if (retcode == APPLICATION_RESTART_CODE)
+    {
+        QProcess* proc = new QProcess();
+        proc->start(QCoreApplication::applicationFilePath(), QCoreApplication::arguments());
+    }
+
+    return retcode;
 }

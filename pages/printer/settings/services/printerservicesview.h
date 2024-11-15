@@ -8,7 +8,7 @@
 
 #include "servicewidget/printerservicewidget.h"
 
-#include "types/printer.h"
+#include <QKlipper/qklipper.h>
 
 #include "ui/layouts/qflowlayout.h"
 
@@ -16,16 +16,16 @@ class PrinterServicesView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PrinterServicesView(Printer *printer, QWidget *parent = nullptr);
+    explicit PrinterServicesView(QKlipperInstance *instance, QWidget *parent = nullptr);
     ~PrinterServicesView();
 
 signals:
 
 protected slots:
-    void systemUpdateEvent();
+    void onSystemServiceStatesChanged();
 
 private:
-    Printer *m_printer = nullptr;
+    QKlipperInstance *m_printer = nullptr;
 
     QWidget *m_centralWidget = nullptr;
 
