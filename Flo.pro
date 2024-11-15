@@ -343,6 +343,7 @@ SUBDIRS += \
 DISTFILES += \
     QSourceHighlite/LICENSE \
     QSourceHighlite/QSourceHighlite.pri \
+    README.md \
     pages/printer/bedmesh/BedMeshWidget.qml
 
 RESOURCES += \
@@ -361,5 +362,3 @@ linux {
 DEFINES += QUAZIP_STATIC
 DEFINES += APPLICATION_RESTART_CODE=-1000
 LIBS += -L"3rdparty/QuaZip/lib/" -lquazip1-qt6
-
-#QMAKE_CXXFLAGS += -fpermissive
