@@ -18,7 +18,7 @@ public:
     ~PrinterTerminalItem();
 
     QKlipperMessage *message() const;
-    void setMessage(const QKlipperMessage *message);
+    void setMessage(QKlipperMessage *message);
 
     QJsonValue response() const;
 
@@ -30,9 +30,10 @@ public:
 protected slots:
     void setupUi();
     void onMessageResponseChanged();
+    void onMessageErrorChanged();
 
 private:
-    QKlipperMessage *m_message;
+    QKlipperMessage *m_message = nullptr;
 
     //UI
     QGridLayout *m_layout = nullptr;

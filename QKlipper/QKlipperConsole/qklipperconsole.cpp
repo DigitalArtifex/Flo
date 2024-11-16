@@ -1682,6 +1682,8 @@ bool QKlipperConsole::sendWebSocketMessage(QKlipperMessage *message, QKlipperErr
 {
     qDebug() << "Sending WS method" << message->method();
 
+    emit messageSent(message);
+
     QEventLoop loop;
 
     QNetworkRequest request(m_server->address() + message->toUri());
@@ -1701,37 +1703,63 @@ bool QKlipperConsole::sendWebSocketMessage(QKlipperMessage *message, QKlipperErr
 
     if (reply->error())
     {
-        qDebug() << "Error: " + reply->errorString() << reply->url() ;
+        qDebug() << reply->errorString() << reply->url() ;
 
         if(!error)
             error = new QKlipperError();
 
         error->setErrorString(reply->errorString());
         error->setType(QKlipperError::Socket);
-        error->setOrigin("Server Files Download");
+        error->setOrigin("Server GCode Script");
         error->setErrorTitle("Error Sending Websocket Command");
+        message->setError(*error);
 
         emit errorOccured(*error);
+
+        reply->deleteLater();
+
+        return false;
     }
 
     //returns ok
-    QByteArray data = reply->readAll();
+    QByteArray responseData = reply->readAll();
+    QJsonParseError responseDocumentError;
+    QJsonDocument responseDocument(QJsonDocument::fromJson(responseData, &responseDocumentError));
 
-    if(data == "ok")
+    if(responseDocumentError.error == QJsonParseError::NoError)
     {
-        if(error)
-        {
-            error->setErrorString("");
-            error->setType(QKlipperError::NoError);
-            return true;
-        }
+        if(responseDocument.object().contains("result"))
+            responseData = responseDocument.object()["result"].toString().toUtf8();
     }
 
-    reply->deleteLater();
+    if(responseData == "ok")
+    {
+        message->setResponse(QByteArray("ok"));
 
-    emit messageSent(message);
+        reply->deleteLater();
 
-    return false;
+        return true;
+    }
+    else
+    {
+        qDebug() << "Error: " + responseData;
+
+        if(!error)
+            error = new QKlipperError();
+
+        error->setErrorString(responseData);
+        error->setType(QKlipperError::Socket);
+        error->setOrigin("Server GCode Script");
+        error->setErrorTitle("Error Sending Websocket Command");
+
+        message->setError(*error);
+        emit errorOccured(*error);
+
+
+        reply->deleteLater();
+
+        return false;
+    }
 }
 
 /*

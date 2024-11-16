@@ -440,11 +440,7 @@ void QKlipperMessage::setResponse(const QByteArray &response)
     QJsonDocument document = QJsonDocument::fromJson(response, &parseError);
 
     if(parseError.error != QJsonParseError::NoError)
-    {
         setState(Error);
-
-        return;
-    }
 
     setResponse(document.object());
 }

@@ -66,7 +66,7 @@ private:
     QString m_errorTitle;
     QString m_errorString;
     QString m_origin;
-    Type m_type = Unspecified;
+    Type m_type = NoError;
 };
 
 typedef QList<QKlipperError> QKlipperErrorList;

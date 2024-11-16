@@ -758,6 +758,31 @@ public slots:
      */
     void serverJobQueueDelete(QStringList ids);
 
+    /*!
+     * \brief Asyncronously sends a message to the RPC websocket
+     *
+     * \param message QKlipperMessage to send
+     */
+    void sendRpcMessage(QKlipperMessage *message);
+
+    /*!
+     * \brief Asyncronously sends a message via http
+     *
+     * \param message QKlipperMessage to send
+     */
+    void sendWebSocketMessageAsync(QKlipperMessage *message);
+
+    /*!
+     * \brief Sends a message via http
+     *
+     * \param message QKlipperMessage to send
+     *
+     * \param error Optional error object
+     *
+     * \returns True if successful
+     */
+    bool sendWebSocketMessage(QKlipperMessage *message, QKlipperError *error = nullptr);
+
 signals:
     void connectionStateChanged();
 
@@ -772,10 +797,6 @@ private slots:
     void setSystem(QKlipperSystem *system);
 
     void setServer(QKlipperServer *server);
-
-    void sendRpcMessage(QKlipperMessage *message);
-    void sendWebSocketMessageAsync(QKlipperMessage *message);
-    bool sendWebSocketMessage(QKlipperMessage *message, QKlipperError *error = nullptr);
 
     void rpcUpdateSocketDataReady(); //local socket
     void rpcUpdateSocketDataReceived(QString data); //websocket

@@ -9,7 +9,7 @@ PrinterTerminal::PrinterTerminal(QKlipperInstance *instance, QWidget *parent)
 
     setupUi();
 
-    connect(m_instance->console(), SIGNAL(messageSent(KlipperMessage*)), this, SLOT(on_console_message(KlipperMessage*)));
+    connect(m_instance->console(), SIGNAL(messageSent(QKlipperMessage*)), this, SLOT(on_console_message(QKlipperMessage*)));
 }
 
 PrinterTerminal::~PrinterTerminal()
@@ -110,7 +110,7 @@ void PrinterTerminal::sendCommand()
         QStringList missingParameters;
 
         //Iterate through required parameters
-        foreach(QString parameter, command->parameters())
+        for(QString parameter : command->parameters())
         {
             bool found = false;
 
@@ -142,16 +142,28 @@ void PrinterTerminal::sendCommand()
             m_terminal->addErrorMessage(command->command(), message);
         }
     }
-    else
+    else if(!segmentedCommand.isEmpty())
     {
-        if(m_instance->console()->printerGcodeScript(commandString, nullptr, QKlipperMessage::User))
-        {
+        QKlipperMessage *message = new QKlipperMessage(this);
+        message->setMethod(segmentedCommand[0]);
+        message->setOrigin(QKlipperMessage::User);
 
-        }
-        else
-        {
+        segmentedCommand.removeAt(0);
 
+        for(QString param : segmentedCommand)
+        {
+            if(param.contains("="))
+            {
+                QString key = param.left('=');
+                QString value = param.right('=');
+
+                message->params().insert(key, value);
+            }
+            else
+                message->params().insert(param, QVariant());
         }
+
+        m_instance->console()->sendWebSocketMessage(message);
     }
 }
 

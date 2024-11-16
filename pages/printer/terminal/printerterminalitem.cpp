@@ -44,17 +44,25 @@ void PrinterTerminalItem::setupUi()
 
 void PrinterTerminalItem::onMessageResponseChanged()
 {
-    if(m_message->state() != QKlipperMessage::Error)
+    if(m_message->error().type() == QKlipperError::NoError)
     {
         m_responseMessageLabel->setText(QString("OK"));
         setProperty("status", QVariant::fromValue<QString>("ok"));
     }
-    else
-    {
-        QString error = m_message->response()["error"].toObject()["message"].toString();
-        m_responseMessageLabel->setText(QString("Error: ") + error);
-        setProperty("status", QVariant::fromValue<QString>("error"));
-    }
+
+    qint64 span = m_timestamp.secsTo(m_message->responseTimestamp());
+
+    QString text = m_messageTimestampLabel->text();
+    m_messageTimestampLabel->setText(QString("%1 - %2s").arg(text, QString::number(span)));
+
+    style()->polish(this);
+}
+
+void PrinterTerminalItem::onMessageErrorChanged()
+{
+    QString error = m_message->error().errorString();
+    m_responseMessageLabel->setText(QString("Error: ") + error);
+    setProperty("status", QVariant::fromValue<QString>("error"));
 
     qint64 span = m_timestamp.secsTo(m_message->responseTimestamp());
 
@@ -93,16 +101,18 @@ void PrinterTerminalItem::setErrorMessage(QString title, QString message)
     style()->polish(this);
 }
 
-void PrinterTerminalItem::setMessage(const QKlipperMessage *message)
+void PrinterTerminalItem::setMessage(QKlipperMessage *message)
 {
-    if(m_message == message)
-        return;
-
     if(m_message)
+    {
         disconnect(m_message, SIGNAL(responseChanged()), this, SLOT(onMessageResponseChanged()));
+        disconnect(m_message, SIGNAL(errorChanged()), this, SLOT(onMessageErrorChanged()));
+    }
 
-    m_message = const_cast<QKlipperMessage*>(message); //just need to store it
+    m_message = message;
+
     connect(m_message, SIGNAL(responseChanged()), this, SLOT(onMessageResponseChanged()));
+    connect(m_message, SIGNAL(errorChanged()), this, SLOT(onMessageErrorChanged()));
 
     m_timestamp = message->timestamp();
 
