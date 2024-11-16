@@ -1,9 +1,9 @@
 # Flo
-Qt Based Klipper/Moonraker Local Control for RaspberryPi and x86 based systems. It is a software replacement for Klipper and Sonic pads that allows more freedom in selection of hardware and themes. 
+Qt Based Klipper/Moonraker Control for RaspberryPi and other desktop systems, with a focus on touchscreen interaction. 
 
-I do not recommend running this on anything less than a RaspberryPi 5 in it's current state. Eventually, the core will be re-written and the GUI will be ported to QtQuick for optimal performance and better gesture recognition.
+[![alt text](https://github.com/DigitalArtifex/Flo/blob/main/data/screenshots/printer_overview.png)](http://www.youtube.com/watch?v=sa-G5-JLb-4 "Interface Overview (No Voiceover)")
 
-[![IMAGE ALT TEXT](http://img.youtube.com/vi/sa-G5-JLb-4/0.jpg)](http://www.youtube.com/watch?v=sa-G5-JLb-4 "Interface Overview (No Voiceover)")
+It is best described as a software replacement for Klipper and Sonic pads that allows more freedom in selection of hardware and themes. 
 
 # Depends
 
@@ -40,7 +40,7 @@ sudo cp /usr/local/lib/libquazip* /usr/lib
 
 ## Building/Running FLO
 
-It is important to note than FLO uses QtMultimedia to process webcam streams. While QtMultimedia defaults to FFMPEG, there are several known issues
+It is important to note that FLO uses QtMultimedia to process webcam streams. While QtMultimedia defaults to FFMPEG, there are several known issues
 that can occur while using this backend. If you have any issues (i.e. system lockups, scan lines etc) it may be necessary to specify the native backend
 for your system. For example, on Linux the native backend is `gstreamer` and therefore would set the environment variable `QT_MEDIA_BACKEND=gstreamer`. 
 
