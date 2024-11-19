@@ -1,4 +1,4 @@
-QT       += core gui charts network multimedia multimediawidgets datavisualization websockets
+QT       += core gui network multimedia multimediawidgets websockets charts graphs 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation qml quick 3dquick
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets openglwidgets
 
@@ -77,7 +77,8 @@ SOURCES += \
     pages/dashboard/widgets/status/statuswidget.cpp \
     pages/dashboard/widgets/system/systemwidget.cpp \
     pages/loading/loadingpage.cpp \
-    pages/printer/bedmesh/bedmeshviewer.cpp \
+    pages/printer/bedmesh/bedmeshdata.cpp \
+    pages/printer/bedmesh/bedmeshwidget.cpp \
     pages/printer/filebrowser/editor/fileeditor.cpp \
     pages/printer/filebrowser/filebrowser.cpp \
     pages/printer/filebrowser/filebrowseritem.cpp \
@@ -230,7 +231,8 @@ HEADERS += \
     pages/dashboard/widgets/status/statuswidget.h \
     pages/dashboard/widgets/system/systemwidget.h \
     pages/loading/loadingpage.h \
-    pages/printer/bedmesh/bedmeshviewer.h \
+    pages/printer/bedmesh/bedmeshdata.h \
+    pages/printer/bedmesh/bedmeshwidget.h \
     pages/printer/filebrowser/editor/fileeditor.h \
     pages/printer/filebrowser/filebrowser.h \
     pages/printer/filebrowser/filebrowseritem.h \
@@ -344,10 +346,11 @@ DISTFILES += \
     QSourceHighlite/LICENSE \
     QSourceHighlite/QSourceHighlite.pri \
     README.md \
-    pages/printer/bedmesh/BedMeshWidget.qml
+    pages/printer/bedmesh/BedMeshViewer.qml
 
 RESOURCES += \
-    Resources.qrc
+    Resources.qrc \
+    qml.qrc
 
 linux {
     contains(QMAKE_HOST.arch, arm.*):{
@@ -359,6 +362,7 @@ linux {
         DEFINES += LOCAL_PRINTER_CPU_TEMP_SYSCALL
     }
 }
+
 DEFINES += QUAZIP_STATIC
 DEFINES += APPLICATION_RESTART_CODE=-1000
 LIBS += -L"3rdparty/QuaZip/lib/" -lquazip1-qt6

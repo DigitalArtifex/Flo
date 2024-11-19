@@ -3199,16 +3199,16 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
                 QJsonArray meshMinArray = bedMeshObject["mesh_min"].toArray();
                 QJsonArray probeCountArray = bedMeshObject["probe_count"].toArray();
 
-                QKlipperPrintBedMesh::Limit minimum, maximum, probeCount;
+                QVector2D minimum, maximum, probeCount;
 
-                maximum.x = meshMaxArray[0].toDouble();
-                maximum.y = meshMaxArray[1].toDouble();
+                maximum.setX(meshMaxArray[0].toDouble());
+                maximum.setY(meshMaxArray[1].toDouble());
 
-                minimum.x = meshMinArray[0].toDouble();
-                minimum.y = meshMinArray[1].toDouble();
+                minimum.setX(meshMinArray[0].toDouble());
+                minimum.setY(meshMinArray[1].toDouble());
 
-                probeCount.x = probeCountArray[0].toDouble();
-                probeCount.y = probeCountArray[1].toDouble();
+                probeCount.setX(probeCountArray[0].toDouble());
+                probeCount.setY(probeCountArray[1].toDouble());
 
                 bedMesh->setProbeCount(probeCount);
                 bedMesh->setMaximum(maximum);
@@ -4137,15 +4137,15 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
         QJsonArray meshMaxArray = bedMeshObject["mesh_max"].toArray();
         QJsonArray meshMinArray = bedMeshObject["mesh_min"].toArray();
 
-        QKlipperPrintBedMesh::Limit maximum, minimum;
+        QVector2D maximum, minimum;
 
-        maximum.x = meshMaxArray[0].toDouble();
-        maximum.y = meshMaxArray[1].toDouble();
+        maximum.setX(meshMaxArray[0].toDouble());
+        maximum.setY(meshMaxArray[1].toDouble());
 
         bedMesh->setMaximum(maximum);
 
-        minimum.x = meshMinArray[0].toDouble();
-        minimum.y = meshMinArray[1].toDouble();
+        minimum.setX(meshMinArray[0].toDouble());
+        minimum.setY(meshMinArray[1].toDouble());
 
         bedMesh->setMinimum(minimum);
 
@@ -4189,6 +4189,19 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
         }
 
         bedMesh->setMatrix(matrix);
+
+        // QFile meshFile("/home/parametheus/mesh.json");
+
+        // if(meshFile.open(QFile::WriteOnly))
+        // {
+        //     for(QVector3D vertex : bedMesh->verticies())
+        //     {
+        //         QString line = QString("ListElement\{ x: \"%1\"; y: \"%2\"; z: \"%3\"; }\n").arg(QString::number(vertex.x()), QString::number(vertex.y()), QString::number(vertex.z()));
+
+        //         meshFile.write(line.toUtf8());
+        //     }
+        //     meshFile.close();
+        // }
 
         //Parse profile data
         QJsonArray profilesArray = bedMeshObject["profiles"].toArray();

@@ -35,16 +35,6 @@ void EnergyConsumptionChart::trackPrinter(QKlipperInstance *printer)
 
     m_series[printer->id()] = new QLineSeries(m_chart);
 
-    /*if(m_series.count() > 0)
-    {
-        //inflate previous ranges with 0s for the new source
-        for(int i = 0; i < m_series.first()->count(); i++)
-        {
-            qreal x = m_series.first()->at(i).x();
-            m_series[printer->id()]->append(QPoint(x,0));
-        }
-    }*/
-
     m_series[printer->id()]->setName(printer->name());
     m_chart->addSeries(m_series[printer->id()]);
     m_series[printer->id()]->attachAxis(m_axisY);
@@ -64,7 +54,6 @@ void EnergyConsumptionChart::setupUi()
     m_series["total"] = new QLineSeries(m_chart);
     m_series["total"]->setName("Total");
 
-    //m_series["total"]->append(timestamp.toMSecsSinceEpoch(),0);
     m_chart->addSeries(m_series["total"]);
 
     m_axisX = new QDateTimeAxis;

@@ -20,6 +20,10 @@
 #define QKLIPPERPRINTBEDMESH_H
 
 #include <QObject>
+#include <QVector3D>
+#include <QVector2D>
+
+typedef QList<QList<QVector3D>> QVertexTable;
 
 class QKlipperConsole;
 
@@ -33,15 +37,6 @@ class QKlipperPrintBedMesh : public QObject
 
     friend QKlipperConsole;
 public:
-    //!  Limit struct
-    /*!
-      This struct provides an x/y coordinate pair
-    */
-    struct Limit
-    {
-        qreal x;
-        qreal y;
-    };
 
     /*!
      * Constructor
@@ -72,17 +67,26 @@ public:
 
     QStringList profiles() const;
 
-    Limit minimum() const;
-
-    Limit maximum() const;
-
-    Limit probeCount() const;
-
     QList<QList<qreal> > matrix() const;
 
     QList<QList<qreal> > probed() const;
 
     QString algorithm() const;
+
+    QVertexTable verticies();
+
+    QVector2D minimum() const;
+
+    QVector2D maximum() const;
+
+    QVector2D probeCount() const;
+
+public slots:
+    void setMinimum(const QVector2D &minimum);
+
+    void setMaximum(const QVector2D &maximum);
+
+    void setProbeCount(const QVector2D &probeCount);
 
 private slots:
     void setFadeEnd(qreal fadeEnd);
@@ -107,12 +111,6 @@ private slots:
 
     void setProfiles(const QStringList &profiles);
 
-    void setMinimum(const Limit &minimum);
-
-    void setMaximum(const Limit &maximum);
-
-    void setProbeCount(const Limit &probeCount);
-
     void setMatrix(const QList<QList<qreal> > matrix);
 
     void setProbed(const QList<QList<qreal> > probed);
@@ -122,38 +120,25 @@ private slots:
 signals:
 
     void fadeEndChanged();
-
     void fadeStartChanged();
-
     void fadeTargetChanged();
-
     void horizontalMoveZChanged();
-
     void adaptiveMarginChanged();
-
     void speedChanged();
-
     void tensionChanged();
-
     void splitDeltaZChanged();
-
     void moveCheckDistanceChanged();
-
     void profileNameChanged();
-
     void profilesChanged();
+    void matrixChanged();
+    void probedChanged();
+    void algorithmChanged();
 
     void minimumChanged();
 
     void maximumChanged();
 
     void probeCountChanged();
-
-    void matrixChanged();
-
-    void probedChanged();
-
-    void algorithmChanged();
 
 private:
 
@@ -170,9 +155,9 @@ private:
     QString m_profileName;
     QStringList m_profiles;
 
-    Limit m_minimum;
-    Limit m_maximum;
-    Limit m_probeCount;
+    QVector2D m_minimum;
+    QVector2D m_maximum;
+    QVector2D m_probeCount;
 
     QList<QList<qreal>> m_matrix;
     QList<QList<qreal>> m_probed;
@@ -190,12 +175,12 @@ private:
     Q_PROPERTY(qreal moveCheckDistance READ moveCheckDistance WRITE setMoveCheckDistance NOTIFY moveCheckDistanceChanged FINAL)
     Q_PROPERTY(QString profileName READ profileName WRITE setProfileName NOTIFY profileNameChanged FINAL)
     Q_PROPERTY(QStringList profiles READ profiles WRITE setProfiles NOTIFY profilesChanged FINAL)
-    Q_PROPERTY(Limit minimum READ minimum WRITE setMinimum NOTIFY minimumChanged FINAL)
-    Q_PROPERTY(Limit maximum READ maximum WRITE setMaximum NOTIFY maximumChanged FINAL)
-    Q_PROPERTY(Limit probeCount READ probeCount WRITE setProbeCount NOTIFY probeCountChanged FINAL)
     Q_PROPERTY(QList<QList<qreal> > matrix READ matrix WRITE setMatrix NOTIFY matrixChanged FINAL)
     Q_PROPERTY(QList<QList<qreal> > probed READ probed WRITE setProbed NOTIFY probedChanged FINAL)
     Q_PROPERTY(QString algorithm READ algorithm WRITE setAlgorithm NOTIFY algorithmChanged FINAL)
+    Q_PROPERTY(QVector2D minimum READ minimum WRITE setMinimum NOTIFY minimumChanged FINAL)
+    Q_PROPERTY(QVector2D maximum READ maximum WRITE setMaximum NOTIFY maximumChanged FINAL)
+    Q_PROPERTY(QVector2D probeCount READ probeCount WRITE setProbeCount NOTIFY probeCountChanged FINAL)
 };
 
 #endif // QKLIPPERPRINTBEDMESH_H

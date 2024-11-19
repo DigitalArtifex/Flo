@@ -120,6 +120,7 @@ void QKlipperPrintBedMesh::setMoveCheckDistance(qreal moveCheckDistance)
 {
     if (qFuzzyCompare(m_moveCheckDistance, moveCheckDistance))
         return;
+
     m_moveCheckDistance = moveCheckDistance;
     emit moveCheckDistanceChanged();
 }
@@ -146,49 +147,9 @@ void QKlipperPrintBedMesh::setProfiles(const QStringList &profiles)
 {
     if (m_profiles == profiles)
         return;
+
     m_profiles = profiles;
     emit profilesChanged();
-}
-
-QKlipperPrintBedMesh::Limit QKlipperPrintBedMesh::minimum() const
-{
-    return m_minimum;
-}
-
-void QKlipperPrintBedMesh::setMinimum(const Limit &minimum)
-{
-    if (m_minimum.x == minimum.x &&
-        m_minimum.y == minimum.y)
-        return;
-
-    m_minimum = minimum;
-    emit minimumChanged();
-}
-
-QKlipperPrintBedMesh::Limit QKlipperPrintBedMesh::maximum() const
-{
-    return m_maximum;
-}
-
-void QKlipperPrintBedMesh::setMaximum(const Limit &maximum)
-{
-    if (m_maximum.x == maximum.x &&
-        m_maximum.y == maximum.y)
-        return;
-
-    m_maximum = maximum;
-    emit maximumChanged();
-}
-
-QKlipperPrintBedMesh::Limit QKlipperPrintBedMesh::probeCount() const
-{
-    return m_probeCount;
-}
-
-void QKlipperPrintBedMesh::setProbeCount(const Limit &probeCount)
-{
-    m_probeCount = probeCount;
-    emit probeCountChanged();
 }
 
 QList<QList<qreal> > QKlipperPrintBedMesh::matrix() const
@@ -198,7 +159,6 @@ QList<QList<qreal> > QKlipperPrintBedMesh::matrix() const
 
 void QKlipperPrintBedMesh::setMatrix(const QList<QList<qreal> > matrix)
 {
-    qDebug() << "setting probed";
     m_matrix = matrix;
     emit matrixChanged();
 }
@@ -210,7 +170,6 @@ QList<QList<qreal> > QKlipperPrintBedMesh::probed() const
 
 void QKlipperPrintBedMesh::setProbed(const QList<QList<qreal> > probed)
 {
-    qDebug() << "setting probed";
     m_probed = probed;
     emit probedChanged();
 }
@@ -220,10 +179,102 @@ QString QKlipperPrintBedMesh::algorithm() const
     return m_algorithm;
 }
 
+//       0    1    2    3
+//       ____ ____ ____ ____
+// Row 0|    |    |    |    |
+//      |____|____|____|____|
+// Row 1|    |    |    |    |
+//      |____|____|____|____|
+// Row 2|    |    |    |    |
+//      |____|____|____|____|
+// Row 3|    |    |    |    |
+//      |____|____|____|____|
+QVertexTable QKlipperPrintBedMesh::verticies()
+{
+    QVertexTable vertexList;
+    QVector2D increments;
+    QVector2D span;
+
+    if(!m_matrix.isEmpty() && !m_matrix[0].isEmpty())
+    {
+        //calculate the distance between the first and last probe points
+        span.setX(m_maximum.x() - m_minimum.x());
+        span.setY(m_maximum.y() - m_minimum.y());
+
+        //calculate the distance between each probe point
+        increments.setY(span.y() / m_matrix.count());
+        increments.setX(span.x() / m_matrix[0].count());
+
+        vertexList.reserve(m_matrix.count());
+
+        for(int row = 0; row < m_matrix.count(); row++)
+        {
+            vertexList.insert(row, QList<QVector3D>());
+            vertexList[row].reserve(m_matrix[row].count());
+
+            QList<qreal> rowData = m_matrix[row];
+            QVector2D currentPoint;
+
+            currentPoint.setY(m_minimum.y() + (row * increments.y()));
+
+            for(int col = 0; col < rowData.count(); col++)
+            {
+                currentPoint.setX(m_minimum.x() + (col * increments.x()));
+
+                QVector3D vertex(currentPoint);
+                vertex.setZ(m_matrix[row][col]);
+
+                vertexList[row].insert(col, vertex);
+            }
+        }
+    }
+
+    return vertexList;
+}
+
 void QKlipperPrintBedMesh::setAlgorithm(const QString &algorithm)
 {
     if (m_algorithm == algorithm)
         return;
     m_algorithm = algorithm;
     emit algorithmChanged();
+}
+
+QVector2D QKlipperPrintBedMesh::probeCount() const
+{
+    return m_probeCount;
+}
+
+void QKlipperPrintBedMesh::setProbeCount(const QVector2D &probeCount)
+{
+    if (m_probeCount == probeCount)
+        return;
+    m_probeCount = probeCount;
+    emit probeCountChanged();
+}
+
+QVector2D QKlipperPrintBedMesh::maximum() const
+{
+    return m_maximum;
+}
+
+void QKlipperPrintBedMesh::setMaximum(const QVector2D &maximum)
+{
+    if (m_maximum == maximum)
+        return;
+    m_maximum = maximum;
+    emit maximumChanged();
+}
+
+QVector2D QKlipperPrintBedMesh::minimum() const
+{
+    return m_minimum;
+}
+
+void QKlipperPrintBedMesh::setMinimum(const QVector2D &minimum)
+{
+    if (m_minimum == minimum)
+        return;
+    m_minimum = minimum;
+    emit minimumChanged();
 }

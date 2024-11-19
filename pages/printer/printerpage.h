@@ -24,6 +24,7 @@
 #include "widgets/toolhead/control/toolheadcontrolframe.h"
 
 #include "settings/printersettingspage.h"
+#include "bedmesh/bedmeshwidget.h"
 
 namespace Ui {
 class PrinterPage;
@@ -123,6 +124,7 @@ private slots:
     void on_restartButton_clicked();
 
 private:
+    BedMeshWidget *m_bedMeshWidget = nullptr;
     QFrame *m_statusOverlayFrame = nullptr;
     QLabel *m_statusLabel = nullptr;
 

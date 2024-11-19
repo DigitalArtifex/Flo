@@ -110,6 +110,9 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
     m_settingsButton->setExclusive(true);
     ui->actionBar->layout()->addWidget(m_settingsButton);
 
+    m_bedMeshWidget = new BedMeshWidget(m_instance->printer()->bed(), ui->bedMeshTab);
+    ui->bedMeshTab->layout()->addWidget(m_bedMeshWidget);
+
     m_buttonSpacer = new QSpacerItem(0,0, QSizePolicy::Expanding, QSizePolicy::Ignored);
     ui->actionBar->layout()->addItem(m_buttonSpacer);
 
@@ -178,6 +181,9 @@ void PrinterPage::setStyleSheet(QString styleSheet)
     {
         m_extruderMap[i]->setStyleSheet(styleSheet);
     }
+
+    if(m_bedMeshWidget)
+        m_bedMeshWidget->setStyleSheet(styleSheet);
 
     QPixmap pixmap = Settings::getThemeIcon(QString("printer")).pixmap(28,28);
     ui->statusIconLabel->setPixmap(pixmap);
@@ -483,7 +489,7 @@ void PrinterPage::resizeEvent(QResizeEvent *event)
 
 void PrinterPage::setPrintActionsEnabled(bool enabled)
 {
-    ui->webcamGroupBox->setEnabled(enabled);
+    //ui->webcamGroupBox->setEnabled(enabled);
     ui->chamberWidget->setEnabled(enabled);
     ui->temperatureWidget->setEnabled(enabled);
     ui->toolheadWidget->setEnabled(enabled);

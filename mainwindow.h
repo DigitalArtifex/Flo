@@ -12,8 +12,6 @@
 #include <QScreen>
 #include <QOpenGLWidget>
 
-#include <QChart>
-#include <QChartView>
 #include <QMovie>
 #include <QLabel>
 #include <QTimer>
