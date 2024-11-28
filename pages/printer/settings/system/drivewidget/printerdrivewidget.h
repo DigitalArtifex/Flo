@@ -16,6 +16,8 @@ class PrinterDriveWidget : public CardWidget
 public:
     explicit PrinterDriveWidget(QKlipperPrinter *printer, QWidget *parent = nullptr);
 
+    virtual void setStyleSheet(const QString &styleSheet);
+
 signals:
 
 protected slots:

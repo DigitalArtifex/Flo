@@ -192,8 +192,8 @@ void QMaskedButton::paintEvent(QPaintEvent *event)
         }
     }
 
-    setMask(m_mask);
     painter.end();
+    setMask(m_mask);
 
     QWidget::paintEvent(event);
 
@@ -205,7 +205,7 @@ void QMaskedButton::setPixmap(const QPixmap &pixmap)
     m_pixmap = pixmap;
     m_mask = pixmap.createHeuristicMask();
 
-    style()->polish(this);
+    update();
 }
 
 void QMaskedButton::setHoverPixmap(const QPixmap &pixmap)
@@ -213,7 +213,7 @@ void QMaskedButton::setHoverPixmap(const QPixmap &pixmap)
     m_hoverPixmap = pixmap;
     m_hoverMask = pixmap.createHeuristicMask();
 
-    style()->polish(this);
+    update();
 }
 
 void QMaskedButton::setClickPixmap(const QPixmap &pixmap)
@@ -221,7 +221,7 @@ void QMaskedButton::setClickPixmap(const QPixmap &pixmap)
     m_clickPixmap = pixmap;
     m_clickMask = pixmap.createHeuristicMask();
 
-    style()->polish(this);
+    update();
 }
 
 void QMaskedButton::enterEvent(QEnterEvent *event)
@@ -241,6 +241,10 @@ void QMaskedButton::enterEvent(QEnterEvent *event)
         m_hover_animation->setDuration(15);
         m_hover_animation->start();
     }
+
+    update();
+
+    QWidget::enterEvent(event);
 }
 
 void QMaskedButton::leaveEvent(QEvent *event)
@@ -263,4 +267,8 @@ void QMaskedButton::leaveEvent(QEvent *event)
         m_clickTimer->deleteLater();
         m_clickTimer = nullptr;
     }
+
+    update();
+
+    QWidget::leaveEvent(event);
 }

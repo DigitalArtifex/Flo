@@ -87,26 +87,6 @@ ToolHeadControlFrame::ToolHeadControlFrame(QKlipperToolHead *toolhead, QWidget *
 
 ToolHeadControlFrame::~ToolHeadControlFrame()
 {
-    if(m_homeWidget)
-        m_homeWidget->deleteLater();
-
-    if(m_xDownWidget)
-        m_xDownWidget->deleteLater();
-
-    if(m_xUpWidget)
-        m_xUpWidget->deleteLater();
-
-    if(m_yUpWidget)
-        m_yUpWidget->deleteLater();
-
-    if(m_yDownWidget)
-        m_yDownWidget->deleteLater();
-
-    if(m_zUpWidget)
-        m_zUpWidget->deleteLater();
-
-    if(m_zDownWidget)
-        m_zDownWidget->deleteLater();
 }
 
 void ToolHeadControlFrame::resizeEvent(QResizeEvent *event)

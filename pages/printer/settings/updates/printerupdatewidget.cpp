@@ -10,12 +10,12 @@ PrinterUpdateWidget::~PrinterUpdateWidget()
 {
 }
 
-QKlipperUpdateState *PrinterUpdateWidget::updateState() const
+QKlipperUpdateManager *PrinterUpdateWidget::updateState() const
 {
     return m_updateState;
 }
 
-void PrinterUpdateWidget::setUpdateState(QKlipperUpdateState *newUpdateState)
+void PrinterUpdateWidget::setUpdateState(QKlipperUpdateManager *newUpdateState)
 {
     clear();
 
@@ -23,20 +23,17 @@ void PrinterUpdateWidget::setUpdateState(QKlipperUpdateState *newUpdateState)
     QStringList keys = m_updateState->packages().keys();
     keys.sort(Qt::CaseInsensitive);
 
-    foreach(QString key, keys)
+    for(QString &key : keys)
     {
-        QList<QKlipperUpdatePackage> states = m_updateState->packages().values(key);
+        QKlipperUpdatePackage* state = m_updateState->packages().value(key);
 
-        foreach(QKlipperUpdatePackage state, states)
-        {
-            PrinterUpdateItem *item = new PrinterUpdateItem(key, state, this);
-            connect(item, SIGNAL(updateRequested(PrinterUpdateItem*)), this, SLOT(itemUpdateRequestedEvent(PrinterUpdateItem*)));
+        PrinterUpdateItem *item = new PrinterUpdateItem(key, state, this);
+        connect(item, SIGNAL(updateRequested(PrinterUpdateItem*)), this, SLOT(itemUpdateRequestedEvent(PrinterUpdateItem*)));
 
-            setAnimationSlide(item);
-            item->setDuration(150);
+        setAnimationSlide(item);
+        item->setDuration(150);
 
-            addItem(item);
-        }
+        addItem(item);
     }
 }
 

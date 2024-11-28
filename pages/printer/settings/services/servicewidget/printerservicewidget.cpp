@@ -47,6 +47,7 @@ void PrinterServiceWidget::setupUi()
 {
     setFixedSize(160,175);
     setTitle(m_service.name());
+    setIcon(Settings::getThemeIcon("service-icon"));
 
     QString serviceText = QString("Active State: %1").arg(m_service.activeState());
     QString stateText = QString("Sub State: %1").arg(m_service.subState());
@@ -96,6 +97,18 @@ void PrinterServiceWidget::setupUi()
 
 void PrinterServiceWidget::serviceStatesUpdateEvent()
 {
+    if(m_service.activeState() == "active")
+    {
+        m_restartButton->setEnabled(true);
+        m_startButton->setEnabled(false);
+        m_stopButton->setEnabled(true);
+    }
+    else
+    {
+        m_restartButton->setEnabled(false);
+        m_startButton->setEnabled(true);
+        m_stopButton->setEnabled(false);
+    }
 }
 
 void PrinterServiceWidget::stopButtonClickEvent(bool checked)
@@ -129,4 +142,11 @@ void PrinterServiceWidget::restartButtonClickEvent(bool checked)
     m_stopButton->setEnabled(false);
 
     m_system->restartService(m_service.name());
+}
+
+void PrinterServiceWidget::setStyleSheet(const QString &styleSheet)
+{
+    setIcon(Settings::getThemeIcon("service-icon"));
+
+    CardWidget::setStyleSheet(styleSheet);
 }

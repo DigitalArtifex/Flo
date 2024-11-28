@@ -39,8 +39,18 @@ void BedMeshData::onBedMeshMatrixChanged()
             QSurfaceDataRow &rowData = newData[row];
             rowData.reserve(newColCount);
 
-            for(int col = 0; col < newColCount; col++)
+            for(int col = 0; col < matrix[0].count(); col++)
             {
+                if((col == 0 && row == 0))
+                {
+                    setMaximum(matrix[row][col].z());
+                    setMinimum(matrix[row][col].z());
+                }
+                else if(matrix[row][col].z() > m_minimum)
+                    setMaximum(matrix[row][col].z());
+                else if(matrix[row][col].z() < m_minimum)
+                    setMinimum(matrix[row][col].z());
+
                 QVector3D converted;
                 converted.setX(matrix[row][col].x());
                 converted.setY(matrix[row][col].z());
@@ -52,6 +62,34 @@ void BedMeshData::onBedMeshMatrixChanged()
     }
 
     setData(newData);
+}
+
+qreal BedMeshData::maximum() const
+{
+    return m_maximum;
+}
+
+void BedMeshData::setMaximum(qreal maximum)
+{
+    if (qFuzzyCompare(m_maximum, maximum))
+        return;
+
+    m_maximum = maximum;
+    emit maximumChanged();
+}
+
+qreal BedMeshData::minimum() const
+{
+    return m_minimum;
+}
+
+void BedMeshData::setMinimum(qreal minimum)
+{
+    if (qFuzzyCompare(m_minimum, minimum))
+        return;
+
+    m_minimum = minimum;
+    emit minimumChanged();
 }
 
 QSurfaceDataArray BedMeshData::data() const

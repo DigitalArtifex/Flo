@@ -9,7 +9,7 @@ QKlipperSystem::QKlipperSystem(QObject *parent)
     m_memoryStats = new QKlipperMemoryStats(this);
     m_virtualizationState = new QKlipperVirtualizationState(this);
     m_canBus = new QKlipperCanBus(this);
-    m_updateState = new QKlipperUpdateState(this);
+    m_updateManager = new QKlipperUpdateManager(this);
     m_virtualSDCard = new QKlipperVirtualSDCard(this);
 }
 
@@ -23,8 +23,8 @@ QKlipperSystem::~QKlipperSystem()
         m_virtualizationState->deleteLater();
     if(m_canBus)
         m_canBus->deleteLater();
-    if(m_updateState)
-        m_updateState->deleteLater();
+    if(m_updateManager)
+        m_updateManager->deleteLater();
     if(m_virtualSDCard)
         m_virtualSDCard->deleteLater();
 
@@ -93,6 +93,33 @@ bool QKlipperSystem::restartService(QString serviceName)
     }
 
     return false;
+}
+
+QKlipperSystem::State QKlipperSystem::state() const
+{
+    return m_state;
+}
+
+void QKlipperSystem::setState(State state)
+{
+    if (m_state == state)
+        return;
+    m_state = state;
+    emit stateChanged();
+}
+
+QKlipperUpdateManager *QKlipperSystem::updateManager() const
+{
+    return m_updateManager;
+}
+
+void QKlipperSystem::setUpdateManager(QKlipperUpdateManager *updateManager)
+{
+    if (m_updateManager == updateManager)
+        return;
+
+    m_updateManager = updateManager;
+    emit updateManagerChanged();
 }
 
 qint64 QKlipperSystem::driveUsage() const
@@ -536,19 +563,6 @@ void QKlipperSystem::setCanBusses(const QMap<qint32, QKlipperCanBus *> &canBusse
     emit canBussesChanged();
 }
 
-QKlipperUpdateState *QKlipperSystem::updateState() const
-{
-    return m_updateState;
-}
-
-void QKlipperSystem::setUpdateState(QKlipperUpdateState *updateState)
-{
-    if (m_updateState == updateState)
-        return;
-    m_updateState = updateState;
-    emit updateStateChanged();
-}
-
 QKlipperVirtualSDCard *QKlipperSystem::virtualSDCard() const
 {
     return m_virtualSDCard;
@@ -573,5 +587,51 @@ void QKlipperSystem::setPythonVersion(const QString &pythonVersion)
         return;
     m_pythonVersion = pythonVersion;
     emit pythonVersionChanged();
+}
+
+QKlipperLedStripList QKlipperSystem::ledStrips() const
+{
+    return m_ledStrips;
+}
+
+void QKlipperSystem::setLedStrips(const QKlipperLedStripList &ledStrips)
+{
+    if (m_ledStrips == ledStrips)
+        return;
+
+    m_ledStrips = ledStrips;
+    emit ledStripsChanged();
+}
+
+void QKlipperSystem::setLedStrip(QKlipperLedStrip *strip)
+{
+    if(!m_ledStrips.contains(strip->name()))
+    {
+        m_ledStrips.insert(strip->name(), strip);
+        emit ledStripsChanged();
+    }
+}
+
+QKlipperPowerDeviceList QKlipperSystem::powerDevices() const
+{
+    return m_powerDevices;
+}
+
+void QKlipperSystem::setPowerDevices(const QKlipperPowerDeviceList &powerDevices)
+{
+    if (m_powerDevices == powerDevices)
+        return;
+
+    m_powerDevices = powerDevices;
+    emit powerDevicesChanged();
+}
+
+void QKlipperSystem::setPowerDevice(QKlipperPowerDevice *powerDevice)
+{
+    if(!m_powerDevices.contains(powerDevice->name()))
+    {
+        m_powerDevices.insert(powerDevice->name(), powerDevice);
+        emit powerDevicesChanged();
+    }
 }
 

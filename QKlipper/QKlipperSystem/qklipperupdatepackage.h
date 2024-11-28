@@ -90,6 +90,10 @@ public:
 
     QList<QKlipperUpdateCommit> commitsBehind() const;
 
+    bool updating() const;
+
+    QString stateMessage() const;
+
 public slots:
     void setDebugEnabled(bool debugEnabled);
 
@@ -142,6 +146,11 @@ public slots:
     void setGitMessages(const QStringList &gitMessages);
 
     void setCommitsBehind(const QList<QKlipperUpdateCommit> &commitsBehind);
+
+    void setUpdating(bool updating);
+    void setUpdatingFinished(bool finished);
+
+    void setStateMessage(const QString &stateMessage);
 
 signals:
 
@@ -197,6 +206,11 @@ signals:
 
     void commitsBehindChanged();
 
+    void updatingChanged();
+    void updatingFinished();
+
+    void stateMessageChanged();
+
 private:
     bool m_debugEnabled = false;
     bool m_isValid = false;
@@ -204,6 +218,7 @@ private:
     bool m_corrupt = false;
     bool m_detached = false;
     bool m_pristine = false;
+    bool m_updating = false;
 
     QString m_channel;
     QString m_configuredType;
@@ -220,6 +235,7 @@ private:
     QString m_fullVersionString;
     QString m_recoveryUrl;
     QString m_remoteUrl;
+    QString m_stateMessage;
 
     QStringList m_warnings;
     QStringList m_anomalies;
@@ -254,6 +270,8 @@ private:
     Q_PROPERTY(QStringList infoTags READ infoTags WRITE setInfoTags NOTIFY infoTagsChanged FINAL)
     Q_PROPERTY(QStringList gitMessages READ gitMessages WRITE setGitMessages NOTIFY gitMessagesChanged FINAL)
     Q_PROPERTY(QList<QKlipperUpdateCommit> commitsBehind READ commitsBehind WRITE setCommitsBehind NOTIFY commitsBehindChanged FINAL)
+    Q_PROPERTY(bool updating READ updating WRITE setUpdating NOTIFY updatingChanged FINAL)
+    Q_PROPERTY(QString stateMessage READ stateMessage WRITE setStateMessage NOTIFY stateMessageChanged FINAL)
 };
 
 #endif // QKLIPPERUPDATEPACKAGE_H

@@ -6,6 +6,7 @@ PrinterUsersView::PrinterUsersView(QKlipperInstance *instance, QWidget *parent)
     : CardWidget{CardWidget::Widget, parent}
 {
     setTitle("User Management");
+    setIcon(Settings::getThemeIcon("users-icon"));
 
     m_instnace = instance;
 
@@ -14,10 +15,17 @@ PrinterUsersView::PrinterUsersView(QKlipperInstance *instance, QWidget *parent)
 
 PrinterUsersView::~PrinterUsersView()
 {
-    if(m_centralLayout)
-        m_centralLayout->deleteLater();
+    // if(m_centralLayout)
+    //     m_centralLayout->deleteLater();
     if(m_centralWidget)
         m_centralWidget->deleteLater();
+}
+
+void PrinterUsersView::setStyleSheet(const QString &styleSheet)
+{
+    setIcon(Settings::getThemeIcon("users-icon"));
+
+    CardWidget::setStyleSheet(styleSheet);
 }
 
 void PrinterUsersView::setupUi()

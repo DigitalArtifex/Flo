@@ -7,19 +7,25 @@ CardWidget::CardWidget(CardType type, QWidget *parent)
 
     m_layout = new QVBoxLayout(this);
     m_layout->setContentsMargins(0,0,0,0);
+    m_layout->setSpacing(0);
 
     m_titleBarWidget = new QWidget(this);
     m_titleBarLayout = new QHBoxLayout(m_titleBarWidget);
     m_titleBarWidget->setLayout(m_titleBarLayout);
+    m_titleBarWidget->setFixedHeight(40);
+
+    m_iconLabel = new QLabel(m_titleBarWidget);
+    m_iconLabel->setFixedSize(24,24);
+    m_titleBarLayout->addWidget(m_iconLabel);
 
     m_titleLabel = new QLabel(m_titleBarWidget);
-    m_titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_titleBarLayout->addWidget(m_titleLabel);
 
     m_layout->addWidget(m_titleBarWidget);
 
-    m_contentWidget = new QLabel(m_titleBarWidget);
-    m_contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_contentWidget = new QWidget(m_titleBarWidget);
+    m_contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     m_contentLayout = new QVBoxLayout(m_contentWidget);
     m_contentLayout->setContentsMargins(0, 0, 0, 0);
@@ -39,6 +45,8 @@ CardWidget::CardWidget(CardType type, QWidget *parent)
         setProperty("class", "SubWidget");
         m_titleBarWidget->setProperty("class", "SubWidgetTitleBar");
     }
+
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 }
 
 CardWidget::~CardWidget()
@@ -84,6 +92,36 @@ void CardWidget::setupActionBar()
         if(m_footerWidget)
             m_layout->addWidget(m_footerWidget);
     }
+}
+
+CardWidget::CardFlags CardWidget::cardFlags() const
+{
+    return m_cardFlags;
+}
+
+void CardWidget::setCardFlags(CardFlags cardFlags)
+{
+    if (m_cardFlags == cardFlags)
+        return;
+    m_cardFlags = cardFlags;
+
+    if(m_cardFlags & NoTitleBar)
+        m_titleBarWidget->setFixedHeight(0);
+    else
+        m_titleBarWidget->setFixedHeight(35);
+
+    emit cardFlagsChanged();
+}
+
+QIcon CardWidget::icon() const
+{
+    return m_icon;
+}
+
+void CardWidget::setIcon(const QIcon &icon)
+{
+    m_icon = icon;
+    m_iconLabel->setPixmap(m_icon.pixmap(m_iconLabel->size()));
 }
 
 CardWidget::CardType CardWidget::cardType() const

@@ -53,8 +53,8 @@ void PrinterUpdateView::setupUi()
     m_updateAllButton->setIcon(Settings::getThemeIcon(QString("update-icon")));
     m_refreshButton->setIcon(Settings::getThemeIcon(QString("refresh-icon")));
 
-    connect(m_system->updateState(), SIGNAL(packagesChanged()), this, SLOT(updateStateUpdateEvent()));
-    connect(m_system->updateState(), SIGNAL(systemPackagesChanged()), this, SLOT(updateStateUpdateEvent()));
+    connect(m_system->updateManager(), SIGNAL(packagesChanged()), this, SLOT(updateStateUpdateEvent()));
+    connect(m_system->updateManager(), SIGNAL(systemPackagesChanged()), this, SLOT(updateStateUpdateEvent()));
     // connect(m_printer->console(), SIGNAL(machineUpdatedClient(QString)), this, SLOT(machineUpdateClientEvent(QString)));
     // connect(m_printer->console(), SIGNAL(machineUpdatedFull()), this, SLOT(machineUpdateClientEvent(QString)));
     connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(refreshButtonClickEvent()));
@@ -69,12 +69,12 @@ void PrinterUpdateView::setupUi()
 
 void PrinterUpdateView::updateStateUpdateEvent()
 {
-    m_updateWidget->setUpdateState(m_system->updateState());
+    m_updateWidget->setUpdateState(m_system->updateManager());
 }
 
 void PrinterUpdateView::updateAllButtonClickEvent()
 {
-    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(parent());
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(m_system->parent());
 
     if(instance)
     {
@@ -96,7 +96,7 @@ void PrinterUpdateView::updateAllButtonClickEvent()
 
 void PrinterUpdateView::refreshButtonClickEvent()
 {
-    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(parent());
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(m_system->parent());
 
     if(instance)
     {
@@ -109,7 +109,7 @@ void PrinterUpdateView::refreshButtonClickEvent()
 
 void PrinterUpdateView::itemUpdateRequestedEvent(PrinterUpdateItem *item)
 {
-    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(parent());
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(m_system->parent());
 
     if(instance)
     {

@@ -43,7 +43,9 @@ public:
     enum Protocol
     {
         RpcProtocol = 1,
-        HttpProtocol = 2
+        HttpProtocol = 2,
+        HttpPostProtocol = 3,
+        HttpDeleteProtocol = 4
     };
 
     enum State
@@ -88,6 +90,8 @@ public:
 
     QKlipperError error() const;
 
+    QJsonValue bodyData() const;
+
 public slots:
 
     void setId(qint32 id);
@@ -121,6 +125,8 @@ public slots:
 
     void setError(const QKlipperError &error);
 
+    void setBodyData(const QJsonValue &bodyData);
+
 protected slots:
     void on_responseTimerTimeout();
 
@@ -141,6 +147,8 @@ signals:
 
     void errorChanged();
 
+    void bodyDataChanged();
+
 private:
     static qint32 s_currentId;
 
@@ -156,6 +164,7 @@ private:
 
     QMap<QString,QVariant> m_params;
 
+    QJsonValue m_bodyData;
     QJsonValue m_response;
     QDateTime m_timestamp;
     QDateTime m_responseTimestamp;
@@ -172,6 +181,7 @@ private:
     Q_PROPERTY(QDateTime timestamp READ timestamp WRITE setTimestamp NOTIFY timestampChanged FINAL)
     Q_PROPERTY(QDateTime responseTimestamp READ responseTimestamp WRITE setResponseTimestamp NOTIFY responseTimestampChanged FINAL)
     Q_PROPERTY(QKlipperError error READ error WRITE setError NOTIFY errorChanged FINAL)
+    Q_PROPERTY(QJsonValue bodyData READ bodyData WRITE setBodyData NOTIFY bodyDataChanged FINAL)
 };
 
 #endif // QKLIPPERMESSAGE_H

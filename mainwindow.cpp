@@ -136,7 +136,7 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
         //Page
         m_pageSize = ui->PageContainer->size();
         m_pagePositionIn = QPoint(0, 0);
-        m_pagePositionOut = QPoint(0, m_pageSize.height());
+        m_pagePositionOut = QPoint(0, 0);
 
         if(page)
         {
@@ -212,12 +212,12 @@ void MainWindow::online()
     QKlipperInstanceList printers = QKlipperInstancePool::klipperInstances();
     //ui->menuButtonLayout->removeWidget(m_settingsButton);
 
-    foreach(QKlipperInstance *definition, printers)
+    for(QKlipperInstance *definition : printers)
     {
-        PrinterPage *printerPage = new PrinterPage(definition, this);
-
-        QAnimatedWidget *animatedPage = new QAnimatedWidget(this);
+        QAnimatedWidget *animatedPage = new QAnimatedWidget(ui->PageContainer);
+        PrinterPage *printerPage = new PrinterPage(definition, animatedPage);
         animatedPage->setWidget(printerPage);
+        animatedPage->setGeometry(ui->PageContainer->geometry());
         animatedPage->setHidden(true);
 
         MenuButton *printerButton = new MenuButton(m_printerPages.count(), this);
@@ -534,6 +534,12 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         m_printerPages[i]->setFixedSize(m_pageSize);
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    Settings::save();
+    event->accept();
+}
+
 
 void MainWindow::on_emergencyStopButton_clicked()
 {
@@ -563,10 +569,11 @@ void MainWindow::on_printerPoolPrinterAdded(QKlipperInstance *printer)
 {
     ui->menuButtonLayout->removeWidget(m_settingsButton);
 
-    PrinterPage *printerPage = new PrinterPage(printer, this);
 
     QAnimatedWidget *animatedPage = new QAnimatedWidget(this);
+    PrinterPage *printerPage = new PrinterPage(printer, animatedPage);
     animatedPage->setWidget(printerPage);
+    animatedPage->setGeometry(ui->PageContainer->geometry());
     animatedPage->setHidden(true);
 
     MenuButton *printerButton = new MenuButton(m_printerPages.count(), this);
@@ -610,7 +617,6 @@ void MainWindow::on_printerPoolPrinterRemoved(QKlipperInstance* printer)
 
 void MainWindow::onThemeUpdated()
 {
-    //setStyleSheet(Settings::currentTheme());
     updateStyleSheet();
 }
 

@@ -18,6 +18,8 @@ public:
 
     QKlipperUser user() const;
 
+    virtual void setStyleSheet(const QString &styleSheet);
+
 public slots:
     void setUser(const QKlipperUser &user);
 

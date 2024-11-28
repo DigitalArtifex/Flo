@@ -11,6 +11,7 @@ PrinterOfflineScreen::PrinterOfflineScreen(QKlipperInstance *printer, QWidget *p
 
     m_instance = printer;
     connect(printer->console(), SIGNAL(startupSequenceProgressChanged()), this, SLOT(printerConnectingProgressChanged()));
+    connect(printer->console(), SIGNAL(startupSequenceTextChanged()), this, SLOT(printerConnectingTextChanged()));
     connect(printer->console(), SIGNAL(connectionStateChanged()), this, SLOT(printerConnectingEvent()));
 
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PopupOverlay"));
@@ -46,6 +47,17 @@ void PrinterOfflineScreen::setStyleSheet(QString &styleSheet)
     m_connectButton->setIcon(Settings::getThemeIcon(QString("connect-icon")));
 
     QFrame::setStyleSheet(styleSheet);
+}
+
+void PrinterOfflineScreen::setText(const QString &text)
+{
+    ui->label->setText(text);
+}
+
+void PrinterOfflineScreen::setIcon(const QIcon &icon)
+{
+    m_icon = icon;
+    ui->printerOfflineIcon->setPixmap(m_icon.pixmap(ui->printerOfflineIcon->size()));
 }
 
 void PrinterOfflineScreen::printerConnectingEvent()

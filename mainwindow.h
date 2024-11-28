@@ -56,6 +56,7 @@ signals:
 
 protected slots:
     virtual void resizeEvent(QResizeEvent *event);
+    virtual void closeEvent(QCloseEvent *event);
 
 private slots:
     void online();

@@ -40,19 +40,21 @@ SOURCES += \
     QKlipper/QKlipperSystem/qklippercanbusdevice.cpp \
     QKlipper/QKlipperSystem/qklippercpuinfo.cpp \
     QKlipper/QKlipperSystem/qklipperdistributioninfo.cpp \
+    QKlipper/QKlipperSystem/qklipperledstrip.cpp \
     QKlipper/QKlipperSystem/qklipperlibcameradevice.cpp \
     QKlipper/QKlipperSystem/qklippermemorystats.cpp \
     QKlipper/QKlipperSystem/qklippermoonrakerstatsentry.cpp \
     QKlipper/QKlipperSystem/qklippernetworkinterface.cpp \
     QKlipper/QKlipperSystem/qklippernetworkstatsentry.cpp \
+    QKlipper/QKlipperSystem/qklipperpowerdevice.cpp \
     QKlipper/QKlipperSystem/qklippersdinfo.cpp \
     QKlipper/QKlipperSystem/qklipperserialperipheral.cpp \
     QKlipper/QKlipperSystem/qklipperservicestate.cpp \
     QKlipper/QKlipperSystem/qklippersystem.cpp \
     QKlipper/QKlipperSystem/qklipperthrottlestate.cpp \
     QKlipper/QKlipperSystem/qklipperupdatecommit.cpp \
+    QKlipper/QKlipperSystem/qklipperupdatemanager.cpp \
     QKlipper/QKlipperSystem/qklipperupdatepackage.cpp \
-    QKlipper/QKlipperSystem/qklipperupdatestate.cpp \
     QKlipper/QKlipperSystem/qklipperusbperipheral.cpp \
     QKlipper/QKlipperSystem/qklipperv412device.cpp \
     QKlipper/QKlipperSystem/qklipperv412mode.cpp \
@@ -77,8 +79,15 @@ SOURCES += \
     pages/dashboard/widgets/status/statuswidget.cpp \
     pages/dashboard/widgets/system/systemwidget.cpp \
     pages/loading/loadingpage.cpp \
+    pages/printer/bedmesh/adjustment/adjustmentscrewframe.cpp \
+    pages/printer/bedmesh/adjustment/empty/adjustmentscrewemptyframe.cpp \
+    pages/printer/bedmesh/adjustment/item/adjustmentscrewitemframe.cpp \
     pages/printer/bedmesh/bedmeshdata.cpp \
     pages/printer/bedmesh/bedmeshwidget.cpp \
+    pages/printer/bedmesh/health/bedmeshhealthcard.cpp \
+    pages/printer/bedmesh/probed/bedmeshframe.cpp \
+    pages/printer/bedmesh/probed/empty/bedmeshemptyframe.cpp \
+    pages/printer/bedmesh/probed/item/bedmeshitemframe.cpp \
     pages/printer/filebrowser/editor/fileeditor.cpp \
     pages/printer/filebrowser/filebrowser.cpp \
     pages/printer/filebrowser/filebrowseritem.cpp \
@@ -87,6 +96,8 @@ SOURCES += \
     pages/printer/filebrowser/overlay/filebrowseroverlay.cpp \
     pages/printer/filebrowser/preview/filepreviewwindow.cpp \
     pages/printer/offline/printerofflinescreen.cpp \
+    pages/printer/powerdevices/powerdevicecard.cpp \
+    pages/printer/powerdevices/powerdeviceview.cpp \
     pages/printer/printerpage.cpp \
     pages/printer/settings/announcements/printerannouncementitem.cpp \
     pages/printer/settings/announcements/printerannouncementview.cpp \
@@ -110,12 +121,6 @@ SOURCES += \
     pages/printer/terminal/printerterminalitem.cpp \
     pages/printer/terminal/printerterminalwidget.cpp \
     pages/printer/widgets/extruder/extruderwidget.cpp \
-    pages/printer/widgets/printerbed/adjustment/adjustmentscrewframe.cpp \
-    pages/printer/widgets/printerbed/adjustment/empty/adjustmentscrewemptyframe.cpp \
-    pages/printer/widgets/printerbed/adjustment/item/adjustmentscrewitemframe.cpp \
-    pages/printer/widgets/printerbed/bedmesh/bedmeshframe.cpp \
-    pages/printer/widgets/printerbed/bedmesh/empty/bedmeshemptyframe.cpp \
-    pages/printer/widgets/printerbed/bedmesh/item/bedmeshitemframe.cpp \
     pages/printer/widgets/printerbed/printerbedwidget.cpp \
     pages/printer/widgets/printerfan/printerfanwidget.cpp \
     pages/printer/widgets/printerwebcam/empty/emptyprinterwebcamframe.cpp \
@@ -137,6 +142,7 @@ SOURCES += \
     ui/QMaskedButton/qmaskedbutton.cpp \
     ui/QWebcamWidget/qwebcamsource.cpp \
     ui/QWebcamWidget/qwebcamwidget.cpp \
+    ui/Switch/switch.cpp \
     ui/circularprogressbar.cpp \
     ui/common/cardwidget/cardwidget.cpp \
     ui/common/dialog/dialog.cpp \
@@ -192,6 +198,7 @@ HEADERS += \
     QKlipper/QKlipperSystem/qklippercanbusinterface.h \
     QKlipper/QKlipperSystem/qklippercpuinfo.h \
     QKlipper/QKlipperSystem/qklipperdistributioninfo.h \
+    QKlipper/QKlipperSystem/qklipperledstrip.h \
     QKlipper/QKlipperSystem/qklipperlibcameradevice.h \
     QKlipper/QKlipperSystem/qklipperlibcameramode.h \
     QKlipper/QKlipperSystem/qklippermemorystats.h \
@@ -199,14 +206,15 @@ HEADERS += \
     QKlipper/QKlipperSystem/qklippernetworkaddress.h \
     QKlipper/QKlipperSystem/qklippernetworkinterface.h \
     QKlipper/QKlipperSystem/qklippernetworkstatsentry.h \
+    QKlipper/QKlipperSystem/qklipperpowerdevice.h \
     QKlipper/QKlipperSystem/qklippersdinfo.h \
     QKlipper/QKlipperSystem/qklipperserialperipheral.h \
     QKlipper/QKlipperSystem/qklipperservicestate.h \
     QKlipper/QKlipperSystem/qklippersystem.h \
     QKlipper/QKlipperSystem/qklipperthrottlestate.h \
     QKlipper/QKlipperSystem/qklipperupdatecommit.h \
+    QKlipper/QKlipperSystem/qklipperupdatemanager.h \
     QKlipper/QKlipperSystem/qklipperupdatepackage.h \
-    QKlipper/QKlipperSystem/qklipperupdatestate.h \
     QKlipper/QKlipperSystem/qklipperusbperipheral.h \
     QKlipper/QKlipperSystem/qklipperv412device.h \
     QKlipper/QKlipperSystem/qklipperv412mode.h \
@@ -231,8 +239,15 @@ HEADERS += \
     pages/dashboard/widgets/status/statuswidget.h \
     pages/dashboard/widgets/system/systemwidget.h \
     pages/loading/loadingpage.h \
+    pages/printer/bedmesh/adjustment/adjustmentscrewframe.h \
+    pages/printer/bedmesh/adjustment/empty/adjustmentscrewemptyframe.h \
+    pages/printer/bedmesh/adjustment/item/adjustmentscrewitemframe.h \
     pages/printer/bedmesh/bedmeshdata.h \
     pages/printer/bedmesh/bedmeshwidget.h \
+    pages/printer/bedmesh/health/bedmeshhealthcard.h \
+    pages/printer/bedmesh/probed/bedmeshframe.h \
+    pages/printer/bedmesh/probed/empty/bedmeshemptyframe.h \
+    pages/printer/bedmesh/probed/item/bedmeshitemframe.h \
     pages/printer/filebrowser/editor/fileeditor.h \
     pages/printer/filebrowser/filebrowser.h \
     pages/printer/filebrowser/filebrowseritem.h \
@@ -241,6 +256,8 @@ HEADERS += \
     pages/printer/filebrowser/overlay/filebrowseroverlay.h \
     pages/printer/filebrowser/preview/filepreviewwindow.h \
     pages/printer/offline/printerofflinescreen.h \
+    pages/printer/powerdevices/powerdevicecard.h \
+    pages/printer/powerdevices/powerdeviceview.h \
     pages/printer/printerpage.h \
     pages/printer/settings/announcements/printerannouncementitem.h \
     pages/printer/settings/announcements/printerannouncementview.h \
@@ -264,12 +281,6 @@ HEADERS += \
     pages/printer/terminal/printerterminalitem.h \
     pages/printer/terminal/printerterminalwidget.h \
     pages/printer/widgets/extruder/extruderwidget.h \
-    pages/printer/widgets/printerbed/adjustment/adjustmentscrewframe.h \
-    pages/printer/widgets/printerbed/adjustment/empty/adjustmentscrewemptyframe.h \
-    pages/printer/widgets/printerbed/adjustment/item/adjustmentscrewitemframe.h \
-    pages/printer/widgets/printerbed/bedmesh/bedmeshframe.h \
-    pages/printer/widgets/printerbed/bedmesh/empty/bedmeshemptyframe.h \
-    pages/printer/widgets/printerbed/bedmesh/item/bedmeshitemframe.h \
     pages/printer/widgets/printerbed/printerbedwidget.h \
     pages/printer/widgets/printerfan/printerfanwidget.h \
     pages/printer/widgets/printerwebcam/empty/emptyprinterwebcamframe.h \
@@ -291,6 +302,8 @@ HEADERS += \
     ui/QMaskedButton/qmaskedbutton.h \
     ui/QWebcamWidget/qwebcamsource.h \
     ui/QWebcamWidget/qwebcamwidget.h \
+    ui/Switch/style.h \
+    ui/Switch/switch.h \
     ui/circularprogressbar.h \
     ui/common/cardwidget/cardwidget.h \
     ui/common/dialog/dialog.h \
@@ -313,18 +326,14 @@ FORMS += \
     pages/dashboard/widgets/printer/printerwidget.ui \
     pages/dashboard/widgets/system/systemwidget.ui \
     pages/loading/loadingpage.ui \
+    pages/printer/bedmesh/probed/empty/bedmeshemptyframe.ui \
+    pages/printer/bedmesh/probed/item/bedmeshitemframe.ui \
     pages/printer/filebrowser/editor/fileeditor.ui \
     pages/printer/offline/printerofflinescreen.ui \
     pages/printer/printerpage.ui \
     pages/printer/settings/printersettingspage.ui \
     pages/printer/temperature/temperaturegraph.ui \
     pages/printer/widgets/extruder/extruderwidget.ui \
-    pages/printer/widgets/printerbed/adjustment/adjustmentscrewframe.ui \
-    pages/printer/widgets/printerbed/adjustment/empty/adjustmentscrewemptyframe.ui \
-    pages/printer/widgets/printerbed/adjustment/item/adjustmentscrewitemframe.ui \
-    pages/printer/widgets/printerbed/bedmesh/bedmeshframe.ui \
-    pages/printer/widgets/printerbed/bedmesh/empty/bedmeshemptyframe.ui \
-    pages/printer/widgets/printerbed/bedmesh/item/bedmeshitemframe.ui \
     pages/printer/widgets/printerbed/printerbedwidget.ui \
     pages/settings/edit_printer/editprinterdialog.ui \
     pages/settings/printerlistitem.ui \

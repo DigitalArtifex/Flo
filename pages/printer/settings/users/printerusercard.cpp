@@ -5,6 +5,7 @@
 PrinterUserCard::PrinterUserCard(QKlipperUser user, QWidget *parent)
     : CardWidget{CardWidget::SubWidget, parent}
 {
+    setIcon(Settings::getThemeIcon("user-icon"));
     m_user = user;
 
     setupUi();
@@ -12,7 +13,7 @@ PrinterUserCard::PrinterUserCard(QKlipperUser user, QWidget *parent)
 
 PrinterUserCard::~PrinterUserCard()
 {
-    m_centralLayout->deleteLater();
+    //m_centralLayout->deleteLater();
     m_centralWidget->deleteLater();
 }
 
@@ -26,7 +27,7 @@ void PrinterUserCard::setupUi()
     m_iconLabel = new QLabel(m_centralWidget);
     m_iconLabel->setFixedSize(100,100);
     m_iconLabel->setAlignment(Qt::AlignCenter);
-    m_iconLabel->setPixmap(Settings::getThemeIcon("user-icon").pixmap(100,100));
+    m_iconLabel->setPixmap(Settings::getThemeIcon("user-card-icon").pixmap(100,100));
     m_centralLayout->addWidget(m_iconLabel);
     setTitle(m_user.username());
 
@@ -69,6 +70,13 @@ void PrinterUserCard::removeButtonClickEvent(bool checked)
 QKlipperUser PrinterUserCard::user() const
 {
     return m_user;
+}
+
+void PrinterUserCard::setStyleSheet(const QString &styleSheet)
+{
+    setIcon(Settings::getThemeIcon("user-icon"));
+
+    CardWidget::setStyleSheet(styleSheet);
 }
 
 void PrinterUserCard::setUser(const QKlipperUser &user)

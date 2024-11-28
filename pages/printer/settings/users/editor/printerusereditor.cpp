@@ -10,8 +10,8 @@ PrinterUserEditor::PrinterUserEditor(QWidget *parent)
 
 PrinterUserEditor::~PrinterUserEditor()
 {
-    if(m_centralLayout)
-        m_centralLayout->deleteLater();
+    // if(m_centralLayout)
+    //     m_centralLayout->deleteLater();
 }
 
 QString PrinterUserEditor::password()

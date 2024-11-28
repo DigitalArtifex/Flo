@@ -465,6 +465,20 @@ void QKlipperMessage::on_responseTimerTimeout()
     emit responseTimeout();
 }
 
+QJsonValue QKlipperMessage::bodyData() const
+{
+    return m_bodyData;
+}
+
+void QKlipperMessage::setBodyData(const QJsonValue &bodyData)
+{
+    if (m_bodyData == bodyData)
+        return;
+
+    m_bodyData = bodyData;
+    emit bodyDataChanged();
+}
+
 QKlipperError QKlipperMessage::error() const
 {
     return m_error;

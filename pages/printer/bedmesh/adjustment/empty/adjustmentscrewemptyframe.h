@@ -7,14 +7,11 @@
 #include <QMovie>
 #include <QSpacerItem>
 #include <QHBoxLayout>
+#include "ui/QIconButton/qiconbutton.h"
 
 #include <QStyle>
 
 #include <QKlipper/qklipper.h>
-
-namespace Ui {
-class AdjustmentScrewEmptyFrame;
-}
 
 class AdjustmentScrewEmptyFrame : public QFrame
 {
@@ -39,7 +36,6 @@ private slots:
     void on_homeButton_clicked();
 
 private:
-    Ui::AdjustmentScrewEmptyFrame *ui;
 
     QSpacerItem *m_rightSpacer = nullptr;
     QSpacerItem *m_topSpacer = nullptr;
@@ -47,6 +43,12 @@ private:
     QSpacerItem *m_bottomSpacer = nullptr;
 
     QKlipperPrintBed *m_printerBed = nullptr;
+
+    QLabel *m_iconLabel = nullptr;
+    QLabel *m_textLabel = nullptr;
+    QIconButton *m_homeButton = nullptr;
+    QIconButton *m_calibrateButton = nullptr;
+    QHBoxLayout *m_layout = nullptr;
 };
 
 #endif // ADJUSTMENTSCREWEMPTYFRAME_H

@@ -123,6 +123,7 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
     connect(m_settingsButton, SIGNAL(clicked()), this, SLOT(settingsButtonClickEvent()));
     connect(m_instance, SIGNAL(error(QKlipperInstance*, QKlipperError&)), this, SLOT(onInstanceError(QKlipperInstance*, QKlipperError&)));
     connect(m_instance->printer(), SIGNAL(statusChanged()), this, SLOT(onPrinterStatusChanged()));
+    connect(m_instance->system(), SIGNAL(stateChanged()), this, SLOT(onSystemStateChanged()));
 
     m_statusOverlayFrame = new QFrame(ui->printerStatusContents);
     m_statusLabel = new QLabel(m_statusOverlayFrame);
@@ -131,6 +132,14 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
     m_statusOverlayFrame->layout()->addWidget(m_statusLabel);
     m_statusOverlayFrame->lower();
     m_statusOverlayFrame->setVisible(false);
+
+    m_powerDeviceView = new PowerDeviceView(m_instance->system(), ui->centerWidget);
+    m_powerDeviceView->setFixedSize(
+        ui->centerWidget->width() - (ui->centerWidget->contentsMargins().right() + ui->centerWidget->contentsMargins().left()),
+        200
+    );
+
+    m_centerLayout->addWidget(m_powerDeviceView);
 
     setupUiClasses();
     setStyleSheet(Settings::currentTheme());
@@ -145,11 +154,11 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
 
 PrinterPage::~PrinterPage()
 {
-    // m_chamberTemperatureBar->deleteLater();
-    // m_fileBrowser->deleteLater();
+    m_chamberTemperatureBar->deleteLater();
+    m_fileBrowser->deleteLater();
 
-    // m_terminal->deleteLater();
-    // m_printerOfflineScreen->deleteLater();
+    m_terminal->deleteLater();
+    m_printerOfflineScreen->deleteLater();
 
     delete ui;
 }
@@ -200,6 +209,9 @@ void PrinterPage::setStyleSheet(QString styleSheet)
     if(m_webcamWidget)
         m_webcamWidget->setStyleSheet(styleSheet);
 
+    if(m_powerDeviceView)
+        m_powerDeviceView->setStyleSheet(styleSheet);
+
     ui->zOffsetDownButton->setIcon(Settings::getThemeIcon("move-down-icon"));
     ui->zOffsetUpButton->setIcon(Settings::getThemeIcon("move-up-icon"));
 
@@ -229,6 +241,8 @@ void PrinterPage::setStyleSheet(QString styleSheet)
     m_bedMeshViewerButton->setIcon(Settings::getThemeIcon(QString("mesh-icon")));
     m_overviewButton->setIcon(Settings::getThemeIcon(QString("overview-icon")));
     m_settingsButton->setIcon(Settings::getThemeIcon(QString("settings-icon")));
+
+    m_temperatureWidget->setIcon(Settings::getThemeIcon("chart-icon"));
 
     ui->toggleZoffsetButton->setIcon(Settings::getThemeIcon("collapse-icon"));
     ui->toggleChamberButton->setIcon(Settings::getThemeIcon("collapse-icon"));
@@ -456,8 +470,6 @@ void PrinterPage::setPrinter(QKlipperPrinter *printer)
 
 void PrinterPage::resizeEvent(QResizeEvent *event)
 {
-    QWidget::resizeEvent(event);
-
     if(m_printerOfflineScreen)
         m_printerOfflineScreen->setGeometry(QRect(0,0,width(),height()));
 
@@ -485,6 +497,8 @@ void PrinterPage::resizeEvent(QResizeEvent *event)
         m_webcamFrameHeight = ui->webcamGroupBox->height();
         m_webcamWidgetHeight = ui->webcamContentWidget->height();
     }
+
+    QWidget::resizeEvent(event);
 }
 
 void PrinterPage::setPrintActionsEnabled(bool enabled)
@@ -1320,8 +1334,8 @@ void PrinterPage::onPrinterStatusChanged()
         ui->printSpeedSpinBox->setEnabled(false);
 
         setPrintActionsEnabled(true);
-        m_statusOverlayFrame->lower();
-        m_statusOverlayFrame->setVisible(false);
+        m_statusOverlayFrame->raise();
+        m_statusOverlayFrame->setVisible(true);
         break;
     case QKlipperPrinter::Error:
         status = QString("Error");
@@ -1539,6 +1553,25 @@ void PrinterPage::onToolHeadDestinationChanged()
 void PrinterPage::onToolHeadPartsFanSpeedChanged()
 {
     ui->partsFanLabel->setText(QString::number((double)m_printer->toolhead()->partsFan()->speed() * 100) + QString("%"));
+}
+
+void PrinterPage::onSystemStateChanged()
+{
+    switch(m_instance->system()->state())
+    {
+        case QKlipperSystem::Idle:
+            if(m_instance->isConnected())
+            {
+                m_statusOverlayFrame->lower();
+                m_statusOverlayFrame->setVisible(false);
+            }
+            break;
+        case QKlipperSystem::Updating:
+            m_statusOverlayFrame->raise();
+            m_printerOfflineScreen->setText("Klipper Is Updating..");
+            m_statusOverlayFrame->setVisible(true);
+            break;
+    }
 }
 
 void PrinterPage::onInstanceError(QKlipperInstance *instance, QKlipperError &error)

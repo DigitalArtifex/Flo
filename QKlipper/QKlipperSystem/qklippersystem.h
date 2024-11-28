@@ -36,271 +36,311 @@
 #include "qklipperserialperipheral.h"
 #include "qklipperservicestate.h"
 #include "qklipperthrottlestate.h"
-#include "qklipperupdatestate.h"
+#include "qklipperupdatemanager.h"
 #include "qklipperusbperipheral.h"
 #include "qklipperv412device.h"
 #include "qklippervirtualizationstate.h"
 #include "qklippervirtualsdcard.h"
 #include "qklipperwebcam.h"
+#include "qklipperpowerdevice.h"
+#include "qklipperledstrip.h"
+
+class QKlipperConsole;
 
 class QKlipperSystem : public QObject
 {
     Q_OBJECT
-public:
 
-    explicit QKlipperSystem(QObject *parent = nullptr);
-    ~QKlipperSystem();
+        friend QKlipperConsole;
+    public:
 
-    qint64 driveCapacity() const;
+        enum State
+        {
+            Idle = 0,
+            Updating = 1
+        };
 
-    qint64 driveUsage() const;
+        explicit QKlipperSystem(QObject *parent = nullptr);
+        ~QKlipperSystem();
 
-    qint64 driveFree() const;
+        qint64 driveCapacity() const;
 
-    QString hostname() const;
+        qint64 driveUsage() const;
 
-    QList<QKlipperMoonrakerStatsEntry> moonrakerStats() const;
+        qint64 driveFree() const;
 
-    QMap<QString, QKlipperNetworkStatsEntry> networkStats() const;
+        QString hostname() const;
 
-    QKlipperThrottleState *throttleState() const;
+        QList<QKlipperMoonrakerStatsEntry> moonrakerStats() const;
 
-    QKlipperMemoryStats *memoryStats() const;
+        QMap<QString, QKlipperNetworkStatsEntry> networkStats() const;
 
-    qreal uptime() const;
+        QKlipperThrottleState *throttleState() const;
 
-    qint32 connectionCount() const;
+        QKlipperMemoryStats *memoryStats() const;
 
-    QKlipperCpuInfo cpuInfo() const;
+        qreal uptime() const;
 
-    QKlipperSdInfo sdInfo() const;
+        qint32 connectionCount() const;
 
-    QKlipperDistributionInfo distributionInfo() const;
+        QKlipperCpuInfo cpuInfo() const;
 
-    QKlipperVirtualizationState *virtualizationState() const;
+        QKlipperSdInfo sdInfo() const;
 
-    QMap<QString, QKlipperNetworkInterface> networkInterfaces() const;
+        QKlipperDistributionInfo distributionInfo() const;
 
-    QKlipperCanBus *canBus() const;
+        QKlipperVirtualizationState *virtualizationState() const;
 
-    QStringList availableServices() const;
+        QMap<QString, QKlipperNetworkInterface> networkInterfaces() const;
 
-    QMap<QString, QKlipperServiceState> serviceStates() const;
+        QKlipperCanBus *canBus() const;
 
-    QList<QKlipperUsbPeripheral> usbPeripherals() const;
+        QStringList availableServices() const;
 
-    QList<QKlipperSerialPeripheral> serialPeripherals() const;
+        QMap<QString, QKlipperServiceState> serviceStates() const;
 
-    QList<QKlipperV412Device> v412Devices() const;
+        QList<QKlipperUsbPeripheral> usbPeripherals() const;
 
-    QList<QKlipperLibcameraDevice> libcameraDevices() const;
+        QList<QKlipperSerialPeripheral> serialPeripherals() const;
 
-    QList<QKlipperWebcam> webcams() const;
+        QList<QKlipperV412Device> v412Devices() const;
 
-    QMap<qint32, QKlipperCanBus *> canBusses() const;
+        QList<QKlipperLibcameraDevice> libcameraDevices() const;
 
-    QKlipperUpdateState *updateState() const;
+        QList<QKlipperWebcam> webcams() const;
 
-    QKlipperVirtualSDCard *virtualSDCard() const;
+        QMap<qint32, QKlipperCanBus *> canBusses() const;
 
-    QString pythonVersion() const;
+        QKlipperVirtualSDCard *virtualSDCard() const;
 
-public slots:
+        QString pythonVersion() const;
 
-    void setDriveCapacity(qint64 driveCapacity);
+        QKlipperUpdateManager *updateManager() const;
 
-    void setDriveUsage(qint64 driveUsage);
+        State state() const;
 
-    void setDriveFree(qint64 driveFree);
+        QKlipperPowerDeviceList powerDevices() const;
 
-    void setHostname(const QString &hostname);
+        QKlipperLedStripList ledStrips() const;
 
-    void setMoonrakerStats(const QList<QKlipperMoonrakerStatsEntry> &moonrakerStats);
+    public slots:
+        Q_INVOKABLE bool stopService(QString serviceName);
+        Q_INVOKABLE bool startService(QString serviceName);
+        Q_INVOKABLE bool restartService(QString serviceName);
 
-    void setNetworkStats(const QMap<QString, QKlipperNetworkStatsEntry> &networkStats);
+        void setPowerDevices(const QKlipperPowerDeviceList &powerDevices);
+        void setPowerDevice(QKlipperPowerDevice *powerDevice);
 
-    void setThrottleState(QKlipperThrottleState *throttleState);
+        void setLedStrips(const QKlipperLedStripList &ledStrips);
+        void setLedStrip(QKlipperLedStrip *strip);
 
-    void setMemoryStats(QKlipperMemoryStats *memoryStats);
+    private slots:
 
-    void setUptime(qreal uptime);
+        void setUpdateManager(QKlipperUpdateManager *updateManager);
 
-    void setConnectionCount(qint32 connectionCount);
+        void setState(State state);
+        void setDriveCapacity(qint64 driveCapacity);
 
-    void setCpuInfo(const QKlipperCpuInfo &cpuInfo);
+        void setDriveUsage(qint64 driveUsage);
 
-    void setSdInfo(const QKlipperSdInfo &sdInfo);
+        void setDriveFree(qint64 driveFree);
 
-    void setDistributionInfo(const QKlipperDistributionInfo &distributionInfo);
+        void setHostname(const QString &hostname);
 
-    void setVirtualizationState(QKlipperVirtualizationState *virtualizationState);
+        void setMoonrakerStats(const QList<QKlipperMoonrakerStatsEntry> &moonrakerStats);
 
-    void setNetworkInterfaces(const QMap<QString, QKlipperNetworkInterface> &networkInterfaces);
+        void setNetworkStats(const QMap<QString, QKlipperNetworkStatsEntry> &networkStats);
 
-    void setCanBus(QKlipperCanBus *canBus);
+        void setThrottleState(QKlipperThrottleState *throttleState);
 
-    void setAvailableServices(const QStringList &availableServices);
+        void setMemoryStats(QKlipperMemoryStats *memoryStats);
 
-    void setServiceStates(const QMap<QString, QKlipperServiceState> &serviceStates);
+        void setUptime(qreal uptime);
 
-    void setUsbPeripherals(const QList<QKlipperUsbPeripheral> &usbPeripherals);
+        void setConnectionCount(qint32 connectionCount);
 
-    void setSerialPeripherals(const QList<QKlipperSerialPeripheral> &serialPeripherals);
+        void setCpuInfo(const QKlipperCpuInfo &cpuInfo);
 
-    void setV412Devices(const QList<QKlipperV412Device> &v412Devices);
+        void setSdInfo(const QKlipperSdInfo &sdInfo);
 
-    void setLibcameraDevices(const QList<QKlipperLibcameraDevice> &libcameraDevices);
+        void setDistributionInfo(const QKlipperDistributionInfo &distributionInfo);
 
-    void setWebcams(const QList<QKlipperWebcam> &webcams);
+        void setVirtualizationState(QKlipperVirtualizationState *virtualizationState);
 
-    void setCanBusses(const QMap<qint32, QKlipperCanBus *> &canBusses);
+        void setNetworkInterfaces(const QMap<QString, QKlipperNetworkInterface> &networkInterfaces);
 
-    void setUpdateState(QKlipperUpdateState *updateState);
+        void setCanBus(QKlipperCanBus *canBus);
 
-    void setVirtualSDCard(QKlipperVirtualSDCard *virtualSDCard);
+        void setAvailableServices(const QStringList &availableServices);
 
-    void setPythonVersion(const QString &pythonVersion);
+        void setServiceStates(const QMap<QString, QKlipperServiceState> &serviceStates);
 
-    bool stopService(QString serviceName);
-    bool startService(QString serviceName);
-    bool restartService(QString serviceName);
+        void setUsbPeripherals(const QList<QKlipperUsbPeripheral> &usbPeripherals);
 
-signals:
+        void setSerialPeripherals(const QList<QKlipperSerialPeripheral> &serialPeripherals);
 
-    void driveCapacityChanged();
+        void setV412Devices(const QList<QKlipperV412Device> &v412Devices);
 
-    void driveUsageChanged();
+        void setLibcameraDevices(const QList<QKlipperLibcameraDevice> &libcameraDevices);
 
-    void driveFreeChanged();
+        void setWebcams(const QList<QKlipperWebcam> &webcams);
 
-    void hostnameChanged();
+        void setCanBusses(const QMap<qint32, QKlipperCanBus *> &canBusses);
 
-    void moonrakerStatsChanged();
+        void setVirtualSDCard(QKlipperVirtualSDCard *virtualSDCard);
 
-    void networkStatsChanged();
+        void setPythonVersion(const QString &pythonVersion);
 
-    void throttleStateChanged();
+    signals:
 
-    void memoryStatsChanged();
+        void driveCapacityChanged();
 
-    void uptimeChanged();
+        void driveUsageChanged();
 
-    void connectionCountChanged();
+        void driveFreeChanged();
 
-    void cpuInfoChanged();
+        void hostnameChanged();
 
-    void sdInfoChanged();
+        void moonrakerStatsChanged();
 
-    void distributionInfoChanged();
+        void networkStatsChanged();
 
-    void virtualizationStateChanged();
+        void throttleStateChanged();
 
-    void networkInterfacesChanged();
+        void memoryStatsChanged();
 
-    void canBusChanged();
+        void uptimeChanged();
 
-    void availableServicesChanged();
+        void connectionCountChanged();
 
-    void serviceStatesChanged();
+        void cpuInfoChanged();
 
-    void usbPeripheralsChanged();
+        void sdInfoChanged();
 
-    void serialPeripheralsChanged();
+        void distributionInfoChanged();
 
-    void v412DevicesChanged();
+        void virtualizationStateChanged();
 
-    void libcameraDevicesChanged();
+        void networkInterfacesChanged();
 
-    void webcamsChanged();
+        void canBusChanged();
 
-    void canBussesChanged();
+        void availableServicesChanged();
 
-    void updateStateChanged();
+        void serviceStatesChanged();
 
-    void virtualSDCardChanged();
+        void usbPeripheralsChanged();
 
-    void pythonVersionChanged();
+        void serialPeripheralsChanged();
 
-private:
-    qint64                                    m_driveCapacity = 0;
-    qint64                                    m_driveUsage = 0;
-    qint64                                    m_driveFree = 0;
+        void v412DevicesChanged();
 
-    QString                                   m_hostname;
+        void libcameraDevicesChanged();
 
-    //Filled by machine.proc_stats
-    QList<QKlipperMoonrakerStatsEntry>        m_moonrakerStats;
-    QMap<QString, QKlipperNetworkStatsEntry>  m_networkStats;
-    QKlipperThrottleState                    *m_throttleState;
-    QKlipperMemoryStats                      *m_memoryStats;
+        void webcamsChanged();
 
-    qreal                                     m_uptime = 0;
-    qint32                                    m_connectionCount = 0;
+        void canBussesChanged();
 
-    //Filled by machine.system_info
-    QKlipperCpuInfo                           m_cpuInfo;
-    QKlipperSdInfo                            m_sdInfo;
-    QKlipperDistributionInfo                  m_distributionInfo;
-    QKlipperVirtualizationState              *m_virtualizationState;
-    QMap<QString, QKlipperNetworkInterface>   m_networkInterfaces;
-    QKlipperCanBus                           *m_canBus;
+        void updateStateChanged();
 
-    QStringList                               m_availableServices;
-    QMap<QString,QKlipperServiceState>        m_serviceStates;
+        void virtualSDCardChanged();
 
-    //Filled by machine.peripherals.usb
-    QList<QKlipperUsbPeripheral>              m_usbPeripherals;
+        void pythonVersionChanged();
 
-    //Filled by machine.peripherals.serial
-    QList<QKlipperSerialPeripheral>           m_serialPeripherals;
+        void updateManagerChanged();
 
-    //Filled by machine.peripherals.video
-    QList<QKlipperV412Device>                 m_v412Devices;
-    QList<QKlipperLibcameraDevice>            m_libcameraDevices;
-    QList<QKlipperWebcam>                     m_webcams;
+        void stateChanged();
 
-    //Filled by machine.peripherals.canbus
-    QMap<qint32,QKlipperCanBus*>              m_canBusses;
+        void powerDevicesChanged();
 
-    QKlipperUpdateState                      *m_updateState;
+        void ledStripsChanged();
 
-    QKlipperVirtualSDCard                    *m_virtualSDCard;
+    private:
+        qint64                                    m_driveCapacity = 0;
+        qint64                                    m_driveUsage = 0;
+        qint64                                    m_driveFree = 0;
 
-    QString                                   m_pythonVersion;
+        QString                                   m_hostname;
 
-    Q_PROPERTY(qint64 driveCapacity READ driveCapacity WRITE setDriveCapacity NOTIFY driveCapacityChanged FINAL)
-    Q_PROPERTY(qint64 driveUsage READ driveUsage WRITE setDriveUsage NOTIFY driveUsageChanged FINAL)
-    Q_PROPERTY(qint64 driveFree READ driveFree WRITE setDriveFree NOTIFY driveFreeChanged FINAL)
+        //Filled by machine.proc_stats
+        QList<QKlipperMoonrakerStatsEntry>        m_moonrakerStats;
+        QMap<QString, QKlipperNetworkStatsEntry>  m_networkStats;
+        QKlipperThrottleState                    *m_throttleState;
+        QKlipperMemoryStats                      *m_memoryStats;
 
-    Q_PROPERTY(QString hostname READ hostname WRITE setHostname NOTIFY hostnameChanged FINAL)
+        qreal                                     m_uptime = 0;
+        qint32                                    m_connectionCount = 0;
 
-    Q_PROPERTY(QList<QKlipperMoonrakerStatsEntry> moonrakerStats READ moonrakerStats WRITE setMoonrakerStats NOTIFY moonrakerStatsChanged FINAL)
-    Q_PROPERTY(QMap<QString, QKlipperNetworkStatsEntry> networkStats READ networkStats WRITE setNetworkStats NOTIFY networkStatsChanged FINAL)
-    Q_PROPERTY(QKlipperThrottleState *throttleState READ throttleState WRITE setThrottleState NOTIFY throttleStateChanged FINAL)
-    Q_PROPERTY(QKlipperMemoryStats *memoryStats READ memoryStats WRITE setMemoryStats NOTIFY memoryStatsChanged FINAL)
+        //Filled by machine.system_info
+        QKlipperCpuInfo                           m_cpuInfo;
+        QKlipperSdInfo                            m_sdInfo;
+        QKlipperDistributionInfo                  m_distributionInfo;
+        QKlipperVirtualizationState              *m_virtualizationState;
+        QMap<QString, QKlipperNetworkInterface>   m_networkInterfaces;
+        QKlipperCanBus                           *m_canBus;
 
-    Q_PROPERTY(qreal uptime READ uptime WRITE setUptime NOTIFY uptimeChanged FINAL)
-    Q_PROPERTY(qint32 connectionCount READ connectionCount WRITE setConnectionCount NOTIFY connectionCountChanged FINAL)
+        QStringList                               m_availableServices;
+        QMap<QString,QKlipperServiceState>        m_serviceStates;
 
-    Q_PROPERTY(QKlipperCpuInfo cpuInfo READ cpuInfo WRITE setCpuInfo NOTIFY cpuInfoChanged FINAL)
-    Q_PROPERTY(QKlipperSdInfo sdInfo READ sdInfo WRITE setSdInfo NOTIFY sdInfoChanged FINAL)
-    Q_PROPERTY(QKlipperDistributionInfo distributionInfo READ distributionInfo WRITE setDistributionInfo NOTIFY distributionInfoChanged FINAL)
-    Q_PROPERTY(QKlipperVirtualizationState *virtualizationState READ virtualizationState WRITE setVirtualizationState NOTIFY virtualizationStateChanged FINAL)
-    Q_PROPERTY(QMap<QString, QKlipperNetworkInterface> networkInterfaces READ networkInterfaces WRITE setNetworkInterfaces NOTIFY networkInterfacesChanged FINAL)
-    Q_PROPERTY(QKlipperCanBus *canBus READ canBus WRITE setCanBus NOTIFY canBusChanged FINAL)
+        //Filled by machine.peripherals.usb
+        QList<QKlipperUsbPeripheral>              m_usbPeripherals;
 
-    Q_PROPERTY(QStringList availableServices READ availableServices WRITE setAvailableServices NOTIFY availableServicesChanged FINAL)
-    Q_PROPERTY(QMap<QString, QKlipperServiceState> serviceStates READ serviceStates WRITE setServiceStates NOTIFY serviceStatesChanged FINAL)
+        //Filled by machine.peripherals.serial
+        QList<QKlipperSerialPeripheral>           m_serialPeripherals;
 
-    Q_PROPERTY(QList<QKlipperUsbPeripheral> usbPeripherals READ usbPeripherals WRITE setUsbPeripherals NOTIFY usbPeripheralsChanged FINAL)
-    Q_PROPERTY(QList<QKlipperSerialPeripheral> serialPeripherals READ serialPeripherals WRITE setSerialPeripherals NOTIFY serialPeripheralsChanged FINAL)
-    Q_PROPERTY(QList<QKlipperV412Device> v412Devices READ v412Devices WRITE setV412Devices NOTIFY v412DevicesChanged FINAL)
-    Q_PROPERTY(QList<QKlipperLibcameraDevice> libcameraDevices READ libcameraDevices WRITE setLibcameraDevices NOTIFY libcameraDevicesChanged FINAL)
-    Q_PROPERTY(QList<QKlipperWebcam> webcams READ webcams WRITE setWebcams NOTIFY webcamsChanged FINAL)
-    Q_PROPERTY(QMap<qint32, QKlipperCanBus *> canBusses READ canBusses WRITE setCanBusses NOTIFY canBussesChanged FINAL)
-    Q_PROPERTY(QKlipperUpdateState *updateState READ updateState WRITE setUpdateState NOTIFY updateStateChanged FINAL)
-    Q_PROPERTY(QKlipperVirtualSDCard *virtualSDCard READ virtualSDCard WRITE setVirtualSDCard NOTIFY virtualSDCardChanged FINAL)
-    Q_PROPERTY(QString pythonVersion READ pythonVersion WRITE setPythonVersion NOTIFY pythonVersionChanged FINAL)
+        //Filled by machine.peripherals.video
+        QList<QKlipperV412Device>                 m_v412Devices;
+        QList<QKlipperLibcameraDevice>            m_libcameraDevices;
+        QList<QKlipperWebcam>                     m_webcams;
+
+        //Filled by machine.peripherals.canbus
+        QMap<qint32,QKlipperCanBus*>              m_canBusses;
+
+        QKlipperUpdateManager                    *m_updateManager;
+
+        QKlipperVirtualSDCard                    *m_virtualSDCard;
+
+        QString                                   m_pythonVersion;
+        State                                     m_state;
+        QKlipperPowerDeviceList m_powerDevices;
+        QKlipperLedStripList m_ledStrips;
+
+        Q_PROPERTY(qint64 driveCapacity READ driveCapacity WRITE setDriveCapacity NOTIFY driveCapacityChanged FINAL)
+        Q_PROPERTY(qint64 driveUsage READ driveUsage WRITE setDriveUsage NOTIFY driveUsageChanged FINAL)
+        Q_PROPERTY(qint64 driveFree READ driveFree WRITE setDriveFree NOTIFY driveFreeChanged FINAL)
+
+        Q_PROPERTY(QString hostname READ hostname WRITE setHostname NOTIFY hostnameChanged FINAL)
+
+        Q_PROPERTY(QList<QKlipperMoonrakerStatsEntry> moonrakerStats READ moonrakerStats WRITE setMoonrakerStats NOTIFY moonrakerStatsChanged FINAL)
+        Q_PROPERTY(QMap<QString, QKlipperNetworkStatsEntry> networkStats READ networkStats WRITE setNetworkStats NOTIFY networkStatsChanged FINAL)
+        Q_PROPERTY(QKlipperThrottleState *throttleState READ throttleState WRITE setThrottleState NOTIFY throttleStateChanged FINAL)
+        Q_PROPERTY(QKlipperMemoryStats *memoryStats READ memoryStats WRITE setMemoryStats NOTIFY memoryStatsChanged FINAL)
+
+        Q_PROPERTY(qreal uptime READ uptime WRITE setUptime NOTIFY uptimeChanged FINAL)
+        Q_PROPERTY(qint32 connectionCount READ connectionCount WRITE setConnectionCount NOTIFY connectionCountChanged FINAL)
+
+        Q_PROPERTY(QKlipperCpuInfo cpuInfo READ cpuInfo WRITE setCpuInfo NOTIFY cpuInfoChanged FINAL)
+        Q_PROPERTY(QKlipperSdInfo sdInfo READ sdInfo WRITE setSdInfo NOTIFY sdInfoChanged FINAL)
+        Q_PROPERTY(QKlipperDistributionInfo distributionInfo READ distributionInfo WRITE setDistributionInfo NOTIFY distributionInfoChanged FINAL)
+        Q_PROPERTY(QKlipperVirtualizationState *virtualizationState READ virtualizationState WRITE setVirtualizationState NOTIFY virtualizationStateChanged FINAL)
+        Q_PROPERTY(QMap<QString, QKlipperNetworkInterface> networkInterfaces READ networkInterfaces WRITE setNetworkInterfaces NOTIFY networkInterfacesChanged FINAL)
+        Q_PROPERTY(QKlipperCanBus *canBus READ canBus WRITE setCanBus NOTIFY canBusChanged FINAL)
+
+        Q_PROPERTY(QStringList availableServices READ availableServices WRITE setAvailableServices NOTIFY availableServicesChanged FINAL)
+        Q_PROPERTY(QMap<QString, QKlipperServiceState> serviceStates READ serviceStates WRITE setServiceStates NOTIFY serviceStatesChanged FINAL)
+
+        Q_PROPERTY(QList<QKlipperUsbPeripheral> usbPeripherals READ usbPeripherals WRITE setUsbPeripherals NOTIFY usbPeripheralsChanged FINAL)
+        Q_PROPERTY(QList<QKlipperSerialPeripheral> serialPeripherals READ serialPeripherals WRITE setSerialPeripherals NOTIFY serialPeripheralsChanged FINAL)
+        Q_PROPERTY(QList<QKlipperV412Device> v412Devices READ v412Devices WRITE setV412Devices NOTIFY v412DevicesChanged FINAL)
+        Q_PROPERTY(QList<QKlipperLibcameraDevice> libcameraDevices READ libcameraDevices WRITE setLibcameraDevices NOTIFY libcameraDevicesChanged FINAL)
+        Q_PROPERTY(QList<QKlipperWebcam> webcams READ webcams WRITE setWebcams NOTIFY webcamsChanged FINAL)
+        Q_PROPERTY(QMap<qint32, QKlipperCanBus *> canBusses READ canBusses WRITE setCanBusses NOTIFY canBussesChanged FINAL)
+        Q_PROPERTY(QKlipperVirtualSDCard *virtualSDCard READ virtualSDCard WRITE setVirtualSDCard NOTIFY virtualSDCardChanged FINAL)
+        Q_PROPERTY(QString pythonVersion READ pythonVersion WRITE setPythonVersion NOTIFY pythonVersionChanged FINAL)
+        Q_PROPERTY(QKlipperUpdateManager *updateManager READ updateManager WRITE setUpdateManager NOTIFY updateManagerChanged FINAL)
+        Q_PROPERTY(State state READ state WRITE setState NOTIFY stateChanged FINAL)
+        Q_PROPERTY(QKlipperPowerDeviceList powerDevices READ powerDevices WRITE setPowerDevices NOTIFY powerDevicesChanged FINAL)
+        Q_PROPERTY(QKlipperLedStripList ledStrips READ ledStrips WRITE setLedStrips NOTIFY ledStripsChanged FINAL)
 };
 
 #endif // QKLIPPERSYSTEM_H

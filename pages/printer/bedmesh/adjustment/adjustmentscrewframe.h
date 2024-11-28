@@ -9,14 +9,10 @@
 #include "item/adjustmentscrewitemframe.h"
 
 #include <ui/qanimatedwidget.h>
-
+#include <ui/common/cardwidget/cardwidget.h>
 #include <QKlipper/qklipper.h>
 
-namespace Ui {
-class AdjustmentScrewFrame;
-}
-
-class AdjustmentScrewFrame : public QFrame
+class AdjustmentScrewFrame : public CardWidget
 {
     Q_OBJECT
 
@@ -47,7 +43,6 @@ private slots:
     void clearLayout();
 
 private:
-    Ui::AdjustmentScrewFrame *ui;
 
     QMovie *m_loadingGif = nullptr;
     QLabel *m_loadingLabel = nullptr;
@@ -60,6 +55,8 @@ private:
     AdjustmentScrewEmptyFrame *m_emptyAdjustmentScrewFrame = nullptr;
 
     QKlipperPrintBed *m_printerBed = nullptr;
+    QFrame *m_dataFrame = nullptr;
+    QGridLayout *m_dataLayout = nullptr;
 };
 
 #endif // ADJUSTMENTSCREWFRAME_H

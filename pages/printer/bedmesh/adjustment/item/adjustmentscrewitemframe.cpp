@@ -1,20 +1,26 @@
 #include "adjustmentscrewitemframe.h"
-#include "ui_adjustmentscrewitemframe.h"
 
-#include "../../../../../../system/settings.h"
+#include "system/settings.h"
 
 AdjustmentScrewItemFrame::AdjustmentScrewItemFrame(QWidget *parent)
     : QFrame(parent)
-    , ui(new Ui::AdjustmentScrewItemFrame)
 {
-    ui->setupUi(this);
-
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "AdjustmentScrewItem"));
+
+    m_iconLabel = new QLabel(this);
+    m_screwNameLabel = new QLabel(this);
+    m_adjustmentLabel = new QLabel(this);
+
+    m_layout = new QHBoxLayout(this);
+    m_layout->addWidget(m_iconLabel);
+    m_layout->addWidget(m_adjustmentLabel);
+    m_layout->addWidget(m_screwNameLabel);
+
+    setLayout(m_layout);
 }
 
 AdjustmentScrewItemFrame::~AdjustmentScrewItemFrame()
 {
-    delete ui;
 }
 
 QKlipperAdjustmentScrew *AdjustmentScrewItemFrame::adjustmentScrew() const
@@ -26,7 +32,7 @@ void AdjustmentScrewItemFrame::setAdjustmentScrew(QKlipperAdjustmentScrew *adjus
 {
     m_adjustmentScrew = adjustmentScrew;
 
-    ui->screwNameLabel->setText(m_adjustmentScrew->name());
+    m_screwNameLabel->setText(m_adjustmentScrew->name());
     onAdjustmentScrewAmountChanged();
 
     QObject::connect(m_adjustmentScrew, SIGNAL(adjustmentChanged()), this, SLOT(onAdjustmentScrewAmountChanged()));
@@ -40,14 +46,14 @@ void AdjustmentScrewItemFrame::setupIcons()
     {
         case QKlipperAdjustmentScrew::Adjustment::NotSet:
         case QKlipperAdjustmentScrew::Adjustment::Clockwise:
-            pixmap = Settings::getThemeIcon(QString("clockwise-icon")).pixmap(ui->iconLabel->size());
+            pixmap = Settings::getThemeIcon(QString("clockwise-icon")).pixmap(m_iconLabel->size());
             break;
         case QKlipperAdjustmentScrew::Adjustment::CounterClockwise:
-            pixmap = Settings::getThemeIcon(QString("counter-clockwise-icon")).pixmap(ui->iconLabel->size());
+            pixmap = Settings::getThemeIcon(QString("counter-clockwise-icon")).pixmap(m_iconLabel->size());
             break;
     }
 
-    ui->iconLabel->setPixmap(pixmap);
+    m_iconLabel->setPixmap(pixmap);
 }
 
 void AdjustmentScrewItemFrame::setStyleSheet(const QString &styleSheet)
@@ -62,6 +68,6 @@ void AdjustmentScrewItemFrame::onAdjustmentScrewAmountChanged()
     if(!m_adjustmentScrew)
         return;
 
-    ui->adjustmentLabel->setText(m_adjustmentScrew->adjustment().amount);
+    m_adjustmentLabel->setText(m_adjustmentScrew->adjustment().amount);
     setupIcons();
 }

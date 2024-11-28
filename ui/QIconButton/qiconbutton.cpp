@@ -67,23 +67,32 @@ void QIconButton::paintEvent(QPaintEvent *event)
 
     QPixmap pixmap;
 
-    QSize size(24,24);
+    QSize size = m_iconSize;
 
     int x = 10;
-    int y = ((height() / 2) - (size.height() / 2));
-
-    if(property("icon-right").isValid())
-        x = property("icon-right").toInt();
-
-    if(property("icon-top").isValid())
-        y = property("icon-top").toInt();
+    int y = 10;
 
     if(property("icon-size").isValid())
         size = property("icon-size").toSize();
 
+    if((m_flags & IconHCentered) == IconHCentered)
+        x = (width() / 2) - (size.width() / 2);
+
+    if(property("icon-right").isValid())
+        x = property("icon-right").toInt();
+
+    if((m_flags & IconVCentered) == IconVCentered)
+        y = (height() / 2) - (size.height() / 2);
+
+    if(property("icon-top").isValid())
+        y = property("icon-top").toInt();
+
     if(isEnabled())
         pixmap = (m_icon.pixmap(size, QIcon::Normal, QIcon::On));
     else
+        pixmap = (m_icon.pixmap(size, QIcon::Disabled, QIcon::On));
+
+    if(m_checkable && !m_checked)
         pixmap = (m_icon.pixmap(size, QIcon::Disabled, QIcon::On));
 
     QPainter painter;
@@ -96,6 +105,87 @@ void QIconButton::paintEvent(QPaintEvent *event)
 void QIconButton::changeEvent(QEvent *event)
 {
     QFrame::changeEvent(event);
+}
+
+QMargins QIconButton::textMargins() const
+{
+    return m_textMargins;
+}
+
+void QIconButton::setTextMargins(const QMargins &textMargins)
+{
+    if (m_textMargins == textMargins)
+        return;
+
+    m_textMargins = textMargins;
+    m_textLabel->setContentsMargins(m_textMargins);
+    emit textMarginsChanged();
+}
+
+QIconButton::Flags QIconButton::flags() const
+{
+    return m_flags;
+}
+
+void QIconButton::setFlags(Flags flags)
+{
+    if (m_flags == flags)
+        return;
+
+    Qt::Alignment alignment = m_textLabel->alignment();
+
+    if((m_flags & TextHCentered) == TextHCentered)
+        alignment = alignment | Qt::AlignHCenter;
+    else
+        alignment = alignment & ~Qt::AlignHCenter;
+
+    if((m_flags & TextVCentered) == TextVCentered)
+        alignment = alignment | Qt::AlignVCenter;
+    else
+        alignment = alignment & ~Qt::AlignVCenter;
+
+    m_textLabel->setAlignment(alignment);
+
+    m_flags = flags;
+    emit flagsChanged();
+}
+
+void QIconButton::setFlag(Flags flag, bool on)
+{
+    if(on)
+        m_flags = Flags(flag | m_flags);
+    else
+        m_flags = Flags(m_flags & ~flag);
+
+    Qt::Alignment alignment = m_textLabel->alignment();
+
+    if((m_flags & TextHCentered) == TextHCentered)
+        alignment = alignment | Qt::AlignHCenter;
+    else
+        alignment = alignment & ~Qt::AlignHCenter;
+
+    if((m_flags & TextVCentered) == TextVCentered)
+        alignment = alignment | Qt::AlignVCenter;
+    else
+        alignment = alignment & ~Qt::AlignVCenter;
+
+    m_textLabel->setAlignment(alignment);
+
+    emit flagsChanged();
+}
+
+QSize QIconButton::iconSize() const
+{
+    return m_iconSize;
+}
+
+void QIconButton::setIconSize(const QSize &iconSize)
+{
+    if (m_iconSize == iconSize)
+        return;
+
+    m_iconSize = iconSize;
+    emit iconSizeChanged();
 }
 
 bool QIconButton::exclusive() const
@@ -155,7 +245,10 @@ void QIconButton::setupUi()
     setLayout(m_layout);
 
     m_textLabel = new QLabel(this);
-    m_textLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+    m_textLabel->setContentsMargins(m_textMargins);
+
+    m_textLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     m_textLabel->setAlignment(Qt::AlignCenter);
     m_layout->addWidget(m_textLabel);
 

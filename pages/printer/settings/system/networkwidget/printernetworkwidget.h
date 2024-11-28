@@ -16,6 +16,8 @@ class PrinterNetworkWidget : public CardWidget
 public:
     explicit PrinterNetworkWidget(QKlipperSystem *system, QWidget *parent = nullptr);
 
+    virtual void setStyleSheet(const QString &styleSheet);
+
 signals:
 
 protected:

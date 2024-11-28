@@ -18,6 +18,21 @@ QWebcamWidget::QWebcamWidget(QString source, QWidget *parent, int timeout) : QWi
 
 QWebcamWidget::~QWebcamWidget()
 {
+    if(m_webcamThread)
+    {
+        if(m_webcamSource)
+        {
+            m_webcamSource->moveToThread(QThread::currentThread());
+            m_webcamSource->stop();
+            m_webcamSource->deleteLater();
+        }
+
+        if(m_webcamThread->isRunning())
+            m_webcamThread->exit();
+
+        m_webcamThread->deleteLater();
+    }
+
     if(m_videoLabel)
     {
         m_layout->removeWidget(m_videoLabel);
@@ -34,20 +49,6 @@ QWebcamWidget::~QWebcamWidget()
     {
         m_layout->removeWidget(m_videoLabel);
         m_infoLabel->deleteLater();
-    }
-
-    if(m_webcamSource)
-    {
-        m_webcamSource->stop();
-        m_webcamSource->deleteLater();
-    }
-
-    if(m_webcamThread)
-    {
-        if(m_webcamThread->isRunning())
-            m_webcamThread->requestInterruption();
-
-        m_webcamThread->deleteLater();
     }
 
     if(m_layout)

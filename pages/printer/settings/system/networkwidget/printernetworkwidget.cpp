@@ -1,4 +1,5 @@
 #include "printernetworkwidget.h"
+#include "system/settings.h"
 
 PrinterNetworkWidget::PrinterNetworkWidget(QKlipperSystem *system, QWidget *parent)
     : CardWidget{CardWidget::SubWidget, parent}
@@ -6,6 +7,12 @@ PrinterNetworkWidget::PrinterNetworkWidget(QKlipperSystem *system, QWidget *pare
     m_system = system;
 
     setupUi();
+}
+
+void PrinterNetworkWidget::setStyleSheet(const QString &styleSheet)
+{
+    setIcon(Settings::getThemeIcon("network-icon"));
+    CardWidget::setStyleSheet(styleSheet);
 }
 
 void PrinterNetworkWidget::setupUi()
@@ -21,4 +28,5 @@ void PrinterNetworkWidget::setupUi()
 
     m_centralWidget->setLayout(m_centralLayout);
     setCentralWidget(m_centralWidget);
+    setIcon(Settings::getThemeIcon("network-icon"));
 }

@@ -30,8 +30,11 @@ public:
     void setParameter(const QString &key);
 
 private:
+    static void initialize();
+
     static QMap<QString, QKlipperCommand*> m_commands;
     static bool m_isInitialized;
+    static bool m_isInitializing;
 
     QString m_command;
     QString m_help;

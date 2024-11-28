@@ -630,3 +630,36 @@ void QKlipperUpdatePackage::setCommitsBehind(const QList<QKlipperUpdateCommit> &
     m_commitsBehind = commitsBehind;
     emit commitsBehindChanged();
 }
+
+bool QKlipperUpdatePackage::updating() const
+{
+    return m_updating;
+}
+
+void QKlipperUpdatePackage::setUpdating(bool updating)
+{
+    if (m_updating == updating)
+        return;
+
+    m_updating = updating;
+    emit updatingChanged();
+}
+
+void QKlipperUpdatePackage::setUpdatingFinished(bool finished)
+{
+    if(finished)
+        emit updatingFinished();
+}
+
+QString QKlipperUpdatePackage::stateMessage() const
+{
+    return m_stateMessage;
+}
+
+void QKlipperUpdatePackage::setStateMessage(const QString &stateMessage)
+{
+    if (m_stateMessage == stateMessage)
+        return;
+    m_stateMessage = stateMessage;
+    emit stateMessageChanged();
+}

@@ -22,8 +22,9 @@ public:
 
     enum CardFlags
     {
-        None = 0x0000,
-        NoFooter = 0x0001
+        None = 0,
+        NoFooter = 1,
+        NoTitleBar = 2
     };
 
     explicit CardWidget(CardType type = Widget, QWidget *parent = nullptr);
@@ -41,7 +42,18 @@ public:
     CardType cardType() const;
     void setCardType(CardType newCardType);
 
+    QIcon icon() const;
+
+    CardFlags cardFlags() const;
+
+public slots:
+    void setIcon(const QIcon &icon);
+
+    void setCardFlags(CardFlags cardFlags);
+
 signals:
+
+    void cardFlagsChanged();
 
 protected:
     void setupFooter();
@@ -60,11 +72,15 @@ private:
     QWidget *m_footerWidget = nullptr;
 
     QLabel *m_titleLabel = nullptr;
+    QLabel *m_iconLabel = nullptr;
+
+    QIcon m_icon;
 
     QString m_title;
 
     CardFlags m_cardFlags;
     CardType m_cardType;
+    Q_PROPERTY(CardFlags cardFlags READ cardFlags WRITE setCardFlags NOTIFY cardFlagsChanged FINAL)
 };
 
 #endif // CARDWIDGET_H

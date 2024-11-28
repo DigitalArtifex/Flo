@@ -8,6 +8,7 @@ BedMeshItemFrame::BedMeshItemFrame(QWidget *parent)
     ui->setupUi(this);
 
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "BedMeshItem"));
+    setFixedSize(75, 75);
 }
 
 BedMeshItemFrame::~BedMeshItemFrame()

@@ -7,16 +7,13 @@
 #include <QMovie>
 
 #include <QKlipper/qklipper.h>
-#include "../../../../../ui/qwidgetanimation.h"
+#include "ui/qwidgetanimation.h"
+#include "ui/common/cardwidget/cardwidget.h"
 
 #include "empty/bedmeshemptyframe.h"
 #include "item/bedmeshitemframe.h"
 
-namespace Ui {
-class BedMeshFrame;
-}
-
-class BedMeshFrame : public QFrame
+class BedMeshFrame : public CardWidget
 {
     Q_OBJECT
 public:
@@ -41,13 +38,13 @@ protected slots:
 
     void onBedMeshCalibratingFinished();
     void onBedMeshCalibrating();
+    void onMatrixChanged();
 
     void clearLayout();
 
 private:
-    Ui::BedMeshFrame *ui;
-
-    QGridLayout *m_layout = nullptr;
+    QWidget *m_centralWidget = nullptr;
+    QGridLayout *m_centralLayout = nullptr;
 
     BedMeshEmptyFrame *m_emptyFrame = nullptr;
 
@@ -60,6 +57,8 @@ private:
     QWidgetAnimation *m_loadingAnimation = nullptr;
 
     QKlipperPrintBed *m_printerBed;
+
+    bool m_calibrating = false;
 };
 
 #endif // BEDMESHFRAME_H

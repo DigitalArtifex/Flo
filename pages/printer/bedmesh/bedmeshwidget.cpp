@@ -9,6 +9,25 @@ BedMeshWidget::BedMeshWidget(QKlipperPrintBed *bed, QWidget *parent) : QWidget(p
 
     setupUi();
     setupViewer();
+    setupSidebar();
+    setupButtonBox();
+}
+
+BedMeshWidget::~BedMeshWidget()
+{
+    if(m_viewerWidget)
+    {
+        m_layout->removeWidget(m_viewerWidget);
+        m_viewerWidget->deleteLater();
+    }
+
+    if(m_viewer)
+    {
+        m_viewer->close();
+        m_viewer->deleteLater();
+    }
+
+    m_layout->deleteLater();
 }
 
 void BedMeshWidget::setStyleSheet(QString styleSheet)
@@ -24,6 +43,17 @@ void BedMeshWidget::setStyleSheet(QString styleSheet)
         context->setContextProperty("_theme_meshVeryLowColor", QColor::fromString(Settings::get("theme/bedmesh-very-low-color").toString()));
         context->setContextProperty("_theme_meshColor", QColor::fromString(Settings::get("theme/bedmesh-color").toString()));
     }
+
+    if(m_bedMeshFrame)
+        m_bedMeshFrame->setStyleSheet(styleSheet);
+
+    if(m_adjustmentScrewFrame)
+        m_adjustmentScrewFrame->setStyleSheet(styleSheet);
+
+    if(m_healthCard)
+        m_healthCard->setStyleSheet(styleSheet);
+
+    m_homeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
 }
 
 void BedMeshWidget::setupUi()
@@ -47,7 +77,7 @@ void BedMeshWidget::setupViewer()
         extraImportPath.arg(QGuiApplication::applicationDirPath(), QString::fromLatin1("qml")));
 
     QQmlContext* context = m_viewer->rootContext(); //view is the QDeclarativeView
-    context->setContextProperty( "BedMeshData", m_data);
+    context->setContextProperty("BedMeshData", m_data);
     context->setContextProperty("_theme_graphBackgroundColor", QColor::fromString(Settings::get("theme/graph-background-start").toString()));
     context->setContextProperty("_theme_graphPlotAreaBackgroundColor", QColor::fromString(Settings::get("theme/graph-plot-background-start").toString()));
     context->setContextProperty("_theme_meshVeryHighColor", QColor::fromString(Settings::get("theme/bedmesh-very-high-color").toString()));
@@ -63,8 +93,94 @@ void BedMeshWidget::setupViewer()
     m_viewer->setColor(QColor("#262626"));
 
     m_viewerWidget = QWidget::createWindowContainer(m_viewer, this);
+    m_bedMeshCard = new CardWidget(CardWidget::Widget, this);
+    m_bedMeshCard->setTitle("Bed Mesh");
+    m_bedMeshCard->setIcon(Settings::getThemeIcon("bed-mesh-icon"));
+    m_bedMeshCard->setCentralWidget(m_viewerWidget);
 
-    m_layout->addWidget(m_viewerWidget);
+    m_layout->addWidget(m_bedMeshCard, 0, 0);
 
     m_viewer->show();
+}
+
+void BedMeshWidget::setupSidebar()
+{
+    m_sideBarWidget = new QWidget(this);
+    m_sideBarWidget->setFixedWidth(420);
+    m_layout->addWidget(m_sideBarWidget, 0, 1, 1, 1);
+
+    m_sidebarLayout = new QGridLayout(m_sideBarWidget);
+    m_sidebarLayout->setContentsMargins(6, 0, 4, 0);
+
+    m_healthCard = new BedMeshHealthCard(m_data, this);
+    m_sidebarLayout->addWidget(m_healthCard, 0, 0, 1, 1);
+
+    m_bedMeshFrame = new BedMeshFrame(m_printBed, m_sideBarWidget);
+    m_sidebarLayout->addWidget(m_bedMeshFrame, 1, 0, 1, 1);
+
+    m_adjustmentScrewFrame = new AdjustmentScrewFrame(m_printBed, this);
+    m_sidebarLayout->addWidget(m_adjustmentScrewFrame, 2, 0, 1, 1);
+
+    m_sidebarLayout->addItem(new QSpacerItem(0, 40, QSizePolicy::Expanding, QSizePolicy::Expanding), 3, 0, 1, 1);
+    m_sideBarWidget->setLayout(m_sidebarLayout);
+}
+
+void BedMeshWidget::setupButtonBox()
+{
+    m_buttonBoxWidget = new QWidget(this);
+    m_buttonBoxLayout = new QHBoxLayout(m_buttonBoxWidget);
+    m_buttonBoxLayout->setContentsMargins(0,0,0,0);
+
+    m_homeButton = new QIconButton(m_buttonBoxWidget);
+    m_homeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
+    m_homeButton->setText("Home Toolhead");
+    m_homeButton->setFixedHeight(50);
+    m_homeButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    m_buttonBoxLayout->addWidget(m_homeButton);
+
+    connect(m_homeButton, SIGNAL(clicked()), this, SLOT(onHomeButtonClicked()));
+
+    m_calibrateMeshButton = new QIconButton(m_buttonBoxWidget);
+    m_calibrateMeshButton->setIcon(Settings::getThemeIcon(QString("calibrate-icon")));
+    m_calibrateMeshButton->setText("Calibrate Bed Mesh");
+    m_calibrateMeshButton->setFixedHeight(50);
+    m_calibrateMeshButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_buttonBoxLayout->addWidget(m_calibrateMeshButton);
+
+    connect(m_calibrateMeshButton, SIGNAL(clicked()), this, SLOT(onCalibrateMeshButtonClicked()));
+
+    m_calibrateScrewsButton = new QIconButton(m_buttonBoxWidget);
+    m_calibrateScrewsButton->setIcon(Settings::getThemeIcon(QString("calibrate-icon")));
+    m_calibrateScrewsButton->setText("Calibrate Adjustment Screws");
+    m_calibrateScrewsButton->setFixedHeight(50);
+    m_calibrateScrewsButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_buttonBoxLayout->addWidget(m_calibrateScrewsButton);
+
+    connect(m_calibrateScrewsButton, SIGNAL(clicked()), this, SLOT(onCalibrateScrewsButtonClicked()));
+
+    m_layout->addWidget(m_buttonBoxWidget, 1, 0, 1, 2);
+}
+
+void BedMeshWidget::onHomeButtonClicked()
+{
+    if(m_printBed->printer()->status() == QKlipperPrinter::Ready)
+    {
+        m_printBed->printer()->toolhead()->home();
+    }
+}
+
+void BedMeshWidget::onCalibrateMeshButtonClicked()
+{
+    if(m_printBed->printer()->status() == QKlipperPrinter::Ready)
+    {
+        m_printBed->calibrateBedMesh();
+    }
+}
+
+void BedMeshWidget::onCalibrateScrewsButtonClicked()
+{
+    if(m_printBed->printer()->status() == QKlipperPrinter::Ready)
+    {
+        m_printBed->calibrateAdjustmentScrews();
+    }
 }

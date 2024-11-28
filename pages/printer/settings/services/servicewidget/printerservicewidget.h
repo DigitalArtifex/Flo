@@ -29,6 +29,8 @@ protected slots:
     void startButtonClickEvent(bool checked = false);
     void restartButtonClickEvent(bool checked = false);
 
+    virtual void setStyleSheet(const QString &styleSheet);
+
 private:
     QKlipperSystem *m_system = nullptr;
     QKlipperServiceState m_service;

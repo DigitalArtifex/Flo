@@ -17,19 +17,18 @@ EditPrinterDialog::EditPrinterDialog(QWidget *parent)
     ui->printerInstanceLocationEdit->setValidator(new QMoonrakerValidator());
 
     m_resetButton = new QIconButton(ui->buttonBox);
+    m_resetButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     m_resetButton->setIcon(Settings::getThemeIcon("refresh-icon"));
-    m_resetButton->setText("Reset");
     ui->buttonBoxLayout->addWidget(m_resetButton);
 
-    m_buttonBoxSpacer = new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Fixed);
-    ui->buttonBoxLayout->addSpacerItem(m_buttonBoxSpacer);
-
     m_applyButton = new QIconButton(ui->buttonBox);
+    m_applyButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_applyButton->setIcon(Settings::getThemeIcon("accept-icon"));
     m_applyButton->setText("Apply");
     ui->buttonBoxLayout->addWidget(m_applyButton);
 
     m_cancelButton = new QIconButton(ui->buttonBox);
+    m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_cancelButton->setIcon(Settings::getThemeIcon("cancel-icon"));
     m_cancelButton->setText("Cancel");
     ui->buttonBoxLayout->addWidget(m_cancelButton);
@@ -127,6 +126,7 @@ void EditPrinterDialog::reset()
         ui->extruderCountSpinBox->setValue(m_instance->printer()->toolhead()->extruderMap().count());
         ui->addressLineEdit->setText(m_instance->address());
         ui->chamberPowerSpinBox->setValue(m_instance->printer()->chamber()->maxWatts());
+        ui->printerKeyEdit->setText(m_instance->apiKey());
 
         ui->heatedChamberCheckBox->setChecked(m_instance->printer()->hasChamber());
         ui->heatedChamberCheckBox->setChecked(m_instance->printer()->bed()->type() == QKlipperPrintBed::Heated);

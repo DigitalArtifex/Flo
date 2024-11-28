@@ -8,15 +8,13 @@ QWidgetAnimation::QWidgetAnimation(QWidget *target, QObject *parent) :
 
 QWidgetAnimation::~QWidgetAnimation()
 {
-    if(m_animations)
-        m_animations->deleteLater();
 }
 
 void QWidgetAnimation::start()
 {
     emit started();
 
-    m_animations = new QParallelAnimationGroup();
+    m_animations = new QParallelAnimationGroup(this);
     connect(m_animations, SIGNAL(finished()), this, SLOT(on_animationsFinished()));
 
     if(hasAnimationType(Height))

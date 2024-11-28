@@ -1,4 +1,5 @@
 #include "printersystemwidget.h"
+#include "system/settings.h"
 
 PrinterSystemWidget::PrinterSystemWidget(QKlipperInstance *instance, QWidget *parent)
     : CardWidget{CardWidget::SubWidget, parent}
@@ -18,10 +19,16 @@ PrinterSystemWidget::PrinterSystemWidget(QKlipperInstance *instance, QWidget *pa
 
 PrinterSystemWidget::~PrinterSystemWidget()
 {
-    if(m_centralLayout)
-        m_centralLayout->deleteLater();
+    // if(m_centralLayout)
+    //     m_centralLayout->deleteLater();
     if(m_centralWidget)
         m_centralLayout->deleteLater();
+}
+
+void PrinterSystemWidget::setStyleSheet(const QString &styleSheet)
+{
+    setIcon(Settings::getThemeIcon("service-icon"));
+    CardWidget::setStyleSheet(styleSheet);
 }
 
 void PrinterSystemWidget::systemUpdateEvent()
@@ -162,6 +169,8 @@ void PrinterSystemWidget::setupUi()
 
     m_sdGroupBox->setLayout(m_sdLayout);
     m_centralLayout->addWidget(m_sdGroupBox);
+
+    setIcon(Settings::getThemeIcon("system-icon"));
 }
 
 void PrinterSystemWidget::sdInfoUpdateEvent()

@@ -3,12 +3,10 @@
 
 #include <QFrame>
 #include <QPixmap>
+#include <QLabel>
+#include <QHBoxLayout>
 
 #include <QKlipper/qklipper.h>
-
-namespace Ui {
-class AdjustmentScrewItemFrame;
-}
 
 class AdjustmentScrewItemFrame : public QFrame
 {
@@ -29,9 +27,11 @@ protected slots:
     void onAdjustmentScrewAmountChanged();
 
 private:
-    Ui::AdjustmentScrewItemFrame *ui;
-
     QKlipperAdjustmentScrew *m_adjustmentScrew = nullptr;
+    QLabel *m_iconLabel = nullptr;
+    QLabel *m_screwNameLabel = nullptr;
+    QLabel *m_adjustmentLabel= nullptr;
+    QHBoxLayout *m_layout = nullptr;
 };
 
 #endif // ADJUSTMENTSCREWITEMFRAME_H

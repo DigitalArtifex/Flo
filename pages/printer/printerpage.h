@@ -25,6 +25,7 @@
 
 #include "settings/printersettingspage.h"
 #include "bedmesh/bedmeshwidget.h"
+#include "powerdevices/powerdeviceview.h"
 
 namespace Ui {
 class PrinterPage;
@@ -108,6 +109,7 @@ private slots:
     void onToolheadPositionChanged();
     void onToolHeadDestinationChanged();
     void onToolHeadPartsFanSpeedChanged();
+    void onSystemStateChanged();
 
     void onInstanceError(QKlipperInstance *instance, QKlipperError &error);
 
@@ -124,6 +126,7 @@ private slots:
     void on_restartButton_clicked();
 
 private:
+    PowerDeviceView *m_powerDeviceView = nullptr;
     BedMeshWidget *m_bedMeshWidget = nullptr;
     QFrame *m_statusOverlayFrame = nullptr;
     QLabel *m_statusLabel = nullptr;

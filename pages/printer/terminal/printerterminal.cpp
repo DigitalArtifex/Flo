@@ -14,7 +14,7 @@ PrinterTerminal::PrinterTerminal(QKlipperInstance *instance, QWidget *parent)
 
 PrinterTerminal::~PrinterTerminal()
 {
-    m_layout->deleteLater();
+    //m_layout->deleteLater();
 }
 
 void PrinterTerminal::on_console_message(QKlipperMessage *message)
@@ -62,7 +62,7 @@ void PrinterTerminal::setupUi()
 
     m_terminal = new PrinterTerminalWidget(this);
     m_layout->addWidget(m_terminal, 0,0,1,2);
-    m_terminal->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
+    //m_terminal->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
 
     m_commandEdit = new QTextEdit();
     m_commandEdit->setFixedHeight(32);
@@ -71,7 +71,7 @@ void PrinterTerminal::setupUi()
     m_layout->addWidget(m_commandEdit, 1,0,1,1);
     connect(m_commandEdit, SIGNAL(textChanged()), this, SLOT(on_commandEdit_textChanged()));
 
-    m_commandSendButton = new QPushButton();
+    m_commandSendButton = new QPushButton(this);
     m_commandSendButton->setText(QString("Send"));
     m_commandSendButton->setEnabled(false);
     m_commandSendButton->setFixedHeight(32);

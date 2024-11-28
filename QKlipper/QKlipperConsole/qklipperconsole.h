@@ -38,6 +38,8 @@
 #include <QNetworkRequest>
 #include <QHttpMultiPart>
 
+#include <QCoreApplication>
+
 #include "../QKlipperMessage/qklippermessage.h"
 #include "../QKlipperFile/qklipperfile.h"
 #include "../QKlipperSystem/qklippersystem.h"
@@ -223,6 +225,38 @@ public slots:
      */
     void clientIdentifier();
 
+    /*!
+     * Asyncronously adds a new value to the database
+     *
+     * \param key Database key for the value
+     *
+     * \param value The value
+     */
+    void databaseCreate(const QString &key, const QVariant &value);
+
+    /*!
+     * Asyncronously removes the database value for the given key
+     *
+     * \param key Database key to remove
+     */
+    void databaseDelete(const QString &key);
+
+    /*!
+     * Reads a stored value in the database
+     *
+     * \param key Database key to remove
+     */
+    QVariant databaseGetItem(const QString &key);
+
+    void machinePowerDeviceList();
+    void machinePowerDeviceStatus(QStringList names);
+    void machinePowerDeviceSetState(const QString &name, const QString &action = "toggle");
+
+    void machineLedStripList();
+    void machineLedStrip(const QStringList &names);
+    void machineLedStripOn(const QStringList &names);
+    void machineLedStripOff(const QStringList &names);
+    void machineSetLedStrip(QKlipperLedStrip *stripData);
     /*!
      * Sends command to shutdown machine. Server will disconnect
      */
@@ -646,7 +680,7 @@ public slots:
      *
      * \param destination URI of the new file location
      */
-    void serverDirectoryDelete(QString directory);
+    void serverDirectoryDelete(QString directory, bool forced);
 
     /*!
      * Asyncronously requests temperature store history
@@ -783,6 +817,7 @@ public slots:
      */
     bool sendWebSocketMessage(QKlipperMessage *message, QKlipperError *error = nullptr);
 
+
 signals:
     void connectionStateChanged();
 
@@ -792,6 +827,7 @@ signals:
     void messageSent(QKlipperMessage *message);
 
 private slots:
+
     void setPrinter(QKlipperPrinter *printer);
 
     void setSystem(QKlipperSystem *system);
@@ -824,6 +860,9 @@ private slots:
     void machinePeripheralsVideoParser(QKlipperMessage *message);
     void machinePeripheralsCanbusParser(QKlipperMessage *message);
     void machineUpdateStatusParser(QKlipperMessage *message);
+    void machinePowerDeviceListParser(QKlipperMessage *message);
+    void machinePowerDeviceParser(QKlipperMessage *message);
+    void machineLedStripListParser(QKlipperMessage *message);
 
     void printerInfoParser(QKlipperMessage *message);
     void printerObjectsListParser(QKlipperMessage *message);

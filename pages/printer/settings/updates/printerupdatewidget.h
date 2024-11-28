@@ -19,8 +19,8 @@ public:
     explicit PrinterUpdateWidget(QWidget *parent);
     ~PrinterUpdateWidget();
 
-    QKlipperUpdateState *updateState() const;
-    void setUpdateState(QKlipperUpdateState *newUpdateState);
+    QKlipperUpdateManager *updateState() const;
+    void setUpdateState(QKlipperUpdateManager *newUpdateState);
 
 signals:
     void itemUpdateRequested(PrinterUpdateItem *item);
@@ -29,7 +29,7 @@ protected slots:
     void itemUpdateRequestedEvent(PrinterUpdateItem* item);
 
 private:
-    QKlipperUpdateState *m_updateState;
+    QKlipperUpdateManager *m_updateState;
 };
 
 #endif // PRINTERUPDATEWIDGET_H

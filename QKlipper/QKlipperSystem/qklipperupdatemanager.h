@@ -16,8 +16,8 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QKLIPPERUPDATESTATE_H
-#define QKLIPPERUPDATESTATE_H
+#ifndef QKLIPPERUPDATEMANAGER_H
+#define QKLIPPERUPDATEMANAGER_H
 
 #include <QObject>
 #include <QMultiMap>
@@ -27,7 +27,7 @@
 class QKlipperSystem;
 class QKlipperConsole;
 
-class QKlipperUpdateState : public QObject
+class QKlipperUpdateManager : public QObject
 {
     Q_OBJECT
 
@@ -35,7 +35,7 @@ class QKlipperUpdateState : public QObject
     friend QKlipperConsole;
 public:
 
-    explicit QKlipperUpdateState(QObject *parent = nullptr);
+    explicit QKlipperUpdateManager(QObject *parent = nullptr);
 
     bool isBusy() const;
 
@@ -49,7 +49,11 @@ public:
 
     QStringList systemPackages() const;
 
-    QMultiMap<QString, QKlipperUpdatePackage> packages() const;
+    QMap<QString, QKlipperUpdatePackage *> packages() const;
+
+    QString currentStateMessage() const;
+
+    QString currentApplication() const;
 
 public slots:
     void setIsBusy(bool isBusy);
@@ -64,25 +68,26 @@ public slots:
 
     void setSystemPackages(const QStringList &systemPackages);
 
-    void setPackages(const QMultiMap<QString, QKlipperUpdatePackage> &packages);
+    void setPackages(const QMap<QString, QKlipperUpdatePackage *> &packages);
+    void setPackage(const QString &key, QKlipperUpdatePackage *package);
+
+    void setCurrentStateMessage(const QString &currentStateMessage);
+
+    void setCurrentApplication(const QString &currentApplication);
 
 private slots:
 
 signals:
 
     void isBusyChanged();
-
     void githubRateLimitChanged();
-
     void githubRequestsRemainingChanged();
-
     void githubLimitResetTimeChanged();
-
     void systemPackageCountChanged();
-
     void systemPackagesChanged();
-
     void packagesChanged();
+    void currentStateMessageChanged();
+    void currentApplicationChanged();
 
 private:
     bool m_isBusy = false;
@@ -94,7 +99,10 @@ private:
 
     QStringList m_systemPackages;
 
-    QMultiMap<QString, QKlipperUpdatePackage> m_packages;
+    QMap<QString, QKlipperUpdatePackage*> m_packages;
+
+    QString m_currentStateMessage;
+    QString m_currentApplication;
 
     Q_PROPERTY(bool isBusy READ isBusy WRITE setIsBusy NOTIFY isBusyChanged FINAL)
     Q_PROPERTY(qint32 githubRateLimit READ githubRateLimit WRITE setGithubRateLimit NOTIFY githubRateLimitChanged FINAL)
@@ -102,7 +110,9 @@ private:
     Q_PROPERTY(qint32 githubLimitResetTime READ githubLimitResetTime WRITE setGithubLimitResetTime NOTIFY githubLimitResetTimeChanged FINAL)
     Q_PROPERTY(qint32 systemPackageCount READ systemPackageCount WRITE setSystemPackageCount NOTIFY systemPackageCountChanged FINAL)
     Q_PROPERTY(QStringList systemPackages READ systemPackages WRITE setSystemPackages NOTIFY systemPackagesChanged FINAL)
-    Q_PROPERTY(QMultiMap<QString, QKlipperUpdatePackage> packages READ packages WRITE setPackages NOTIFY packagesChanged FINAL)
+    Q_PROPERTY(QMap<QString, QKlipperUpdatePackage*> packages READ packages WRITE setPackages NOTIFY packagesChanged FINAL)
+    Q_PROPERTY(QString currentStateMessage READ currentStateMessage WRITE setCurrentStateMessage NOTIFY currentStateMessageChanged FINAL)
+    Q_PROPERTY(QString currentApplication READ currentApplication WRITE setCurrentApplication NOTIFY currentApplicationChanged FINAL)
 };
 
-#endif // QKLIPPERUPDATESTATE_H
+#endif // QKLIPPERUPDATEMANAGER_H

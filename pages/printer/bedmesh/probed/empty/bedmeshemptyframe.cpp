@@ -1,7 +1,7 @@
 #include "bedmeshemptyframe.h"
 #include "ui_bedmeshemptyframe.h"
 
-#include "../../../../../../system/settings.h"
+#include "system/settings.h"
 
 BedMeshEmptyFrame::BedMeshEmptyFrame(QKlipperPrintBed *bed, QWidget *parent)
     : QFrame(parent)

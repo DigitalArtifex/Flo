@@ -14,26 +14,26 @@ PrinterWebcamWidget::PrinterWebcamWidget(QKlipperInstance *instance, QWidget *pa
 
 PrinterWebcamWidget::~PrinterWebcamWidget()
 {
-    if(m_webcamFrame)
-        m_webcamFrame->deleteLater();
+    // if(m_webcamFrame)
+    //     m_webcamFrame->deleteLater();
 
-    if(m_webcamFrame_1)
-        m_webcamFrame->deleteLater();
+    // if(m_webcamFrame_1)
+    //     m_webcamFrame->deleteLater();
 
-    if(m_webcamFrame_2)
-        m_webcamFrame->deleteLater();
+    // if(m_webcamFrame_2)
+    //     m_webcamFrame->deleteLater();
 
-    if(m_webcamFrame_3)
-        m_webcamFrame->deleteLater();
+    // if(m_webcamFrame_3)
+    //     m_webcamFrame->deleteLater();
 
-    if(m_thumbnailTimer)
-        m_thumbnailTimer->deleteLater();
+    // if(m_thumbnailTimer)
+    //     m_thumbnailTimer->deleteLater();
 
-    if(m_emptyFrame)
-        m_emptyFrame->deleteLater();
+    // if(m_emptyFrame)
+    //     m_emptyFrame->deleteLater();
 
-    if(m_layout)
-        m_layout->deleteLater();
+    // if(m_layout)
+    //     m_layout->deleteLater();
 }
 
 void PrinterWebcamWidget::setStyleSheet(const QString &styleSheet)

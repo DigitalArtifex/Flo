@@ -9,10 +9,6 @@
 #include "../../../../ui/circularprogressbar.h"
 #include <QKlipper/qklipper.h>
 
-#include "adjustment/adjustmentscrewframe.h"
-
-#include "bedmesh/bedmeshframe.h"
-
 namespace Ui {
 class PrinterBedWidget;
 }
@@ -65,9 +61,6 @@ private:
     QPropertyAnimation *m_bedMeshWidgetAnimation = nullptr;
     QPropertyAnimation *m_bedMeshFrameAnimation = nullptr;
 
-    QParallelAnimationGroup *m_bedMeshAnimationGroup = nullptr;
-    QParallelAnimationGroup *m_adjustmentScrewAnimationGroup = nullptr;
-
     bool m_toolsShown = true;
     bool m_bedMeshShown = true;
 
@@ -79,9 +72,7 @@ private:
     CircularProgressBar *m_bedTemperatureBar = nullptr;
     QKlipperPrintBed *m_printerBed = nullptr;
 
-    AdjustmentScrewFrame* m_adjustmentScrewFrame = nullptr;
-
-    BedMeshFrame *m_bedMeshFrame = nullptr;
+    //BedMeshFrame *m_bedMeshFrame = nullptr;
 
     QSpacerItem *m_adjustmentScrewSpacer = nullptr;
 

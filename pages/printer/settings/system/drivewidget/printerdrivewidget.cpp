@@ -1,4 +1,5 @@
 #include "printerdrivewidget.h"
+#include "system/settings.h"
 
 PrinterDriveWidget::PrinterDriveWidget(QKlipperPrinter *system, QWidget *parent)
     : CardWidget{CardWidget::SubWidget, parent}
@@ -9,9 +10,16 @@ PrinterDriveWidget::PrinterDriveWidget(QKlipperPrinter *system, QWidget *parent)
     setupUi();
 }
 
+void PrinterDriveWidget::setStyleSheet(const QString &styleSheet)
+{
+    setIcon(Settings::getThemeIcon("mcu-icon"));
+    CardWidget::setStyleSheet(styleSheet);
+}
+
 void PrinterDriveWidget::setupUi()
 {
     setTitle("MCU");
+    setIcon(Settings::getThemeIcon("mcu-icon"));
     setFixedSize(220, 320);
 
     m_centralWidget = new QWidget(this);

@@ -8,8 +8,8 @@ PrinterTerminalItem::PrinterTerminalItem(QWidget *parent)
 
 PrinterTerminalItem::~PrinterTerminalItem()
 {
-    if(m_layout)
-        m_layout->deleteLater();
+    // if(m_layout)
+    //     m_layout->deleteLater();
 }
 
 void PrinterTerminalItem::setupUi()
@@ -18,7 +18,7 @@ void PrinterTerminalItem::setupUi()
     m_layout->setSpacing(12);
 
     m_messageTimestampLabel = new QLabel();
-    m_messageTimestampLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_messageTimestampLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     m_messageTimestampLabel->setAlignment(Qt::AlignRight | Qt::AlignBottom);
     m_messageTimestampLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessageTimestamp"));
 
@@ -27,12 +27,12 @@ void PrinterTerminalItem::setupUi()
     m_messageMethodLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessageTitle"));
 
     m_responseMessageLabel = new QLabel();
-    m_responseMessageLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    m_responseMessageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_responseMessageLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessageText"));
 
-    m_layout->addWidget(m_messageMethodLabel,0,0,1,2);
-    m_layout->addWidget(m_messageTimestampLabel,1,1,1,1);
+    m_layout->addWidget(m_messageMethodLabel,0,0,1,1);
     m_layout->addWidget(m_responseMessageLabel,1,0,1,1);
+    m_layout->addWidget(m_messageTimestampLabel,1,1,1,1);
 
     setLayout(m_layout);
 

@@ -13,23 +13,23 @@ PrinterTemperatureChart::PrinterTemperatureChart(QKlipperInstance *instance, QWi
 
 PrinterTemperatureChart::~PrinterTemperatureChart()
 {
-    if(m_axisX)
-        m_axisX->deleteLater();
+    // if(m_axisX)
+    //     m_axisX->deleteLater();
 
-    if(m_axisY)
-        m_axisY->deleteLater();
+    // if(m_axisY)
+    //     m_axisY->deleteLater();
 
-    foreach(QString key, m_series.keys())
-        m_series[key];
+    // foreach(QString key, m_series.keys())
+    //     m_series[key];
 
-    if(m_chart)
-        m_chart->deleteLater();
+    // if(m_chart)
+    //     m_chart->deleteLater();
 
-    if(m_view)
-        m_view->deleteLater();
+    // if(m_view)
+    //     m_view->deleteLater();
 
-    if(m_layout)
-        m_layout->deleteLater();
+    // if(m_layout)
+    //     m_layout->deleteLater();
 }
 
 void PrinterTemperatureChart::setupUi()

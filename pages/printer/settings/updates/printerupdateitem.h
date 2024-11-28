@@ -12,10 +12,10 @@ class PrinterUpdateItem : public QAnimatedListItem
 {
     Q_OBJECT
 public:
-    explicit PrinterUpdateItem(QString name, QKlipperUpdatePackage state, QWidget *parent = nullptr);
+    explicit PrinterUpdateItem(QString name, QKlipperUpdatePackage *state, QWidget *parent = nullptr);
 
-    QKlipperUpdatePackage packageState() const;
-    void setPackageState(const QKlipperUpdatePackage &newPackageState);
+    QKlipperUpdatePackage *packageState() const;
+    void setPackageState(QKlipperUpdatePackage *newPackageState);
 
     QString title() const;
     void setTitle(const QString &newTitle);
@@ -29,7 +29,7 @@ protected slots:
     void setupUi();
 
 private:
-    QKlipperUpdatePackage m_packageState;
+    QKlipperUpdatePackage *m_packageState;
 
     QString m_title;
 

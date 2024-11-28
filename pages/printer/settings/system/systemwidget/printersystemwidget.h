@@ -18,6 +18,8 @@ public:
     explicit PrinterSystemWidget(QKlipperInstance *instance, QWidget *parent = nullptr);
     ~PrinterSystemWidget();
 
+    virtual void setStyleSheet(const QString &styleSheet);
+
 signals:
 
 protected slots:

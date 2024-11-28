@@ -218,6 +218,8 @@ signals:
 
     void portChanged();
 
+    void stateChanged();
+
 private:
     QKlipperClientIdentifier                         m_clientIdentifier;
 
