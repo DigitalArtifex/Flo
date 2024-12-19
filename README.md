@@ -1,7 +1,7 @@
 # Flo
 Qt Based Klipper/Moonraker Control for RaspberryPi and other desktop systems, with a focus on touchscreen interaction. 
 
-[![alt text](https://github.com/DigitalArtifex/Flo/blob/main/data/screenshots/printer_overview.png)](http://www.youtube.com/watch?v=sa-G5-JLb-4 "Interface Overview (No Voiceover)")
+[![alt text](https://github.com/DigitalArtifex/Flo/blob/main/data/screenshots/flo_redesign.png)](http://www.youtube.com/watch?v=sa-G5-JLb-4 "Interface Overview (No Voiceover)")
 
 It is best described as a software replacement for Klipper and Sonic pads that allows more freedom in selection of hardware and themes. 
 
