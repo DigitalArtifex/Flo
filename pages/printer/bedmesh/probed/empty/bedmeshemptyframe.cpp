@@ -23,9 +23,8 @@ BedMeshEmptyFrame::~BedMeshEmptyFrame()
 
 void BedMeshEmptyFrame::setupIcons()
 {
-    QPixmap pixmap = Settings::getThemeIcon("no-data-icon").pixmap(ui->iconLabel->size());
+    QPixmap pixmap = Settings::getThemeIcon("no-data").pixmap(ui->iconLabel->size());
     ui->iconLabel->setPixmap(pixmap);
-    ui->homeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
 }
 
 void BedMeshEmptyFrame::setStyleSheet(const QString &styleSheet)
@@ -40,17 +39,6 @@ void BedMeshEmptyFrame::onToolheadHomingChanged()
         ui->label->setText("Homing Toolhead");
     else
         ui->label->setText("No Data Found");
-
-    if(m_printerBed->printer()->toolhead()->isHomed())
-    {
-        ui->calibrateButton->setEnabled(true);
-        ui->homeButton->setEnabled(false);
-    }
-    else
-    {
-        ui->calibrateButton->setEnabled(false);
-        ui->homeButton->setEnabled(true);
-    }
 }
 
 void BedMeshEmptyFrame::on_homeButton_clicked()

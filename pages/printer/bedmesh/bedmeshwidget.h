@@ -6,8 +6,6 @@
 #include <QGridLayout>
 #include <Q3DScene>
 #include <QtGui/qguiapplication.h>
-// #include <QtQml/qqmlengine.h>
-// #include <QtQuick/qquickview.h>
 #include <QtQuick/QtQuickDepends>
 #include <QQmlContext>
 #include <Qt3DQuickDepends>
@@ -15,19 +13,20 @@
 #include <QQuick3D>
 #include <QQuickView>
 #include <QQmlEngine>
-//#include <QQmlApplicationEngine>
 #include <QtGraphs/QAbstractAxis>
 #include <QtGraphs/QAreaSeries>
 
 #include <QKlipper/qklipper.h>
+#include <ui/QThrobber/qthrobber.h>
 #include "bedmeshdata.h"
 
 #include "health/bedmeshhealthcard.h"
 #include "probed/bedmeshframe.h"
 #include "adjustment/adjustmentscrewframe.h"
 #include "ui/common/cardwidget/cardwidget.h"
+#include "ui/common/dialog/dialog.h"
 
-class BedMeshWidget : public QWidget
+class BedMeshWidget : public Dialog
 {
         Q_OBJECT
     public:

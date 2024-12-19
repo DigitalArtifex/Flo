@@ -4,8 +4,18 @@
 #include <QWidget>
 #include <QFrame>
 #include <QStyle>
+#include <QScreen>
+#include <QGraphicsEffect>
 #include "../../../../ui/circularprogressbar.h"
 #include <QKlipper/qklipper.h>
+
+#include "extruderinfodialog.h"
+#include "extrudermaterialsdialog.h"
+
+#include "extrudertemperaturewidget.h"
+#include <ui/QThrobber/qthrobber.h>
+#include <ui/piddialog.h>
+#include <ui/PositionDialog/positiondialog.h>
 
 namespace Ui {
 class ExtruderWidget;
@@ -16,15 +26,17 @@ class ExtruderWidget : public QFrame
     Q_OBJECT
 
 public:
-    explicit ExtruderWidget(QWidget *parent = nullptr);
+    explicit ExtruderWidget(QKlipperExtruder *extruder, QWidget *parent = nullptr);
     ~ExtruderWidget();
 
     void setExtruder(QKlipperExtruder *extruder);
 
     void setUiClasses();
 
-    virtual void setStyleSheet(QString &styleSheet);
-    virtual void setIcons();
+    void setupIcons();
+
+protected:
+    virtual void changeEvent(QEvent *event) override;
 
 private slots:
     void on_extrsuionFactorSlider_valueChanged(int value);
@@ -41,18 +53,33 @@ private slots:
     void onExtruderCurrentTempChanged();
     void onExtruderTargetTempChanged();
     void onExtruderMaxTempChanged();
+    void onExtruderMinTempChanged();
     void onExtruderPressureAdvanceChanged();
     void onExtruderSmoothTimeChanged();
     void onExtruderExtrusionFactorChanged();
     void onExtruderFanSpeedChanged();
-    void onPartsFanSpeedChanged();
-    void onPartsFanChanged();
+    void onExtruderPowerChanged();
     void onExtruderFanChanged();
 
     void updateUiValues();
+    void updateSettingsButtons();
+
+    void onExtruderSettingsButtonClicked();
+    void onMaterialsButtonClicked();
+    void onPidButtonClicked();
+    void onPreheatButtonClicked();
+    void onOffsetButtonClicked();
+
+    void showThrobber();
+    void hideThrobber();
 
 private:
-    CircularProgressBar *m_temperatureProgressBar;
+    ExtruderTemperatureWidget *m_temperatureWidget = nullptr;
+
+    CircularProgressBar *m_temperatureProgressBar = nullptr;
+    CircularProgressBar *m_powerProgressBar = nullptr;
+    CircularProgressBar *m_extruderFanProgressBar = nullptr;
+
     QKlipperExtruder *m_extruder;
     Ui::ExtruderWidget *ui;
 
@@ -61,6 +88,16 @@ private:
     bool m_pressureAdvanceEdited = false;
     bool m_smoothTimeEdited = false;
     bool m_extrusionFactorEdited = false;
+
+    QIconButton *m_pidTuneButton = nullptr;
+    QIconButton *m_setOffsetButton = nullptr;
+    QIconButton *m_pressureAdvanceButton = nullptr;
+    QIconButton *m_preheatButton = nullptr;
+    QIconButton *m_materialButton = nullptr;
+    QIconButton *m_settingsButton = nullptr;
+
+    QFrame *m_throbberFrame = nullptr;
+    QThrobber *m_throbber = nullptr;
 };
 
 #endif // EXTRUDERWIDGET_H

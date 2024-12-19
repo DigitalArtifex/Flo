@@ -253,6 +253,19 @@ void QKlipperPrintBedMesh::setProbeCount(const QVector2D &probeCount)
     emit probeCountChanged();
 }
 
+quint32 QKlipperPrintBedMesh::reportedProbePoints() const
+{
+    return m_reportedProbePoints;
+}
+
+void QKlipperPrintBedMesh::setReportedProbePoints(quint32 reportedProbePoints)
+{
+    if (m_reportedProbePoints == reportedProbePoints)
+        return;
+    m_reportedProbePoints = reportedProbePoints;
+    emit reportedProbePointsChanged();
+}
+
 QVector2D QKlipperPrintBedMesh::maximum() const
 {
     return m_maximum;

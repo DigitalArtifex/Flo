@@ -123,7 +123,7 @@ public:
 
     QKlipperFile *currentFile() const;
 
-    QKlipperSafeZHome *safeZHome() const;
+    QKlipperSafeZHome safeZHome() const;
 
     QKlipperExtruder *extruder(const QString &name);
 
@@ -208,7 +208,7 @@ private slots:
 
     void setCurrentFile(QKlipperFile *currentFile);
 
-    void setSafeZHome(QKlipperSafeZHome *safeZHome);
+    void setSafeZHome(QKlipperSafeZHome safeZHome);
 
     void setExtruder(QString name, QKlipperExtruder *extruder);
 
@@ -343,10 +343,10 @@ private:
 
     QMap<QString,QKlipperFan*>                       m_fans;
 
-    QKlipperSafeZHome                               *m_safeZHome = nullptr;
+    QKlipperSafeZHome                                m_safeZHome;
     bool                                             m_hasChamber = false;
 
-    Q_PROPERTY(QKlipperSafeZHome *safeZHome READ safeZHome WRITE setSafeZHome NOTIFY safeZHomeChanged FINAL)
+    Q_PROPERTY(QKlipperSafeZHome safeZHome READ safeZHome WRITE setSafeZHome NOTIFY safeZHomeChanged FINAL)
     Q_PROPERTY(QMap<QString, QKlipperFan *> fans READ fans WRITE setFans NOTIFY fansChanged FINAL)
     Q_PROPERTY(QKlipperProbeData probeData READ probeData WRITE setProbeData NOTIFY probeDataChanged FINAL)
     Q_PROPERTY(QMap<QString, QKlipperStepperMotor *> stepperMotors READ stepperMotors WRITE setStepperMotors NOTIFY stepperMotorsChanged FINAL)

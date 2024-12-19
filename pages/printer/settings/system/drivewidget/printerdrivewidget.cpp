@@ -4,22 +4,30 @@
 PrinterDriveWidget::PrinterDriveWidget(QKlipperPrinter *system, QWidget *parent)
     : CardWidget{CardWidget::SubWidget, parent}
 {
-    m_printer = system;
-    m_mcu = m_printer->mcu();
+    m_system = system;
+    m_mcu = m_system->mcu();
 
     setupUi();
 }
 
 void PrinterDriveWidget::setStyleSheet(const QString &styleSheet)
 {
-    setIcon(Settings::getThemeIcon("mcu-icon"));
+    setIcon(Settings::getThemeIcon("mcu"));
+
+    m_mcuAverageProgressBar->setIcon(
+        Settings::getThemeIcon(
+            "cpu",
+            QColor(Settings::get("theme/icon-color").toString())
+            )
+        );
+
     CardWidget::setStyleSheet(styleSheet);
 }
 
 void PrinterDriveWidget::setupUi()
 {
     setTitle("MCU");
-    setIcon(Settings::getThemeIcon("mcu-icon"));
+    setIcon(Settings::getThemeIcon("mcu"));
     setFixedSize(220, 320);
 
     m_centralWidget = new QWidget(this);
@@ -39,6 +47,7 @@ void PrinterDriveWidget::setupUi()
 
     m_mcuAverageProgressBar = new CircularProgressBar(m_progressWidget);
     m_mcuAverageProgressBar->setFontSize(10);
+    m_mcuAverageProgressBar->setFixedSize(100,100);
     m_progressLayout->addWidget(m_mcuAverageProgressBar);
 
     m_progressLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
@@ -78,12 +87,12 @@ void PrinterDriveWidget::setupUi()
     onPrinterMcuTaskAverageChanged();
     onPrinterMcuFrequencyChanged();
 
-    connect(m_printer->mcu(), SIGNAL(awakeChanged()), this, SLOT(onPrinterMcuWakeTimeChanged()));
-    connect(m_printer->mcu(), SIGNAL(firmwareVersionChanged()), this, SLOT(onPrinterMcuFirmwareVersionChanged()));
-    connect(m_printer->mcu(), SIGNAL(frequencyChanged()), this, SLOT(onPrinterMcuFrequencyChanged()));
-    connect(m_printer->mcu(), SIGNAL(hardwareVersionChanged()), this, SLOT(onPrinterMcuHardwareVersionChanged()));
-    connect(m_printer->mcu(), SIGNAL(taskAverageChanged()), this, SLOT(onPrinterMcuTaskAverageChanged()));
-    connect(m_printer, SIGNAL(mcuChanged()), this, SLOT(onPrinterMcuChanged()));
+    connect(m_system->mcu(), SIGNAL(awakeChanged()), this, SLOT(onPrinterMcuWakeTimeChanged()));
+    connect(m_system->mcu(), SIGNAL(firmwareVersionChanged()), this, SLOT(onPrinterMcuFirmwareVersionChanged()));
+    connect(m_system->mcu(), SIGNAL(frequencyChanged()), this, SLOT(onPrinterMcuFrequencyChanged()));
+    connect(m_system->mcu(), SIGNAL(hardwareVersionChanged()), this, SLOT(onPrinterMcuHardwareVersionChanged()));
+    connect(m_system->mcu(), SIGNAL(taskAverageChanged()), this, SLOT(onPrinterMcuTaskAverageChanged()));
+    connect(m_system, SIGNAL(mcuChanged()), this, SLOT(onPrinterMcuChanged()));
 }
 
 void PrinterDriveWidget::onPrinterMcuWakeTimeChanged()
@@ -103,7 +112,7 @@ void PrinterDriveWidget::onPrinterMcuHardwareVersionChanged()
 
 void PrinterDriveWidget::onPrinterMcuTaskAverageChanged()
 {
-    m_mcuAverageProgressBar->setProgress(m_mcu->taskAverage());
+    m_mcuAverageProgressBar->setValue(m_mcu->taskAverage());
 }
 
 void PrinterDriveWidget::onPrinterMcuFrequencyChanged()
@@ -113,7 +122,7 @@ void PrinterDriveWidget::onPrinterMcuFrequencyChanged()
 
 void PrinterDriveWidget::onPrinterMcuChanged()
 {
-    m_mcu = m_printer->mcu();
+    m_mcu = m_system->mcu();
 }
 
 void PrinterDriveWidget::convertDriveBytes(qreal &bytes, QString &label)

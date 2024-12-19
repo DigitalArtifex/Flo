@@ -21,33 +21,65 @@
 
 #include <QVariant>
 
-class QKlipperV412Mode : public QVariant
+class QKlipperV412Mode
 {
-public:
-    QKlipperV412Mode();
-    QKlipperV412Mode(const QKlipperV412Mode &value);
+    public:
+        QKlipperV412Mode() = default;
+        ~QKlipperV412Mode() = default;
 
-    QKlipperV412Mode &operator=(const QKlipperV412Mode &value);
-    bool operator==(const QKlipperV412Mode &value);
-    bool operator!=(const QKlipperV412Mode &value);
+        QKlipperV412Mode(const QKlipperV412Mode &value)
+        {
+            m_description = value.m_description;
+            m_flags = value.m_flags;
+            m_format = value.m_format;
+            m_resolutions = value.m_resolutions;
+        }
 
-    QString description() const;
-    QString format() const;
+        QKlipperV412Mode &operator=(const QKlipperV412Mode &value)
+        {
+            m_description = value.m_description;
+            m_flags = value.m_flags;
+            m_format = value.m_format;
+            m_resolutions = value.m_resolutions;
 
-    QStringList flags() const;
-    QStringList resolutions() const;
+            return *this;
+        }
 
-    void setDescription(const QString &description);
-    void setFormat(const QString &format);
-    void setFlags(const QStringList &flags);
-    void setResolutions(const QStringList &resolutions);
+        bool operator==(const QKlipperV412Mode &value) const
+        {
+            if(m_description != value.m_description) return false;
+            if(m_flags != value.m_flags) return false;
+            if(m_format != value.m_format) return false;
+            if(m_resolutions != value.m_resolutions) return false;
 
-private:
-    QString m_description;
-    QString m_format;
+            return true;
+        }
 
-    QStringList m_flags;
-    QStringList m_resolutions;
+        bool operator!=(const QKlipperV412Mode &value) const { return !(*this == value); }
+
+        QString description() const { return m_description; }
+
+        QString format() const { return m_format; }
+
+        QStringList flags() const { return m_flags; }
+
+        QStringList resolutions() const { return m_resolutions; }
+
+        void setDescription(const QString &description) { m_description = description; }
+
+        void setFormat(const QString &format) { m_format = format; }
+
+        void setFlags(const QStringList &flags) { m_flags = flags; }
+
+        void setResolutions(const QStringList &resolutions) { m_resolutions = resolutions; }
+
+    private:
+        QString m_description;
+        QString m_format;
+
+        QStringList m_flags;
+        QStringList m_resolutions;
 };
 
+Q_DECLARE_METATYPE(QKlipperV412Mode)
 #endif // QKLIPPERV412MODE_H

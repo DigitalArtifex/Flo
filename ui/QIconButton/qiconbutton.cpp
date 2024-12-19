@@ -72,20 +72,37 @@ void QIconButton::paintEvent(QPaintEvent *event)
     int x = 10;
     int y = 10;
 
+    //qss/qproperty overrides
+    if(property("icon-right").isValid())
+        x -= property("icon-right").toInt();
+    if(property("icon-left").isValid())
+        x += property("icon-left").toInt();
+
+    if(property("icon-top").isValid())
+        y += property("icon-top").toInt();
+    if(property("icon-bottom").isValid())
+        y -= property("icon-bottom").toInt();
+
     if(property("icon-size").isValid())
         size = property("icon-size").toSize();
 
-    if((m_flags & IconHCentered) == IconHCentered)
+    if((m_iconAlignment & Qt::AlignHCenter) == Qt::AlignHCenter)
         x = (width() / 2) - (size.width() / 2);
 
-    if(property("icon-right").isValid())
-        x = property("icon-right").toInt();
+    else if((m_iconAlignment & Qt::AlignLeft) == Qt::AlignLeft)
+        x = 10;
 
-    if((m_flags & IconVCentered) == IconVCentered)
+    else if((m_iconAlignment & Qt::AlignRight) == Qt::AlignRight)
+        x = (width() - size.width()) - 10;
+
+    if((m_iconAlignment & Qt::AlignVCenter) == Qt::AlignVCenter)
         y = (height() / 2) - (size.height() / 2);
 
-    if(property("icon-top").isValid())
-        y = property("icon-top").toInt();
+    else if((m_iconAlignment & Qt::AlignTop) == Qt::AlignTop)
+        y = 10;
+
+    else if((m_iconAlignment & Qt::AlignBottom) == Qt::AlignBottom)
+        y = (height() - size.height()) - 10;
 
     if(isEnabled())
         pixmap = (m_icon.pixmap(size, QIcon::Normal, QIcon::On));
@@ -107,6 +124,74 @@ void QIconButton::changeEvent(QEvent *event)
     QFrame::changeEvent(event);
 }
 
+QGraphicsEffect *QIconButton::iconEffect() const
+{
+    return m_iconEffect;
+}
+
+void QIconButton::setIconEffect(QGraphicsEffect *iconEffect)
+{
+    if (m_iconEffect == iconEffect)
+        return;
+
+    m_iconEffect = iconEffect;
+
+    emit iconEffectChanged();
+}
+
+QGraphicsEffect *QIconButton::textEffect() const
+{
+    return m_textEffect;
+}
+
+void QIconButton::setTextEffect(QGraphicsEffect *textEffect)
+{
+    if (m_textEffect == textEffect)
+        return;
+
+    //clear previous effect
+    if(m_textEffect)
+    {
+        m_textLabel->setGraphicsEffect(nullptr);
+        m_textEffect->deleteLater();
+    }
+
+    m_textEffect = textEffect;
+    m_textLabel->setGraphicsEffect(m_textEffect);
+
+    emit textEffectChanged();
+}
+
+Qt::Alignment QIconButton::iconAlignment() const
+{
+    return m_iconAlignment;
+}
+
+void QIconButton::setIconAlignment(const Qt::Alignment &iconAlignment)
+{
+    if (m_iconAlignment == iconAlignment)
+        return;
+
+    m_iconAlignment = iconAlignment;
+    emit iconAlignmentChanged();
+}
+
+Qt::Alignment QIconButton::textAlignment() const
+{
+    return m_textAlignment;
+}
+
+void QIconButton::setTextAlignment(const Qt::Alignment &textAlignment)
+{
+    if (m_textAlignment == textAlignment)
+        return;
+
+    m_textLabel->setAlignment(textAlignment);
+
+    m_textAlignment = textAlignment;
+    emit textAlignmentChanged();
+}
+
 QMargins QIconButton::textMargins() const
 {
     return m_textMargins;
@@ -119,59 +204,8 @@ void QIconButton::setTextMargins(const QMargins &textMargins)
 
     m_textMargins = textMargins;
     m_textLabel->setContentsMargins(m_textMargins);
+
     emit textMarginsChanged();
-}
-
-QIconButton::Flags QIconButton::flags() const
-{
-    return m_flags;
-}
-
-void QIconButton::setFlags(Flags flags)
-{
-    if (m_flags == flags)
-        return;
-
-    Qt::Alignment alignment = m_textLabel->alignment();
-
-    if((m_flags & TextHCentered) == TextHCentered)
-        alignment = alignment | Qt::AlignHCenter;
-    else
-        alignment = alignment & ~Qt::AlignHCenter;
-
-    if((m_flags & TextVCentered) == TextVCentered)
-        alignment = alignment | Qt::AlignVCenter;
-    else
-        alignment = alignment & ~Qt::AlignVCenter;
-
-    m_textLabel->setAlignment(alignment);
-
-    m_flags = flags;
-    emit flagsChanged();
-}
-
-void QIconButton::setFlag(Flags flag, bool on)
-{
-    if(on)
-        m_flags = Flags(flag | m_flags);
-    else
-        m_flags = Flags(m_flags & ~flag);
-
-    Qt::Alignment alignment = m_textLabel->alignment();
-
-    if((m_flags & TextHCentered) == TextHCentered)
-        alignment = alignment | Qt::AlignHCenter;
-    else
-        alignment = alignment & ~Qt::AlignHCenter;
-
-    if((m_flags & TextVCentered) == TextVCentered)
-        alignment = alignment | Qt::AlignVCenter;
-    else
-        alignment = alignment & ~Qt::AlignVCenter;
-
-    m_textLabel->setAlignment(alignment);
-
-    emit flagsChanged();
 }
 
 QSize QIconButton::iconSize() const
@@ -245,15 +279,20 @@ void QIconButton::setupUi()
     setLayout(m_layout);
 
     m_textLabel = new QLabel(this);
-
     m_textLabel->setContentsMargins(m_textMargins);
-
     m_textLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     m_textLabel->setAlignment(Qt::AlignCenter);
     m_layout->addWidget(m_textLabel);
 
     setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "Button"));
     m_textLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "ButtonText"));
+
+    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect();
+    effect->setBlurRadius(3);
+    effect->setOffset(0,0);
+    effect->setColor(QColor::fromRgba(qRgba(0, 0, 0, 255)));
+    setTextEffect(effect);
+
     style()->polish(this);
 }
 

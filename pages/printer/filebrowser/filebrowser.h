@@ -22,8 +22,9 @@
 #include "newfolder/newfolderdialog.h"
 
 #include "ui/QIconButton/qiconbutton.h"
+#include "ui/common/dialog/dialog.h"
 
-class FileBrowser : public QWidget
+class FileBrowser : public Dialog
 {
     Q_OBJECT
 public:

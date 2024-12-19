@@ -44,6 +44,7 @@ private:
     StatusWidget *m_statusWidget = nullptr;
     QFlowLayout *m_layout = nullptr;
     QTimer *m_initTimer = nullptr;
+    QHBoxLayout *m_topLayout = nullptr;
 };
 
 #endif // DASHBOARDPAGE_H

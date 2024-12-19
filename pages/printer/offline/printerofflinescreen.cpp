@@ -16,13 +16,13 @@ PrinterOfflineScreen::PrinterOfflineScreen(QKlipperInstance *printer, QWidget *p
 
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PopupOverlay"));
 
-    QPixmap pixmap = Settings::getThemeIcon(QString("no-connection-icon")).pixmap(100,100);
+    QPixmap pixmap = Settings::getThemeIcon(QString("no-connection")).pixmap(100,100);
     ui->printerOfflineIcon->setPixmap(pixmap);
 
     m_connectButton = new QIconButton(this);
     m_connectButton->setFixedHeight(50);
-    m_connectButton->setIcon(Settings::getThemeIcon(QString("connect-icon")));
-    m_connectButton->setText(QString("Connect to ") + printer->name());
+    m_connectButton->setIcon(Settings::getThemeIcon(QString("connect")));
+    m_connectButton->setText(QString("Connect to %1").arg(printer->name()));
     m_connectButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     connect(m_connectButton, SIGNAL(clicked()), this, SLOT(onConnectPrinterButtonPressed()));
@@ -32,6 +32,7 @@ PrinterOfflineScreen::PrinterOfflineScreen(QKlipperInstance *printer, QWidget *p
     ui->gridLayout->addWidget(ui->progressBar, ui->gridLayout->rowCount(), 0, 1, 3);
     ui->progressBar->setVisible(false);
     ui->progressBar->setValue(0);
+    ui->label->setText(QString("\'%1\' Is Offline").arg(m_instance->name()));
 }
 
 PrinterOfflineScreen::~PrinterOfflineScreen()
@@ -41,10 +42,10 @@ PrinterOfflineScreen::~PrinterOfflineScreen()
 
 void PrinterOfflineScreen::setStyleSheet(QString &styleSheet)
 {
-    QPixmap pixmap = Settings::getThemeIcon(QString("no-connection-icon")).pixmap(100,100);
+    QPixmap pixmap = Settings::getThemeIcon(QString("no-connection")).pixmap(100,100);
     ui->printerOfflineIcon->setPixmap(pixmap);
 
-    m_connectButton->setIcon(Settings::getThemeIcon(QString("connect-icon")));
+    m_connectButton->setIcon(Settings::getThemeIcon(QString("connect")));
 
     QFrame::setStyleSheet(styleSheet);
 }
@@ -76,6 +77,20 @@ void PrinterOfflineScreen::printerConnectingEvent()
         ui->progressBar->setVisible(true);
 
         if(!isVisible())
+        {
+            ui->progressBar->setValue(0);
+            show();
+        }
+    }
+    else if(m_instance->console()->connectionState() == QKlipperConsole::Idle)
+    {
+        m_connectButton->setVisible(true);
+        m_connectButton->setEnabled(true);
+
+        ui->progressBar->setVisible(false);
+        ui->label->setText(QString("\'%1\' Is Offline").arg(m_instance->name()));
+
+        if(!isVisible())
             show();
     }
 }
@@ -96,8 +111,8 @@ void PrinterOfflineScreen::onConnectPrinterButtonPressed()
     if(m_instance && !m_instance->isConnected())
     {
         m_connectButton->setEnabled(false);
-        m_connectButton->setText("Connecting");
-        m_instance->connect();
+        ui->label->setText(QString("Connecting to %1").arg(m_instance->name()));
         ui->progressBar->setValue(0);
+        m_instance->connect();
     }
 }

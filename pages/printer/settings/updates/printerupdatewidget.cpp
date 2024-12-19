@@ -25,7 +25,7 @@ void PrinterUpdateWidget::setUpdateState(QKlipperUpdateManager *newUpdateState)
 
     for(QString &key : keys)
     {
-        QKlipperUpdatePackage* state = m_updateState->packages().value(key);
+        QKlipperUpdatePackage state = m_updateState->packages().value(key);
 
         PrinterUpdateItem *item = new PrinterUpdateItem(key, state, this);
         connect(item, SIGNAL(updateRequested(PrinterUpdateItem*)), this, SLOT(itemUpdateRequestedEvent(PrinterUpdateItem*)));

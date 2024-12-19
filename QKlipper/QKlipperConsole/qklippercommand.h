@@ -15,30 +15,39 @@
 #define QKLIPPERCOMMAND_REQUIRED_DELIMETER = "!"
 #endif
 
-class QKlipperCommand : public QVariant
+class QKlipperCommand
 {
-public:
-    QKlipperCommand(QString command = QString());
-    static bool isKlipperCommand(const QString &command);
+    public:
+        QKlipperCommand(QString command = QString());
+        ~QKlipperCommand() = default;
 
-    QString command() const;
-    QString help() const;
-    QStringList parameters() const;
+        QKlipperCommand(const QKlipperCommand &value);
+        QKlipperCommand &operator=(const QKlipperCommand &value);
 
-    void setCommand(const QString &command);
-    void setHelp(const QString &help);
-    void setParameter(const QString &key);
+        bool operator==(const QKlipperCommand &value) const;
+        bool operator!=(const QKlipperCommand &value) const { return !(*this == value); }
 
-private:
-    static void initialize();
+        static bool isKlipperCommand(const QString &command);
 
-    static QMap<QString, QKlipperCommand*> m_commands;
-    static bool m_isInitialized;
-    static bool m_isInitializing;
+        QString command() const { return m_command; }
+        QString help() const { return m_help; }
+        QStringList parameters() const { return m_parameters; }
 
-    QString m_command;
-    QString m_help;
-    QStringList m_parameters;
+        void setCommand(const QString &command) { m_command = command; }
+        void setHelp(const QString &help) { m_help = help; }
+        void setParameter(const QString &key) { m_parameters += key; }
+
+    private:
+        static void initialize();
+
+        inline static QMap<QString, QKlipperCommand*> m_commands;
+        inline static bool m_isInitialized = false;
+        inline static bool m_isInitializing = false;
+
+        QString m_command;
+        QString m_help;
+        QStringList m_parameters;
 };
 
+Q_DECLARE_METATYPE(QKlipperCommand)
 #endif // QKLIPPERCOMMAND_H

@@ -3,16 +3,92 @@
 
 #include "../../../../system/settings.h"
 
-ExtruderWidget::ExtruderWidget(QWidget *parent) :
+ExtruderWidget::ExtruderWidget(QKlipperExtruder *extruder, QWidget *parent) :
     QFrame(parent),
     ui(new Ui::ExtruderWidget)
 {
     ui->setupUi(this);
     m_temperatureProgressBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
+    m_temperatureProgressBar->setFixedSize(150,150);
+    m_temperatureProgressBar->setIconSize(QSize(36,36));
     ui->progressBarLayout->addWidget(m_temperatureProgressBar);
 
+    m_powerProgressBar = new CircularProgressBar(this, CircularProgressBar::Percent);
+    ui->partsFanLayout->addWidget(m_powerProgressBar);
+
+    m_extruderFanProgressBar = new CircularProgressBar(this, CircularProgressBar::Percent);
+    ui->extruderFanLayout->addWidget(m_extruderFanProgressBar);
+
+    m_temperatureWidget = new ExtruderTemperatureWidget(extruder, ui->graphWidget);
+    ui->graphWidget->layout()->addWidget(m_temperatureWidget);
+
+    ui->targetTempSpinBox->setAttribute(Qt::WA_InputMethodEnabled, true);
+    ui->targetTempSpinBox->setInputMethodHints(inputMethodHints() | Qt::InputMethodHint::ImhDigitsOnly);
+
+    ui->extrusionFactorSpinBox->setAttribute(Qt::WA_InputMethodEnabled, true);
+    ui->extrusionFactorSpinBox->setInputMethodHints(inputMethodHints() | Qt::InputMethodHint::ImhDigitsOnly);
+
+    QGridLayout *buttonLayout = qobject_cast<QGridLayout*>(ui->buttonWidget->layout());
+
+    if(buttonLayout)
+    {
+        QStringList buttonClass { "Button", "PrinterActionButton" };
+
+        m_pidTuneButton = new QIconButton(this);
+        m_pidTuneButton->setIconSize(QSize(36,36));
+        m_pidTuneButton->setFixedSize(QSize(100,100));
+        m_pidTuneButton->setText("PID Tune");
+        m_pidTuneButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
+        m_pidTuneButton->setIconAlignment(Qt::AlignCenter);
+        m_pidTuneButton->setProperty("class", buttonClass);
+        buttonLayout->addWidget(m_pidTuneButton, 0, 0);
+
+        m_materialButton = new QIconButton(this);
+        m_materialButton->setIconSize(QSize(36,36));
+        m_materialButton->setFixedSize(QSize(100,100));
+        m_materialButton->setText("Retract");
+        m_materialButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
+        m_materialButton->setIconAlignment(Qt::AlignCenter);
+        m_materialButton->setProperty("class", buttonClass);
+        buttonLayout->addWidget(m_materialButton, 1, 0);
+
+        m_preheatButton = new QIconButton(this);
+        m_preheatButton->setIconSize(QSize(36,36));
+        m_preheatButton->setFixedSize(QSize(100,100));
+        m_preheatButton->setText("Preheat");
+        m_preheatButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
+        m_preheatButton->setIconAlignment(Qt::AlignCenter);
+        m_preheatButton->setProperty("class", buttonClass);
+        buttonLayout->addWidget(m_preheatButton, 0, 1);
+
+        m_setOffsetButton = new QIconButton(this);
+        m_setOffsetButton->setIconSize(QSize(36,36));
+        m_setOffsetButton->setFixedSize(QSize(100,100));
+        m_setOffsetButton->setText("Extrude");
+        m_setOffsetButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
+        m_setOffsetButton->setIconAlignment(Qt::AlignCenter);
+        m_setOffsetButton->setProperty("class", buttonClass);
+        buttonLayout->addWidget(m_setOffsetButton, 1, 1);
+
+        m_settingsButton = new QIconButton(this);
+        m_settingsButton->setIconSize(QSize(36,36));
+        m_settingsButton->setFixedSize(QSize(100,206));
+        m_settingsButton->setText("Settings");
+        m_settingsButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
+        m_settingsButton->setIconAlignment(Qt::AlignCenter);
+        m_settingsButton->setProperty("class", buttonClass);
+        buttonLayout->addWidget(m_settingsButton, 0, 2, 2, 1, Qt::AlignTop);
+
+        connect(m_settingsButton, SIGNAL(clicked()), this, SLOT(onExtruderSettingsButtonClicked()));
+        connect(m_materialButton, SIGNAL(clicked()), this, SLOT(onMaterialsButtonClicked()));
+        connect(m_pidTuneButton, SIGNAL(clicked()), this, SLOT(onPidButtonClicked()));
+        connect(m_preheatButton, SIGNAL(clicked()), this, SLOT(onPreheatButtonClicked()));
+        connect(m_setOffsetButton, SIGNAL(clicked()), this, SLOT(onOffsetButtonClicked()));
+    }
+
     setUiClasses();
-    setIcons();
+    setupIcons();
+    setExtruder(extruder);
 }
 
 ExtruderWidget::~ExtruderWidget()
@@ -27,81 +103,112 @@ void ExtruderWidget::setExtruder(QKlipperExtruder *extruder)
     connect(m_extruder, SIGNAL(currentTempChanged()), this, SLOT(onExtruderCurrentTempChanged()));
     connect(m_extruder, SIGNAL(extrusionFactorChanged()), this, SLOT(onExtruderExtrusionFactorChanged()));
     connect(m_extruder, SIGNAL(maxTempChanged()), this, SLOT(onExtruderMaxTempChanged()));
+    connect(m_extruder, SIGNAL(minTempChanged()), this, SLOT(onExtruderMinTempChanged()));
     connect(m_extruder, SIGNAL(pressureAdvanceChanged()), this, SLOT(onExtruderPressureAdvanceChanged()));
     connect(m_extruder, SIGNAL(smoothTimeChanged()), this, SLOT(onExtruderSmoothTimeChanged()));
     connect(m_extruder, SIGNAL(targetTempChanged()), this, SLOT(onExtruderTargetTempChanged()));
+    connect(m_extruder, SIGNAL(powerChanged()), this, SLOT(onExtruderPowerChanged()));
 
     connect(m_extruder, SIGNAL(fanChanged()), this, SLOT(onExtruderFanChanged()));
 
     if(m_extruder->fan())
         connect(m_extruder->fan(), SIGNAL(speedChanged()), this, SLOT(onExtruderFanSpeedChanged()));
 
-    QKlipperToolHead *toolhead = qobject_cast<QKlipperToolHead*>(m_extruder->parent());
-
-    if(toolhead)
-    {
-        connect(toolhead, SIGNAL(partsFanChanged()), this, SLOT(onPartsFanChanged()));
-
-        if(toolhead->partsFan())
-            connect(toolhead->partsFan(), SIGNAL(speedChanged()), this, SLOT(onPartsFanSpeedChanged()));
-    }
+    connect(m_extruder, SIGNAL(pidCalibrating()), this, SLOT(showThrobber()));
+    connect(m_extruder, SIGNAL(pidCalibratingFinished()), this, SLOT(hideThrobber()));
 
     updateUiValues();
 }
 
 void ExtruderWidget::setUiClasses()
 {
-    ui->statsWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "PrinterSubWidget"));
-    ui->materialWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "PrinterSubWidget"));
-    ui->extruderWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "PrinterSubWidget"));
-
-    ui->titleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar"));
-    ui->titleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
-
-    ui->materialTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar"));
-    ui->materialTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
-
-    ui->settingsTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar"));
-    ui->settingsTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
-
-    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget"));
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "Widget"));
+    ui->statsWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "SubWidget"));
+    ui->graphWidget->setProperty("class", QStringList { "Widget", "PrinterWidget" });
+    ui->fanWidget->setProperty("class", QStringList { "Widget", "PrinterWidget" });
+    ui->powerWidget->setProperty("class", QStringList { "Widget", "PrinterWidget" });
+    ui->targetTemperatureWidget->setProperty("class", QStringList { "Widget", "PrinterWidget" });
+    ui->extrusionFactorWidget->setProperty("class", QStringList { "Widget", "PrinterWidget" });
+    ui->pressureAdvanceWidget->setProperty("class", QStringList { "Widget", "PrinterWidget" });
+    ui->smoothTimeWidget->setProperty("class", QStringList { "Widget", "PrinterWidget" });
 
     style()->polish(this);
 }
 
-void ExtruderWidget::setStyleSheet(QString &styleSheet)
+void ExtruderWidget::setupIcons()
 {
-    QFrame::setStyleSheet(styleSheet);
-
-    setIcons();
-
-    style()->polish(this);
-}
-
-void ExtruderWidget::setIcons()
-{
-    QPixmap pixmap = Settings::getThemeIcon("extruder-icon").pixmap(28,28);
-    ui->extruderIconLabel->setPixmap(pixmap);
-
-    pixmap = Settings::getThemeIcon("temperature-icon").pixmap(18,18);
+    QPixmap pixmap = Settings::getThemeIcon("temperature").pixmap(18,18);
     ui->targetTemperatureIconLabel->setPixmap(pixmap);
 
-    pixmap = Settings::getThemeIcon("pressure-advance-icon").pixmap(18,18);
-    ui->pressureAdvanceIconLabel->setPixmap(pixmap);
-
-    pixmap = Settings::getThemeIcon("smooth-time-icon").pixmap(18,18);
-    ui->smoothTimeIconLabel->setPixmap(pixmap);
-
-    pixmap = Settings::getThemeIcon("extrusion-factor-icon").pixmap(18,18);
+    pixmap = Settings::getThemeIcon("extrusion-factor").pixmap(18,18);
     ui->extrusionFactorIconLabel->setPixmap(pixmap);
 
-    pixmap = Settings::getThemeIcon("material-icon").pixmap(18,18);
-    ui->materialFrameIconLabel->setPixmap(pixmap);
+    pixmap = Settings::getThemeIcon("pressure-advance").pixmap(18,18);
+    ui->pressureAdvanceIcon->setPixmap(pixmap);
 
-    pixmap = Settings::getThemeIcon("settings-icon").pixmap(18,18);
-    ui->settingsFrameIcon->setPixmap(pixmap);
+    pixmap = Settings::getThemeIcon("smooth-time").pixmap(18,18);
+    ui->smoothTimeIcon->setPixmap(pixmap);
+
+    m_pidTuneButton->setIcon(Settings::getThemeIcon("sine"));
+
+    m_materialButton->setIcon(
+        Settings::getThemeIcon(
+            "material-retract",
+            QColor::fromString(Settings::get("theme/icon-color-alt").toString())
+            )
+        );
+
+    m_preheatButton->setIcon(
+        Settings::getThemeIcon(
+            "preheat",
+            QColor::fromString(Settings::get("theme/icon-color").toString())
+            )
+        );
+
+    m_setOffsetButton->setIcon(
+        Settings::getThemeIcon(
+            "material-extrude",
+            QColor::fromString(Settings::get("theme/icon-color-alt").toString())
+            )
+        );
+
+    m_settingsButton->setIcon(
+        Settings::getThemeIcon(
+            "extruder-settings",
+            QColor::fromString(Settings::get("theme/icon-color-alt1").toString())
+            )
+        );
+
+    m_extruderFanProgressBar->setIcon(
+        Settings::getThemeIcon(
+            "fan",
+            QColor(Settings::get("theme/icon-color-alt").toString())
+            )
+        );
+
+    m_powerProgressBar->setIcon(
+        Settings::getThemeIcon(
+            "power-device",
+            QColor(Settings::get("theme/icon-color-alt").toString())
+            )
+        );
+
+    m_temperatureProgressBar->setIcon(
+        Settings::getThemeIcon(
+            "temperature",
+            QColor(Settings::get("theme/icon-color").toString())
+            )
+        );
 
     style()->polish(this);
+}
+
+void ExtruderWidget::changeEvent(QEvent *event)
+{
+    if(event->type() == QEvent::StyleChange)
+        setupIcons();
+
+    QFrame::changeEvent(event);
 }
 
 void ExtruderWidget::on_extrsuionFactorSlider_valueChanged(int value)
@@ -126,22 +233,15 @@ void ExtruderWidget::on_extrsuionFactorSlider_valueChanged(int value)
 
 void ExtruderWidget::on_extrusionFactorSpinBox_valueChanged(double value)
 {
-    //disconnect event to prevent looping
-    disconnect(ui->extrsuionFactorSlider, SIGNAL(valueChanged(int)), this, SLOT(on_extrsuionFactorSlider_valueChanged(int)));
-
-    //change value of slider
-    ui->extrsuionFactorSlider->setValue(value * 100);
-
     if(!m_updating)
     {
         ui->resetButton->setEnabled(true);
         ui->applyButton->setEnabled(true);
 
         m_extrusionFactorEdited = true;
-    }
 
-    //reconnect event
-    connect(ui->extrsuionFactorSlider, SIGNAL(valueChanged(int)), this, SLOT(on_extrsuionFactorSlider_valueChanged(int)));
+        updateSettingsButtons();
+    }
 }
 
 void ExtruderWidget::on_targetTempSpinBox_valueChanged(double arg1)
@@ -152,6 +252,8 @@ void ExtruderWidget::on_targetTempSpinBox_valueChanged(double arg1)
         ui->applyButton->setEnabled(true);
 
         m_targetTempEdited = true;
+
+        updateSettingsButtons();
     }
 }
 
@@ -189,14 +291,6 @@ void ExtruderWidget::on_applyButton_clicked()
     if(m_extruder->targetTemp() != ui->targetTempSpinBox->value())
         m_extruder->setTargetTemp(ui->targetTempSpinBox->value());
 
-    //check for changes in smooth time or pressure advance
-    if (m_extruder->pressureAdvance() != ui->pressureAdvanceSpinBox->value() ||
-        m_extruder->smoothTime() != ui->smoothTimeSpinBox->value())
-    {
-        m_extruder->setPressureAdvance(ui->pressureAdvanceSpinBox->value());
-        m_extruder->setSmoothTime(ui->smoothTimeSpinBox->value());
-    }
-
     //check for changes in extrusion factor
     if(m_extruder->extrusionFactor() != ui->extrusionFactorSpinBox->value())
         m_extruder->setExtrusionFactor(ui->extrusionFactorSpinBox->value());
@@ -226,30 +320,30 @@ void ExtruderWidget::on_resetButton_clicked()
 
 void ExtruderWidget::on_extrudeButton_clicked()
 {
-    qreal amount = ui->materialLengthSpinBox->value();
-    qreal rate = ui->materialFeedRateSpinBox->value();
+    // qreal amount = ui->materialLengthSpinBox->value();
+    // qreal rate = ui->materialFeedRateSpinBox->value();
 
-    m_extruder->extrude(amount, rate);
+    // m_extruder->extrude(amount, rate);
 }
 
 
 void ExtruderWidget::on_retractButton_clicked()
 {
-    qreal amount = ui->materialLengthSpinBox->value();
-    qreal rate = ui->materialFeedRateSpinBox->value();
+    // qreal amount = ui->materialLengthSpinBox->value();
+    // qreal rate = ui->materialFeedRateSpinBox->value();
 
-    m_extruder->extrude(amount * -1, rate);
+    // m_extruder->extrude(amount * -1, rate);
 }
 
 void ExtruderWidget::onExtruderCanExtrudeChanged()
 {
-    ui->extrudeButton->setEnabled(m_extruder->canExtrude());
-    ui->retractButton->setEnabled(m_extruder->canExtrude());
+    m_materialButton->setEnabled(m_extruder->canExtrude());
+    m_setOffsetButton->setEnabled(m_extruder->canExtrude());
 }
 
 void ExtruderWidget::onExtruderCurrentTempChanged()
 {
-    m_temperatureProgressBar->setProgress(m_extruder->currentTemp());
+    m_temperatureProgressBar->setValue(m_extruder->currentTemp());
 }
 
 void ExtruderWidget::onExtruderTargetTempChanged()
@@ -261,7 +355,7 @@ void ExtruderWidget::onExtruderTargetTempChanged()
     if(!ui->targetTempSpinBox->hasFocus() && !m_targetTempEdited)
         ui->targetTempSpinBox->setValue(m_extruder->targetTemp());
 
-    ui->dashboardExtruderTargetTempLabel->setText(QString::number(m_extruder->targetTemp()) + QString("°"));
+    //ui->dashboardExtruderTargetTempLabel->setText(QString::number(m_extruder->targetTemp()) + QString("°"));
 
     m_updating = false;
 }
@@ -271,12 +365,17 @@ void ExtruderWidget::onExtruderMaxTempChanged()
     m_temperatureProgressBar->setMaximum(m_extruder->maxTemp());
 }
 
+void ExtruderWidget::onExtruderMinTempChanged()
+{
+    m_temperatureProgressBar->setMaximum(m_extruder->minTemp());
+}
+
 void ExtruderWidget::onExtruderPressureAdvanceChanged()
 {
     //set updating flag to prevent this from registering as a change event
     m_updating = true;
 
-    //make sure it has not been or is currently being edited
+    // //make sure it has not been or is currently being edited
     if(!ui->pressureAdvanceSpinBox->hasFocus() && !m_pressureAdvanceEdited)
         ui->pressureAdvanceSpinBox->setValue(m_extruder->pressureAdvance());
 
@@ -288,7 +387,7 @@ void ExtruderWidget::onExtruderSmoothTimeChanged()
     //set updating flag to prevent this from registering as a change event
     m_updating = true;
 
-    //make sure it has not been or is currently being edited
+    // //make sure it has not been or is currently being edited
     if(!ui->smoothTimeSpinBox->hasFocus() && !m_smoothTimeEdited)
         ui->smoothTimeSpinBox->setValue(m_extruder->smoothTime());
 
@@ -309,27 +408,12 @@ void ExtruderWidget::onExtruderExtrusionFactorChanged()
 
 void ExtruderWidget::onExtruderFanSpeedChanged()
 {
-    //set fan labels
-    ui->extruderFanValueLabel->setText(QString::number(m_extruder->fan()->speed() * 100) + QString("%"));
+    m_extruderFanProgressBar->setValue((m_extruder->fan()->speed() * 100));
 }
 
-void ExtruderWidget::onPartsFanSpeedChanged()
+void ExtruderWidget::onExtruderPowerChanged()
 {
-    QKlipperToolHead *toolhead = qobject_cast<QKlipperToolHead*>(m_extruder->parent());
-
-    if(toolhead)
-        ui->partsFanValueLabel->setText(QString::number(toolhead->partsFan()->speed() * 100) + QString("%"));
-}
-
-void ExtruderWidget::onPartsFanChanged()
-{
-    QKlipperToolHead *toolhead = qobject_cast<QKlipperToolHead*>(m_extruder->parent());
-
-    if(toolhead)
-    {
-        if(toolhead->partsFan())
-            connect(toolhead->partsFan(), SIGNAL(speedChanged()), this, SLOT(onPartsFanSpeedChanged()));
-    }
+    m_powerProgressBar->setValue((m_extruder->power() * 100));
 }
 
 void ExtruderWidget::onExtruderFanChanged()
@@ -343,24 +427,9 @@ void ExtruderWidget::updateUiValues()
     //set updating flag to prevent this from registering as a change event
     m_updating = true;
 
-    //set fan labels
-    ui->extruderFanValueLabel->setText(QString::number(m_extruder->fan()->speed() * 100) + QString("%"));
+    m_extruderFanProgressBar->setValue((m_extruder->fan()->speed() * 100));
 
-    //get the parent toolhead for the parts fan
-    QKlipperToolHead *toolhead = qobject_cast<QKlipperToolHead*>(m_extruder->parent());
-
-    if(toolhead)
-        ui->partsFanValueLabel->setText(QString::number(toolhead->partsFan()->speed() * 100) + QString("%"));
-
-    ui->materialWidget->setEnabled(true);
-
-    //make sure it has not been or is currently being edited
-    if(!ui->pressureAdvanceSpinBox->hasFocus() && !m_pressureAdvanceEdited)
-        ui->pressureAdvanceSpinBox->setValue(m_extruder->pressureAdvance());
-
-    //make sure it has not been or is currently being edited
-    if(!ui->smoothTimeSpinBox->hasFocus() && !m_smoothTimeEdited)
-        ui->smoothTimeSpinBox->setValue(m_extruder->smoothTime());
+        m_powerProgressBar->setValue((m_extruder->power() * 100));
 
     //make sure it has not been or is currently being edited
     if(!ui->extrusionFactorSpinBox->hasFocus() && !m_extrusionFactorEdited)
@@ -370,11 +439,128 @@ void ExtruderWidget::updateUiValues()
     if(!ui->targetTempSpinBox->hasFocus() && !m_targetTempEdited)
         ui->targetTempSpinBox->setValue(m_extruder->targetTemp());
 
-    ui->dashboardExtruderTargetTempLabel->setText(QString::number(m_extruder->targetTemp()) + QString("°"));
+    //ui->dashboardExtruderTargetTempLabel->setText(QString::number(m_extruder->targetTemp()) + QString("°"));
     m_temperatureProgressBar->setMaximum(m_extruder->maxTemp());
-    m_temperatureProgressBar->setProgress(m_extruder->currentTemp());
+    m_temperatureProgressBar->setValue(m_extruder->currentTemp());
 
     //unset updating flag to resume change events
     m_updating = false;
+}
+
+void ExtruderWidget::updateSettingsButtons()
+{
+    bool changed = (
+        (ui->targetTempSpinBox->value() != m_extruder->targetTemp()) ||
+        (ui->extrusionFactorSpinBox->value() != m_extruder->extrusionFactor())
+    );
+
+    qDebug() << m_extruder->extrusionFactor() << m_extruder->targetTemp();
+
+    ui->applyButton->setEnabled(changed);
+    ui->resetButton->setEnabled(changed);
+}
+
+
+void ExtruderWidget::onExtruderSettingsButtonClicked()
+{
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
+
+    ExtruderInfoDialog *extruderDialog = new ExtruderInfoDialog(m_extruder, this);
+
+    extruderDialog->setFixedSize(screenGeometry.width() * 0.75, screenGeometry.height() * 0.75);
+    extruderDialog->exec();
+
+    extruderDialog->deleteLater();
+}
+
+
+void ExtruderWidget::onMaterialsButtonClicked()
+{
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
+
+    ExtruderMaterialsDialog *materialDialog = new ExtruderMaterialsDialog(this);
+
+    materialDialog->setMinimumWidth(screenGeometry.width() * 0.33);
+    materialDialog->setMaterialDirection(ExtruderMaterialsDialog::MaterialRetract);
+
+    if(materialDialog->exec() == Dialog::Accepted && m_extruder->canExtrude())
+        m_extruder->retract(materialDialog->distance(), materialDialog->speed());
+
+    materialDialog->deleteLater();
+}
+
+void ExtruderWidget::onPidButtonClicked()
+{
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
+
+    PidDialog *pidDialog = new PidDialog(this);
+
+    pidDialog->setMinimumWidth(screenGeometry.width() * 0.33);
+
+    if(pidDialog->exec() == Dialog::Accepted && m_extruder && pidDialog->target() > 0)
+        m_extruder->calibratePid(pidDialog->target());
+
+    delete pidDialog;
+}
+
+void ExtruderWidget::onPreheatButtonClicked()
+{
+
+}
+
+//need to move this to the toolhead since you cant edit the extruder offset via command
+void ExtruderWidget::onOffsetButtonClicked()
+{
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
+
+    ExtruderMaterialsDialog *materialDialog = new ExtruderMaterialsDialog(this);
+
+    materialDialog->setMinimumWidth(screenGeometry.width() * 0.33);
+    materialDialog->setMaterialDirection(ExtruderMaterialsDialog::MaterialExtrude);
+
+    if(materialDialog->exec() == Dialog::Accepted && m_extruder->canExtrude())
+        m_extruder->retract(materialDialog->distance(), materialDialog->speed());
+
+    materialDialog->deleteLater();
+}
+
+void ExtruderWidget::showThrobber()
+{
+    if(!m_throbberFrame)
+    {
+        m_throbberFrame = new QFrame(this);
+
+        QVBoxLayout *layout = new QVBoxLayout(m_throbberFrame);
+        m_throbberFrame->setFixedSize(width(), height());
+        m_throbberFrame->setLayout(layout);
+        m_throbberFrame->setProperty("class", "PopupOverlay");
+        m_throbberFrame->setStyleSheet(Settings::currentTheme());
+        m_throbberFrame->setVisible(true);
+        m_throbberFrame->raise();
+
+        m_throbber = new QThrobber(m_throbberFrame);
+        m_throbber->setFixedSize(150, 150);
+        m_throbber->setThrobberWidth(4);
+        m_throbber->setText("Calibrating");
+
+        layout->addWidget(m_throbber, 0, Qt::AlignCenter);
+        m_throbber->start();
+    }
+}
+
+void ExtruderWidget::hideThrobber()
+{
+    if(m_throbberFrame)
+    {
+        m_throbber->stop();
+        m_throbberFrame->hide();
+
+        delete m_throbberFrame;
+        m_throbberFrame = nullptr;
+    }
 }
 

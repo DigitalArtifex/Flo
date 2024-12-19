@@ -2,12 +2,14 @@
 
 #include "system/settings.h"
 
-QWebcamWidget::QWebcamWidget(QString source, QWidget *parent, int timeout) : QWidget(parent)
+QWebcamWidget::QWebcamWidget(QString source, int timeout, QWidget *parent) : QWidget(parent)
 {
     setupUi();
 
+    m_timeout = timeout;
+
     m_webcamThread = new QThread(this);
-    m_webcamSource = new QWebcamSource(5000, m_webcamThread);
+    m_webcamSource = new QWebcamSource(m_timeout, m_webcamThread);
     m_webcamSource->setSource(source);
     m_webcamSource->moveToThread(m_webcamThread);
 
@@ -53,6 +55,17 @@ QWebcamWidget::~QWebcamWidget()
 
     if(m_layout)
         m_layout->deleteLater();
+}
+
+void QWebcamWidget::setStateIcon(QWebcamSource::State state, QIcon icon)
+{
+    for(QWebcamSource::State stateFlag = (QWebcamSource::State)1; stateFlag <= QWebcamSource::Timeout; stateFlag = QWebcamSource::State(stateFlag << 1))
+    {
+        if((state & stateFlag) == stateFlag)
+            m_iconMap[stateFlag] = icon;
+    }
+
+    setupIcons();
 }
 
 void QWebcamWidget::setSource(QString &source)
@@ -197,6 +210,14 @@ void QWebcamWidget::webcamSourceStateChanged()
                 m_overlayWidget->setHidden(false);
             }
             break;
+        case QWebcamSource::Timeout:
+            if(m_overlayWidget)
+            {
+                m_overlayTextLabel->setText("Problem Connecting To Webcam");
+                m_overlayWidget->raise();
+                m_overlayWidget->setHidden(false);
+            }
+            break;
     }
 
     setupIcons();
@@ -255,32 +276,21 @@ QPixmap QWebcamWidget::lastFrame() const
 
 void QWebcamWidget::setupIcons()
 {
-    QPixmap pixmap;
-
-    switch(m_webcamSource->state())
+    if(m_iconMap.contains(m_webcamSource->state()))
     {
-        case QWebcamSource::Connecting:
-        case QWebcamSource::Connected:
-            pixmap = Settings::getThemeIcon("no-video-icon").pixmap(28,28); //find a connecting icon
-            break;
-        case QWebcamSource::Paused:
-            pixmap = Settings::getThemeIcon("pause-icon").pixmap(28,28);
-            break;
-        case QWebcamSource::None:
-        case QWebcamSource::NoConnection:
-        case QWebcamSource::InvalidFrame:
-            pixmap = Settings::getThemeIcon("no-video-icon").pixmap(28,28);
-            break;
+        QPixmap pixmap = m_iconMap[m_webcamSource->state()].pixmap(m_iconSize);
+        m_overlayIconLabel->setPixmap(pixmap);
     }
-
-    m_overlayIconLabel->setPixmap(pixmap);
 }
 
-void QWebcamWidget::setStyleSheet(const QString &styleSheet)
+void QWebcamWidget::changeEvent(QEvent *event)
 {
-    setupIcons();
+    if (event->type() == QEvent::StyleChange)
+    {
+        setupIcons();
+    }
 
-    QWidget::setStyleSheet(styleSheet);
+    QWidget::changeEvent(event);
 }
 
 QString QWebcamWidget::info() const

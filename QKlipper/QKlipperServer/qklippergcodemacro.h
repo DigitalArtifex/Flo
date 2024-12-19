@@ -24,11 +24,22 @@
 #include <QMap>
 #include <QVariant>
 
-class QKlipperGCodeMacro : public QVariant
+class QKlipperGCodeMacro
 {
-    Q_GADGET
-
 public:
+    QKlipperGCodeMacro() = default;
+
+    QKlipperGCodeMacro(const QKlipperGCodeMacro &value)
+    {
+        macro = value.macro;
+        description = value.description;
+        gcode = value.gcode;
+        replaces = value.replaces;
+        variables = value.variables;
+    }
+
+    ~QKlipperGCodeMacro() = default;
+
     QString macro;
     QString description;
     QString gcode;
@@ -39,26 +50,32 @@ public:
         return variables.contains(key);
     }
 
-    bool operator==(const QKlipperGCodeMacro &value)
+    inline QKlipperGCodeMacro &operator=(const QKlipperGCodeMacro &value)
     {
-        if(macro != value.macro ||
-            description != value.description ||
-            gcode != value.gcode ||
-            replaces != value.replaces)
-            return false;
+        macro = value.macro;
+        description = value.description;
+        gcode = value.gcode;
+        replaces = value.replaces;
+        variables = value.variables;
 
-        return true;
+        return *this;
     }
 
-    bool operator!=(const QKlipperGCodeMacro &value)
+    inline bool operator==(const QKlipperGCodeMacro &value) const
     {
         if(macro == value.macro &&
             description == value.description &&
             gcode == value.gcode &&
-            replaces == value.replaces)
-            return false;
+            replaces == value.replaces &&
+            variables == value.variables)
+            return true;
 
-        return true;
+        return false;
+    }
+
+    inline bool operator!=(const QKlipperGCodeMacro &value) const
+    {
+        return !(*this == value);
     }
 
     QString &operator[](const QString &key)
@@ -70,6 +87,7 @@ private:
     QMap<QString,QString> variables;
 };
 
+Q_DECLARE_METATYPE(QKlipperGCodeMacro)
 
 typedef QList<QKlipperGCodeMacro> QKlipperGCodeMacroList;
 

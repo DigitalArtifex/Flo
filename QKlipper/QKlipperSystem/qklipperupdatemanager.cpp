@@ -83,18 +83,18 @@ void QKlipperUpdateManager::setSystemPackages(const QStringList &systemPackages)
     emit systemPackagesChanged();
 }
 
-QMap<QString, QKlipperUpdatePackage*> QKlipperUpdateManager::packages() const
+QMap<QString, QKlipperUpdatePackage> QKlipperUpdateManager::packages() const
 {
     return m_packages;
 }
 
-void QKlipperUpdateManager::setPackages(const QMap<QString, QKlipperUpdatePackage*> &packages)
+void QKlipperUpdateManager::setPackages(const QMap<QString, QKlipperUpdatePackage> &packages)
 {
     m_packages = packages;
     emit packagesChanged();
 }
 
-void QKlipperUpdateManager::setPackage(const QString &key, QKlipperUpdatePackage *package)
+void QKlipperUpdateManager::setPackage(const QString &key, QKlipperUpdatePackage package)
 {
     if(!m_packages.contains(key))
         m_packages.insert(key, package);

@@ -6,12 +6,15 @@
 
 QMap<QString,QVariant> Settings::themeSettings;
 QMap<QString,QString> Settings::themeMap;
+QMap<QString,QString> Settings::m_iconSetMap;
 QMap<QString,QIcon> Settings::m_iconMap;
 QList<QKlipperInstance*> Settings::m_instances;
 Settings *Settings::m_instance = nullptr;
 bool Settings::m_instanceCreated = false;
 QString Settings::m_currentTheme = "";
 QString Settings::m_digitalFontFamily = "";
+QString Settings::m_currentIconSetName = "";
+QString Settings::m_currentThemeName = "";
 QVariableStyleSheet Settings::m_theme;
 Settings::AnimationStyle Settings::m_animationOutStyle = Settings::SlideBottom;
 Settings::AnimationStyle Settings::m_animationInStyle = Settings::SlideTop;
@@ -47,247 +50,69 @@ void Settings::loadThemes()
     }
 
     if(m_currentTheme.isEmpty())
+    {
+        m_currentThemeName = get("theme_name", "default").toString();
         m_currentTheme = getTheme(get("theme_name", "default").toString());
+    }
 }
 
-void Settings::load()
+void Settings::loadIconSets()
 {
-    //setup settings object
-    QSettings settings;
+    QString iconsLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + "icons";
 
-    if(settings.value("first-run", true).toBool())
+    qDebug() << "Loading Icons" << iconsLocation;
+    QDir iconsDir(iconsLocation);
+
+    if(!m_iconSetMap.isEmpty())
+        m_iconSetMap.empty();
+
+    if(iconsDir.exists())
     {
-        inflateSettingsDirectory();
-        scanForKlipperInstances();
-    }
+        QStringList iconSetDirectories = iconsDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::NoSymLinks);
 
-    int id = QFontDatabase::addApplicationFont(":/fonts/digital-7(mono).ttf");
-    m_digitalFontFamily = QFontDatabase::applicationFontFamilies(id).at(0);
-
-    loadThemes();
-
-    //load animation settings
-    m_animationInStyle = (Settings::AnimationStyle)settings.value("ui-animation_in_style", Settings::SlideTop).toInt();
-    m_animationInStyle = (Settings::AnimationStyle)settings.value("ui-animation_out_style", Settings::SlideBottom).toInt();
-    m_animationDuration = settings.value("ui-animation_duration", 500).toInt();
-    m_isAnimationEnabled = settings.value("ui-animations_enabled", true).toBool();
-    m_animationEffectInStyle = (Settings::EffectsStyle)settings.value("ui-animation_in_effect", Settings::Opacity).toInt();
-    m_animationEffectOutStyle = (Settings::EffectsStyle)settings.value("ui-animation_out_effect", Settings::Opacity).toInt();
-    m_animationDuration = settings.value("ui-animation_duration", 500).toInt();
-    m_isAnimationEffectsEnabled = settings.value("ui-animation_effects_enabled", true).toBool();
-
-    //load the instance ids
-    QStringList ids = settings.value("instance_id_list",QStringList()).toStringList();
-
-    foreach(QString id, ids)
-    {
-        QKlipperInstance *instance = new QKlipperInstance();
-
-        //begin the group to load settings under this prefix
-        settings.beginGroup(id);
-
-        //set the instance settings
-        instance->setId(id);
-        instance->setName(settings.value("name").toString());
-        instance->setAddress(settings.value("address").toString());
-        instance->setPort(settings.value("port").toInt());
-        instance->setInstanceLocation(settings.value("location").toString());
-        instance->setApiKey(settings.value("api_key").toString());
-        instance->setProfileColor(settings.value("color").toString());
-        instance->setAutoConnect(settings.value("auto_connect").toBool());
-
-        //end group to move to power settings
-        settings.endGroup();
-
-        QString thumbnailLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + "thumbnails";
-        QString thumbnailFile(thumbnailLocation + QDir::separator() + instance->id() + ".png");
-
-        if(QFile::exists(thumbnailFile))
+        for(const QString &dirLocation : iconSetDirectories)
         {
-            QImage thumbnail(thumbnailFile);
-            instance->setThumbnail(thumbnail);
+            QDir iconSetDirectory(iconsDir.absolutePath() + QDir::separator() + dirLocation);
+            QStringList iconSetFiles = iconSetDirectory.entryList(QStringList() << "icons.json", QDir::Files | QDir::NoDotAndDotDot);
+
+            for(const QString &iconSetEntry : iconSetFiles)
+            {
+                QString name = iconSetDirectory.dirName();
+                m_iconSetMap[name] = iconSetDirectory.absolutePath() + QDir::separator() + iconSetEntry;
+            }
         }
 
-        QObject::connect(instance, SIGNAL(connected(QKlipperInstance*)), Settings::instance(), SLOT(onInstanceOnline(QKlipperInstance*)));
-
-        QKlipperInstancePool::addInstance(instance);
-    }
-
-    if(settings.value("first-run", true).toBool())
-        save();
-}
-
-void Settings::save()
-{
-    QSettings settings;
-
-    settings.setValue("first-run", false);
-
-    //scan for removed printers
-    QStringList savedInstances = settings.value("instance_id_list").toStringList();
-    QStringList runningInstances = QKlipperInstancePool::klipperInstanceIds();
-
-    foreach(QString instance, savedInstances)
-    {
-        if(!runningInstances.contains(instance))
-            settings.remove(instance);
-    }
-
-    //save current instances
-    settings.setValue("instance_id_list", QKlipperInstancePool::klipperInstanceIds()); //save the id list to know what settings group to load
-    settings.setValue("ui-animation_in_style", m_animationInStyle);
-    settings.setValue("ui-animation_out_style", m_animationOutStyle);
-    settings.setValue("ui-animation_duration", m_animationDuration);
-    settings.setValue("ui-animations_enabled", m_isAnimationEnabled);
-    settings.setValue("ui-animation_effects_enabled", m_isAnimationEffectsEnabled);
-    settings.setValue("ui-animation_in_effect", m_animationEffectInStyle);
-    settings.setValue("ui-animation_out_effect", m_animationEffectOutStyle);
-
-    //iterate over the instances to save settings under its id
-    QKlipperInstanceList instances = QKlipperInstancePool::klipperInstances();
-
-    foreach(QKlipperInstance *instance, instances)
-    {
-        if(!instance->hasUpdate())
-            continue;
-
-        if(!instance->thumbnail().isNull())
-        {
-            QString thumbnailLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + "thumbnails";
-            QString thumbnailFile(thumbnailLocation + QDir::separator() + instance->id() + ".png");
-
-            instance->thumbnail().save(thumbnailFile);
-        }
-
-        settings.beginGroup(instance->id()); //start the group so all following settings get stored under this prefix
-
-        settings.setValue("name", instance->name());
-        settings.setValue("address", instance->address());
-        settings.setValue("port", instance->port());
-        settings.setValue("location", instance->instanceLocation());
-        settings.setValue("api_key", instance->apiKey());
-        settings.setValue("color", instance->profileColor());
-        settings.setValue("auto_connect", instance->autoConnect());
-
-        QList<QKlipperExtruder*> extruders = instance->printer()->toolhead()->extruderMap().values();
-
-        foreach(QKlipperExtruder *extruder, extruders)
-        {
-            QString key = QString("power/%1").arg(extruder->name());
-            settings.setValue(key, extruder->maxWatts());
-        }
-
-        settings.setValue("power/bed", instance->printer()->bed()->maxWatts());
-
-        settings.endGroup();
-    }
-
-    QString requestedIconLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + "icons";
-    QFile requestedIconFile(requestedIconLocation + QDir::separator() + "icons.json");
-
-    if(requestedIconFile.open(QFile::WriteOnly))
-    {
-        QJsonDocument document;
-        QJsonArray array;
-
-        for(QString requestedIcon : m_requestedIcons)
-        {
-            QJsonObject object;
-            object["name"] = requestedIcon;
-            object["icon"] = m_iconNames[requestedIcon];
-
-            array.append(object);
-        }
-
-        document.setArray(array);
-
-        requestedIconFile.write(document.toJson());
-        requestedIconFile.close();
+        if(m_currentIconSetName.isEmpty() && !iconSetDirectories.isEmpty())
+            m_currentIconSetName = iconSetDirectories.contains("default") ? "default" : iconSetDirectories[0];
     }
 }
 
-void Settings::reset()
+void Settings::loadIcons()
 {
-    QSettings settings;
-    settings.clear();
-}
+    QMap<QString,QString> themeVariables = m_theme.variables();
+    QString iconsLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + "icons";
 
-void Settings::removeInstance(QKlipperInstance *instance)
-{
-    QSettings settings;
-    settings.remove(instance->id());
-}
-
-QVariant Settings::get(QString key, QVariant value)
-{
-    QSettings settings;
-
-    if(value != QVariant() && !settings.contains(key))
-    {
-        settings.setValue(key, value);
-        return value;
-    }
-    else if(!settings.contains(key))
-        return QVariant();
-
-    return settings.value(key);
-}
-
-void Settings::set(QString key, QVariant value)
-{
-    QSettings settings;
-    settings.setValue(key, value);
-}
-
-QString Settings::getTheme(QString key)
-{
-    QFile themeFile(themeMap[key]);
+    QString iconSetLocation = iconsLocation + QDir::separator() + m_currentIconSetName + QDir::separator();
+    QFile iconSetConfig(iconSetLocation + "icons.json");
 
     //Missing or corrupt files are just skipped for now
-    if(!themeFile.open(QFile::ReadOnly))
-        return QString();
-
-    QString theme = themeFile.readAll();
-    themeFile.close();
-
-    QVariableStyleSheet sheet(theme);
-    theme = sheet.stylesheet();
-
-    m_theme = sheet;
-
-    QMap<QString,QString> themeVariables = sheet.variables();
-
-    foreach(QString key, themeVariables.keys())
-        set(QString("theme/") + key, themeVariables[key]);
-
-    //For Debug
-#ifdef THEME_DEBUG
-    QFile alteredFile(themeMap[key] + QString("_debug"));
-    if(alteredFile.open(QFile::WriteOnly))
+    if(!iconSetConfig.open(QFile::ReadOnly))
     {
-        alteredFile.write(theme.toUtf8());
-        alteredFile.close();
+        QString warning = QString("Could not open icons file %1").arg(iconSetConfig.fileName());
+        qWarning() << warning;
+        return;
     }
-#endif
-
-    QString themeIconLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + "icons";
-
-    QString themeLocation = themeIconLocation + QDir::separator() + "default" + QDir::separator();
-    QFile themeConfig(themeLocation + "icons.json");
-
-    //Missing or corrupt files are just skipped for now
-    if(!themeConfig.open(QFile::ReadOnly))
-        ;//return QString();
 
     QJsonParseError themeError;
-    QJsonObject themeObject = QJsonDocument::fromJson(themeConfig.readAll(), &themeError).object();
+    QJsonObject themeObject = QJsonDocument::fromJson(iconSetConfig.readAll(), &themeError).object();
 
-    themeConfig.close();
+    iconSetConfig.close();
 
     if(themeError.error != QJsonParseError::NoError)
     {
-        qDebug() << "Theme document parsing error";
-        //return QString();
+        QString warning = QString("Could not parse icons file %1").arg(iconSetConfig.fileName());
+        qWarning() << warning;
+        return;
     }
 
     QJsonArray themeIcons = themeObject["icons"].toArray();
@@ -305,7 +130,7 @@ QString Settings::getTheme(QString key)
             if(themeVariables.contains("icon-color"))
             {
 
-                QImage image(themeLocation + themeIcon["icon"].toString());
+                QImage image(iconSetLocation + themeIcon["icon"].toString());
 
                 QImage alpha(image.width(), image.height(), QImage::Format_Alpha8);
                 alpha.fill(Qt::transparent);
@@ -388,11 +213,250 @@ QString Settings::getTheme(QString key)
                 }
             }
             else
-                loadedIcon = QIcon(themeLocation + themeIcon["icon"].toString());
+                loadedIcon = QIcon(iconSetLocation + themeIcon["icon"].toString());
 
             m_iconMap[themeIcon["name"].toString()] = loadedIcon;
         }
     }
+}
+
+void Settings::load()
+{
+    //setup settings object
+    QSettings settings;
+
+    if(settings.value("first-run", true).toBool())
+    {
+        inflateSettingsDirectory();
+        scanForKlipperInstances();
+    }
+
+    m_currentIconSetName = settings.value("ui/icon-set").toString();
+
+    int id = QFontDatabase::addApplicationFont(":/fonts/digital-7(mono).ttf");
+    m_digitalFontFamily = QFontDatabase::applicationFontFamilies(id).at(0);
+
+    loadThemes();
+    loadIconSets();
+    loadIcons();
+
+    //load animation settings
+    m_animationInStyle = (Settings::AnimationStyle)settings.value("ui/animation_in_style", Settings::SlideTop).toInt();
+    m_animationInStyle = (Settings::AnimationStyle)settings.value("ui/animation_out_style", Settings::SlideBottom).toInt();
+    m_animationDuration = settings.value("ui/animation_duration", 500).toInt();
+    m_isAnimationEnabled = settings.value("ui/animations_enabled", true).toBool();
+    m_animationEffectInStyle = (Settings::EffectsStyle)settings.value("ui/animation_in_effect", Settings::Opacity).toInt();
+    m_animationEffectOutStyle = (Settings::EffectsStyle)settings.value("ui/animation_out_effect", Settings::Opacity).toInt();
+    m_animationDuration = settings.value("ui/animation_duration", 500).toInt();
+    m_isAnimationEffectsEnabled = settings.value("ui/animation_effects_enabled", true).toBool();
+
+    //load the instance ids
+    QStringList ids = settings.value("instance_id_list",QStringList()).toStringList();
+
+    for(QString &id : ids)
+    {
+        QKlipperInstance *instance = new QKlipperInstance();
+
+        //begin the group to load settings under this prefix
+        settings.beginGroup(id);
+
+        //set the instance settings
+        instance->setId(id);
+        instance->setName(settings.value("name").toString());
+        instance->setAddress(settings.value("address").toString());
+        instance->setPort(settings.value("port").toInt());
+        instance->setInstanceLocation(settings.value("location").toString());
+        instance->setApiKey(settings.value("api_key").toString());
+        instance->setProfileColor(settings.value("color").toString());
+        instance->setAutoConnect(settings.value("auto_connect").toBool());
+
+        //end group to move to power settings
+        settings.endGroup();
+
+        QString thumbnailLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + "thumbnails";
+        QString thumbnailFile(thumbnailLocation + QDir::separator() + instance->id() + ".png");
+
+        if(QFile::exists(thumbnailFile))
+        {
+            QImage thumbnail(thumbnailFile);
+            instance->setThumbnail(thumbnail);
+        }
+
+        QObject::connect(instance, SIGNAL(connected(QKlipperInstance*)), Settings::instance(), SLOT(onInstanceOnline(QKlipperInstance*)));
+
+        QKlipperInstancePool::addInstance(instance);
+    }
+
+    if(settings.value("first-run", true).toBool())
+        save();
+}
+
+void Settings::save()
+{
+    QSettings settings;
+
+    settings.setValue("first-run", false);
+
+    //scan for removed printers
+    QStringList savedInstances = settings.value("instance_id_list").toStringList();
+    QStringList runningInstances = QKlipperInstancePool::klipperInstanceIds();
+
+    for(const QString &instance : savedInstances)
+    {
+        if(!runningInstances.contains(instance))
+            settings.remove(instance);
+    }
+
+    //save current instances
+    settings.setValue("instance_id_list", QKlipperInstancePool::klipperInstanceIds()); //save the id list to know what settings group to load
+    settings.setValue("ui/animation_in_style", m_animationInStyle);
+    settings.setValue("ui/animation_out_style", m_animationOutStyle);
+    settings.setValue("ui/animation_duration", m_animationDuration);
+    settings.setValue("ui/animations_enabled", m_isAnimationEnabled);
+    settings.setValue("ui/animation_effects_enabled", m_isAnimationEffectsEnabled);
+    settings.setValue("ui/animation_in_effect", m_animationEffectInStyle);
+    settings.setValue("ui/animation_out_effect", m_animationEffectOutStyle);
+    settings.setValue("ui/icon-set", m_currentIconSetName);
+
+    //iterate over the instances to save settings under its id
+    QKlipperInstanceList instances = QKlipperInstancePool::klipperInstances();
+
+    for(QKlipperInstance *instance : instances)
+    {
+        if(!instance->hasUpdate())
+            continue;
+
+        if(!instance->thumbnail().isNull())
+        {
+            QString thumbnailLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + "thumbnails";
+            QString thumbnailFile(thumbnailLocation + QDir::separator() + instance->id() + ".png");
+
+            instance->thumbnail().save(thumbnailFile);
+        }
+
+        settings.beginGroup(instance->id()); //start the group so all following settings get stored under this prefix
+
+        settings.setValue("name", instance->name());
+        settings.setValue("address", instance->address());
+        settings.setValue("port", instance->port());
+        settings.setValue("location", instance->instanceLocation());
+        settings.setValue("api_key", instance->apiKey());
+        settings.setValue("color", instance->profileColor());
+        settings.setValue("auto_connect", instance->autoConnect());
+
+        QList<QKlipperExtruder*> extruders = instance->printer()->toolhead()->extruderMap().values();
+
+        for(QKlipperExtruder *extruder : extruders)
+        {
+            QString key = QString("power/%1").arg(extruder->name());
+            settings.setValue(key, extruder->maxWatts());
+        }
+
+        settings.setValue("power/bed", instance->printer()->bed()->maxWatts());
+
+        settings.endGroup();
+    }
+
+    // QString requestedIconLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + "icons";
+    // QFile requestedIconFile(requestedIconLocation + QDir::separator() + "icons.json");
+
+    // if(requestedIconFile.open(QFile::WriteOnly))
+    // {
+    //     QJsonDocument document;
+    //     QJsonArray array;
+
+    //     for(QString requestedIcon : m_requestedIcons)
+    //     {
+    //         QJsonObject object;
+    //         object["name"] = requestedIcon;
+    //         object["icon"] = m_iconNames[requestedIcon];
+
+    //         array.append(object);
+    //     }
+
+    //     document.setArray(array);
+
+    //     requestedIconFile.write(document.toJson());
+    //     requestedIconFile.close();
+    // }
+
+    // QDir requestedIconDir(requestedIconLocation + QDir::separator() + "requested");
+
+    // if(!requestedIconDir.exists())
+    //     requestedIconDir.mkpath(".");
+
+    // for(QString requestedIcon : m_requestedIcons)
+    // {
+    //     QString name = m_iconNames[requestedIcon];
+    //     QPixmap pixmap = m_iconMap[requestedIcon].pixmap(64,64);
+
+    //     pixmap.save(requestedIconDir.absolutePath() + QDir::separator() + name);
+    // }
+}
+
+void Settings::reset()
+{
+    QSettings settings;
+    settings.clear();
+}
+
+void Settings::removeInstance(QKlipperInstance *instance)
+{
+    QSettings settings;
+    settings.remove(instance->id());
+}
+
+QVariant Settings::get(QString key, QVariant value)
+{
+    QSettings settings;
+
+    if(value != QVariant() && !settings.contains(key))
+    {
+        settings.setValue(key, value);
+        return value;
+    }
+    else if(!settings.contains(key))
+        return QVariant();
+
+    return settings.value(key);
+}
+
+void Settings::set(QString key, QVariant value)
+{
+    QSettings settings;
+    settings.setValue(key, value);
+}
+
+QString Settings::getTheme(QString key)
+{
+    QFile themeFile(themeMap[key]);
+
+    //Missing or corrupt files are just skipped for now
+    if(!themeFile.open(QFile::ReadOnly))
+        return QString();
+
+    QString theme = themeFile.readAll();
+    themeFile.close();
+
+    QVariableStyleSheet sheet(theme);
+    theme = sheet.stylesheet();
+
+    m_theme = sheet;
+
+    QMap<QString,QString> themeVariables = sheet.variables();
+
+    foreach(QString key, themeVariables.keys())
+        set(QString("theme/") + key, themeVariables[key]);
+
+    //For Debug
+#ifdef THEME_DEBUG
+    QFile alteredFile(themeMap[key] + QString("_debug"));
+    if(alteredFile.open(QFile::WriteOnly))
+    {
+        alteredFile.write(theme.toUtf8());
+        alteredFile.close();
+    }
+#endif
 
     return theme;
 }
@@ -445,10 +509,16 @@ QStringList Settings::getThemeList()
     return themes;
 }
 
+QStringList Settings::getIconSetList()
+{
+    return m_iconSetMap.keys();
+}
+
 void Settings::setTheme(QString key)
 {
     set("theme_name", key);
     m_currentTheme = getTheme(key);
+    m_currentThemeName = key;
     emit currentThemeChanged();
 }
 
@@ -538,6 +608,16 @@ Settings::Settings()
 {
 }
 
+QString Settings::currentThemeName()
+{
+    return m_currentThemeName;
+}
+
+QString Settings::currentIconSetName()
+{
+    return m_currentIconSetName;
+}
+
 bool Settings::inflateSettingsDirectory()
 {
     QString themeLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) +
@@ -560,7 +640,6 @@ bool Settings::inflateSettingsDirectory()
 
     if(!thumbnailDir.exists())
         thumbnailDir.mkpath(".");
-
 
     QFile zipFile(":/data/default.zip");
     zipFile.open(QFile::ReadWrite);
@@ -607,6 +686,7 @@ bool Settings::inflateSettingsDirectory()
         outFile.close();
         file.close();
     }
+
     zip.close();
 
     return true;
@@ -726,6 +806,28 @@ Settings::EffectsStyle Settings::animationEffectOutStyle()
 void Settings::setAnimationEffectOutStyle(EffectsStyle animationEffectOutStyle)
 {
     m_animationEffectOutStyle = animationEffectOutStyle;
+}
+
+void Settings::setIconSet(const QString &name)
+{
+    if(!m_iconSetMap.contains(name))
+    {
+        qWarning("Icon set unknown");
+        return;
+    }
+
+    if(name == m_currentIconSetName)
+    {
+        qWarning("Requested icon set is same as current");
+        return;
+    }
+
+    m_currentIconSetName = name;
+    loadIcons();
+
+    set("theme/icon-set", name);
+
+    emit m_instance->currentThemeChanged();
 }
 
 Settings::EffectsStyle Settings::animationEffectInStyle()

@@ -15,6 +15,7 @@ class QKlipperLedStrip : public QObject
         friend QKlipperConsole;
     public:
         explicit QKlipperLedStrip(QObject *parent = nullptr);
+        QKlipperLedStrip(QString name, QString error, qint32 chainCount, qint32 preset, qint8 brightness, qint8 intensity, qint8 speed, bool isOn);
 
         QString name() const;
 

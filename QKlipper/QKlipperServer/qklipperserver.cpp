@@ -265,6 +265,18 @@ void QKlipperServer::setUserList(const QList<QKlipperUser> &userList)
     emit userListChanged();
 }
 
+void QKlipperServer::addUser(const QKlipperUser &user)
+{
+    m_userList.append(user);
+    emit userListChanged();
+}
+
+void QKlipperServer::deleteUser(const QKlipperUser &user)
+{
+    m_userList.removeAll(user);
+    emit userListChanged();
+}
+
 QKlipperAccessDetails QKlipperServer::accessDetails() const
 {
     return m_accessDetails;
@@ -543,6 +555,7 @@ void QKlipperServer::setClientIdentifier(const QKlipperClientIdentifier &clientI
 {
     if (m_clientIdentifier == clientIdentifier)
         return;
+
     m_clientIdentifier = clientIdentifier;
     emit clientIdentifierChanged();
 }

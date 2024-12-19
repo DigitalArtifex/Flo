@@ -8,6 +8,7 @@ Dialog::Dialog(QWidget *parent, Qt::WindowFlags flags)
         setWindowFlag(Qt::FramelessWindowHint);
 
     setWindowFlag(Qt::Popup);
+    setWindowModality(Qt::WindowModal);
 
     setProperty("class", QString("Dialog"));
 }

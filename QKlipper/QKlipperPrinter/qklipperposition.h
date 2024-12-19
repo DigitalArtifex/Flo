@@ -28,23 +28,51 @@
 */
 class QKlipperPosition
 {
-    Q_GADGET
-public:
-    qreal &operator[](const QString &name);
+    public:
+        QKlipperPosition() = default;
+        ~QKlipperPosition() = default;
 
-    bool operator==(const QKlipperPosition &value);
-    bool operator==(QKlipperPosition &&value);
-    bool operator!=(const QKlipperPosition &value);
-    bool operator!=(QKlipperPosition &&value);
+        QKlipperPosition(const QKlipperPosition &value)
+        {
+            m_position = value.m_position;
+        }
 
-    qreal x() const;
-    qreal y() const;
-    qreal z() const;
-    qreal e() const;
-    qreal position(const QString &name) const;
+        qreal &operator[](const QString &name)
+        {
+            return m_position[name];
+        }
 
-private:
-    QMap<QString, qreal> m_position;
+        QKlipperPosition &operator=(const QKlipperPosition &value)
+        {
+            m_position = value.m_position;
+
+            return *this;
+        }
+
+        bool operator==(const QKlipperPosition &value) const
+        {
+            if(m_position == value.m_position) return true;
+
+            return false;
+        }
+
+        bool operator!=(const QKlipperPosition &value) const { return !(*this == value); }
+
+        qreal x() const { return m_position["x"]; }
+        qreal y() const { return m_position["y"]; }
+        qreal z() const { return m_position["z"]; }
+        qreal e() const { return m_position["e"]; }
+
+        qreal position(const QString &name, qreal defaultValue = 0.0) const
+        {
+            if(m_position.contains(name))
+                return m_position[name];
+
+            return defaultValue;
+        }
+
+    private:
+        QMap<QString, qreal> m_position;
 };
 
 Q_DECLARE_METATYPE(QKlipperPosition)

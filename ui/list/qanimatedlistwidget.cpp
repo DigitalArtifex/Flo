@@ -1,25 +1,30 @@
 #include "qanimatedlistwidget.h"
 #include "../../system/settings.h"
 
-#include <QThread>
+#include "ui/layouts/qflowlayout.h"
+
+#include <QApplication>
 
 QAnimatedListWidget::QAnimatedListWidget(QWidget *parent) :
     QScrollArea(parent)
 {
+    QFlowLayout *layout = new QFlowLayout(m_scrollAreaContents);
+    layout->setSpacing(0);
+
     m_scrollAreaContents = new QWidget(this);
-    m_scrollAreaContents->setLayout(new QVBoxLayout(m_scrollAreaContents));
+    m_scrollAreaContents->setLayout(layout);
     m_scrollAreaContents->setLayoutDirection(Qt::LayoutDirectionAuto);
     m_scrollAreaContents->layout()->setContentsMargins(0,0,0,0);
     m_scrollAreaContents->layout()->setSpacing(0);
 
-    m_spacer = new QSpacerItem(20,20,QSizePolicy::Fixed,QSizePolicy::Expanding);
+    //m_spacer = new QSpacerItem(0,0,QSizePolicy::Fixed,QSizePolicy::MinimumExpanding);
 
     m_emptyListItem = new QAnimatedEmptyListItem(this);
     m_emptyListItem->setFixedSize(size());
     m_emptyListItem->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
     m_scrollAreaContents->layout()->addWidget(m_emptyListItem);
-    m_scrollAreaContents->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    m_scrollAreaContents->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum);
 
     setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     setWidget(m_scrollAreaContents);
@@ -27,10 +32,13 @@ QAnimatedListWidget::QAnimatedListWidget(QWidget *parent) :
     setWidgetResizable(true);
 
     this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "List"));
+
+    connect(verticalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(onVerticalScrollbarRangeChange(int,int)));
 }
 
 void QAnimatedListWidget::addItem(QAnimatedListItem *item)
 {
+    // QFlowLayout *layout = qobject_cast<QFlowLayout*>(m_scrollAreaContents->layout());
     if(m_emptyListItem)
     {
         m_scrollAreaContents->layout()->removeWidget(m_emptyListItem);
@@ -51,20 +59,22 @@ void QAnimatedListWidget::addItem(QAnimatedListItem *item)
         return;
     }
 
-    m_scrollAreaContents->layout()->removeItem(m_spacer);
     m_scrollAreaContents->layout()->addWidget(item);
-    m_scrollAreaContents->layout()->addItem(m_spacer);
+    item->setFixedWidth(viewport()->width());
+
+    auto children = m_scrollAreaContents->findChildren<QAnimatedListItem*>();
+
+    for(auto child : children)
+        child->setFixedWidth(viewport()->width());
 
     connect(item, SIGNAL(animationIn_finished(QAnimatedListItem*)), this, SLOT(on_listItem_animationIn_finished(QAnimatedListItem*)));
     connect(item, SIGNAL(selected(QAnimatedListItem*)), this, SLOT(on_item_selected(QAnimatedListItem*)));
     connect(item, SIGNAL(deselected(QAnimatedListItem*)), this, SLOT(on_item_deselected(QAnimatedListItem*)));
     connect(item, SIGNAL(doubleClicked(QAnimatedListItem*)), this, SLOT(itemDoubleClickedEvent(QAnimatedListItem*)));
 
-    QString styleSheet = Settings::currentTheme();
-    item->setStyleSheet(styleSheet);
-    style()->polish(item);
-
     m_items.append(item);
+
+    item->setParent(m_scrollAreaContents);
     item->animateIn();
 }
 
@@ -228,6 +238,27 @@ void QAnimatedListWidget::on_listItem_animationOut_finished(QAnimatedListItem *i
 void QAnimatedListWidget::on_listItem_animationIn_finished(QAnimatedListItem *item)
 {
     item->setSelectable(true);
+
+    // int x = m_scrollAreaContents->contentsMargins().top();
+    // x += m_scrollAreaContents->contentsMargins().bottom();
+
+    // auto children = m_scrollAreaContents->findChildren<QAnimatedListItem*>();
+
+    // for(auto child : children)
+    //     x += child->height();
+
+    // x += (m_scrollAreaContents->layout()->spacing() * children.count());
+
+    // if(x < height())
+    // {
+    //     int difference = height() - x;
+
+    //     m_scrollAreaContents->layout()->removeItem(m_spacer);
+    //     delete m_spacer;
+
+    //     m_spacer = new QSpacerItem(0, difference,QSizePolicy::Fixed,QSizePolicy::Fixed);
+    //     m_scrollAreaContents->layout()->addItem(m_spacer);
+    // }
 }
 
 void QAnimatedListWidget::on_item_selected(QAnimatedListItem *item)
@@ -273,12 +304,35 @@ void QAnimatedListWidget::itemDoubleClickedEvent(QAnimatedListItem *item)
     emit itemDoubleClicked(item);
 }
 
+void QAnimatedListWidget::onVerticalScrollbarRangeChange(int min, int max)
+{
+    int x = m_scrollAreaContents->contentsMargins().top();
+    x += m_scrollAreaContents->contentsMargins().bottom();
+
+    auto children = m_scrollAreaContents->findChildren<QAnimatedListItem*>();
+
+    for(auto child : children)
+        x += child->height();
+
+    x += (m_scrollAreaContents->layout()->spacing() * children.count());
+
+    if(x > height())
+    {
+        verticalScrollBar()->setValue(max);
+    }
+}
+
 void QAnimatedListWidget::resizeEvent(QResizeEvent *event)
 {
-    QScrollArea::resizeEvent(event);
-
     if(m_emptyListItem != nullptr)
         m_emptyListItem->setFixedSize(event->size());
+
+    auto children = m_scrollAreaContents->findChildren<QAnimatedListItem*>();
+
+    for(auto child : children)
+        child->setFixedWidth(viewport()->width());
+
+    QScrollArea::resizeEvent(event);
 }
 
 QAnimatedListWidget::SelectionMode QAnimatedListWidget::selectionMode() const

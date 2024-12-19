@@ -56,8 +56,8 @@ private slots:
     void setIsActive(bool isActive);
     void resetIsActive();
 
-    void setProgress(qreal progress);
-    void resetProgress();
+    void setValue(qreal progress);
+    void resetValue();
 
 signals:
 
@@ -84,7 +84,7 @@ private:
     Q_PROPERTY(qint64 fileSize READ fileSize WRITE setFileSize RESET resetFileSize NOTIFY fileSizeChanged FINAL)
     Q_PROPERTY(qint64 filePosition READ filePosition WRITE setFilePosition RESET resetFilePosition NOTIFY filePositionChanged FINAL)
     Q_PROPERTY(bool isActive READ isActive WRITE setIsActive RESET resetIsActive NOTIFY isActiveChanged FINAL)
-    Q_PROPERTY(qreal progress READ progress WRITE setProgress RESET resetProgress NOTIFY progressChanged FINAL)
+    Q_PROPERTY(qreal progress READ progress WRITE setValue RESET resetValue NOTIFY progressChanged FINAL)
 };
 
 #endif // QKLIPPERVIRTUALSDCARD_H

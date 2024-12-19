@@ -8,15 +8,29 @@
 
 #include "../../../../ui/circularprogressbar.h"
 #include <QKlipper/qklipper.h>
+#include "../../bedmesh/health/bedmeshhealthcard.h"
+
+#include "printerbedinfodialog.h"
+#include "printerbedtoolsdialog.h"
+#include <pages/printer/bedmesh/bedmeshwidget.h>
+
+#include <ui/QIconButton/qiconbutton.h>
+#include <ui/QThrobber/qthrobber.h>
+
+#include <ui/piddialog.h>
+
+#include "bedtemperaturewidget.h"
 
 namespace Ui {
 class PrinterBedWidget;
 }
 
+class PrinterPage;
+
 class PrinterBedWidget : public QFrame
 {
     Q_OBJECT
-
+        friend PrinterPage;
 public:
     explicit PrinterBedWidget(QKlipperPrintBed *printerBed, QWidget *parent = nullptr);
     ~PrinterBedWidget();
@@ -24,61 +38,60 @@ public:
     QKlipperPrintBed *printerBed() const;
     void setPrinterBed(QKlipperPrintBed *printerBed);
 
-    virtual void setPrintActionsEnabled(bool enabled);
-
-    virtual void setIcons();
+    void setPrintActionsEnabled(bool enabled);
+    void setupIcons();
+    void setStyleSheet(const QString &styleSheet);
 
 public slots:
-    void setStyleSheet(const QString &styleSheet);
 
 protected slots:
     void onPrintbedCurrentTempChanged();
     void onPrintbedTargetTempChanged();
     void onPrintbedPowerChanged();
-    virtual void resizeEvent(QResizeEvent *event);
+    void showThrobber();
+    void hideThrobber();
+    virtual void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     void on_applyButton_clicked();
     void on_resetButton_clicked();
     void on_targetTempSpinBox_valueChanged(double arg1);
 
-    void onToggleToolsButtonClicked(bool toggled);
-    void onToggleBedMeshButtonClicked(bool toggled);
-    void showAdjustmentScrews();
-    void hideAdjustmentScrews();
-    void showBedMesh();
-    void hideBedMesh();
-    void onToolsWidgetAnimationFinished();
-    void onBedMeshAnimationFinished();
-    void setupAnimations();
+    void onSettingsButtonClicked();
+
+    void onViewBedMeshButtonClicked();
+
+    void onCalibrateBedMeshButtonClicked();
+
+    void onCalibrateScrewsButtonClicked();
+    void onPidTuneButtonClicked();
+
+    void onBedMeshDataChanged();
 
 private:
     Ui::PrinterBedWidget *ui;
 
-    QPropertyAnimation *m_adjustmentScrewWidgetAnimation = nullptr;
-    QPropertyAnimation *m_adjustmentScrewFrameAnimation = nullptr;
-
-    QPropertyAnimation *m_bedMeshWidgetAnimation = nullptr;
-    QPropertyAnimation *m_bedMeshFrameAnimation = nullptr;
-
-    bool m_toolsShown = true;
-    bool m_bedMeshShown = true;
-
-    qint32 m_bedMeshFrameHeight = 0;
-    qint32 m_bedMeshWidgetHeight = 0;
-    qint32 m_adjustmentScrewFrameHeight = 0;
-    qint32 m_adjustmentScrewWidgetHeight = 0;
-
     CircularProgressBar *m_bedTemperatureBar = nullptr;
+    CircularProgressBar *m_bedPowerProgressBar = nullptr;
+    CircularProgressBar *m_bedHealthProgressBar = nullptr;
     QKlipperPrintBed *m_printerBed = nullptr;
 
-    //BedMeshFrame *m_bedMeshFrame = nullptr;
+    BedMeshFrame *m_bedMeshFrame = nullptr;
 
     QSpacerItem *m_adjustmentScrewSpacer = nullptr;
 
-    QPushButton *m_recalibrateButton = nullptr;
+    QIconButton *m_pidButton = nullptr;
+    QIconButton *m_calibrateMeshButton = nullptr;
+    QIconButton *m_calibrateScrewsButton = nullptr;
+    QIconButton *m_meshViewerButton = nullptr;
+    QIconButton *m_bedInfoButton = nullptr;
 
     bool m_targetTempEdited = false;
+    BedMeshData *m_bedMeshData = nullptr;
+    BedTemperatureWidget *m_bedTempChart = nullptr;
+
+    QFrame *m_throbberFrame = nullptr;
+    QThrobber *m_throbber = nullptr;
 };
 
 #endif // PRINTERBEDWIDGET_H

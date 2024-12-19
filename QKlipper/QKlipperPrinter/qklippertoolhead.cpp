@@ -341,6 +341,22 @@ void QKlipperToolHead::moveZ(qreal amount, qreal speed)
     }
 }
 
+bool QKlipperToolHead::adjustZOffset(qreal amount)
+{
+    if(m_console->hasConnectionState(QKlipperConsole::Syncronized))
+    {
+        //set to relative movement
+        QString gcode;
+
+        //extrude the requested amount
+        gcode = QString("SET_GCODE_OFFSET Z_ADJUST=") + QString::number(amount);
+
+        return m_console->printerGcodeScript(gcode);
+    }
+
+    return false;
+}
+
 QKlipperConsole *QKlipperToolHead::console() const
 {
     return m_console;

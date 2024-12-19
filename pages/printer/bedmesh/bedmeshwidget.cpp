@@ -2,7 +2,7 @@
 #include "qabstractaxis.h"
 #include "system/settings.h"
 
-BedMeshWidget::BedMeshWidget(QKlipperPrintBed *bed, QWidget *parent) : QWidget(parent)
+BedMeshWidget::BedMeshWidget(QKlipperPrintBed *bed, QWidget *parent) : Dialog(parent)
 {
     m_printBed = bed;
     m_data = new BedMeshData(m_printBed, this);
@@ -23,7 +23,7 @@ BedMeshWidget::~BedMeshWidget()
 
     if(m_viewer)
     {
-        m_viewer->close();
+        //m_viewer->close();
         m_viewer->deleteLater();
     }
 
@@ -53,7 +53,7 @@ void BedMeshWidget::setStyleSheet(QString styleSheet)
     if(m_healthCard)
         m_healthCard->setStyleSheet(styleSheet);
 
-    m_homeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
+    m_homeButton->setIcon(Settings::getThemeIcon(QString("home")));
 }
 
 void BedMeshWidget::setupUi()
@@ -95,7 +95,7 @@ void BedMeshWidget::setupViewer()
     m_viewerWidget = QWidget::createWindowContainer(m_viewer, this);
     m_bedMeshCard = new CardWidget(CardWidget::Widget, this);
     m_bedMeshCard->setTitle("Bed Mesh");
-    m_bedMeshCard->setIcon(Settings::getThemeIcon("bed-mesh-icon"));
+    m_bedMeshCard->setIcon(Settings::getThemeIcon("bed-mesh"));
     m_bedMeshCard->setCentralWidget(m_viewerWidget);
 
     m_layout->addWidget(m_bedMeshCard, 0, 0);
@@ -130,18 +130,20 @@ void BedMeshWidget::setupButtonBox()
     m_buttonBoxWidget = new QWidget(this);
     m_buttonBoxLayout = new QHBoxLayout(m_buttonBoxWidget);
     m_buttonBoxLayout->setContentsMargins(0,0,0,0);
+    m_buttonBoxWidget->setLayout(m_buttonBoxLayout);
 
     m_homeButton = new QIconButton(m_buttonBoxWidget);
-    m_homeButton->setIcon(Settings::getThemeIcon(QString("home-icon")));
+    m_homeButton->setIcon(Settings::getThemeIcon(QString("home")));
     m_homeButton->setText("Home Toolhead");
     m_homeButton->setFixedHeight(50);
+    m_homeButton->setTextMargins(QMargins(34,0,0,0));
     m_homeButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     m_buttonBoxLayout->addWidget(m_homeButton);
 
     connect(m_homeButton, SIGNAL(clicked()), this, SLOT(onHomeButtonClicked()));
 
     m_calibrateMeshButton = new QIconButton(m_buttonBoxWidget);
-    m_calibrateMeshButton->setIcon(Settings::getThemeIcon(QString("calibrate-icon")));
+    m_calibrateMeshButton->setIcon(Settings::getThemeIcon(QString("mesh-calibrate")));
     m_calibrateMeshButton->setText("Calibrate Bed Mesh");
     m_calibrateMeshButton->setFixedHeight(50);
     m_calibrateMeshButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -150,7 +152,7 @@ void BedMeshWidget::setupButtonBox()
     connect(m_calibrateMeshButton, SIGNAL(clicked()), this, SLOT(onCalibrateMeshButtonClicked()));
 
     m_calibrateScrewsButton = new QIconButton(m_buttonBoxWidget);
-    m_calibrateScrewsButton->setIcon(Settings::getThemeIcon(QString("calibrate-icon")));
+    m_calibrateScrewsButton->setIcon(Settings::getThemeIcon(QString("adjustment-screws-calibrate")));
     m_calibrateScrewsButton->setText("Calibrate Adjustment Screws");
     m_calibrateScrewsButton->setFixedHeight(50);
     m_calibrateScrewsButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -165,7 +167,10 @@ void BedMeshWidget::onHomeButtonClicked()
 {
     if(m_printBed->printer()->status() == QKlipperPrinter::Ready)
     {
-        m_printBed->printer()->toolhead()->home();
+        QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printBed->parent());
+
+        if(printer)
+            printer->toolhead()->home();
     }
 }
 

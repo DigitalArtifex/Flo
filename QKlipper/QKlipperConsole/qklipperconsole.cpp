@@ -28,10 +28,10 @@ QKlipperConsole::~QKlipperConsole()
     m_parserMap.clear();
 }
 
-void QKlipperConsole::connect()
+bool QKlipperConsole::connect()
 {
     if(m_rpcUpdateSocket && m_rpcUpdateSocket->isOpen())
-        return;
+        return true;
 
     setupNetworkAccessManager();
 
@@ -48,7 +48,7 @@ void QKlipperConsole::connect()
         ((QLocalSocket*)m_rpcUpdateSocket)->setServerName(m_server->websocketAddress());
         ((QLocalSocket*)m_rpcUpdateSocket)->connectToServer();
 
-        if(!((QLocalSocket*)m_rpcUpdateSocket)->waitForConnected())
+        if(!((QLocalSocket*)m_rpcUpdateSocket)->waitForConnected(5000))
         {
             qDebug() << QString("Failed to connect to moonraker");
 
@@ -61,7 +61,7 @@ void QKlipperConsole::connect()
             emit errorOccured(error);
 
             //sendError("Could not connect to local socket");
-            return;
+            return false;
         }
 
         addConnectionState(MoonrakerConnected);
@@ -108,10 +108,32 @@ void QKlipperConsole::connect()
 
         QObject::connect(socket, SIGNAL(textMessageReceived(QString)), this, SLOT(rpcUpdateSocketDataReceived(QString)));
 
-        qDebug() << "Connecting to " << m_server->websocketAddress();
+        //Timeout for websocket -_-
+        QTimer *timeout = new QTimer(this);
+        timeout->setInterval(10000);
+        timeout->setSingleShot(true);
 
+        QObject::connect
+        (
+            timeout,
+            &QTimer::timeout,
+            this,
+            [&socketError, &errorOccurred, &loop]() {
+                errorOccurred = true;
+                socketError = QAbstractSocket::SocketTimeoutError;
+                loop.quit();
+            }
+        );
+
+        qDebug() << "Connecting to " << m_server->websocketAddress();
         socket->open(m_server->websocketAddress());
+        timeout->start();
         loop.exec();
+
+        timeout->deleteLater();
+
+        if(socket->state() != QAbstractSocket::ConnectedState)
+            errorOccurred = true;
 
         if(errorOccurred)
         {
@@ -121,8 +143,10 @@ void QKlipperConsole::connect()
             error.setErrorTitle("Socket Error " + QString::number(socketError));
             error.setOrigin("Console Connect");
 
+            setConnectionState(Idle);
+
             emit errorOccured(error);
-            return;
+            return false;
         }
 
         addConnectionState(MoonrakerConnected);
@@ -135,6 +159,10 @@ void QKlipperConsole::connect()
         StartupFunction function = m_startupSequence.dequeue();
         (this->*function)();
     }
+    else
+        setConnectionState(Syncronized);
+
+    return true;
 }
 
 void QKlipperConsole::disconnect()
@@ -663,6 +691,7 @@ bool QKlipperConsole::printerGcodeScript(QString gcode, QKlipperError *error, QK
     message->setOrigin(origin);
     message->setParam("script", gcode);
     message->setMethod("printer.gcode.script");
+    message->setIsGcode(true);
     message->setProtocol(QKlipperMessage::HttpPostProtocol);
 
     sendWebSocketMessage(message, error);
@@ -1386,7 +1415,7 @@ void QKlipperConsole::machinePowerDeviceList()
 void QKlipperConsole::machinePowerDeviceStatus(QStringList names)
 {
     QKlipperMessage *message = new QKlipperMessage();
-    message->setMethod("machine.device_power.status");
+    message->setMethod("machine.device_power.device");
 
     for(QString name : names)
         message->setParam(name, QVariant());
@@ -1397,8 +1426,8 @@ void QKlipperConsole::machinePowerDeviceStatus(QStringList names)
 void QKlipperConsole::machinePowerDeviceSetState(const QString &name, const QString &action)
 {
     QKlipperMessage *message = new QKlipperMessage();
-    message->setMethod("machine.device_power.status");
-    message->setParam("name", name);
+    message->setMethod("machine.device_power.device");
+    message->setParam("device", name);
     message->setParam("action", action);
     message->setProtocol(QKlipperMessage::HttpPostProtocol);
 
@@ -1465,6 +1494,45 @@ void QKlipperConsole::machineSetLedStrip(QKlipperLedStrip *stripData)
         message->setParam("action", "off");
 
     message->setProtocol(QKlipperMessage::HttpPostProtocol);
+
+    sendWebSocketMessageAsync(message);
+}
+
+void QKlipperConsole::machineSensorsList()
+{
+    if(hasConnectionState(Startup))
+        setStartupSequenceText("Getting Machine Sensors..");
+
+    QKlipperMessage *message = new QKlipperMessage();
+    message->setMethod("server.sensors.list");
+    message->setParam("extended", true);
+
+    sendWebSocketMessageAsync(message);
+}
+
+void QKlipperConsole::machineSensorInfo(const QString &name)
+{
+    QKlipperMessage *message = new QKlipperMessage();
+    message->setMethod("server.sensors.info");
+    message->setParam("extended", true);
+    message->setParam("sensor", name);
+
+    sendWebSocketMessageAsync(message);
+}
+
+void QKlipperConsole::machineSensorMeasurement(const QString &name)
+{
+    QKlipperMessage *message = new QKlipperMessage();
+    message->setMethod("server.sensors.measurements");
+    message->setParam("sensor", name);
+
+    sendWebSocketMessageAsync(message);
+}
+
+void QKlipperConsole::machineSensorMeasurements()
+{
+    QKlipperMessage *message = new QKlipperMessage();
+    message->setMethod("server.sensors.measurements");
 
     sendWebSocketMessageAsync(message);
 }
@@ -1608,26 +1676,9 @@ void QKlipperConsole::rpcUpdateSocketDataReceived(QString data)
         message->setError(error);
     }
 
-    if(responseObject["method"].toString().startsWith("notify"))
+    if(responseObject["method"].toString().startsWith("notify")
+        || responseObject["method"].toString().startsWith("sensors:"))
     {
-        if(responseObject.contains("params")
-            && responseObject["params"].isArray()
-            && responseObject["params"].toArray().count() > 0)
-        {
-            QJsonArray params = responseObject["params"].toArray();
-            QString method = responseObject["method"].toString();
-
-            //set the first object as the response object
-            for(int i = 0; i < params.count(); i++)
-            {
-                if(params[i].isObject())
-                {
-                    responseObject = params[i].toObject();
-                    responseObject["method"] = method;
-                    break;
-                }
-            }
-        }
 
         if(responseObject.contains("result"))
             responseObject = responseObject["result"].toObject();
@@ -1820,6 +1871,8 @@ void QKlipperConsole::resetStartupSequence()
     m_startupSequence.enqueue((StartupFunction)&QKlipperConsole::accessUsersList);
     m_startupSequence.enqueue((StartupFunction)&QKlipperConsole::machineSystemInfo);
     m_startupSequence.enqueue((StartupFunction)&QKlipperConsole::machinePowerDeviceList);
+    m_startupSequence.enqueue((StartupFunction)&QKlipperConsole::machineLedStripList);
+    m_startupSequence.enqueue((StartupFunction)&QKlipperConsole::machineSensorsList);
     m_startupSequence.enqueue((StartupFunction)&QKlipperConsole::machineProcStats);
     m_startupSequence.enqueue((StartupFunction)&QKlipperConsole::machinePeripheralsUSB);
     m_startupSequence.enqueue((StartupFunction)&QKlipperConsole::machinePeripheralsSerial);
@@ -1909,6 +1962,9 @@ void QKlipperConsole::generateParserMap()
     m_parserMap[QString("machine.wled.on")] = (ParserFunction)&QKlipperConsole::machineLedStripListParser;
     m_parserMap[QString("machine.wled.off")] = (ParserFunction)&QKlipperConsole::machineLedStripListParser;
     m_parserMap[QString("machine.wled.strip")] = (ParserFunction)&QKlipperConsole::machineLedStripListParser;
+    m_parserMap[QString("server.sensors.list")] = (ParserFunction)&QKlipperConsole::machineSensorListParser;
+    m_parserMap[QString("server.sensors.measurements")] = (ParserFunction)&QKlipperConsole::machineSensorMeasurementParser;
+    m_parserMap[QString("server.sensors.info")] = (ParserFunction)&QKlipperConsole::machineSensorParser;
 
     m_parserMap[QString("machine.update.status")] = (ParserFunction)&QKlipperConsole::machineUpdateStatusParser;
     m_parserMap[QString("machine.update.refresh")] = (ParserFunction)&QKlipperConsole::machineUpdateStatusParser;
@@ -2103,10 +2159,16 @@ void QKlipperConsole::sendWebSocketMessageAsync(QKlipperMessage *message)
                 error.setErrorTitle("Error Sending Websocket Command");
 
                 message->setError(error);
+                bool emitError = true;
 
-                emit errorOccured(error);
+                if(hasConnectionState(Startup) && m_ignoreErrorOnStartup.contains(message->method()))
+                    emitError = false;
 
-                return;
+                if(emitError)
+                {
+                    emit errorOccured(error);
+                    return;
+                }
             }
 
             QByteArray responseData = reply->readAll();
@@ -2125,10 +2187,16 @@ void QKlipperConsole::sendWebSocketMessageAsync(QKlipperMessage *message)
                 error.setErrorTitle("Invalid Response From Server");
 
                 message->setError(error);
+                bool emitError = true;
 
-                emit errorOccured(error);
+                if(hasConnectionState(Startup) && m_ignoreErrorOnStartup.contains(message->method()))
+                    emitError = false;
 
-                return;
+                if(emitError)
+                {
+                    emit errorOccured(error);
+                    return;
+                }
             }
 
             message->setResponse(responseDocument["result"]);
@@ -2199,6 +2267,14 @@ bool QKlipperConsole::sendWebSocketMessage(QKlipperMessage *message, QKlipperErr
 
         reply->deleteLater();
 
+        bool emitError = true;
+
+        if(hasConnectionState(Startup) && m_ignoreErrorOnStartup.contains(message->method()))
+            emitError = false;
+
+        if(emitError)
+            emit errorOccured(*error);
+
         return false;
     }
 
@@ -2219,6 +2295,7 @@ void QKlipperConsole::parseNotification(QKlipperMessage *message)
         ParserFunction parser = m_parserMap[key];
         (this->*parser)(message);
     }
+
     else if(message->method() == QString("notify_klippy_disconnected"))
     {
         removeConnectionState(KlipperConnected);
@@ -2274,167 +2351,137 @@ void QKlipperConsole::parseNotification(QKlipperMessage *message)
     }
     else if(message->method() == QString("notify_gcode_response"))
     {
-        //string message
-    }
-    else if(message->method() == QString("notify_update_response"))
-    {
-        if(message->response().isObject() && message->response().toObject().contains("params"))
+        if(message->response().toObject().contains("params"))
         {
-            QJsonArray params = message->response().toObject()["params"].toArray();
-            bool isUpdating = false;
+            QJsonArray paramsArray = message->response()["params"].toArray();
 
-            for(QJsonValue value : params)
+            for(const QJsonValue &paramValue : paramsArray)
             {
-                if(value.isObject())
+                //string message
+                QString response = paramValue.toString();
+
+                if(response.startsWith("// probe at"))
                 {
-                    QJsonObject object = value.toObject();
-                    QString application = object["application"].toString();
-                    QString message = object["message"].toString();
-                    bool complete = object["complete"].toBool();
-
-                    if(m_system->updateManager()->packages().contains(application))
+                    if(m_printer->bed()->isBedMeshCalibrating())
                     {
-                        m_system->updateManager()->packages().value(application)->setStateMessage(message);
-
-                        if(complete && m_system->updateManager()->packages().value(application)->updating())
-                            m_system->updateManager()->packages().value(application)->setUpdatingFinished(true);
-                    }
-
-                    if(complete)
-                        m_system->updateManager()->setCurrentStateMessage(QString("Updating %1 Complete. %2").arg(application, message));
-                    else
-                    {
-                        isUpdating = true;
-                        m_system->updateManager()->setCurrentStateMessage(QString("Updating %1: %2").arg(application, message));
+                        quint32 points = m_printer->bed()->bedMesh()->reportedProbePoints();
+                        m_printer->bed()->bedMesh()->setReportedProbePoints(points + 1);
                     }
                 }
-            }
 
-            if(isUpdating)
-                m_system->setState(QKlipperSystem::Updating);
-            else
+                if(response.startsWith("// Mesh Bed Leveling Complete"))
+                {
+                    m_printer->bed()->setHasBedMeshResult(true);
+                }
+
+                emit gcodeResponse(response);
+            }
+        }
+
+    }
+
+    else if(message->method() == QString("notify_update_response"))
+    {
+        if(message->response().isObject())
+        {
+            QJsonObject object = message->response().toObject();
+            QString application = object["application"].toString();
+            QString message = object["message"].toString();
+            bool complete = object["complete"].toBool();
+
+            if(complete)
+            {
+                m_system->updateManager()->setCurrentStateMessage(QString("Updating %1 Complete. %2").arg(application, message));
                 m_system->setState(QKlipperSystem::Idle);
+            }
+            else
+            {
+                m_system->setState(QKlipperSystem::Updating);
+                m_system->updateManager()->setCurrentStateMessage(QString("Updating %1: %2").arg(application, message));
+            }
         }
     }
+
+    //emitted when a package has completed auto-scan for update
     else if(message->method() == QString("notify_update_refreshed"))
     {
-        /*{
-            "jsonrpc": "2.0",
-            "method": "notify_update_response",
-           "params": [
-            {
-              "application": "{app_name}",
-              "proc_id": 446461,
-              "message": "Update Response Message",
-              "complete": false
-            }
-            ]
-        }*/
+        machineUpdateStatusParser(message);
     }
     else if(message->method() == QString("notify_cpu_throttled"))
     {
-        /*{
-            "jsonrpc": "2.0",
-            "method": "notify_update_response",
-           "params": [
-            {
-              "application": "{app_name}",
-              "proc_id": 446461,
-              "message": "Update Response Message",
-              "complete": false
-            }
-            ]
-        }*/
+        QJsonObject response = message->response().toObject();
+        QJsonArray flagArray = response["flags"].toArray();
+        QStringList flagList;
+
+        for(const QJsonValue &flag : flagArray)
+            flagList += flag.toString();
+
+        m_system->throttleState()->setFlags(flagList);
+        m_system->throttleState()->setBits(response["bits"].toInt());
     }
     else if(message->method() == QString("notify_history_changed"))
     {
-        /*
+        QJsonObject response = message->response().toObject();
+        QJsonObject printJobObject = response["job"].toObject();
+        bool newJob = false;
+        QKlipperPrintJob *printJob = m_server->jobQueue()->job(printJobObject["id"].toString());
+
+        if(!printJob)
         {
-            "jsonrpc": "2.0",
-            "method": "notify_history_changed",
-            "params": [
-                {
-                    "action": "added OR finished",
-                    "job": <job object>
-                }
-            ]
+            printJob = new QKlipperPrintJob(m_server->jobQueue());
+            newJob = true;
         }
-        */
+
+        if(newJob)
+            m_server->jobQueue()->addJob(printJob);
     }
     else if(message->method() == QString("notify_user_created"))
     {
-        /*
-        {
-            "jsonrpc": "2.0",
-            "method": "notify_user_created",
-            "params": [
-                {
-                    "username": "<username>"
-                }
-            ]
-        }
-        */
+        accessGetUser();
     }
     else if(message->method() == QString("notify_user_deleted"))
     {
-        /*
+        QJsonObject response = message->response().toObject();
+
+        for(QKlipperUser &user : m_server->userList())
         {
-            "jsonrpc": "2.0",
-            "method": "notify_user_created",
-            "params": [
-                {
-                    "username": "<username>"
-                }
-            ]
+            if(user.username() == response["username"].toString())
+            {
+                m_server->deleteUser(user);
+                break;
+            }
         }
-        */
     }
     else if(message->method() == QString("notify_user_logged_out"))
     {
-        /*
-        {
-            "jsonrpc": "2.0",
-            "method": "notify_user_created",
-            "params": [
-                {
-                    "username": "<username>"
-                }
-            ]
-        }
-        */
+        accessGetUser();
     }
     else if(message->method() == QString("notify_service_state_changed"))
     {
-        /*
+        QJsonObject response = message->response().toObject();
+        QStringList stateKeys = response.keys();
+
+        for(const QString &key : stateKeys)
         {
-            "jsonrpc": "2.0",
-            "method": "notify_service_state_changed",
-            "params": [
-                {
-                    "klipper": {
-                        "active_state": "inactive",
-                        "sub_state": "dead"
-                    }
-                }
-            ]
+            if(m_system->services().contains(key))
+            {
+                QJsonObject stateObject = response[key].toObject();
+                m_system->services()[key]->setActiveState(stateObject["active_state"].toString());
+                m_system->services()[key]->setSubState(stateObject["sub_state"].toString());
+            }
         }
-        */
     }
     else if(message->method() == QString("notify_job_queue_changed"))
     {
-        /*
-        {
-            "jsonrpc": "2.0",
-            "method": "notify_job_queue_changed",
-            "params": [
-                {
-                    "action": "state_changed|jobs_added|jobs_removed|job_loaded",
-                    "updated_queue": null,
-                    "queue_state": "paused"
-                }
-            ]
+        QJsonObject response = message->response().toObject();
+
+        if(response["action"] == QString("state_changed")) {
+            m_server->jobQueue()->setState(response["queue_state"].toString());
         }
-        */
+        else {
+            serverJobQueueStatus();
+        }
+
     }
     else if(message->method() == QString("notify_button_event"))
     {
@@ -2483,31 +2530,11 @@ void QKlipperConsole::parseNotification(QKlipperMessage *message)
     }
     else if(message->method() == QString("notify_announcement_dismissed"))
     {
-        /*
-        {
-            "jsonrpc": "2.0",
-            "method": "notify_announcement_dismissed",
-            "params": [
-                {
-                    "entry_id": "arksine/moonlight/issue/3"
-                }
-            ]
-        }
-        */
+        serverAnnouncementsUpdate();
     }
     else if(message->method() == QString("notify_announcement_wake"))
     {
-        /*
-        {
-            "jsonrpc": "2.0",
-            "method": "notify_announcement_wake",
-            "params": [
-                {
-                    "entry_id": "arksine/moonlight/issue/1"
-                }
-            ]
-        }
-        */
+        serverAnnouncementsUpdate();
     }
     else if(message->method() == QString("notify_sudo_alert"))
     {
@@ -2528,52 +2555,7 @@ void QKlipperConsole::parseNotification(QKlipperMessage *message)
     }
     else if(message->method() == QString("notify_webcams_changed"))
     {
-        /*
-        {
-            "jsonrpc": "2.0",
-            "method": "notify_webcams_changed",
-            "params": [
-                {
-                    "webcams": [
-                        {
-                            "name": "tc2",
-                            "location": "printer",
-                            "service": "mjpegstreamer",
-                            "enabled": true,
-                            "icon": "mdiWebcam",
-                            "target_fps": 15,
-                            "target_fps_idle": 5,
-                            "stream_url": "http://printer.lan/webcam?action=stream",
-                            "snapshot_url": "http://printer.lan/webcam?action=snapshot",
-                            "flip_horizontal": false,
-                            "flip_vertical": false,
-                            "rotation": 0,
-                            "aspect_ratio": "4:3",
-                            "extra_data": {},
-                            "source": "database"
-                        },
-                        {
-                            "name": "TestCam",
-                            "location": "printer",
-                            "service": "mjpegstreamer",
-                            "enabled": true,
-                            "icon": "mdiWebcam",
-                            "target_fps": 15,
-                            "target_fps_idle": 5,
-                            "stream_url": "/webcam/?action=stream",
-                            "snapshot_url": "/webcam/?action=snapshot",
-                            "flip_horizontal": false,
-                            "flip_vertical": false,
-                            "rotation": 0,
-                            "aspect_ratio": "4:3",
-                            "extra_data": {},
-                            "source": "database"
-                        }
-                    ]
-                }
-            ]
-        }
-        */
+        serverWebcamList();
     }
     else if(message->method() == QString("notify_active_spool_set"))
     {
@@ -2624,22 +2606,22 @@ void QKlipperConsole::parseNotification(QKlipperMessage *message)
         }
         */
     }
-    else if(message->method() == QString("sensor_update"))
+    else if(message->method() == QString("sensors:sensor_update"))
     {
-        /*
+        QJsonObject response = message->response().toObject();
+        QStringList keys = response.keys();
+
+        for(const QString &key : keys)
         {
-            "jsonrpc": "2.0",
-            "method": "sensors:sensor_update",
-            "params": [
-                {
-                    "sensor1": {
-                        "humidity": 28.9,
-                        "temperature": 22.4
-                    }
-                }
-            ]
+            if(m_system->m_sensors.contains(key))
+            {
+                QJsonObject sensorObject = response[key].toObject();
+                QStringList valueKeys = sensorObject.keys();
+
+                for(const QString &valueKey : valueKeys)
+                    m_system->m_sensors[key]->addValue(valueKey, sensorObject[valueKey].toVariant());
+            }
         }
-        */
     }
 }
 
@@ -2966,31 +2948,33 @@ void QKlipperConsole::machineSystemInfoParser(QKlipperMessage *message)
 
         if(systemInfo.contains("service_state") && systemInfo["service_state"].isObject())
         {
-            QJsonObject serviceState = systemInfo["service_state"].toObject();
-            QStringList keys = serviceState.keys();
+            QJsonObject serviceStateObject = systemInfo["service_state"].toObject();
+            QStringList keys = serviceStateObject.keys();
 
-            QMap<QString, QKlipperServiceState> serviceStates;
+            QMap<QString, QKlipperService*> serviceStates = m_system->services();
 
-            foreach(QString key, keys)
+            for(const QString &key : keys)
             {
-                if(serviceState[key].isObject())
+                if(serviceStateObject[key].isObject())
                 {
-                    QJsonObject stateObject = serviceState[key].toObject();
-                    QKlipperServiceState state;
+                    QJsonObject stateObject = serviceStateObject[key].toObject();
+                    QKlipperService *state = m_system->service(key);
+
+                    if(!state)
+                        state = new QKlipperService(m_system);
 
                     if(stateObject.contains("active_state"))
-                        state.setActiveState(stateObject["active_state"].toString());
+                        state->setActiveState(stateObject["active_state"].toString());
 
                     if(stateObject.contains("sub_state"))
-                        state.setSubState(stateObject["sub_state"].toString());
+                        state->setSubState(stateObject["sub_state"].toString());
 
-                    state.setName(key);
+                    state->setName(key);
 
-                    serviceStates[key] = state;
+                    if(!m_system->services().contains(key))
+                        m_system->addService(state);
                 }
             }
-
-            m_system->setServiceStates(serviceStates);
         }
 
         if(systemInfo.contains("network") && systemInfo["network"].isObject())
@@ -3082,6 +3066,17 @@ void QKlipperConsole::machineSystemInfoParser(QKlipperMessage *message)
 
 void QKlipperConsole::machineProcStatsParser(QKlipperMessage *message)
 {
+    if(message->response().toObject().contains("params"))
+    {
+        QJsonArray paramArray = message->response()["params"].toArray();
+
+        for(const QJsonValue &value : paramArray)
+        {
+            message->setResponse(value);
+            machineProcStatsParser(message);
+        }
+    }
+
     QKlipperCpuInfo cpuInfo = m_system->cpuInfo();
     bool cpuInfoChanged = false;
 
@@ -3387,7 +3382,7 @@ void QKlipperConsole::machineUpdateStatusParser(QKlipperMessage *message)
     //Grab the version info
     QJsonObject versionObject = message->response()["version_info"].toObject();
     QStringList keys = versionObject.keys();
-    QMap<QString, QKlipperUpdatePackage*> packages = m_system->updateManager()->packages();
+    QMap<QString, QKlipperUpdatePackage> packages;
 
     QStringList systemPackages = m_system->updateManager()->systemPackages();
 
@@ -3418,40 +3413,33 @@ void QKlipperConsole::machineUpdateStatusParser(QKlipperMessage *message)
             QJsonArray warningArray = packageObject["warnings"].toArray();
             QJsonArray anomaliesArray = packageObject["anomalies"].toArray();
 
-            bool newPackage = !m_system->updateManager()->packages().contains(key);
-
             //Package information
-            QKlipperUpdatePackage *packageState;
-
-            if(newPackage)
-                packageState = new QKlipperUpdatePackage(m_system->updateManager());
-            else
-                packageState = m_system->updateManager()->packages().value(key);
+            QKlipperUpdatePackage packageState;
 
             //Strings
-            packageState->setChannel(packageObject["channel"].toString());
-            packageState->setConfiguredType(packageObject["configured_type"].toString());
-            packageState->setDetectedType(packageObject["detected_type"].toString());
-            packageState->setRemoteAlias(packageObject["remote_alias"].toString());
-            packageState->setBranch(packageObject["branch"].toString());
-            packageState->setOwner(packageObject["owner"].toString());
-            packageState->setRepoName(packageObject["repo_name"].toString());
-            packageState->setVersion(packageObject["version"].toString());
-            packageState->setRemoteVersion(packageObject["remote_version"].toString());
-            packageState->setRollbackVersion(packageObject["rollback_version"].toString());
-            packageState->setCurrentHash(packageObject["current_hash"].toString());
-            packageState->setRemoteHash(packageObject["remote_hash"].toString());
-            packageState->setFullVersionString(packageObject["full_version_string"].toString());
-            packageState->setRecoveryUrl(packageObject["recovery_url"].toString());
-            packageState->setRemoteUrl(packageObject["remote_url"].toString());
+            packageState.setChannel(packageObject["channel"].toString());
+            packageState.setConfiguredType(packageObject["configured_type"].toString());
+            packageState.setDetectedType(packageObject["detected_type"].toString());
+            packageState.setRemoteAlias(packageObject["remote_alias"].toString());
+            packageState.setBranch(packageObject["branch"].toString());
+            packageState.setOwner(packageObject["owner"].toString());
+            packageState.setRepoName(packageObject["repo_name"].toString());
+            packageState.setVersion(packageObject["version"].toString());
+            packageState.setRemoteVersion(packageObject["remote_version"].toString());
+            packageState.setRollbackVersion(packageObject["rollback_version"].toString());
+            packageState.setCurrentHash(packageObject["current_hash"].toString());
+            packageState.setRemoteHash(packageObject["remote_hash"].toString());
+            packageState.setFullVersionString(packageObject["full_version_string"].toString());
+            packageState.setRecoveryUrl(packageObject["recovery_url"].toString());
+            packageState.setRemoteUrl(packageObject["remote_url"].toString());
 
             //Bools
-            packageState->setDebugEnabled(packageObject["debug_enabled"].toBool());
-            packageState->setIsValid(packageObject["is_valid"].toBool());
-            packageState->setCorrupt(packageObject["corrupt"].toBool());
-            packageState->setIsDirty(packageObject["is_dirty"].toBool());
-            packageState->setDetached(packageObject["detached"].toBool());
-            packageState->setPristine(packageObject["pristine"].toBool());
+            packageState.setDebugEnabled(packageObject["debug_enabled"].toBool());
+            packageState.setIsValid(packageObject["is_valid"].toBool());
+            packageState.setCorrupt(packageObject["corrupt"].toBool());
+            packageState.setIsDirty(packageObject["is_dirty"].toBool());
+            packageState.setDetached(packageObject["detached"].toBool());
+            packageState.setPristine(packageObject["pristine"].toBool());
 
             //Tags
             QStringList tags;
@@ -3459,7 +3447,7 @@ void QKlipperConsole::machineUpdateStatusParser(QKlipperMessage *message)
             for(int i = 0; i < tagsArray.count(); i++)
                 tags += tagsArray[i].toString();
 
-            packageState->setInfoTags(tags);
+            packageState.setInfoTags(tags);
 
             //Git messages
             QStringList gitMessages;
@@ -3467,7 +3455,7 @@ void QKlipperConsole::machineUpdateStatusParser(QKlipperMessage *message)
             for(int i = 0; i < gitArray.count(); i++)
                 gitMessages += gitArray[i].toString();
 
-            packageState->setGitMessages(gitMessages);
+            packageState.setGitMessages(gitMessages);
 
             //Warning messages
             QStringList warnings;
@@ -3475,7 +3463,7 @@ void QKlipperConsole::machineUpdateStatusParser(QKlipperMessage *message)
             for(int i = 0; i < warningArray.count(); i++)
                 warnings += warningArray[i].toString();
 
-            packageState->setWarnings(warnings);
+            packageState.setWarnings(warnings);
 
             //Anomalies messages
             QStringList anomalies;
@@ -3483,7 +3471,7 @@ void QKlipperConsole::machineUpdateStatusParser(QKlipperMessage *message)
             for(int i = 0; i < anomaliesArray.count(); i++)
                 anomalies += anomaliesArray[i].toString();
 
-            packageState->setAnomalies(anomalies);
+            packageState.setAnomalies(anomalies);
 
             QList<QKlipperUpdateCommit> commits;
 
@@ -3503,41 +3491,24 @@ void QKlipperConsole::machineUpdateStatusParser(QKlipperMessage *message)
                 commits.append(commit);
             }
 
-            packageState->setCommitsBehind(commits);
+            packageState.setCommitsBehind(commits);
 
             //Add to packages map
-            if(newPackage)
-                m_system->updateManager()->setPackage(key, packageState);
+            packages.insert(key, packageState);
         }
     }
 
+    updateState->setPackages(packages);
     updateState->setSystemPackages(systemPackages);
 }
 
 void QKlipperConsole::machinePowerDeviceListParser(QKlipperMessage *message)
 {
-    // {
-    //     "devices": [
-    //         {
-    //             "device": "green_led",
-    //             "status": "off",
-    //             "locked_while_printing": true,
-    //             "type": "gpio"
-    //         },
-    //         {
-    //             "device": "printer",
-    //             "status": "off",
-    //             "locked_while_printing": false,
-    //             "type": "tplink_smartplug"
-    //         }
-    //     ]
-    // }
-
     if(message->response().isObject() && message->response().toObject().contains("devices"))
     {
         QJsonArray deviceArray = message->response().toObject().value("devices").toArray();
 
-        for(QJsonValue value : deviceArray)
+        for(const QJsonValue &value : deviceArray)
         {
             if(value.isObject())
             {
@@ -3572,24 +3543,7 @@ void QKlipperConsole::machinePowerDeviceListParser(QKlipperMessage *message)
 
 void QKlipperConsole::machinePowerDeviceParser(QKlipperMessage *message)
 {
-    // {
-    //     "green_led": "off"
-    // }
-
-    // if(message->response().isObject())
-    // {
-    //     QJsonObject deviceObject = message->response().toObject();
-    //     QStringList keys = deviceObject.keys();
-
-    //     for(QString &key : keys)
-    //     {
-    //         if(m_powerDevices.contains(key))
-    //         {
-    //             bool isOn = (deviceObject[key].toString() == "on");
-    //             m_powerDevices[key]->setIsOn(isOn);
-    //         }
-    //     }
-    // }
+    Q_UNUSED(message)
 }
 
 void QKlipperConsole::machineLedStripListParser(QKlipperMessage *message)
@@ -3627,6 +3581,148 @@ void QKlipperConsole::machineLedStripListParser(QKlipperMessage *message)
                 m_system->setLedStrip(ledStrip);
         }
     }
+}
+
+void QKlipperConsole::machineSensorListParser(QKlipperMessage *message)
+{
+    if(message->response().isObject() && message->response().toObject().contains("sensors"))
+    {
+        QJsonObject sensorsObject = message->response().toObject()["sensors"].toObject();
+        QStringList sensorKeys = sensorsObject.keys();
+
+        for(QString &key : sensorKeys)
+        {
+            QJsonObject sensorObject = sensorsObject[key].toObject();
+            QKlipperSensor *sensor;
+
+            if(m_system->m_sensors.contains(key))
+                sensor = m_system->m_sensors[key];
+            else
+                sensor = new QKlipperSensor(m_system);
+
+            if(sensorObject.contains("id"))
+                sensor->setId(sensorObject["id"].toString());
+
+            if(sensorObject.contains("type"))
+                sensor->setType(sensorObject["id"].toString());
+
+            if(sensorObject.contains("friendly_name"))
+                sensor->setFriendlyName(sensorObject["friendly_name"].toString());
+
+            if(sensorObject.contains("values"))
+            {
+                QJsonObject valuesObject = sensorObject["values"].toObject();
+                QStringList valueKeys = valuesObject.keys();
+
+                for(QString &valueKey : valueKeys)
+                {
+                    if(valuesObject[valueKey].isArray())
+                    {
+                        QJsonArray valueArray = valuesObject[valueKey].toArray();
+
+                        for(const QJsonValue &value : valueArray)
+                            sensor->addValue(valueKey, value.toVariant());
+                    }
+                    else
+                        sensor->addValue(valueKey, valuesObject[valueKey].toVariant());
+                }
+            }
+
+            if(sensorObject.contains("parameter_info"))
+            {
+                QJsonArray parameterArray = sensorObject["parameter_info"].toArray();
+
+                for(const QJsonValue &parameter : parameterArray)
+                {
+                    if(parameter.isObject())
+                    {
+                        QJsonObject parameterObject = parameter.toObject();
+
+                        if(parameterObject.contains("units") && parameterObject.contains("name"))
+                        sensor->addParameter(parameterObject["name"].toString(), parameterObject["units"].toString());
+                    }
+                }
+            }
+
+            if(sensorObject.contains("history_fields"))
+            {
+                QJsonArray historyArray = sensorObject["history_fields"].toArray();
+
+                for(const QJsonValue &historyValue : historyArray)
+                {
+                    if(historyValue.isObject())
+                    {
+                        QJsonObject historyObject = historyValue.toObject();
+                        QKlipperSensorData data;
+
+                        if(historyObject.contains("field"))
+                            data.m_field = historyObject["field"].toString();
+
+                        if(historyObject.contains("provider"))
+                            data.m_provider = historyObject["provider"].toString();
+
+                        if(historyObject.contains("description"))
+                            data.m_description = historyObject["description"].toString();
+
+                        if(historyObject.contains("strategy"))
+                            data.m_strategy = historyObject["strategy"].toString();
+
+                        if(historyObject.contains("units"))
+                            data.m_units = historyObject["units"].toString();
+
+                        if(historyObject.contains("init_tracker"))
+                            data.m_initTracker = historyObject["init_tracker"].toBool();
+
+                        if(historyObject.contains("exclude_paused"))
+                            data.m_excludePaused = historyObject["exclude_paused"].toBool();
+
+                        if(historyObject.contains("report_total"))
+                            data.m_reportTotal = historyObject["report_total"].toBool();
+
+                        if(historyObject.contains("report_maximum"))
+                            data.m_reportMaximum = historyObject["report_maximum"].toBool();
+
+                        if(historyObject.contains("precision"))
+                            data.m_precision = historyObject["precision"].toInt();
+
+                        if(historyObject.contains("parameter"))
+                            data.m_parameter = historyObject["parameter"].toString();
+
+                        if(data.isValid())
+                            sensor->addHistory(data);
+                    }
+                }
+            }
+
+            if(!m_system->m_sensors.contains(key))
+                m_system->addSensor(sensor);
+        }
+    }
+}
+
+void QKlipperConsole::machineSensorParser(QKlipperMessage *message)
+{
+    if(message->response().isObject() && message->response().toObject().contains("id"))
+    {
+        QJsonObject rootObject;
+        QJsonObject sensorsObject;
+        QJsonObject sensorObject = message->response().toObject();
+
+        sensorsObject[sensorObject["id"].toString()] = sensorObject;
+        rootObject["sensors"] = sensorsObject;
+
+        message->setResponse(rootObject);
+        machineSensorListParser(message);
+    }
+}
+
+void QKlipperConsole::machineSensorMeasurementParser(QKlipperMessage *message)
+{
+    QJsonObject sensorsObject;
+    sensorsObject["sensors"] = message->response();
+    message->setResponse(sensorsObject);
+
+    machineSensorListParser(message);
 }
 
 void QKlipperConsole::printerInfoParser(QKlipperMessage *message)
@@ -3734,6 +3830,17 @@ void QKlipperConsole::printerObjectsQueryParser(QKlipperMessage *message)
 
 void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
 {
+    if(message->response().toObject().contains("params"))
+    {
+        QJsonArray paramsArray = message->response()["params"].toArray();
+
+        for(const QJsonValue &value : paramsArray)
+        {
+            message->setResponse(value);
+            printerSubscribeParser(message);
+        }
+    }
+
     if(message->response().toObject().count() == 2)
         message->setResponse(message->response().toObject()["status"]);
 
@@ -3851,7 +3958,7 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
             if(settingsObject.contains(QString("safe_z_home")))
             {
                 QJsonObject safeZObject = settingsObject["safe_z_home"].toObject();
-                QKlipperSafeZHome *zHome = m_printer->safeZHome();
+                QKlipperSafeZHome zHome = m_printer->safeZHome();
 
                 if(safeZObject.contains(QString("home_xy_position")))
                 {
@@ -3859,16 +3966,16 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
 
                     if(homePositionArray.count() >= 2)
                     {
-                        zHome->setHomeXPosition(homePositionArray[0].toDouble());
-                        zHome->setHomeYPosition(homePositionArray[1].toDouble());
+                        zHome.setHomeXPosition(homePositionArray[0].toDouble());
+                        zHome.setHomeYPosition(homePositionArray[1].toDouble());
                     }
                 }
 
-                zHome->setMoveToPrevious(safeZObject["move_to_previous"].toBool());
+                zHome.setMoveToPrevious(safeZObject["move_to_previous"].toBool());
 
-                zHome->setSpeed(safeZObject["speed"].toDouble());
-                zHome->setZHopSpeed(safeZObject["z_hop"].toDouble());
-                zHome->setZHop(safeZObject["z_hop_speed"].toDouble());
+                zHome.setSpeed(safeZObject["speed"].toDouble());
+                zHome.setZHopSpeed(safeZObject["z_hop"].toDouble());
+                zHome.setZHop(safeZObject["z_hop_speed"].toDouble());
             }
 
             //Parse adjustment screw settings
@@ -4239,6 +4346,7 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
                         if(!m_printer->fans().contains(key))
                         {
                             fan = new QKlipperFan(m_printer);
+                            fan->setNameData(key);
                             newFan = true;
                         }
                         else
@@ -4628,7 +4736,7 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
 
         foreach (QString key, keys)
         {
-            QJsonObject commandObject = commandsObject[key].toObject();
+            QJsonValue commandObject = commandsObject[key];
 
             QKlipperGCodeMacro macro;
             macro.macro = key.toUpper();
@@ -4748,7 +4856,6 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
         QJsonArray probedArray = bedMeshObject["probed_matrix"].toArray();
 
         QList<QList<qreal>> probed(probedArray.count());
-        bool hasResult = false;
 
         for(int i = 0; i < probedArray.count(); i++)
         {
@@ -4756,11 +4863,7 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
             probed[i].resize(probedEntriesArray.count());
 
             for(int e = 0; e < probedEntriesArray.count(); e++)
-            {
                 probed[i][e] = probedEntriesArray[e].toDouble();
-
-                hasResult = true;
-            }
         }
 
         bedMesh->setProbed(probed);
@@ -4776,27 +4879,10 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
             matrix[i].resize(matrixEntriesArray.count());
 
             for(int e = 0; e < matrixEntriesArray.count(); e++)
-            {
                 matrix[i][e] = matrixEntriesArray[e].toDouble();
-
-                hasResult = true;
-            }
         }
 
         bedMesh->setMatrix(matrix);
-
-        // QFile meshFile("/home/parametheus/mesh.json");
-
-        // if(meshFile.open(QFile::WriteOnly))
-        // {
-        //     for(QVector3D vertex : bedMesh->verticies())
-        //     {
-        //         QString line = QString("ListElement\{ x: \"%1\"; y: \"%2\"; z: \"%3\"; }\n").arg(QString::number(vertex.x()), QString::number(vertex.y()), QString::number(vertex.z()));
-
-        //         meshFile.write(line.toUtf8());
-        //     }
-        //     meshFile.close();
-        // }
 
         //Parse profile data
         QJsonArray profilesArray = bedMeshObject["profiles"].toArray();
@@ -4808,7 +4894,6 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
             profiles += profilesArray[i].toString();
 
         bedMesh->setProfiles(profiles);
-        m_printer->bed()->setHasBedMeshResult(hasResult);
     }
 
     //Parse stepper motor activity
@@ -4901,7 +4986,7 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
             virtualSDCard->setIsActive(virtualSDObject["is_active"].toBool());
 
         if(virtualSDObject.contains("progress"))
-            virtualSDCard->setProgress(virtualSDObject["progress"].toDouble());
+            virtualSDCard->setValue(virtualSDObject["progress"].toDouble());
     }
 
     //Parse declared fan objects
@@ -4920,6 +5005,7 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
                 if(!m_printer->fans().contains(key))
                 {
                     fan = new QKlipperFan(m_printer);
+                    fan->setNameData(key);
                     newFan = true;
                 }
                 else
@@ -4949,6 +5035,7 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
                 if(!m_printer->fans().contains(key))
                 {
                     fan = new QKlipperFan(m_printer);
+                    fan->setNameData(key);
                     newFan = true;
                 }
                 else
@@ -5324,7 +5411,7 @@ void QKlipperConsole::serverFilesListParser(QKlipperMessage *message)
 
     if(message->response().toObject().contains(QString("disk_usage")))
     {
-        QJsonObject driveUsage = message->response()["disk_usage"].toObject();
+        QJsonObject driveUsage = message->response().toObject()["disk_usage"].toObject();
         m_system->setDriveUsage(driveUsage["used"].toInteger());
         m_system->setDriveCapacity(driveUsage["total"].toInteger());
         m_system->setDriveFree(driveUsage["free"].toInteger());

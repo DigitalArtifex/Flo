@@ -20,7 +20,7 @@ class BedMeshHealthCard : public CardWidget
 
     protected:
         void setupUi();
-        void setIcons();
+        void setupIcons();
 
     protected slots:
         void onBedMeshUpdated();

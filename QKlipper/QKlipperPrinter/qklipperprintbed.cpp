@@ -47,11 +47,15 @@ void QKlipperPrintBed::setTargetTemp(qreal targetTemp)
 
 void QKlipperPrintBed::calibratePid(qreal target)
 {
+    emit pidCalibrating();
+
     //set to relative movement
     QString gcode = QString("PID_CALIBRATE HEATER=%1 TARGET=%2").arg("heater_bed", QString::number(target));
 
     //run calibration
     m_console->printerGcodeScript(gcode);
+
+    emit pidCalibratingFinished();
 }
 
 void QKlipperPrintBed::calibrateAdjustmentScrews()
@@ -68,6 +72,8 @@ void QKlipperPrintBed::calibrateAdjustmentScrews()
 void QKlipperPrintBed::calibrateBedMesh()
 {
     setHasBedMeshResult(false);
+    m_bedMesh->setReportedProbePoints(0);
+
     emit bedMeshCalibrating();
 
     QString gcode("BED_MESH_CALIBRATE");

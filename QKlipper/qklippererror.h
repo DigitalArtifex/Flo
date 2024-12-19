@@ -24,7 +24,6 @@
 
 class QKlipperError
 {
-    Q_GADGET
 public:
 
     enum Type
@@ -38,28 +37,54 @@ public:
         NoError = 6
     };
 
-    explicit QKlipperError();
+    explicit QKlipperError() { m_id = QUuid::createUuid().toString(); }
+    ~QKlipperError() = default;
 
-    bool operator==(const QKlipperError &value);
-    bool operator==(QKlipperError &&value);
+    QKlipperError(const QKlipperError &value)
+    {
+        m_id = value.m_id;
+        m_errorString = value.m_errorString;
+        m_errorTitle = value.m_errorTitle;
+        m_origin = value.m_origin;
+        m_type = value.m_type;
+    }
 
-    bool operator!=(const QKlipperError &value);
-    bool operator!=(QKlipperError &&value);
+    bool operator==(const QKlipperError &value) const
+    {
+        if(m_id != value.m_id)
+            return false;
 
-    QString errorString() const;
-    void setErrorString(const QString &errorString);
+        if(m_errorString != value.m_errorString)
+            return false;
 
-    QString origin() const;
-    void setOrigin(const QString &origin);
+        if(m_origin != value.m_origin)
+            return false;
 
-    Type type() const;
-    void setType(Type type);
+        if(m_type != value.m_type)
+            return false;
 
-    QString errorTitle() const;
-    void setErrorTitle(const QString &errorTitle);
+        if(m_errorTitle != value.m_errorTitle)
+            return false;
 
-    QString id() const;
-    void setId(const QString &id);
+        return true;
+    }
+
+    bool operator!=(const QKlipperError &value) const { return !(*this == value); }
+
+    QString errorString() const { return m_errorString; }
+    void setErrorString(const QString &errorString) { m_errorString = errorString; }
+
+    QString origin() const { return m_origin; }
+    void setOrigin(const QString &origin) { m_origin = origin; }
+
+    Type type() const { return m_type; }
+    void setType(Type type) { m_type = type; }
+
+    QString errorTitle() const { return m_errorTitle; }
+    void setErrorTitle(const QString &errorTitle) { m_errorTitle = errorTitle; }
+
+    QString id() const { return m_id; }
+    void setId(const QString &id) { m_id = id; }
 
 private:
     QString m_id;

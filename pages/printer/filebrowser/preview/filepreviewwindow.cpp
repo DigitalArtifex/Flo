@@ -123,14 +123,14 @@ void FilePreviewWindow::setupUi()
     m_layout->addWidget(m_footerWidget);
 
     m_cancelButton = new QIconButton(this);
-    m_cancelButton->setIcon(Settings::getThemeIcon(QString("cancel-icon")));
+    m_cancelButton->setIcon(Settings::getThemeIcon(QString("cancel")));
     m_cancelButton->setText(QString("Cancel"));
     m_cancelButton->setFixedHeight(50);
     m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_footerLayout->addWidget(m_cancelButton);
 
     m_applyButton = new QIconButton(this);
-    m_applyButton->setIcon(Settings::getThemeIcon(QString("print-icon")));
+    m_applyButton->setIcon(Settings::getThemeIcon(QString("print")));
     m_applyButton->setText(QString("Print"));
     m_applyButton->setFixedHeight(50);
     m_applyButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);

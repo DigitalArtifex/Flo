@@ -196,6 +196,13 @@ public slots:
      */
     void moveZ(qreal amount, qreal speed = 0);
 
+    /*!
+     * Adjusts the Z Offset by the given amount
+     *
+     * \param amount The amount to move the Z Axis
+     */
+    bool adjustZOffset(qreal amount);
+
     void setExtruder(QString name, QKlipperExtruder *extruder);
 
     qreal watts();

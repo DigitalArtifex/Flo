@@ -20,90 +20,80 @@
 #define QKLIPPERPROBEDATA_H
 
 #include <QObject>
+class QKlipperConsole;
 
 class QKlipperProbeData
 {
-    Q_GADGET
-public:
-    explicit QKlipperProbeData(QObject *parent = nullptr);
-    ~QKlipperProbeData();
+        friend QKlipperConsole;
+    public:
+        QKlipperProbeData() = default;
+        ~QKlipperProbeData() = default;
+        QKlipperProbeData &operator=(const QKlipperProbeData &value)
+        {
+            m_name = value.m_name;
+            m_isManual = value.m_isManual;
+            m_lastQuery = value.m_lastQuery;
+            m_zPosition = value.m_zPosition;
+            m_zPositionLower = value.m_zPositionLower;
+            m_zPositionUpper = value.m_zPositionUpper;
+            m_lastZResult = value.m_lastZResult;
 
-    QString name() const;
+            return *this;
+        }
 
-    bool isManual() const;
+        bool operator==(const QKlipperProbeData &value) const
+        {
+            if(m_name != value.m_name) return false;
+            if(m_isManual != value.m_isManual) return false;
+            if(m_lastQuery != value.m_lastQuery) return false;
+            if(m_zPosition != value.m_zPosition) return false;
+            if(m_zPositionLower != value.m_zPositionLower) return false;
+            if(m_zPositionUpper != value.m_zPositionUpper) return false;
 
-    bool lastQuery() const;
+            return true;
+        }
 
-    qreal zPosition() const;
+        bool operator!=(const QKlipperProbeData &value) const { return !(*this == value); }
 
-    qreal zPositionLower() const;
+        QString name() const { return m_name; }
 
-    qreal zPositionUpper() const;
+        bool isManual() const { return m_isManual; }
 
-    void setName(const QString &name);
-    void resetName();
+        bool lastQuery() const { return m_lastQuery; }
 
-    void setIsManual(bool isManual);
-    void resetIsManual();
+        qreal zPosition() const { return m_zPosition; }
 
-    void setLastQuery(bool lastQuery);
-    void resetLastQuery();
+        qreal zPositionLower() const { return m_zPositionLower; }
 
-    void setZPosition(qreal zPosition);
-    void resetZPosition();
+        qreal zPositionUpper() const { return m_zPositionUpper; }
 
-    void setZPositionLower(qreal zPositionLower);
-    void resetZPositionLower();
+        qreal lastZResult() const { return m_lastZResult; }
 
-    void setZPositionUpper(qreal zPositionUpper);
-    void resetZPositionUpper();
+    protected:
+        void setName(const QString &name) { m_name = name; }
 
-    bool operator==(const QKlipperProbeData &data) const
-    {
-        if(this->m_name != data.m_name) return false;
-        if(this->m_isManual != data.m_isManual) return false;
-        if(this->m_lastQuery != data.m_lastQuery) return false;
-        if(this->m_zPosition != data.m_zPosition) return false;
-        if(this->m_zPositionLower != data.m_zPositionLower) return false;
-        if(this->m_zPositionUpper != data.m_zPositionUpper) return false;
+        void setIsManual(bool isManual) { m_isManual = isManual; }
 
-        return true;
-    }
+        void setLastQuery(bool lastQuery) { m_lastQuery = lastQuery; }
 
-    bool operator!=(const QKlipperProbeData &data) const
-    {
-        if(this->m_name == data.m_name &&
-            this->m_isManual == data.m_isManual &&
-            this->m_lastQuery == data.m_lastQuery &&
-            this->m_zPosition == data.m_zPosition &&
-            this->m_zPositionLower == data.m_zPositionLower &&
-            this->m_zPositionUpper == data.m_zPositionUpper)
-            return false;
+        void setZPosition(qreal zPosition) { m_zPosition = zPosition; }
 
-        return true;
-    }
+        void setZPositionLower(qreal zPositionLower) { m_zPositionLower = zPositionLower; }
 
-    qreal lastZResult() const;
-    void setLastZResult(qreal lastZResult);
+        void setZPositionUpper(qreal zPositionUpper) { m_zPositionUpper = zPositionUpper; }
 
-private:
-    QString m_name;
+        void setLastZResult(qreal lastZResult) { m_lastZResult = lastZResult; }
 
-    bool m_isManual = false;
-    bool m_lastQuery = false;
+    private:
+        QString m_name;
 
-    qreal m_zPosition = 0;
-    qreal m_zPositionLower = 0;
-    qreal m_zPositionUpper = 0;
-    qreal m_lastZResult = 0;
+        bool m_isManual = false;
+        bool m_lastQuery = false;
 
-    Q_PROPERTY(QString name READ name WRITE setName FINAL)
-    Q_PROPERTY(bool isManual READ isManual WRITE setIsManual FINAL)
-    Q_PROPERTY(bool lastQuery READ lastQuery WRITE setLastQuery FINAL)
-    Q_PROPERTY(qreal zPosition READ zPosition WRITE setZPosition FINAL)
-    Q_PROPERTY(qreal zPositionLower READ zPositionLower WRITE setZPositionLower FINAL)
-    Q_PROPERTY(qreal zPositionUpper READ zPositionUpper WRITE setZPositionUpper FINAL)
-    Q_PROPERTY(qreal lastZResult READ lastZResult WRITE setLastZResult FINAL)
+        qreal m_zPosition = 0;
+        qreal m_zPositionLower = 0;
+        qreal m_zPositionUpper = 0;
+        qreal m_lastZResult = 0;
 };
 
 Q_DECLARE_METATYPE(QKlipperProbeData)

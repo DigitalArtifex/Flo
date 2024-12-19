@@ -35,7 +35,7 @@ void PrinterUserEditor::setupUi()
     m_iconLabel = new QLabel(this);
     m_iconLabel->setFixedSize(100,100);
     m_iconLabel->setAlignment(Qt::AlignCenter);
-    m_iconLabel->setPixmap(Settings::getThemeIcon("user-icon").pixmap(100,100));
+    m_iconLabel->setPixmap(Settings::getThemeIcon("user").pixmap(100,100));
     m_centralLayout->addWidget(m_iconLabel);
 
     m_userNameEdit = new QLineEdit(this);
@@ -61,7 +61,7 @@ void PrinterUserEditor::setupUi()
 
     m_cancelButton = new QIconButton(this);
     m_cancelButton->setText("Cancel");
-    m_cancelButton->setIcon(Settings::getThemeIcon("cancel-icon"));
+    m_cancelButton->setIcon(Settings::getThemeIcon("cancel"));
     m_cancelButton->setMinimumSize(200,50);
     m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_buttonLayout->addWidget(m_cancelButton);
@@ -70,7 +70,7 @@ void PrinterUserEditor::setupUi()
 
     m_acceptButton = new QIconButton(this);
     m_acceptButton->setText("Accept");
-    m_acceptButton->setIcon(Settings::getThemeIcon("accept-icon"));
+    m_acceptButton->setIcon(Settings::getThemeIcon("accept"));
     m_acceptButton->setMinimumSize(200,50);
     m_acceptButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_acceptButton->setEnabled(false);

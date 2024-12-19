@@ -48,6 +48,7 @@ void QKlipperExtruder::setGearRatio(const QKlipperGearRatio &gearRatio)
 {
     if (m_gearRatio == gearRatio)
         return;
+
     m_gearRatio = gearRatio;
     emit gearRatioChanged();
 }
@@ -193,13 +194,22 @@ void QKlipperExtruder::extrude(qreal amount, qreal speed)
     }
 }
 
+void QKlipperExtruder::retract(qreal amount, qreal speed)
+{
+    extrude(amount * -1, speed);
+}
+
 void QKlipperExtruder::calibratePid(qreal target)
 {
+    emit pidCalibrating();
+
     //set to relative movement
     QString gcode = QString("PID_CALIBRATE HEATER=%1 TARGET=%2").arg(m_name, QString::number(target));
 
     //run calibration
     m_console->printerGcodeScript(gcode);
+
+    emit pidCalibratingFinished();
 }
 
 void QKlipperExtruder::setExtrusionFactorData(qreal extrusionFactor)
@@ -597,6 +607,7 @@ void QKlipperExtruder::setStepPin(const QString &stepPin)
 {
     if (m_stepPin == stepPin)
         return;
+
     m_stepPin = stepPin;
     emit stepPinChanged();
 }
@@ -610,7 +621,7 @@ void QKlipperExtruder::setTemperatureStore(const QKlipperTemperatureStore &tempe
 {
     bool changed = false;
 
-    for(QKlipperTemperatureStoreValue value : temperatureStore)
+    for(const QKlipperTemperatureStoreValue &value : temperatureStore)
     {
         if(!m_temperatureStore.contains(value))
         {
@@ -670,7 +681,7 @@ QKlipperPosition QKlipperExtruder::offset() const
     return m_offset;
 }
 
-void QKlipperExtruder::setOffset(const QKlipperPosition &offset)
+void QKlipperExtruder::setOffsetData(const QKlipperPosition &offset)
 {
     if (m_offset == offset)
         return;

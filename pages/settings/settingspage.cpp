@@ -33,24 +33,27 @@ SettingsPage::SettingsPage(QWidget *parent) :
     ui->systemTab->layout()->addWidget(m_systemSettingsPage);
 
     m_addPrinterButton = new QIconButton(this);
-    m_addPrinterButton->setFixedSize(250,50);
-    m_addPrinterButton->setText("New Printer");
+    m_addPrinterButton->setFixedSize(100,100);
+    m_addPrinterButton->setIconSize(QSize(50,50));
+    m_addPrinterButton->setIconAlignment(Qt::AlignCenter);
     m_addPrinterButton->setEnabled(true);
     ui->buttonLayout->addWidget(m_addPrinterButton);
 
     connect(m_addPrinterButton, SIGNAL(clicked()), this, SLOT(addPrinterButtonClickEvent()));
 
     m_editPrinterButton = new QIconButton(this);
-    m_editPrinterButton->setFixedSize(250,50);
-    m_editPrinterButton->setText("Edit Printer");
+    m_editPrinterButton->setFixedSize(100,100);
+    m_editPrinterButton->setIconSize(QSize(50,50));
+    m_editPrinterButton->setIconAlignment(Qt::AlignCenter);
     m_editPrinterButton->setEnabled(false);
     ui->buttonLayout->addWidget(m_editPrinterButton);
 
     connect(m_editPrinterButton, SIGNAL(clicked()), this, SLOT(editPrinterButtonClickEvent()));
 
     m_removePrinterButton = new QIconButton(this);
-    m_removePrinterButton->setFixedSize(250,50);
-    m_removePrinterButton->setText("Remove Printer");
+    m_removePrinterButton->setFixedSize(100,100);
+    m_removePrinterButton->setIconSize(QSize(50,50));
+    m_removePrinterButton->setIconAlignment(Qt::AlignCenter);
     m_removePrinterButton->setEnabled(false);
     ui->buttonLayout->addWidget(m_removePrinterButton);
 
@@ -104,25 +107,34 @@ SettingsPage::SettingsPage(QWidget *parent) :
 
     m_resetButton = new QIconButton(ui->footerFrame);
     m_resetButton->setFixedSize(250, 50);
-    m_resetButton->setText("Cancel");
+    m_resetButton->setText("Reset");
     layout->addWidget(m_resetButton,0,0);
 
-    m_footerSpacer = new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Ignored);
-    layout->addItem(m_footerSpacer,0,1);
+    // m_footerSpacer = new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Ignored);
+    // layout->addItem(m_footerSpacer,0,1);
 
     m_acceptButton = new QIconButton(ui->footerFrame);
-    m_acceptButton->setFixedSize(250, 50);
+    m_acceptButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_acceptButton->setFixedHeight(50);
     m_acceptButton->setText("Accept");
     layout->addWidget(m_acceptButton,0,3);
 
     m_cancelButton = new QIconButton(ui->footerFrame);
-    m_cancelButton->setFixedSize(250, 50);
+    m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_cancelButton->setFixedHeight(50);
     m_cancelButton->setText("Cancel");
     layout->addWidget(m_cancelButton,0,2);
 
     connect(m_resetButton, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
     connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
     connect(m_acceptButton, SIGNAL(clicked()), this, SLOT(onApplyButtonClicked()));
+
+    ui->pageContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    ui->tabWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    ui->printerTab->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    ui->systemTab->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    ui->themeTab->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    ui->footerFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Subwidget"));
 
     setupAnimations();
     setStyleSheet(Settings::currentTheme());
@@ -296,6 +308,8 @@ void SettingsPage::hideFooter()
             m_footerAnimationGroup->resume();
         else
             m_footerAnimationGroup->start();
+
+        ui->pageLayout->removeWidget(ui->footerFrame);
     }
     else
         onFooterAnimationFinished();
@@ -335,10 +349,6 @@ void SettingsPage::showFooter()
 
         m_pageAnimation->setDuration(Settings::animationDuration());
 
-        //ui->pageLayout->addWidget(ui->footerFrame, 2, 0, 1, 1);
-
-        ui->footerFrame->resize(currentRect.size());
-
         if(isRunning)
             m_footerAnimationGroup->resume();
         else
@@ -365,7 +375,7 @@ void SettingsPage::setupAnimations()
 
     m_footerAnimationGroup = new QParallelAnimationGroup(this);
     m_footerAnimationGroup->addAnimation(m_footerAnimation);
-    m_footerAnimationGroup->addAnimation(m_pageAnimation);
+    //m_footerAnimationGroup->addAnimation(m_pageAnimation);
 
     connect(m_footerAnimationGroup, SIGNAL(finished()), this, SLOT(onFooterAnimationFinished()));
 }
@@ -377,19 +387,21 @@ void SettingsPage::onFooterAnimationFinished()
         ui->footerFrame->setVisible(false);
         //ui->pageLayout->removeWidget(ui->footerFrame);
     }
+    else
+        ui->pageLayout->addWidget(ui->footerFrame);
 }
 
 void SettingsPage::setupIcons()
 {
-    m_addPrinterButton->setIcon(Settings::getThemeIcon("add-icon"));
-    m_editPrinterButton->setIcon(Settings::getThemeIcon("edit-icon"));
-    m_removePrinterButton->setIcon(Settings::getThemeIcon("minus-icon"));
-    m_printersActionButton->setIcon(Settings::getThemeIcon("printer-icon"));
-    m_systemActionButton->setIcon(Settings::getThemeIcon("settings-icon"));
-    m_cancelButton->setIcon(Settings::getThemeIcon("cancel-icon"));
-    m_acceptButton->setIcon(Settings::getThemeIcon("accept-icon"));
-    m_resetButton->setIcon(Settings::getThemeIcon("refresh-icon"));
-    m_themeActionButton->setIcon(Settings::getThemeIcon("theme-icon"));
+    m_addPrinterButton->setIcon(Settings::getThemeIcon("printer-add"));
+    m_editPrinterButton->setIcon(Settings::getThemeIcon("printer-edit"));
+    m_removePrinterButton->setIcon(Settings::getThemeIcon("printer-remove"));
+    m_printersActionButton->setIcon(Settings::getThemeIcon("printer"));
+    m_systemActionButton->setIcon(Settings::getThemeIcon("settings"));
+    m_cancelButton->setIcon(Settings::getThemeIcon("cancel"));
+    m_acceptButton->setIcon(Settings::getThemeIcon("accept"));
+    m_resetButton->setIcon(Settings::getThemeIcon("refresh"));
+    m_themeActionButton->setIcon(Settings::getThemeIcon("theme"));
 }
 
 void SettingsPage::reset()
@@ -424,7 +436,6 @@ void SettingsPage::apply()
 
 void SettingsPage::setStyleSheet(const QString &styleSheet)
 {
-    qDebug() << "Settings Theme Set";
     setupIcons();
 
     if(m_themeSettingsPage)
@@ -455,8 +466,7 @@ void SettingsPage::resizeEvent(QResizeEvent *event)
     if(ui->footerFrame->isVisible() && (m_footerAnimation->state() == QParallelAnimationGroup::Stopped))
     {
         m_footerInGeometry = ui->footerFrame->geometry();
-        m_footerOutGeometry = m_footerInGeometry;
-        m_footerOutGeometry.setHeight(0);
+        m_footerOutGeometry = QRect(m_footerInGeometry.x(),m_footerInGeometry.y(), m_footerInGeometry.width(), 0);
     }
 }
 
@@ -466,8 +476,7 @@ void SettingsPage::showEvent(QShowEvent *event)
     if(ui->footerFrame->isVisible() && (m_footerAnimation->state() == QParallelAnimationGroup::Stopped))
     {
         m_footerInGeometry = ui->footerFrame->geometry();
-        m_footerOutGeometry = m_footerInGeometry;
-        m_footerOutGeometry.setHeight(0);
+        m_footerOutGeometry = QRect(m_footerInGeometry.x(), m_footerInGeometry.height(), m_footerInGeometry.width(), 0);
     }
 
     if(ui->tabWidget->currentIndex() == 0)

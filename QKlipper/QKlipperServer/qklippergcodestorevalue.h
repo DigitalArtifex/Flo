@@ -23,29 +23,56 @@
 #include <QVariant>
 #include <QList>
 
-class QKlipperGCodeStoreValue : public QVariant
+class QKlipperGCodeStoreValue
 {
-    Q_GADGET
 public:
     enum GCodeType {
         Command,
         Response
     };
 
-    bool operator==(const QKlipperGCodeStoreValue &value);
-    bool operator!=(const QKlipperGCodeStoreValue &value);
+    QKlipperGCodeStoreValue() = default;
+    ~QKlipperGCodeStoreValue() = default;
 
-    QString message() const;
+    QKlipperGCodeStoreValue(const QKlipperGCodeStoreValue &value)
+    {
+        m_gcodeType = value.m_gcodeType;
+        m_message = value.m_message;
+        m_time = value.m_time;
+    }
 
-    GCodeType gcodeType() const;
+    QKlipperGCodeStoreValue &operator=(const QKlipperGCodeStoreValue &value)
+    {
+        m_gcodeType = value.m_gcodeType;
+        m_message = value.m_message;
+        m_time = value.m_time;
 
-    qreal time() const;
+        return *this;
+    }
 
-    void setMessage(const QString &message);
+    bool operator==(const QKlipperGCodeStoreValue &value) const
+    {
+        if(m_gcodeType == value.m_gcodeType &&
+            m_time == value.m_time &&
+            m_message == value.m_message)
+            return true;
 
-    void setGcodeType(GCodeType gcodeType);
+        return false;
+    }
 
-    void setTime(qreal time);
+    bool operator!=(const QKlipperGCodeStoreValue &value) const { return !(*this == value); }
+
+    QString message() const { return m_message; }
+
+    GCodeType gcodeType() const { return m_gcodeType; }
+
+    qreal time() const { return m_time; }
+
+    void setMessage(const QString &message) { m_message = message; }
+
+    void setGcodeType(GCodeType gcodeType) { m_gcodeType = gcodeType; }
+
+    void setTime(qreal time) { m_time = time; }
 
 private:
 

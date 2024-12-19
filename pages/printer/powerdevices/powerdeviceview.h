@@ -6,6 +6,7 @@
 #include <QKlipper/qklipper.h>
 #include "ui/common/cardwidget/cardwidget.h"
 #include "powerdevicecard.h"
+#include "ui/layouts/qflowlayout.h"
 
 class PowerDeviceView : public CardWidget
 {
@@ -22,13 +23,13 @@ class PowerDeviceView : public CardWidget
     protected slots:
         void clear();
         void setupUi();
-        void setIcons();
+        void setupIcons();
         void onDeviceListChanged();
 
     private:
         QMap<QString, PowerDeviceCard*> m_powerDevices;
         QKlipperSystem *m_system = nullptr;
-        QHBoxLayout *m_scrollAreaLayout = nullptr;
+        QFlowLayout *m_scrollAreaLayout = nullptr;
         QWidget *m_scrollAreaWidget = nullptr;
         QScrollArea *m_scrollArea = nullptr;
         QSpacerItem *m_spacer = nullptr;

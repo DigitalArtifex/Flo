@@ -16,14 +16,16 @@ class PrinterServiceWidget : public CardWidget
 {
     Q_OBJECT
 public:
-    explicit PrinterServiceWidget(QKlipperSystem *system, QKlipperServiceState service, QWidget *parent = nullptr);
-    void setServiceState(QKlipperServiceState service);
+    explicit PrinterServiceWidget(QKlipperSystem *system, QKlipperService *service, QWidget *parent = nullptr);
+    void setServiceState(QKlipperService *service);
 
 signals:
 
 protected slots:
     void setupUi();
-    void serviceStatesUpdateEvent();
+
+    void onServiceStateChanged();
+    void onServiceSubStateChanged();
 
     void stopButtonClickEvent(bool checked = false);
     void startButtonClickEvent(bool checked = false);
@@ -33,7 +35,7 @@ protected slots:
 
 private:
     QKlipperSystem *m_system = nullptr;
-    QKlipperServiceState m_service;
+    QKlipperService *m_service;
 
     QLabel *m_stateLabel = nullptr;
     QLabel *m_subStateLabel = nullptr;

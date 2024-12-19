@@ -54,6 +54,8 @@ private slots:
     void on_item_deselected(QAnimatedListItem *item);
     void itemDoubleClickedEvent(QAnimatedListItem *item);
 
+    void onVerticalScrollbarRangeChange(int min, int max);
+
 protected:
     virtual void resizeEvent(QResizeEvent *event);
 

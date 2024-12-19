@@ -26,52 +26,65 @@
 class QKlipperSystem;
 class QKlipperConsole;
 
-class QKlipperAccessDetails : public QObject
+class QKlipperAccessDetails
 {
-    Q_OBJECT
-
     friend QKlipperSystem;
     friend QKlipperConsole;
 public:
-    explicit QKlipperAccessDetails(QObject *parent = nullptr);
-    ~QKlipperAccessDetails();
+    QKlipperAccessDetails() = default;
+    ~QKlipperAccessDetails() = default;
 
-    QKlipperAccessDetails(const QKlipperAccessDetails &value);
-    QKlipperAccessDetails(QKlipperAccessDetails &&value);
-    QKlipperAccessDetails &operator=(const QKlipperAccessDetails &value);
-    QKlipperAccessDetails &operator=(QKlipperAccessDetails &&value);
-    bool operator==(const QKlipperAccessDetails &value);
-    bool operator==(QKlipperAccessDetails &&value);
-    bool operator!=(const QKlipperAccessDetails &value);
-    bool operator!=(QKlipperAccessDetails &&value);
+    QKlipperAccessDetails(const QKlipperAccessDetails &value)
+    {
+        m_isLoggedIn = value.m_isLoggedIn;
+        m_refreshToken = value.m_refreshToken;
+        m_token = value.m_token;
+        m_user = value.m_user;
+    }
 
-    bool isLoggedIn() const;
+    inline QKlipperAccessDetails &operator=(const QKlipperAccessDetails &value)
+    {
+        m_isLoggedIn = value.m_isLoggedIn;
+        m_refreshToken = value.m_refreshToken;
+        m_token = value.m_token;
+        m_user = value.m_user;
 
-    QString token() const;
+        return *this;
+    }
 
-    QString refreshToken() const;
+    inline bool operator==(const QKlipperAccessDetails &value)
+    {
+        if(m_isLoggedIn != value.m_isLoggedIn)
+            return false;
+        if(m_refreshToken != value.m_refreshToken)
+            return false;
+        if(m_token != value.m_token)
+            return false;
+        if(m_user != value.m_user)
+            return false;
 
-    QKlipperUser user() const;
+        return true;
+    }
 
-public slots:
+    inline bool operator!=(const QKlipperAccessDetails &value) { return !(*this == value); }
 
-    void setIsLoggedIn(bool isLoggedIn);
+    bool isLoggedIn() const { return m_isLoggedIn; }
 
-    void setToken(const QString &token);
+    const QString token() const { return m_token; }
 
-    void setRefreshToken(const QString &refreshToken);
+    const QString refreshToken() const { return m_refreshToken; }
 
-    void setUser(const QKlipperUser &user);
+    const QKlipperUser user() const { return m_user; }
 
-signals:
+protected:
 
-    void isLoggedInChanged();
+    void setIsLoggedIn(bool isLoggedIn) { m_isLoggedIn = isLoggedIn; }
 
-    void tokenChanged();
+    void setToken(const QString &token) { m_token = token; }
 
-    void refreshTokenChanged();
+    void setRefreshToken(const QString &refreshToken) { m_refreshToken = refreshToken; }
 
-    void userChanged();
+    void setUser(const QKlipperUser &user) { m_user = user; }
 
 private:
     bool m_isLoggedIn = false;
@@ -80,10 +93,7 @@ private:
     QString m_refreshToken;
 
     QKlipperUser m_user;
-    Q_PROPERTY(bool isLoggedIn READ isLoggedIn WRITE setIsLoggedIn NOTIFY isLoggedInChanged FINAL)
-    Q_PROPERTY(QString token READ token WRITE setToken NOTIFY tokenChanged FINAL)
-    Q_PROPERTY(QString refreshToken READ refreshToken WRITE setRefreshToken NOTIFY refreshTokenChanged FINAL)
-    Q_PROPERTY(QKlipperUser user READ user WRITE setUser NOTIFY userChanged FINAL)
 };
 
+Q_DECLARE_METATYPE(QKlipperAccessDetails)
 #endif // QKLIPPERACCESSDETAILS_H

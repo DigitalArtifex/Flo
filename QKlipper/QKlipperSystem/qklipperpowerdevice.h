@@ -24,12 +24,13 @@ class QKlipperPowerDevice : public QObject
             Loxonevl,
             SmartThings,
             Mqtt,
-            PhillipsHue,
+            PhilipsHue,
             HttpDevice,
             UHubCtl
         };
 
         explicit QKlipperPowerDevice(QObject *parent = nullptr);
+        QKlipperPowerDevice(QString name, Type type, bool isOn, bool lockedWhilePrinting);
 
         QString name() const;
 

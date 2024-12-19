@@ -465,6 +465,20 @@ void QKlipperMessage::on_responseTimerTimeout()
     emit responseTimeout();
 }
 
+bool QKlipperMessage::isGcode() const
+{
+    return m_isGcode;
+}
+
+void QKlipperMessage::setIsGcode(bool isGcode)
+{
+    if (m_isGcode == isGcode)
+        return;
+
+    m_isGcode = isGcode;
+    emit isGcodeChanged();
+}
+
 QJsonValue QKlipperMessage::bodyData() const
 {
     return m_bodyData;

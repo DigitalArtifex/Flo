@@ -25,77 +25,142 @@
 class QKlipperSystem;
 class QKlipperConsole;
 
-class QKlipperWebcam : public QVariant
+class QKlipperWebcam
 {
     friend QKlipperSystem;
     friend QKlipperConsole;
 public:
-    QKlipperWebcam();
-    QKlipperWebcam(const QKlipperWebcam &value);
+    QKlipperWebcam() = default;
+    ~QKlipperWebcam() = default;
 
-    QKlipperWebcam &operator=(const QKlipperWebcam &value);
-    bool operator==(const QKlipperWebcam &value);
-    bool operator!=(const QKlipperWebcam &value);
+    QKlipperWebcam(const QKlipperWebcam &value)
+    {
+        m_name = value.m_name;
+        m_location = value.m_location;
+        m_service = value.m_service;
+        m_iconString = value.m_iconString;
+        m_streamUrl = value.m_streamUrl;
+        m_snapshotUrl = value.m_snapshotUrl;
+        m_aspectRatio = value.m_aspectRatio;
+        m_source = value.m_source;
+        m_uid = value.m_uid;
 
-    QString name() const;
+        m_targetFps = value.m_targetFps;
+        m_targetFpsIdle = value.m_targetFpsIdle;
+        m_rotation = value.m_rotation;
 
-    QString location() const;
+        m_enabled = value.m_enabled;
+        m_flipVertical = value.m_flipVertical;
+        m_flipHorizontal = value.m_flipHorizontal;
+    }
 
-    QString service() const;
+    QKlipperWebcam &operator=(const QKlipperWebcam &value)
+    {
+        m_name = value.m_name;
+        m_location = value.m_location;
+        m_service = value.m_service;
+        m_iconString = value.m_iconString;
+        m_streamUrl = value.m_streamUrl;
+        m_snapshotUrl = value.m_snapshotUrl;
+        m_aspectRatio = value.m_aspectRatio;
+        m_source = value.m_source;
+        m_uid = value.m_uid;
 
-    QString iconString() const;
+        m_targetFps = value.m_targetFps;
+        m_targetFpsIdle = value.m_targetFpsIdle;
+        m_rotation = value.m_rotation;
 
-    QString streamUrl() const;
+        m_enabled = value.m_enabled;
+        m_flipVertical = value.m_flipVertical;
+        m_flipHorizontal = value.m_flipHorizontal;
 
-    QString snapshotUrl() const;
+        return *this;
+    }
 
-    QString aspectRatio() const;
+    bool operator==(const QKlipperWebcam &value) const
+    {
+        if(m_name != value.m_name) return false;
+        if(m_location != value.m_location) return false;
+        if(m_service != value.m_service) return false;
+        if(m_iconString != value.m_iconString) return false;
+        if(m_streamUrl != value.m_streamUrl) return false;
+        if(m_snapshotUrl != value.m_snapshotUrl) return false;
+        if(m_aspectRatio != value.m_aspectRatio) return false;
+        if(m_source != value.m_source) return false;
+        if(m_uid != value.m_uid) return false;
 
-    QString source() const;
+        if(m_targetFps != value.m_targetFps) return false;
+        if(m_targetFpsIdle != value.m_targetFpsIdle) return false;
+        if(m_rotation != value.m_rotation) return false;
 
-    QString uid() const;
+        if(m_enabled != value.m_enabled) return false;
+        if(m_flipVertical != value.m_flipVertical) return false;
+        if(m_flipHorizontal != value.m_flipHorizontal) return false;
 
-    qint16 targetFps() const;
+        return true;
+    }
 
-    qint16 rotation() const;
+    bool operator!=(const QKlipperWebcam &value) const { return !(*this == value); }
 
-    bool enabled() const;
+    QString name() const { return m_name; }
 
-    bool flipVertical() const;
+    QString location() const { return m_location; }
 
-    bool flipHorizontal() const;
+    QString service() const { return m_service; }
 
-    qint16 targetFpsIdle() const;
+    QString iconString() const { return m_iconString; }
 
-    void setName(const QString &name);
+    QString streamUrl() const { return m_streamUrl; }
 
-    void setLocation(const QString &location);
+    QString snapshotUrl() const { return m_snapshotUrl; }
 
-    void setService(const QString &service);
+    QString aspectRatio() const { return m_aspectRatio; }
 
-    void setIconString(const QString &iconString);
+    QString source() const { return m_source; }
 
-    void setStreamUrl(const QString &streamUrl);
+    QString uid() const { return m_uid; }
 
-    void setSnapshotUrl(const QString &snapshotUrl);
+    qint16 targetFps() const { return m_targetFps; }
 
-    void setAspectRatio(const QString &aspectRatio);
+    qint16 rotation() const { return m_rotation; }
 
-    void setSource(const QString &source);
+    bool enabled() const { return m_enabled; }
 
-    void setUid(const QString &uid);
+    bool flipVertical() const { return m_flipVertical; }
 
-    void setTargetFps(qint16 targetFps);
+    bool flipHorizontal() const { return m_flipHorizontal; }
 
-    void setRotation(qint16 rotation);
+    qint16 targetFpsIdle() const { return m_targetFpsIdle; }
 
-    void setEnabled(bool enabled);
+    void setName(const QString &name) { m_name = name; }
 
-    void setFlipVertical(bool flipVertical);
+    void setLocation(const QString &location) { m_location = location; }
 
-    void setFlipHorizontal(bool flipHorizontal);
+    void setService(const QString &service) { m_service = service; }
 
-    void setTargetFpsIdle(qint16 targetFpsIdle);
+    void setIconString(const QString &iconString) { m_iconString = iconString; }
+
+    void setStreamUrl(const QString &streamUrl) { m_streamUrl = streamUrl; }
+
+    void setSnapshotUrl(const QString &snapshotUrl) { m_snapshotUrl = snapshotUrl; }
+
+    void setAspectRatio(const QString &aspectRatio) { m_aspectRatio = aspectRatio; }
+
+    void setSource(const QString &source) { m_source = source; }
+
+    void setUid(const QString &uid) { m_uid = uid; }
+
+    void setTargetFps(qint16 targetFps) { m_targetFps = targetFps; }
+
+    void setRotation(qint16 rotation) { m_rotation = rotation; }
+
+    void setEnabled(bool enabled) { m_enabled = enabled; }
+
+    void setFlipVertical(bool flipVertical) { m_flipVertical = flipVertical; }
+
+    void setFlipHorizontal(bool flipHorizontal) { m_flipHorizontal = flipHorizontal; }
+
+    void setTargetFpsIdle(qint16 targetFpsIdle) { m_targetFpsIdle = targetFpsIdle; }
 
 private:
     QString m_name;
@@ -117,6 +182,7 @@ private:
     bool m_flipHorizontal = false;
 };
 
+Q_DECLARE_METATYPE(QKlipperWebcam)
 typedef QList<QKlipperWebcam> QKlipperWebcamList;
 
 #endif // QKLIPPERWEBCAM_H

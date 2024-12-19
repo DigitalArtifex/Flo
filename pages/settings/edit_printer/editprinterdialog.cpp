@@ -18,18 +18,19 @@ EditPrinterDialog::EditPrinterDialog(QWidget *parent)
 
     m_resetButton = new QIconButton(ui->buttonBox);
     m_resetButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
-    m_resetButton->setIcon(Settings::getThemeIcon("refresh-icon"));
+    m_resetButton->setIcon(Settings::getThemeIcon("refresh"));
+    m_resetButton->setIconAlignment(Qt::AlignCenter);
     ui->buttonBoxLayout->addWidget(m_resetButton);
 
     m_applyButton = new QIconButton(ui->buttonBox);
     m_applyButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_applyButton->setIcon(Settings::getThemeIcon("accept-icon"));
+    m_applyButton->setIcon(Settings::getThemeIcon("accept"));
     m_applyButton->setText("Apply");
     ui->buttonBoxLayout->addWidget(m_applyButton);
 
     m_cancelButton = new QIconButton(ui->buttonBox);
     m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_cancelButton->setIcon(Settings::getThemeIcon("cancel-icon"));
+    m_cancelButton->setIcon(Settings::getThemeIcon("cancel"));
     m_cancelButton->setText("Cancel");
     ui->buttonBoxLayout->addWidget(m_cancelButton);
 
@@ -192,8 +193,7 @@ void EditPrinterDialog::apply()
 
     m_instance->setName(ui->printerNameEdit->text());
 
-    if(!m_remoteConnection)
-        m_instance->setInstanceLocation(ui->printerInstanceLocationEdit->text());
+    m_instance->setInstanceLocation(ui->printerInstanceLocationEdit->text());
 
     QString address = ui->addressLineEdit->text().toLower();
 

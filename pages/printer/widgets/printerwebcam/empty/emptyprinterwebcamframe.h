@@ -20,7 +20,7 @@ public:
 
 protected:
     void setupUi();
-    void setIcons();
+    void setupIcons();
 
 private:
 

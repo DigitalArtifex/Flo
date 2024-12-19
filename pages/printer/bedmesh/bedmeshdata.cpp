@@ -5,7 +5,7 @@ BedMeshData::BedMeshData(QKlipperPrintBed *bed, QObject *parent)
 {
     qRegisterMetaType<QSurface3DSeries *>();
     m_printBed = bed;
-
+    onBedMeshMatrixChanged();
     connect(m_printBed->bedMesh(), SIGNAL(matrixChanged()), this, SLOT(onBedMeshMatrixChanged()));
 }
 

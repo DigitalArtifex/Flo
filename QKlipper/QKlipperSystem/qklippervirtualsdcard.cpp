@@ -81,7 +81,7 @@ qreal QKlipperVirtualSDCard::progress() const
     return m_progress;
 }
 
-void QKlipperVirtualSDCard::setProgress(qreal progress)
+void QKlipperVirtualSDCard::setValue(qreal progress)
 {
     if (qFuzzyCompare(m_progress, progress))
         return;
@@ -89,7 +89,7 @@ void QKlipperVirtualSDCard::setProgress(qreal progress)
     emit progressChanged();
 }
 
-void QKlipperVirtualSDCard::resetProgress()
+void QKlipperVirtualSDCard::resetValue()
 {
-    setProgress({}); // TODO: Adapt to use your actual default value
+    setValue({}); // TODO: Adapt to use your actual default value
 }

@@ -24,61 +24,77 @@
 class QKlipperSystem;
 class QKlipperConsole;
 
-class QKlipperSafeZHome : public QObject
+class QKlipperSafeZHome
 {
-    Q_OBJECT
-
     friend QKlipperSystem;
     friend QKlipperConsole;
 
 public:
-    explicit QKlipperSafeZHome(QObject *parent = nullptr);
+    QKlipperSafeZHome() = default;
+    ~QKlipperSafeZHome() = default;
 
-    bool operator==(const QKlipperSafeZHome &value);
-    bool operator==(QKlipperSafeZHome &&value);
-    bool operator!=(const QKlipperSafeZHome &value);
-    bool operator!=(QKlipperSafeZHome &&value);
+    QKlipperSafeZHome(const QKlipperSafeZHome &value)
+    {
+        m_homeXPosition = value.m_homeXPosition;
+        m_homeYPosition = value.m_homeYPosition;
+        m_speed = value.m_speed;
+        m_zHopSpeed = value.m_zHopSpeed;
+        m_zHop = value.m_zHop;
+        m_moveToPrevious = value.m_moveToPrevious;
+    }
 
-    qreal homeXPosition() const;
+    QKlipperSafeZHome &operator=(const QKlipperSafeZHome &value)
+    {
+        m_homeXPosition = value.m_homeXPosition;
+        m_homeYPosition = value.m_homeYPosition;
+        m_speed = value.m_speed;
+        m_zHopSpeed = value.m_zHopSpeed;
+        m_zHop = value.m_zHop;
+        m_moveToPrevious = value.m_moveToPrevious;
 
-    qreal homeYPosition() const;
+        return *this;
+    }
 
-    qreal speed() const;
+    bool operator==(const QKlipperSafeZHome &value) const
+    {
+        if(m_homeXPosition != value.m_homeXPosition) return false;
+        if(m_homeYPosition != value.m_homeYPosition) return false;
+        if(m_speed != value.m_speed) return false;
+        if(m_zHop != value.m_zHop) return false;
+        if(m_zHopSpeed != value.m_zHopSpeed) return false;
 
-    qreal zHop() const;
+        if(m_moveToPrevious != value.m_moveToPrevious) return false;
 
-    qreal zHopSpeed() const;
+        return true;
+    }
 
-    bool moveToPrevious() const;
+    bool operator!=(const QKlipperSafeZHome &value) const { return !(*this == value); }
 
-public slots:
-    void setHomeXPosition(qreal homeXPosition);
+    qreal homeXPosition() const { return m_homeXPosition; }
 
-    void setHomeYPosition(qreal homeYPosition);
+    qreal homeYPosition() const { return m_homeYPosition; }
 
-    void setSpeed(qreal speed);
+    qreal speed() const { return m_speed; }
 
-    void setZHop(qreal zHop);
+    qreal zHop() const { return m_zHop; }
 
-    void setZHopSpeed(qreal zHopSpeed);
+    qreal zHopSpeed() const { return m_zHopSpeed; }
 
-    void setMoveToPrevious(bool moveToPrevious);
+    bool moveToPrevious() const { return m_moveToPrevious; }
 
-private slots:
+protected:
+    void setHomeXPosition(qreal homeXPosition) { m_homeXPosition = homeXPosition; }
 
-signals:
+    void setHomeYPosition(qreal homeYPosition) { m_homeYPosition = homeYPosition; }
 
-    void homeXPositionChanged();
+    void setSpeed(qreal speed) { m_speed = speed; }
 
-    void homeYPositionChanged();
+    void setZHop(qreal zHop) { m_zHop = zHop; }
 
-    void speedChanged();
+    void setZHopSpeed(qreal zHopSpeed) { m_zHopSpeed = zHopSpeed; }
 
-    void zHopChanged();
+    void setMoveToPrevious(bool moveToPrevious) { m_moveToPrevious = moveToPrevious; }
 
-    void zHopSpeedChanged();
-
-    void moveToPreviousChanged();
 
 private:
     qreal m_homeXPosition = 0;
@@ -88,12 +104,8 @@ private:
     qreal m_zHopSpeed = 0;
 
     bool m_moveToPrevious = false;
-    Q_PROPERTY(qreal homeXPosition READ homeXPosition WRITE setHomeXPosition NOTIFY homeXPositionChanged FINAL)
-    Q_PROPERTY(qreal homeYPosition READ homeYPosition WRITE setHomeYPosition NOTIFY homeYPositionChanged FINAL)
-    Q_PROPERTY(qreal speed READ speed WRITE setSpeed NOTIFY speedChanged FINAL)
-    Q_PROPERTY(qreal zHop READ zHop WRITE setZHop NOTIFY zHopChanged FINAL)
-    Q_PROPERTY(qreal zHopSpeed READ zHopSpeed WRITE setZHopSpeed NOTIFY zHopSpeedChanged FINAL)
-    Q_PROPERTY(bool moveToPrevious READ moveToPrevious WRITE setMoveToPrevious NOTIFY moveToPreviousChanged FINAL)
 };
+
+Q_DECLARE_METATYPE(QKlipperSafeZHome)
 
 #endif // QKLIPPERSAFEZHOME_H

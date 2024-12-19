@@ -6,6 +6,7 @@
     --adjustment-screw-very-high-color: #8b1804;
     --adjustment-screw-very-low-color: #4a048b;
     --bedmesh-background-color: #04728B;
+    --bedmesh-color: #0004A9;
     --bedmesh-high-color: #8b5504;
     --bedmesh-low-color: #044a8b;
     --bedmesh-very-high-color: #8b1804;
@@ -45,6 +46,9 @@
     --highlight-string: #446699;
     --highlight-type: #006699;
     --icon-color: #006699;
+    --icon-color-alt: #C38D00;
+    --icon-color-alt1: #C36900;
+    --icon-color-alt2: #008B3C;
     --icon-disabled-color: #696699;
     --icon-error-color: #F23200;
     --icon-selected-color: #F1F1F1;
@@ -83,6 +87,10 @@
     --subwidget-title-font-size: 10pt;
     --subwidget-titlebar-background-color-end: #202020;
     --subwidget-titlebar-background-color-start: #252525;
+    --toolbox-titlebar-color-end: #303030;
+    --toolbox-titlebar-color-start: #353535;
+    --toolbox-titlebar-selected-color-end: #364147;
+    --toolbox-titlebar-selected-color-start: #364147;
     --warning-highlight: #292929;
     --widget-background-color: #292929;
     --widget-border-color-end: #141414;
@@ -95,45 +103,189 @@
     --widget-titlebar-background-color-start: #353535;
     --window-backgound-color: #242424;
 }
+.ScrollAreaContents
+{
+    background-color: var(--widget-background-color);
+}
+QToolBox {
+    icon-size: 32px;
+}
+QToolBox::tab {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 var(--toolbox-titlebar-color-start), stop: 1.0 var(--toolbox-titlebar-color-end));
+    border-radius: 5px;
+    color: lightgrey;
+    font-size: 10pt;
+}
+QToolBox::tab:selected, QToolBox::tab:hover { 
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 var(--toolbox-titlebar-selected-color-start), stop: 1.0 var(--toolbox-titlebar-selected-color-end));
+    color: white;
+}
+QToolBox::tab:selected
+{
+    font: bold;
+}
+QToolBoxButton {
+    height:60px;
+    min-height: 60px;
+}
+QLineEdit, QSpinBox, QComboBox, QDoubleSpinBox {
+    height: 32px;
+    min-height:32px;
+} 
+QHeaderView::section, QHeaderView::item, QTableView QTableCornerButton::section {
+    background: #3b3a3a;
+    color: white;
+    height: 0px;
+    width:0px;
+    font: 10pt;
+}
+QTableView QTableCornerButton::section {
+    background: #3b3a3a;
+    border: 2px outset #3b3a3a;
+}
+QTableView::item
+{
+    background: #212222;
+}
+QTableView::item:selected
+{
+    background: #3a3b3b;
+    height: 35px;
+    min-height: 35px;
+}
+QPushButton
+{
+min-height: 32px;
+font-size: 10pt;
+}
+QGroupBox {
+    border: 1px solid gray;
+    border-color: #3a3b3b;
+    margin-top: 27px;
+    font-size: 10pt;
+background: var(--widget-background-color);
+padding-left:0px;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    border: 1px solid gray;
+    border-color: #3a3b3b;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 10px;
+border-bottom:none;
+padding: 5px;
+   background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 var(--toolbox-titlebar-color-start), stop: 1.0 var(--toolbox-titlebar-color-end));
+    color: rgb(255, 255, 255);
+qproperty-sizepolicy: (2, 2);
+width: 100%;
+}
+QTabWidget::tab-bar
+{
+  min-height:32px;
+}
+QTabWidget::tab
+{
+  height:32px;
+}
+QTabWidget::tab:selected
+{
+margin-bottom: 2px;
+}
+QTabWidget[class="Page"]
+{
+  border: none;
+}
+QTabWidget[class="Page"]::tab-bar
+{
+  height: 0px;
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+}
+QTabWidget[class="Page"]::pane
+{
+background: var(--page-background-color);
+}
 .MenuButton
 {
   width: 218px;
   min-width: 218px;
   max-width: 218px;
-  height: 54px;
-  min-height: 54px;
-  max-height: 54px;
+  height: 68px;
+  min-height: 68px;
+  max-height: 68px;
   border: none;
   border-radius: 0px;
+width: 64px;
+min-width: 64px;
+max-width: 64px;
+qproperty-iconSize: 32px;
 }
 .MenuButton QLabel
 {
+  font: bold;
   font-size: 10pt;
 }
 .MenuButton[checked=true], .MenuButton[pressed=true]
 {
-  height: 50px;
-  min-height: 50px;
-  max-height: 50px;
+  height: 64px;
+  min-height: 64px;
+  max-height: 64px;
   border-bottom: 2px solid white;
   border-top: 2px solid white;
   border-right: 2px solid white;
   background-color: #292929;
   border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #292929, stop: 1 #141414);
   border-top-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #232323);
-  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #141414);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #3b3a3a, stop: 1 #262626);
   border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
 }
 .MenuButton:hover
 {
-  background-color: #4b4b4b;
+  background-color: #2a2f36;
   border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #232323, stop: 1 #141414);
-  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #232323);
 }
 .MenuButton QIcon
 {
   padding: 10px;
   size: 32px;
+}
+.MenuTitleBar
+{
+  background-color: #141414;
+  border-bottom: 2px solid white;
+  border-top: none;
+  border-right: none;
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #232323);
+  height: 0px;
+  min-height: 0px;
+  max-height: 0px;
+width: 64px;
+min-width: 64px;
+max-width: 64px;
+}
+.MenuBar
+{
+  background-color: #141414;
+  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #232323);
+  border: 2px solid white;
+  border-right-color: none;
+  border-left: none;
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+}
+.Menu
+{
+  border: 2px solid white;
+  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-left: none;
+  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
+  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
+  background-color: #262626;
+width: 64px;
+min-width: 64px;
+max-width: 64px;
 }
 QLabel 
 {
@@ -189,7 +341,7 @@ QScrollArea
   border: none;
   background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--page-overview-titlebar-background-color-end), stop: 1 var(--page-overview-titlebar-background-color-start));
 }
-.DashboardWidget:hover, .Widget:hover
+.Widget:hover
 {
   font-size: var(--widget-font-size);
   background-color: var(--widget-background-color);
@@ -202,7 +354,7 @@ QScrollArea
   border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-end));
   border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--primary-highlight), stop: 1 var(--widget-border-color-end));
 }
-.DashboardSubWidget, .SubWidget
+.SubWidget
 {
   font-size: var(--subwidget-font-size);
   background-color: var(--subwidget-background-color);
@@ -288,40 +440,9 @@ QScrollArea
   border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
   border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
 }
-.MenuTitleBar
-{
-  background-color: #141414;
-  border-bottom: 2px solid white;
-  border-top: none;
-  border-right: none;
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
-  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #232323);
-  height: 85px;
-  min-height: 85px;
-  max-height: 85px;
-}
-.MenuBar
-{
-  background-color: #141414;
-  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #292929, stop: 1 #232323);
-  border: 2px solid white;
-  border-right-color: none;
-  border-left: none;
-  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
-}
-.Menu
-{
-  border: 2px solid white;
-  border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
-  border-left: none;
-  border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #4b4b4b, stop: 1 #141414);
-  border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #4b4b4b, stop: 1 #141414);
-  background-color: #141414;
-}
 .LoadingOverlayFrame
 {
-  background-color: #1a87c5;
+  background-color: #2b323b;
 }
 .PageContainer
 {
@@ -597,12 +718,12 @@ QScrollArea
 }
 .ConsoleMessageTitle
 {
-  font-size: 12pt;
+  font-size: 11pt;
   
 }
 .ConsoleMessageText
 {
-  font-size: 10pt;
+  font-size: 9pt;
   font-style: italic;
   padding-left: 20px;
 }
@@ -616,6 +737,7 @@ QScrollArea
 }
 .ConsoleCommandEdit
 {
+    background-color: transparent;
 }
 .ConsoleMessageTimestamp
 {
@@ -845,7 +967,7 @@ QPushButton, QToolButton, .Button
   border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #141414, stop: 1 #4b4b4b);
   background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--button-background-color-start), stop: 1 var(--button-background-color-end));
 }
-QPushButton:hover, QToolButton:hover, .Button:hover
+QPushButton:hover, QToolButton:hover, .Button:hover, .MenuButton:hover
 {
   border: var(--button-border-size) solid black;
   border-radius: var(--button-border-radius);
@@ -853,22 +975,10 @@ QPushButton:hover, QToolButton:hover, .Button:hover
   border-right-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 #006699, stop: 1 #4b4b4b);
   border-top-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #006699, stop: 1 #4b4b4b);
   border-bottom-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 #006699, stop: 1 #4b4b4b);
-  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--button-hover-background-color-start), stop: 1 var(--button-hover-background-color-end));
 }
-QPushButton:pressed, QToolButton:pressed, QToolButton:checked, .Button[clicked=true], .Button[checked=true]
+QPushButton:pressed, QToolButton:pressed, QToolButton:checked, .Button[clicked=true], .Button[checked=true], .MenuButton[pressed=true], .MenuButton[checked=true]
 {
   background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--button-pressed-background-color-start), stop: 1 var(--button-pressed-background-color-end));
-}
-QTabWidget[class="Page"]
-{
-  border: none;
-}
-QTabWidget[class="Page"]::tab-bar
-{
-  height: 0px;
-}
-QTabWidget[class="Page"]::pane
-{
 }
 .BedMeshItem
 {
@@ -1005,19 +1115,22 @@ QScrollBar:vertical
 {
   border: var(--dialog-border-size) solid var(--dialog-border-color);
   background-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--scrollbar-background-color-start), stop: 1 var(--scrollbar-background-color-stop));
-  width: 16px;
+  width: 24px;
   margin: 21px 0 21px 0;
 }
 QScrollBar::handle:vertical
 {
+border: 1px solid rgba(255,255,255,32);
   background-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
   min-height: 25px;
+margin-top: 4px;
+margin-bottom:4px;
 }
 QScrollBar::add-line:vertical
 {
   border: var(--dialog-border-size) solid var(--dialog-border-color);
   background-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
-  height: 16px;
+  height: 24px;
   subcontrol-position: bottom;
   subcontrol-origin: margin;
 }
@@ -1025,35 +1138,38 @@ QScrollBar::sub-line:vertical
 {
   border: var(--dialog-border-size) solid var(--dialog-border-color);
   background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
-  height: 16px;
+  height: 24px;
   subcontrol-position: top;
   subcontrol-origin: margin;
 }
 QScrollBar:horizontal
 {
-  border: var(--dialog-border-size) solid var(--dialog-border-color);
-  background-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--scrollbar-background-color-start), stop: 1 var(--scrollbar-background-color-stop));
-  height: 16px;
-  margin: 21px 0 21px 0;
+  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--scrollbar-background-color-start), stop: 1 var(--scrollbar-background-color-stop));
+  height:24px;
+min-width:24px;
 }
 QScrollBar::handle:horizontal
 {
-  background-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
-  min-width: 25px;
+  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
+  min-height: 24px;
+  min-width: 24px;
+margin-left: 24px;
+margin-right: 24px;
 }
 QScrollBar::add-line:horizontal
 {
-  border: var(--dialog-border-size) solid var(--dialog-border-color);
-  background-color: qlineargradient(x1:1, y1:0, x2:0, y2:0, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
-  width: 16px;
-  subcontrol-position: bottom;
+  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
+  min-width: 24px;
+  min-height: 24px;
+  subcontrol-position: right;
   subcontrol-origin: margin;
 }
 QScrollBar::sub-line:horizontal
 {
   border: var(--dialog-border-size) solid var(--dialog-border-color);
-  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
-  width: 16px;
-  subcontrol-position: top;
+  background-color: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop: 0 var(--scrollbar-handle-color-start), stop: 1 var(--scrollbar-handle-color-stop));
+  min-width: 24px;
+  min-height: 24px;
+  subcontrol-position: left;
   subcontrol-origin: margin;
 }

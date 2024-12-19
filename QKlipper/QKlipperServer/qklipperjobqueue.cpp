@@ -14,7 +14,7 @@ void QKlipperJobQueue::setQueue(const QList<QKlipperPrintJob *> &queue)
     if (m_queue == queue)
         return;
 
-    foreach(QKlipperPrintJob *job, m_queue)
+    for(QKlipperPrintJob *job : m_queue)
     {
         m_queue.removeAll(job);
         job->deleteLater();
@@ -98,4 +98,12 @@ void QKlipperJobQueue::setState(State state)
 
     m_state = state;
     emit stateChanged();
+}
+
+void QKlipperJobQueue::setState(QString stateString)
+{
+    if(m_stateStrings.contains(stateString))
+        setState(m_stateStrings[stateString]);
+    else
+        setState(Error);
 }

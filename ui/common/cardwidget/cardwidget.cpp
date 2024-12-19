@@ -131,7 +131,23 @@ CardWidget::CardType CardWidget::cardType() const
 
 void CardWidget::setCardType(CardType newCardType)
 {
+    if(newCardType == m_cardType)
+        return;
+
     m_cardType = newCardType;
+
+    if(m_cardType == Widget)
+    {
+        setProperty("class", "Widget");
+        m_titleBarWidget->setProperty("class", "WidgetTitleBar");
+    }
+    else
+    {
+        setProperty("class", "SubWidget");
+        m_titleBarWidget->setProperty("class", "SubWidgetTitleBar");
+    }
+
+    style()->polish(this);
 }
 
 QString CardWidget::title() const

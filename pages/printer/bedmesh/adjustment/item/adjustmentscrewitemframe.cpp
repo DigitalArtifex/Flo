@@ -46,10 +46,10 @@ void AdjustmentScrewItemFrame::setupIcons()
     {
         case QKlipperAdjustmentScrew::Adjustment::NotSet:
         case QKlipperAdjustmentScrew::Adjustment::Clockwise:
-            pixmap = Settings::getThemeIcon(QString("clockwise-icon")).pixmap(m_iconLabel->size());
+            pixmap = Settings::getThemeIcon(QString("clockwise")).pixmap(m_iconLabel->size());
             break;
         case QKlipperAdjustmentScrew::Adjustment::CounterClockwise:
-            pixmap = Settings::getThemeIcon(QString("counter-clockwise-icon")).pixmap(m_iconLabel->size());
+            pixmap = Settings::getThemeIcon(QString("counter-clockwise")).pixmap(m_iconLabel->size());
             break;
     }
 

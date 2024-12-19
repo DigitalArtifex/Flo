@@ -25,19 +25,19 @@ FileEditor::FileEditor(QKlipperInstance *instance, QWidget *parent)
     m_resetButton = new QIconButton(this);
     m_resetButton->setFixedSize(250,50);
     m_resetButton->setText("Reset");
-    m_resetButton->setIcon(Settings::getThemeIcon("add-icon"));
+    m_resetButton->setIcon(Settings::getThemeIcon("add"));
     ui->buttonLayout->addWidget(m_resetButton);
 
     m_saveButton = new QIconButton(this);
     m_saveButton->setFixedSize(250,50);
     m_saveButton->setText("Save");
-    m_saveButton->setIcon(Settings::getThemeIcon("save-icon"));
+    m_saveButton->setIcon(Settings::getThemeIcon("save"));
     ui->buttonLayout->addWidget(m_saveButton);
 
     m_saveAndRestartButton = new QIconButton(this);
     m_saveAndRestartButton->setFixedSize(250,50);
     m_saveAndRestartButton->setText("Save and Restart");
-    m_saveAndRestartButton->setIcon(Settings::getThemeIcon("multiply-icon"));
+    m_saveAndRestartButton->setIcon(Settings::getThemeIcon("multiply"));
     ui->buttonLayout->addWidget(m_saveAndRestartButton);
 
     ui->buttonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
@@ -45,7 +45,7 @@ FileEditor::FileEditor(QKlipperInstance *instance, QWidget *parent)
     m_closeButton = new QIconButton(this);
     m_closeButton->setFixedSize(250,50);
     m_closeButton->setText("Close");
-    m_closeButton->setIcon(Settings::getThemeIcon("multiply-icon"));
+    m_closeButton->setIcon(Settings::getThemeIcon("multiply"));
     ui->buttonLayout->addWidget(m_closeButton);
 
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeButtonClicked()));

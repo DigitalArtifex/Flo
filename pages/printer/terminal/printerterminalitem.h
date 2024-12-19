@@ -19,6 +19,7 @@ public:
 
     QKlipperMessage *message() const;
     void setMessage(QKlipperMessage *message);
+    void setMessage(QString title, QString message);
 
     QJsonValue response() const;
 

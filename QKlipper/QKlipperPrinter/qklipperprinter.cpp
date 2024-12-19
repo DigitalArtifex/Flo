@@ -8,7 +8,6 @@ QKlipperPrinter::QKlipperPrinter(QObject *parent)
     m_chamber = new QKlipperChamber(this);
     m_toolhead = new QKlipperToolHead(this);
     m_printJob = new QKlipperPrintJob(this);
-    m_safeZHome = new QKlipperSafeZHome(this);
     m_gCodeStore = new QKlipperGCodeStore(this);
     m_bed = new QKlipperPrintBed(this);
 }
@@ -23,8 +22,6 @@ QKlipperPrinter::~QKlipperPrinter()
         m_toolhead->deleteLater();
     if(m_printJob)
         m_printJob->deleteLater();
-    if(m_safeZHome)
-        m_safeZHome->deleteLater();
     if(m_gCodeStore)
         m_gCodeStore->deleteLater();
 
@@ -406,12 +403,12 @@ void QKlipperPrinter::setCurrentFile(QKlipperFile *currentFile)
     emit currentFileChanged();
 }
 
-QKlipperSafeZHome *QKlipperPrinter::safeZHome() const
+QKlipperSafeZHome QKlipperPrinter::safeZHome() const
 {
     return m_safeZHome;
 }
 
-void QKlipperPrinter::setSafeZHome(QKlipperSafeZHome *safeZHome)
+void QKlipperPrinter::setSafeZHome(QKlipperSafeZHome safeZHome)
 {
     if (m_safeZHome == safeZHome)
         return;

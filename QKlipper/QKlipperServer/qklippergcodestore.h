@@ -37,7 +37,6 @@ public slots:
     void setValue(const QKlipperGCodeStoreValue &value);
 
 signals:
-
     void valuesChanged();
 
 private:

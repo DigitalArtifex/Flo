@@ -26,10 +26,19 @@ class PowerDeviceCard : public CardWidget
 
     protected slots:
         void setupUi();
-        void setIcons();
+        void setupIcons();
         void onDeviceStateChanged();
+        void onSwitchStateChanged(bool on);
+
+        virtual void mousePressEvent(QMouseEvent *event);
+        virtual void mouseReleaseEvent(QMouseEvent *event);
 
     private:
+        bool m_pressed = false;
+        bool m_checked = false;
+        bool m_checkable = false;
+        bool m_exclusive = false;
+
         QKlipperPowerDevice *m_powerDevice = nullptr;
         QIconButton *m_powerButton = nullptr;
         QWidget *m_centralWidget = nullptr;

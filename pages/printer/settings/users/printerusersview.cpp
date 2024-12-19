@@ -6,7 +6,7 @@ PrinterUsersView::PrinterUsersView(QKlipperInstance *instance, QWidget *parent)
     : CardWidget{CardWidget::Widget, parent}
 {
     setTitle("User Management");
-    setIcon(Settings::getThemeIcon("users-icon"));
+    setIcon(Settings::getThemeIcon("users"));
 
     m_instnace = instance;
 
@@ -23,7 +23,7 @@ PrinterUsersView::~PrinterUsersView()
 
 void PrinterUsersView::setStyleSheet(const QString &styleSheet)
 {
-    setIcon(Settings::getThemeIcon("users-icon"));
+    setIcon(Settings::getThemeIcon("users"));
 
     CardWidget::setStyleSheet(styleSheet);
 }
@@ -37,7 +37,7 @@ void PrinterUsersView::setupUi()
     m_addUserButton = new QToolButton(m_centralWidget);
     m_addUserButton->setFixedWidth(50);
     m_addUserButton->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
-    m_addUserButton->setIcon(Settings::getThemeIcon("add-icon"));
+    m_addUserButton->setIcon(Settings::getThemeIcon("add"));
     m_centralLayout->addWidget(m_addUserButton);
 
     m_spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding);

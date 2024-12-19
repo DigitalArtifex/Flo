@@ -10,10 +10,14 @@ ThemeSettingsPage::ThemeSettingsPage(QWidget *parent)
     ui->setupUi(this);
 
     ui->variableTableWidget->setColumnCount(3);
+    ui->variableTableWidget->setVerticalHeaderLabels(QStringList {"Name", "Value", "Delete"});
+    ui->variableTableWidget->verticalHeader()->setMinimumSectionSize(50);
 
     m_highlighter = new QSourceHighliter(ui->qssEdit->document());
     m_highlighter->setCurrentLanguage(QSourceHighliter::CodeCSS);
     m_highlighter->setTheme(QSourceHighliter::System);
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    ui->scrollAreaWidgetContents_2->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
 
     reset();
 }
@@ -46,20 +50,58 @@ void ThemeSettingsPage::reset()
     bool graphAnimations = Settings::get("theme/graph-animations-enabled").toBool();
     ui->enableGraphAnimations->setChecked(graphAnimations);
 
-    for(QString theme : Settings::themeList())
+    ui->themeComboBox->clear();
+
+    int index = 0;
+    bool indexFound = false;
+
+    for(QString &theme : Settings::themeList())
     {
-        theme.replace(0, 1, theme.at(0).toUpper());
-        ui->themeComboBox->addItem(theme);
+        QString displayName = theme;
+        displayName.replace(0, 1, displayName.at(0).toUpper());
+
+        ui->themeComboBox->addItem(displayName, theme);
+
+        if(theme == Settings::currentThemeName())
+            indexFound = true;
+
+        if(!indexFound)
+            index++;
     }
+
+    if(indexFound)
+        ui->themeComboBox->setCurrentIndex(index);
 
     QVariableStyleSheet sheet = Settings::theme();
     QStringList variableKeys = sheet.variables().keys();
     ui->qssEdit->setText(sheet.rawStyleSheetBody());
 
-    foreach(QString key, variableKeys)
+    for(QString &key : variableKeys)
     {
         addThemeVariable(key, sheet.variables()[key]);
     }
+
+    ui->iconSetSelector->clear();
+
+    index = 0;
+    indexFound = false;
+
+    for(QString &iconSet : Settings::getIconSetList())
+    {
+        QString displayName = iconSet;
+        displayName.replace(0, 1, displayName.at(0).toUpper());
+
+        ui->iconSetSelector->addItem(displayName, iconSet);
+
+        if(iconSet == Settings::currentIconSetName())
+            indexFound = true;
+
+        if(!indexFound)
+            index++;
+    }
+
+    if(indexFound)
+        ui->iconSetSelector->setCurrentIndex(index);
 }
 
 void ThemeSettingsPage::apply()
@@ -92,10 +134,10 @@ void ThemeSettingsPage::apply()
 
     sheet.setRawStyleSheetBody(ui->qssEdit->toPlainText());
 
-    QString theme = ui->themeComboBox->currentText();
-    theme.replace(0, 1, theme.at(0).toLower());
+    Settings::saveTheme(ui->themeComboBox->currentData().toString(), sheet);
 
-    Settings::saveTheme(theme, sheet);
+    if(ui->iconSetSelector->currentData() != Settings::currentIconSetName())
+        Settings::setIconSet(ui->iconSetSelector->currentData().toString());
 }
 
 void ThemeSettingsPage::resizeEvent(QResizeEvent *event)
@@ -128,18 +170,22 @@ void ThemeSettingsPage::addThemeVariable(const QString &name, const QString &val
     QTableWidgetItem *item = new QTableWidgetItem();
     item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     item->setText(name);
+    item->setSizeHint(QSize(32,32));
 
     QTableWidgetItem *itemValue = new QTableWidgetItem();
     //itemValue->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable);
     itemValue->setText(value);
+    itemValue->setSizeHint(QSize(32,32));
 
     QTableWidgetItem *itemDelete = new QTableWidgetItem();
     itemDelete->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    itemDelete->setIcon(Settings::getThemeIcon("delete-icon"));
+    itemDelete->setIcon(Settings::getThemeIcon("delete"));
+    itemDelete->setSizeHint(QSize(32,32));
 
     int row = ui->variableTableWidget->rowCount();
 
     ui->variableTableWidget->insertRow(row);
+    ui->variableTableWidget->setRowHeight(row, 32);
     ui->variableTableWidget->setItem(row, 0, item);
     ui->variableTableWidget->setItem(row, 1, itemValue);
     ui->variableTableWidget->setItem(row, 2, itemDelete);
@@ -149,5 +195,10 @@ void ThemeSettingsPage::on_variableTableWidget_cellDoubleClicked(int row, int co
 {
     if(column == 2)
         ui->variableTableWidget->removeRow(row);
+}
+
+
+void ThemeSettingsPage::on_iconSetSelector_currentTextChanged(const QString &arg1)
+{
 }
 

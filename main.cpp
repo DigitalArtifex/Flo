@@ -7,11 +7,16 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-
     QCoreApplication::setOrganizationName("DigitalArtifex");
     QCoreApplication::setOrganizationDomain("digitalartifex.github.com");
     QCoreApplication::setApplicationName("Flo");
+
+    QSettings settings;
+
+    if(settings.value("ui/virtual-keyboard").toBool())
+        qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
+
+    QApplication a(argc, argv);
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();

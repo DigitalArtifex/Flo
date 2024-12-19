@@ -8,6 +8,18 @@ QKlipperLedStrip::QKlipperLedStrip(QObject *parent)
 
 }
 
+QKlipperLedStrip::QKlipperLedStrip(QString name, QString error, qint32 chainCount, qint32 preset, qint8 brightness, qint8 intensity, qint8 speed, bool isOn)
+{
+    m_name = name;
+    m_error = error;
+    m_chainCount = chainCount;
+    m_preset = preset;
+    m_brightness = brightness;
+    m_speed = speed;
+    m_intensity = intensity;
+    m_isOn = isOn;
+}
+
 QString QKlipperLedStrip::name() const
 {
     return m_name;
@@ -17,6 +29,7 @@ void QKlipperLedStrip::setName(const QString &name)
 {
     if (m_name == name)
         return;
+
     m_name = name;
     emit nameChanged();
 }

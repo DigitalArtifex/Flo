@@ -20,48 +20,86 @@
 #define QKLIPPERUPDATECOMMIT_H
 
 #include <QVariant>
+class QKlipperConsole;
 
 class QKlipperUpdateCommit : public QVariant
 {
-public:
-    explicit QKlipperUpdateCommit();
+        friend QKlipperConsole;
+    public:
+        QKlipperUpdateCommit() = default;
 
-    QKlipperUpdateCommit(const QKlipperUpdateCommit &value);
-    QKlipperUpdateCommit &operator=(const QKlipperUpdateCommit &value);
-    bool operator==(const QKlipperUpdateCommit &value);
-    bool operator!=(const QKlipperUpdateCommit &value);
+        QKlipperUpdateCommit(const QKlipperUpdateCommit &value)
+        {
+            m_sha = value.m_sha;
+            m_author = value.m_author;
+            m_date = value.m_date;
+            m_subject = value.m_subject;
+            m_message = value.m_message;
+            m_tag = value.m_tag;
+        }
 
-    QString sha() const;
+        ~QKlipperUpdateCommit() = default;
 
-    QString author() const;
+        QKlipperUpdateCommit &operator=(const QKlipperUpdateCommit &value)
+        {
+            m_sha = value.m_sha;
+            m_author = value.m_author;
+            m_date = value.m_date;
+            m_subject = value.m_subject;
+            m_message = value.m_message;
+            m_tag = value.m_tag;
 
-    QString date() const;
+            return *this;
+        }
 
-    QString subject() const;
+        bool operator==(const QKlipperUpdateCommit &value) const
+        {
+            if(m_sha == value.m_sha  &&
+                m_author == value.m_author  &&
+                m_date == value.m_date  &&
+                m_subject == value.m_subject  &&
+                m_message == value.m_message  &&
+                m_tag == value.m_tag)
+                return true;
 
-    QString message() const;
+            return false;
+        }
 
-    QString tag() const;
+        bool operator!=(const QKlipperUpdateCommit &value) const { return !(*this == value); }
 
-    void setSha(const QString &sha);
+        const QString sha() const { return m_sha; }
 
-    void setAuthor(const QString &author);
+        const QString author() const { return m_author; }
 
-    void setDate(const QString &date);
+        const QString date() const { return m_date; }
 
-    void setSubject(const QString &subject);
+        const QString subject() const { return m_subject; }
 
-    void setMessage(const QString &message);
+        const QString message() const { return m_message; }
 
-    void setTag(const QString &tag);
+        const QString tag() const { return m_tag; }
 
-private:
-    QString m_sha;
-    QString m_author;
-    QString m_date;
-    QString m_subject;
-    QString m_message;
-    QString m_tag;
+    protected:
+        void setSha(const QString &sha) { m_sha = sha; }
+
+        void setAuthor(const QString &author) { m_author = author; }
+
+        void setDate(const QString &date) { m_date = date; }
+
+        void setSubject(const QString &subject) { m_subject = subject; }
+
+        void setMessage(const QString &message) { m_message = message; }
+
+        void setTag(const QString &tag) { m_tag = tag; }
+
+    private:
+        QString m_sha;
+        QString m_author;
+        QString m_date;
+        QString m_subject;
+        QString m_message;
+        QString m_tag;
 };
 
+Q_DECLARE_METATYPE(QKlipperUpdateCommit)
 #endif // QKLIPPERUPDATECOMMIT_H

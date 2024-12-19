@@ -100,9 +100,11 @@ public:
 
     /*!
       Connect to the websocket address and process
-      startup sequence
+      startup sequence.
+
+      \returns True if the websocket has connected.
     */
-    void connect();
+    bool connect();
 
     /*!
      * Disconnect from the websocket and reset objects
@@ -248,8 +250,23 @@ public slots:
      */
     QVariant databaseGetItem(const QString &key);
 
+    /*!
+     * Requests a list of available power devices
+     */
     void machinePowerDeviceList();
+
+    /*!
+     * Queries status of the power devices
+     *
+     * \param names Names of the power devices to query
+     */
     void machinePowerDeviceStatus(QStringList names);
+
+    /*!
+     * Sets status of the power device
+     *
+     * \param names Name of the power devices to turn on or off
+     */
     void machinePowerDeviceSetState(const QString &name, const QString &action = "toggle");
 
     void machineLedStripList();
@@ -257,6 +274,12 @@ public slots:
     void machineLedStripOn(const QStringList &names);
     void machineLedStripOff(const QStringList &names);
     void machineSetLedStrip(QKlipperLedStrip *stripData);
+
+    void machineSensorsList();
+    void machineSensorInfo(const QString &name);
+    void machineSensorMeasurement(const QString &name);
+    void machineSensorMeasurements();
+
     /*!
      * Sends command to shutdown machine. Server will disconnect
      */
@@ -825,6 +848,7 @@ signals:
     void startupSequenceTextChanged();
     void errorOccured(QKlipperError &error);
     void messageSent(QKlipperMessage *message);
+    void gcodeResponse(QString &message);
 
 private slots:
 
@@ -863,6 +887,9 @@ private slots:
     void machinePowerDeviceListParser(QKlipperMessage *message);
     void machinePowerDeviceParser(QKlipperMessage *message);
     void machineLedStripListParser(QKlipperMessage *message);
+    void machineSensorListParser(QKlipperMessage *message);
+    void machineSensorParser(QKlipperMessage *message);
+    void machineSensorMeasurementParser(QKlipperMessage *message);
 
     void printerInfoParser(QKlipperMessage *message);
     void printerObjectsListParser(QKlipperMessage *message);
@@ -918,6 +945,14 @@ private slots:
     void onRpcConnectionTimeout();
 
 private:
+
+    //these methods return not found if they have not been setup in moonraker.cfg
+    const static inline QStringList m_ignoreErrorOnStartup = QStringList {
+        "machine.device_power.devices",
+        "machine.wled.strips",
+        "server.sensors.list"
+    };
+
     QMap<qint32, QKlipperMessage*> m_messageMap;
     QQueue<QKlipperMessage*> m_messageOutbox;
 

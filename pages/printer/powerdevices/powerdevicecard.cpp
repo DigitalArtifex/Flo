@@ -26,7 +26,7 @@ void PowerDeviceCard::setPowerDevice(QKlipperPowerDevice *powerDevice)
 void PowerDeviceCard::setStyleSheet(const QString &styleSheet)
 {
     CardWidget::setStyleSheet(styleSheet);
-    setIcons();
+    setupIcons();
 }
 
 void PowerDeviceCard::setupUi()
@@ -36,51 +36,68 @@ void PowerDeviceCard::setupUi()
     m_centralLayout = new QHBoxLayout(m_centralWidget);
     m_centralWidget->setLayout(m_centralLayout);
 
-    m_powerButton = new QIconButton(m_centralWidget);
-    m_powerButton->setCheckable(true);
-    m_powerButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_powerButton->setFlag(QIconButton::IconVCentered, false);
-    m_powerButton->setFlag(QIconButton::IconHCentered);
-    m_powerButton->setTextMargins(QMargins(0,0,0,0));
-    m_centralLayout->addWidget(m_powerButton);
+    m_iconLabel = new QLabel(m_centralWidget);
+    m_iconLabel->setFixedSize(24,24);
+    m_centralLayout->addWidget(m_iconLabel);
+
+    m_textLabel = new QLabel(m_centralWidget);
+    m_textLabel->setAlignment(Qt::AlignCenter);
+    m_textLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_centralLayout->addWidget(m_textLabel);
+
+    m_onSwitch = new Switch(m_centralWidget);
+    m_onSwitch->setFixedWidth(50);
+    m_centralLayout->addWidget(m_onSwitch);
 
     setCentralWidget(m_centralWidget);
 
-    setIcons();
+    setupIcons();
+
+    setProperty("class", property("class").toStringList() + QStringList { "Button" });
+
+    connect(m_onSwitch, SIGNAL(toggled(bool)), this, SLOT(onSwitchStateChanged(bool)));
 }
 
-void PowerDeviceCard::setIcons()
+void PowerDeviceCard::setupIcons()
 {
-    if(m_powerButton && m_powerDevice)
+    if(m_iconLabel && m_powerDevice)
     {
         switch(m_powerDevice->type())
         {
             case QKlipperPowerDevice::GPIO:
-                m_powerButton->setIcon(Settings::getThemeIcon("mcu-icon"));
+                m_iconLabel->setPixmap(Settings::getThemeIcon("mcu").pixmap(m_iconLabel->size()));
                 break;
             case QKlipperPowerDevice::Mqtt:
-                m_powerButton->setIcon(Settings::getThemeIcon("mqtt-icon"));
+                m_iconLabel->setPixmap(Settings::getThemeIcon("mqtt").pixmap(m_iconLabel->size()));
                 break;
             case QKlipperPowerDevice::RfDevice:
             case QKlipperPowerDevice::HttpDevice:
-                m_powerButton->setIcon(Settings::getThemeIcon("connection-icon"));
+                m_iconLabel->setPixmap(Settings::getThemeIcon("connection").pixmap(m_iconLabel->size()));
                 break;
             case QKlipperPowerDevice::TpLink:
-                m_powerButton->setIcon(Settings::getThemeIcon("tplink-icon"));
+                m_iconLabel->setPixmap(Settings::getThemeIcon("tplink").pixmap(m_iconLabel->size()));
                 break;
             case QKlipperPowerDevice::Tasmota:
-                m_powerButton->setIcon(Settings::getThemeIcon("tasmota-icon"));
+                m_iconLabel->setPixmap(Settings::getThemeIcon("tasmota").pixmap(m_iconLabel->size()));
+                break;
+            case QKlipperPowerDevice::HomeAssistant:
+                m_iconLabel->setPixmap(Settings::getThemeIcon("homeassistant").pixmap(m_iconLabel->size()));
+                break;
+            case QKlipperPowerDevice::Homeseer:
+                m_iconLabel->setPixmap(Settings::getThemeIcon("homeseer").pixmap(m_iconLabel->size()));
+                break;
+            case QKlipperPowerDevice::SmartThings:
+                m_iconLabel->setPixmap(Settings::getThemeIcon("smartthings").pixmap(m_iconLabel->size()));
                 break;
             case QKlipperPowerDevice::Shelly:
-            case QKlipperPowerDevice::Homeseer:
-            case QKlipperPowerDevice::HomeAssistant:
+                m_iconLabel->setPixmap(Settings::getThemeIcon("shelly").pixmap(m_iconLabel->size()));
+                break;
+            case QKlipperPowerDevice::PhilipsHue:
             case QKlipperPowerDevice::Loxonevl:
-            case QKlipperPowerDevice::SmartThings:
-            case QKlipperPowerDevice::PhillipsHue:
             case QKlipperPowerDevice::UHubCtl:
             case QKlipperPowerDevice::KlipperDevice:
             default:
-                m_powerButton->setIcon(Settings::getThemeIcon("power-icon"));
+                m_iconLabel->setPixmap(Settings::getThemeIcon("power").pixmap(m_iconLabel->size()));
                 break;
         }
     }
@@ -89,7 +106,46 @@ void PowerDeviceCard::setIcons()
 void PowerDeviceCard::onDeviceStateChanged()
 {
     setTitle(m_powerDevice->name());
-    m_powerButton->setChecked(m_powerDevice && m_powerDevice->isOn());
-    m_powerButton->setText(m_powerDevice->name());
-    setIcons();
+
+    disconnect(m_onSwitch, SIGNAL(toggled(bool)), this, SLOT(onSwitchStateChanged(bool)));
+    m_onSwitch->setChecked(m_powerDevice && m_powerDevice->isOn());
+    connect(m_onSwitch, SIGNAL(toggled(bool)), this, SLOT(onSwitchStateChanged(bool)));
+
+    m_textLabel->setText(m_powerDevice->name());
+    setupIcons();
+    setProperty("checked", m_onSwitch->isChecked());
+    style()->polish(this);
+}
+
+void PowerDeviceCard::onSwitchStateChanged(bool on)
+{
+    if(on)
+        m_powerDevice->turnOn();
+    else
+        m_powerDevice->turnOff();
+
+    setProperty("checked", on);
+}
+
+void PowerDeviceCard::mousePressEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::LeftButton)
+    {
+        setProperty("clicked", true);
+        m_pressed = true;
+        style()->polish(this);
+    }
+}
+
+void PowerDeviceCard::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::LeftButton && m_pressed)
+    {
+        m_pressed = false;
+        setProperty("clicked", m_pressed);
+        setProperty("checked", !m_onSwitch->isChecked());
+        style()->polish(this);
+
+        m_onSwitch->setChecked(!m_onSwitch->isChecked());
+    }
 }

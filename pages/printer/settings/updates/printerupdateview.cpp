@@ -50,8 +50,8 @@ void PrinterUpdateView::setupUi()
     m_updateWidget = new PrinterUpdateWidget(this);
     m_layout->addWidget(m_updateWidget);
 
-    m_updateAllButton->setIcon(Settings::getThemeIcon(QString("update-icon")));
-    m_refreshButton->setIcon(Settings::getThemeIcon(QString("refresh-icon")));
+    m_updateAllButton->setIcon(Settings::getThemeIcon(QString("update")));
+    m_refreshButton->setIcon(Settings::getThemeIcon(QString("refresh")));
 
     connect(m_system->updateManager(), SIGNAL(packagesChanged()), this, SLOT(updateStateUpdateEvent()));
     connect(m_system->updateManager(), SIGNAL(systemPackagesChanged()), this, SLOT(updateStateUpdateEvent()));
@@ -80,7 +80,7 @@ void PrinterUpdateView::updateAllButtonClickEvent()
     {
         QKlipperError error;
 
-        m_updateWidget->setEmptyIcon(Settings::getThemeIcon("update-icon"));
+        m_updateWidget->setEmptyIcon(Settings::getThemeIcon("update"));
         m_updateWidget->setEmptyText("Updating All");
         m_updateWidget->clear();
         instance->console()->machineUpdateFull(&error);
@@ -100,7 +100,7 @@ void PrinterUpdateView::refreshButtonClickEvent()
 
     if(instance)
     {
-        m_updateWidget->setEmptyIcon(Settings::getThemeIcon("refresh-icon"));
+        m_updateWidget->setEmptyIcon(Settings::getThemeIcon("refresh"));
         m_updateWidget->setEmptyText("Refreshing");
         m_updateWidget->clear();
         instance->console()->machineUpdateRefresh();
@@ -113,7 +113,7 @@ void PrinterUpdateView::itemUpdateRequestedEvent(PrinterUpdateItem *item)
 
     if(instance)
     {
-        m_updateWidget->setEmptyIcon(Settings::getThemeIcon("refresh-icon"));
+        m_updateWidget->setEmptyIcon(Settings::getThemeIcon("refresh"));
         m_updateWidget->setEmptyText(QString("Updating Client \"%1\"").arg(item->title()));
         m_updateWidget->clear();
 

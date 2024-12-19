@@ -22,9 +22,8 @@
 #include <QObject>
 #include <QVariant>
 
-class QKlipperThumbnail : public QVariant
+class QKlipperThumbnail
 {
-    Q_GADGET
 public:
     qint32 width = 0;
     qint32 height = 0;
@@ -32,7 +31,28 @@ public:
 
     QString relativePath;
 
-    bool operator==(const QKlipperThumbnail &value)
+    QKlipperThumbnail() = default;
+    ~QKlipperThumbnail() = default;
+
+    QKlipperThumbnail(const QKlipperThumbnail &value)
+    {
+        width = value.width;
+        height = value.height;
+        size = value.size;
+        relativePath = value.relativePath;
+    }
+
+    QKlipperThumbnail &operator=(const QKlipperThumbnail &value)
+    {
+        width = value.width;
+        height = value.height;
+        size = value.size;
+        relativePath = value.relativePath;
+
+        return *this;
+    }
+
+    bool operator==(const QKlipperThumbnail &value) const
     {
         if(width != value.width)
             return false;
@@ -46,10 +66,7 @@ public:
         return true;
     }
 
-    bool operator!=(const QKlipperThumbnail &value)
-    {
-        return !(*this == value);
-    }
+    bool operator!=(const QKlipperThumbnail &value) const { return !(*this == value); }
 };
 
 Q_DECLARE_METATYPE(QKlipperThumbnail)

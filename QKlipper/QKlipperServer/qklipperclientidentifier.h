@@ -23,50 +23,50 @@
 
 class QKlipperClientIdentifier
 {
-    Q_GADGET
-public:
+    public:
 
-    bool operator==(const QKlipperClientIdentifier &value)
-    {
-        if(name != value.name) return false;
-        if(version != value.version) return false;
-        if(type != value.type) return false;
-        if(url != value.url) return false;
+        QKlipperClientIdentifier() = default;
+        QKlipperClientIdentifier(const QKlipperClientIdentifier &value)
+        {
+            name = value.name;
+            version = value.version;
+            type = value.type;
+            url = value.url;
+        }
 
-        return true;
-    }
-    bool operator==(QKlipperClientIdentifier &&value)
-    {
-        if(name != value.name) return false;
-        if(version != value.version) return false;
-        if(type != value.type) return false;
-        if(url != value.url) return false;
+        ~QKlipperClientIdentifier() = default;
 
-        return true;
-    }
-    bool operator!=(const QKlipperClientIdentifier &value)
-    {
-        if (name == value.name &&
-            version == value.version &&
-            type == value.type && url == value.url
-            ) return false;
+        QKlipperClientIdentifier &operator=(const QKlipperClientIdentifier &value)
+        {
+            name = value.name;
+            version = value.version;
+            type = value.type;
+            url = value.url;
 
-        return true;
-    }
-    bool operator!=(QKlipperClientIdentifier &&value)
-    {
-        if (name == value.name &&
-            version == value.version &&
-            type == value.type && url == value.url
-            ) return false;
+            return *this;
+        }
 
-        return true;
-    }
+        bool operator==(const QKlipperClientIdentifier &value) const
+        {
+            if(name == value.name &&
+                version == value.version &&
+                type == value.type &&
+                url == value.url)
+                return true;
 
-    QString name;
-    QString version;
-    QString type;
-    QString url;
+            return false;
+        }
+
+        bool operator!=(const QKlipperClientIdentifier &value) const
+        {
+            return !(*this == value);
+        }
+
+        QString name;
+        QString version;
+        QString type;
+        QString url;
 };
 
+Q_DECLARE_METATYPE(QKlipperClientIdentifier)
 #endif // QKLIPPERCLIENTIDENTIFIER_H

@@ -24,7 +24,7 @@
 #include "qsourcehighliter.h"
 #include "languagedata.h"
 #include "qsourcehighliterthemes.h"
-
+#include "QtConcurrent/QtConcurrent"
 #include <QDebug>
 #include <algorithm>
 #include <QTextDocument>

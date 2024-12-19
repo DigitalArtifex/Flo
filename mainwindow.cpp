@@ -28,56 +28,13 @@ MainWindow::MainWindow(QWidget *parent)
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect  screenGeometry = screen->geometry();
 
+    //showMaximized();
     setFixedSize(screenGeometry.size());
-    ui->windowWidget->setFixedSize(screenGeometry.size());
-    ui->windowWidget->setEnabled(true);
+    //setFixedSize(QSize(1920,1080));
 
     m_initTimer = new QTimer(this);
     m_initTimer->setInterval(50);
     m_initTimer->setSingleShot(true);
-
-    ui->graphicsView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-    ui->graphicsView->setEnabled(true);
-
-    if(Settings::get("ui-opengl").toBool())
-    {
-        m_graphicsScene = new QGraphicsScene(this);
-        ui->windowWidget->setParent(0);
-
-        QGraphicsProxyWidget *proxy = m_graphicsScene->addWidget(ui->windowWidget);
-        proxy->setPos(0,0);
-        proxy->setZValue(1);
-        ui->graphicsView->setScene(m_graphicsScene);
-
-        QOpenGLWidget *gl = new QOpenGLWidget();
-        QSurfaceFormat format;
-
-        format.setSwapBehavior(QSurfaceFormat::TripleBuffer);
-
-#ifdef RASPBERRYPI
-        format.setSamples(1);
-#else
-        format.setSamples(4);
-#endif
-
-        gl->setFormat(format);
-        ui->graphicsView->setViewport(gl);
-        ui->windowWidget->setEnabled(true);
-    }
-    else
-    {
-        ui->centralwidget->layout()->removeWidget(ui->graphicsView);
-        ui->graphicsView->setFixedSize(0,0);
-        ui->graphicsView->lower();
-        ui->graphicsView->hide();
-        ui->centralwidget->layout()->addWidget(ui->windowWidget);
-    }
-
-
-    ui->windowWidget->setStyleSheet(Settings::currentTheme());
-    ui->menuBar->setStyleSheet(Settings::currentTheme());
-    ui->windowWidget->setStyleSheet(Settings::currentTheme());
-    ui->graphicsView->setStyleSheet(Settings::currentTheme());
 
     connect(m_initTimer, SIGNAL(timeout()), this, SLOT(on_initAsync()));
     m_initTimer->start();
@@ -193,6 +150,11 @@ void MainWindow::init()
 {
 }
 
+bool MainWindow::eventFilter(QObject *object, QEvent *event)
+{
+    return QMainWindow::eventFilter(object, event);
+}
+
 void MainWindow::online()
 {
     setEnabled(true);
@@ -201,7 +163,7 @@ void MainWindow::online()
     {
         m_dashboardButton = new MenuButton(0, ui->menuFrame);
         m_dashboardButton->setText(QString("Dashboard"));
-        m_dashboardButton->setIcon("dashboard");
+        m_dashboardButton->setIcon(Settings::getThemeIcon("dashboard"));
         m_dashboardButton->setChecked(true);
         ui->menuButtonLayout->addWidget(m_dashboardButton);
         connect(m_dashboardButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_dashboardMenuButton_toggled(MenuButton*)));
@@ -221,12 +183,13 @@ void MainWindow::online()
         animatedPage->setHidden(true);
 
         MenuButton *printerButton = new MenuButton(m_printerPages.count(), this);
-        printerButton->setIcon(QString("printer-icon"));
+        printerButton->setIcon(Settings::getThemeIcon("printer", QColor::fromString(definition->profileColor())));
         printerButton->setText(definition->name());
         ui->menuButtonLayout->addWidget(printerButton);
 
         m_printerPages.append(animatedPage);
         m_printerButtons.append(printerButton);
+        m_instances.append(definition);
 
         connect(printerButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_printerMenuButton_toggled(MenuButton*)));
     }
@@ -235,7 +198,7 @@ void MainWindow::online()
     {
         m_settingsButton = new MenuButton(3, ui->menuFrame);
         m_settingsButton->setText(QString("Settings"));
-        m_settingsButton->setIcon("settings-icon");
+        m_settingsButton->setIcon(Settings::getThemeIcon("settings"));
         m_settingsButton->setChecked(false);
         ui->menuButtonLayout->addWidget(m_settingsButton);
         connect(m_settingsButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_settingsMenuButton_toggled(MenuButton*)));
@@ -276,7 +239,7 @@ void MainWindow::setupUiClasses()
     m_settingsButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuButton" << "DashboardMenuButton"));
 
     //Icons
-    ui->powerButton->setIcon(Settings::getThemeIcon(QString("power-icon")));
+    ui->powerButton->setIcon(Settings::getThemeIcon(QString("power")));
     ui->applicationIcon->setPixmap(QPixmap(":/images/flo_beta.png"));
     ui->applicationIcon->setScaledContents(true);
     ui->applicationIcon->setFixedSize(24,24);
@@ -409,29 +372,38 @@ void MainWindow::updateStyleSheet()
 {
     QString style = Settings::currentTheme();
 
-    m_dashboardButton->setIcon(QString("dashboard"));
+    m_dashboardButton->setIcon(Settings::getThemeIcon("dashboard"));
 
     for(int i = 0; i < m_printerButtons.count(); i++)
-        m_printerButtons[i]->setIcon(QString("printer"));
+    {
 
-    m_settingsButton->setIcon(QString("settings-icon"));
+        if(i < m_instances.count())
+        {
+            qDebug() << "Updating MenuButton";
+            m_printerButtons[i]->setIcon(Settings::getThemeIcon("printer", QColor::fromString(m_instances[i]->profileColor())));
+        }
+
+        m_printerButtons[i]->setStyleSheet(Settings::currentTheme());
+    }
+
+    m_settingsButton->setIcon(Settings::getThemeIcon("settings"));
 
     //Dashboard icons should all be the same size
     QPixmap pixmap;
 
-    //pixmap = Settings::getThemeIcon("power-icon").pixmap(20,20);
+    //pixmap = Settings::getThemeIcon("power").pixmap(20,20);
 
-    //pixmap = Settings::getThemeIcon("refresh-icon").pixmap(16,16);
-    this->m_restartAction->setIcon(Settings::getThemeIcon("refresh-icon"));
+    //pixmap = Settings::getThemeIcon("refresh").pixmap(16,16);
+    this->m_restartAction->setIcon(Settings::getThemeIcon("refresh"));
 
-    //pixmap = Settings::getThemeIcon("power-icon").pixmap(16,16);
-    this->m_shutdownAction->setIcon(Settings::getThemeIcon("power-icon"));
+    //pixmap = Settings::getThemeIcon("power").pixmap(16,16);
+    this->m_shutdownAction->setIcon(Settings::getThemeIcon("power"));
 
-    //pixmap = Settings::getThemeIcon("cancel-icon").pixmap(16,16);
-    this->m_closeAction->setIcon(Settings::getThemeIcon("cancel-icon"));
+    //pixmap = Settings::getThemeIcon("cancel").pixmap(16,16);
+    this->m_closeAction->setIcon(Settings::getThemeIcon("cancel"));
 
     //Icons
-    ui->powerButton->setIcon(Settings::getThemeIcon(QString("power-icon")));
+    ui->powerButton->setIcon(Settings::getThemeIcon(QString("power")));
     ui->applicationIcon->setPixmap(QPixmap(":/images/flo_beta.png"));
     ui->applicationIcon->setScaledContents(true);
 
@@ -456,7 +428,6 @@ void MainWindow::updateStyleSheet()
     ui->windowWidget->setStyleSheet(Settings::currentTheme());
     ui->menuBar->setStyleSheet(Settings::currentTheme());
     ui->windowWidget->setStyleSheet(Settings::currentTheme());
-    ui->graphicsView->setStyleSheet(Settings::currentTheme());
 
     for(QAnimatedWidget *page : m_printerPages)
     {
@@ -465,6 +436,9 @@ void MainWindow::updateStyleSheet()
         if(printerPage)
             printerPage->setStyleSheet(Settings::currentTheme());
     }
+
+    for(MenuButton *button : m_printerButtons)
+        button->setStyleSheet(Settings::currentTheme());
 }
 
 void MainWindow::showPopup()
@@ -577,12 +551,13 @@ void MainWindow::on_printerPoolPrinterAdded(QKlipperInstance *printer)
     animatedPage->setHidden(true);
 
     MenuButton *printerButton = new MenuButton(m_printerPages.count(), this);
-    printerButton->setIcon(QString("printer-icon"));
+    printerButton->setIcon(Settings::getThemeIcon("printer", QColor::fromString(printer->profileColor())));
     printerButton->setText(printer->name());
     ui->menuButtonLayout->addWidget(printerButton);
 
     m_printerPages.append(animatedPage);
     m_printerButtons.append(printerButton);
+    m_instances.append(printer);
 
     connect(printerButton, SIGNAL(clicked(MenuButton*)), this, SLOT(on_printerMenuButton_toggled(MenuButton*)));
 
@@ -591,13 +566,13 @@ void MainWindow::on_printerPoolPrinterAdded(QKlipperInstance *printer)
 
 void MainWindow::on_printerPoolPrinterRemoved(QKlipperInstance* printer)
 {
-    foreach(QAnimatedWidget *widget, m_printerPages)
+    for(QAnimatedWidget *widget : m_printerPages)
     {
         PrinterPage *page = qobject_cast<PrinterPage*>(widget->widget());
 
         if(page && page->printer()->id() == printer->id())
         {
-            foreach(MenuButton *button, m_printerButtons)
+            for(MenuButton *button : m_printerButtons)
             {
                 if(button->getId() == m_printerPages.indexOf(widget))
                 {

@@ -31,7 +31,7 @@ void PowerDeviceView::setStyleSheet(const QString &styleSheet)
     for(QString &key : keys)
         m_powerDevices[key]->setStyleSheet(styleSheet);
 
-    setIcons();
+    setupIcons();
 }
 
 void PowerDeviceView::clear()
@@ -50,7 +50,7 @@ void PowerDeviceView::setupUi()
 
     m_scrollAreaWidget = new QWidget(m_scrollArea);
     m_scrollAreaWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_scrollAreaLayout = new QHBoxLayout(m_scrollAreaWidget);
+    m_scrollAreaLayout = new QFlowLayout(m_scrollAreaWidget);
     m_scrollAreaWidget->setLayout(m_scrollAreaLayout);
     m_scrollAreaWidget->setProperty("class", QStringList{"ScrollAreaContents"});
     //m_scrollAreaWidget->setStyleSheet("background-color: transparent;");
@@ -65,12 +65,12 @@ void PowerDeviceView::setupUi()
     // m_scrollArea->layout()->addWidget(m_scrollAreaWidget);
 
     setCentralWidget(m_scrollArea);
-    setIcons();
+    setupIcons();
 }
 
-void PowerDeviceView::setIcons()
+void PowerDeviceView::setupIcons()
 {
-    setIcon(Settings::getThemeIcon("plug-icon"));
+    setIcon(Settings::getThemeIcon("plug"));
 }
 
 void PowerDeviceView::onDeviceListChanged()
@@ -83,7 +83,7 @@ void PowerDeviceView::onDeviceListChanged()
         if(!m_powerDevices.contains(key))
         {
             PowerDeviceCard *card = new PowerDeviceCard(list[key], this);
-            card->setFixedSize(200,125);
+            card->setFixedSize(250,125);
             card->setCardFlags(CardWidget::NoTitleBar);
 
             m_scrollAreaLayout->removeItem(m_spacer);

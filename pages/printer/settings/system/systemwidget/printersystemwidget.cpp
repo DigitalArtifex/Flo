@@ -15,6 +15,9 @@ PrinterSystemWidget::PrinterSystemWidget(QKlipperInstance *instance, QWidget *pa
     connect(m_system, SIGNAL(sdInfoChanged()), this, SLOT(sdInfoUpdateEvent()));
     connect(m_system->memoryStats(), SIGNAL(totalChanged()), this, SLOT(onSystemMemoryStatsChanged()));
     connect(m_system->memoryStats(), SIGNAL(usedChanged()), this, SLOT(onSystemMemoryStatsChanged()));
+    connect(m_system, SIGNAL(driveCapacityChanged()), this, SLOT(sdInfoUpdateEvent()));
+    connect(m_system, SIGNAL(driveFreeChanged()), this, SLOT(sdInfoUpdateEvent()));
+    connect(m_system, SIGNAL(driveUsageChanged()), this, SLOT(sdInfoUpdateEvent()));
 }
 
 PrinterSystemWidget::~PrinterSystemWidget()
@@ -27,7 +30,36 @@ PrinterSystemWidget::~PrinterSystemWidget()
 
 void PrinterSystemWidget::setStyleSheet(const QString &styleSheet)
 {
-    setIcon(Settings::getThemeIcon("service-icon"));
+    setIcon(Settings::getThemeIcon("service"));
+
+    m_cpuProgress->setIcon(
+        Settings::getThemeIcon(
+            "cpu",
+            QColor(Settings::get("theme/icon-color").toString())
+            )
+        );
+
+    m_memoryProgress->setIcon(
+        Settings::getThemeIcon(
+            "memory",
+            QColor(Settings::get("theme/icon-color-alt1").toString())
+            )
+        );
+
+    m_sdProgress->setIcon(
+        Settings::getThemeIcon(
+            "hard-drive",
+            QColor(Settings::get("theme/icon-color-alt2").toString())
+            )
+        );
+
+    m_temperatureProgress->setIcon(
+        Settings::getThemeIcon(
+            "temperature",
+            QColor(Settings::get("theme/icon-color-alt").toString())
+            )
+        );
+
     CardWidget::setStyleSheet(styleSheet);
 }
 
@@ -170,31 +202,29 @@ void PrinterSystemWidget::setupUi()
     m_sdGroupBox->setLayout(m_sdLayout);
     m_centralLayout->addWidget(m_sdGroupBox);
 
-    setIcon(Settings::getThemeIcon("system-icon"));
+    setIcon(Settings::getThemeIcon("system"));
 }
 
 void PrinterSystemWidget::sdInfoUpdateEvent()
 {
-    m_sdInfo = m_system->sdInfo();
+    m_sdProgress->setMaximum(m_system->driveCapacity());
+    m_sdProgress->setValue(m_system->driveUsage());
 
-    m_sdProgress->setMaximum(m_sdInfo.totalBytes());
-    m_sdProgress->setProgress(m_sdInfo.usedBytes());
-
-    qreal capacity = m_sdInfo.totalBytes();
+    qreal capacity = m_system->driveCapacity() / 1024;
     QString capacityLabel;
     convertBytes(capacity, capacityLabel);
 
     QString memoryCapacityString = QString("Capacity: %1 %2").arg(QString::number(capacity, 'f', 2)).arg(capacityLabel);
     m_sdCapacityLabel->setText(memoryCapacityString);
 
-    qreal available = m_sdInfo.availableBytes();
+    qreal available = m_system->driveFree() / 1024;
     QString availableLabel;
     convertBytes(available, availableLabel);
 
     QString memoryAvailableString = QString("Available: %1 %2").arg(QString::number(available, 'f', 2)).arg(availableLabel);
     m_sdAvailableLabel->setText(memoryAvailableString);
 
-    qreal used = m_sdInfo.usedBytes();
+    qreal used = m_system->driveUsage() / 1024;
     QString usedLabel;
     convertBytes(used, usedLabel);
 
@@ -228,14 +258,14 @@ void PrinterSystemWidget::onSystemCpuInfoChanged()
     m_temperatureLabel->setText(cpuType);
     m_peakTemperatureLabel->setText(peakTemperature);
 
-    m_cpuProgress->setProgress(m_system->cpuInfo().usage());
-    m_temperatureProgress->setProgress(m_system->cpuInfo().temp());
+    m_cpuProgress->setValue(m_system->cpuInfo().usage());
+    m_temperatureProgress->setValue(m_system->cpuInfo().temp());
 }
 
 void PrinterSystemWidget::onSystemMemoryStatsChanged()
 {
     m_memoryProgress->setMaximum(m_system->memoryStats()->total());
-    m_memoryProgress->setProgress(m_system->memoryStats()->used());
+    m_memoryProgress->setValue(m_system->memoryStats()->used());
 
     qreal capacity = m_system->memoryStats()->total();
     QString capacityLabel;

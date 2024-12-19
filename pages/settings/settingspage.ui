@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="mainLayout">
    <property name="sizeConstraint">
-    <enum>QLayout::SetDefaultConstraint</enum>
+    <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
    </property>
    <property name="leftMargin">
     <number>0</number>
@@ -32,20 +32,61 @@
    <property name="spacing">
     <number>0</number>
    </property>
+   <item row="2" column="0">
+    <widget class="QFrame" name="footerFrame">
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3"/>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QFrame" name="actionBar">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+     </layout>
+    </widget>
+   </item>
    <item row="1" column="0">
-    <widget class="QGroupBox" name="pageContents">
+    <widget class="QWidget" name="pageContents" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="title">
-      <string/>
-     </property>
      <layout class="QGridLayout" name="pageLayout">
       <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
+       <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
       </property>
       <property name="leftMargin">
        <number>0</number>
@@ -97,15 +138,12 @@
            <number>0</number>
           </property>
           <item row="0" column="0">
-           <widget class="QGroupBox" name="groupBox">
+           <widget class="QWidget" name="widget" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
-            </property>
-            <property name="title">
-             <string/>
             </property>
             <layout class="QGridLayout" name="gridLayout_4">
              <property name="leftMargin">
@@ -127,27 +165,27 @@
               <widget class="QWidget" name="widget" native="true">
                <layout class="QGridLayout" name="gridLayout_6">
                 <property name="leftMargin">
-                 <number>0</number>
+                 <number>9</number>
                 </property>
                 <property name="topMargin">
-                 <number>0</number>
+                 <number>9</number>
                 </property>
                 <property name="rightMargin">
-                 <number>0</number>
+                 <number>9</number>
                 </property>
                 <property name="bottomMargin">
-                 <number>0</number>
+                 <number>9</number>
                 </property>
                 <property name="spacing">
                  <number>6</number>
                 </property>
-                <item row="0" column="1">
+                <item row="1" column="1">
                  <layout class="QVBoxLayout" name="buttonLayout"/>
                 </item>
-                <item row="1" column="1">
+                <item row="2" column="1">
                  <spacer name="verticalSpacer_2">
                   <property name="orientation">
-                   <enum>Qt::Vertical</enum>
+                   <enum>Qt::Orientation::Vertical</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -157,7 +195,23 @@
                   </property>
                  </spacer>
                 </item>
-                <item row="0" column="0" rowspan="2">
+                <item row="0" column="1">
+                 <spacer name="verticalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Vertical</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Policy::Expanding</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="0" column="0" rowspan="3">
                  <layout class="QVBoxLayout" name="printerListLayout">
                   <property name="spacing">
                    <number>0</number>
@@ -185,50 +239,6 @@
         </widget>
        </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QFrame" name="footerFrame">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3"/>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QFrame" name="actionBar">
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>50</height>
-      </size>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
      </layout>
     </widget>
    </item>

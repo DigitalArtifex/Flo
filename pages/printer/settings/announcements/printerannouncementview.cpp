@@ -44,7 +44,7 @@ void PrinterAnnouncementView::setupUi()
     m_updateWidget = new PrinterAnnouncementWidget(this);
     m_layout->addWidget(m_updateWidget);
 
-    m_refreshButton->setIcon(Settings::getThemeIcon(QString("refresh-icon")));
+    m_refreshButton->setIcon(Settings::getThemeIcon(QString("refresh")));
 
     connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(refreshButtonClickEvent()));
     //connect(m_updateWidget, SIGNAL(itemUpdateRequested(PrinterUpdateItem*)), this, SLOT(itemUpdateRequestedEvent(PrinterUpdateItem*)));

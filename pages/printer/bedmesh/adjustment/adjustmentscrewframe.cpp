@@ -149,7 +149,7 @@ void AdjustmentScrewFrame::setStyleSheet(const QString &styleSheet)
 
 void AdjustmentScrewFrame::setupIcons()
 {
-    setIcon(Settings::getThemeIcon("adjustment-screw-icon"));
+    setIcon(Settings::getThemeIcon("adjustment-screw"));
 }
 
 void AdjustmentScrewFrame::on_loadingAnimation_finished()

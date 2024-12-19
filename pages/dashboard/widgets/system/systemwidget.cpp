@@ -90,7 +90,7 @@ void SystemWidget::on_loadingAnimation_finished()
 void SystemWidget::onSystemMemoryStatsChanged()
 {
     m_systemMemoryLoadProgressBar->setMaximum(m_instance->system()->memoryStats()->total());
-    m_systemMemoryLoadProgressBar->setProgress(m_instance->system()->memoryStats()->used());
+    m_systemMemoryLoadProgressBar->setValue(m_instance->system()->memoryStats()->used());
 
     QString memoryCapacityString("System Memory: ");
     qreal capacity = m_instance->system()->memoryStats()->total();
@@ -111,7 +111,7 @@ void SystemWidget::onSystemMemoryStatsChanged()
 
 void SystemWidget::onSystemCpuInfoChanged()
 {
-    m_systemCpuLoadProgressBar->setProgress(m_instance->system()->cpuInfo().usage());
+    m_systemCpuLoadProgressBar->setValue(m_instance->system()->cpuInfo().usage());
     ui->cpuInfoLabel->setText(m_instance->system()->cpuInfo().description());
 }
 

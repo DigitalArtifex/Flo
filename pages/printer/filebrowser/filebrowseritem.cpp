@@ -62,7 +62,7 @@ void FileBrowserItem::setupUi()
 
     if(m_directory)
     {
-        QPixmap icon = Settings::getThemeIcon(QString("folder-icon")).pixmap(30,30);
+        QPixmap icon = Settings::getThemeIcon(QString("folder")).pixmap(30,30);
         m_iconLabel->setPixmap(icon);
 
         m_titleLabel = new QLabel(this);
@@ -77,7 +77,7 @@ void FileBrowserItem::setupUi()
     }
     else
     {
-        QPixmap icon = Settings::getThemeIcon(QString("file-icon")).pixmap(30,30);
+        QPixmap icon = Settings::getThemeIcon(QString("file")).pixmap(30,30);
         m_iconLabel->setPixmap(icon);
 
         m_titleLabel = new QLabel(this);
@@ -133,15 +133,15 @@ void FileBrowserItem::setupUi()
             m_titleLabel->setProperty("class", "FileWidgetItemTitle");
         }
 
-        QIcon actionIcon = Settings::getThemeIcon("print-icon");
+        QIcon actionIcon = Settings::getThemeIcon("print");
         m_printAction = new QAction(actionIcon, "Print", this);
         connect(m_printAction, SIGNAL(triggered(bool)), this, SLOT(printActionTriggered(bool)));
 
-        actionIcon = Settings::getThemeIcon("edit-icon");
+        actionIcon = Settings::getThemeIcon("edit");
         m_editAction = new QAction(actionIcon, "Edit", this);
         connect(m_editAction, SIGNAL(triggered(bool)), this, SLOT(editActionTriggered(bool)));
 
-        actionIcon = Settings::getThemeIcon("delete-icon");
+        actionIcon = Settings::getThemeIcon("delete");
         m_deleteAction = new QAction(actionIcon, "Delete", this);
         connect(m_deleteAction, SIGNAL(triggered(bool)), this, SLOT(deleteActionTriggered(bool)));
 

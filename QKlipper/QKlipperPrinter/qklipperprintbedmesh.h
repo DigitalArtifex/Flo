@@ -81,12 +81,11 @@ public:
 
     QVector2D probeCount() const;
 
+    quint32 reportedProbePoints() const;
+
 public slots:
-    void setMinimum(const QVector2D &minimum);
 
-    void setMaximum(const QVector2D &maximum);
-
-    void setProbeCount(const QVector2D &probeCount);
+    void setReportedProbePoints(quint32 reportedProbePoints);
 
 private slots:
     void setFadeEnd(qreal fadeEnd);
@@ -117,6 +116,12 @@ private slots:
 
     void setAlgorithm(const QString &algorithm);
 
+    void setMinimum(const QVector2D &minimum);
+
+    void setMaximum(const QVector2D &maximum);
+
+    void setProbeCount(const QVector2D &probeCount);
+
 signals:
 
     void fadeEndChanged();
@@ -140,6 +145,8 @@ signals:
 
     void probeCountChanged();
 
+    void reportedProbePointsChanged();
+
 private:
 
     qreal m_fadeEnd = 0;
@@ -158,6 +165,7 @@ private:
     QVector2D m_minimum;
     QVector2D m_maximum;
     QVector2D m_probeCount;
+    quint32   m_reportedProbePoints = 0;
 
     QList<QList<qreal>> m_matrix;
     QList<QList<qreal>> m_probed;
@@ -181,6 +189,7 @@ private:
     Q_PROPERTY(QVector2D minimum READ minimum WRITE setMinimum NOTIFY minimumChanged FINAL)
     Q_PROPERTY(QVector2D maximum READ maximum WRITE setMaximum NOTIFY maximumChanged FINAL)
     Q_PROPERTY(QVector2D probeCount READ probeCount WRITE setProbeCount NOTIFY probeCountChanged FINAL)
+    Q_PROPERTY(quint32 reportedProbePoints READ reportedProbePoints WRITE setReportedProbePoints NOTIFY reportedProbePointsChanged FINAL)
 };
 
 #endif // QKLIPPERPRINTBEDMESH_H

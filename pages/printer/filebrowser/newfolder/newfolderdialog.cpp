@@ -53,14 +53,14 @@ void NewFolderDialog::setupUi()
     m_layout->addWidget(m_lineEdit, 1, 0, 1, 2);
 
     m_cancelButton = new QIconButton(this);
-    m_cancelButton->setIcon(Settings::getThemeIcon("cancel-icon"));
+    m_cancelButton->setIcon(Settings::getThemeIcon("cancel"));
     m_cancelButton->setText(QString("Cancel"));
     m_cancelButton->setFixedHeight(50);
     m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_layout->addWidget(m_cancelButton, 2, 0, 1, 1);
 
     m_acceptButton = new QIconButton(this);
-    m_acceptButton->setIcon(Settings::getThemeIcon("accept-icon"));
+    m_acceptButton->setIcon(Settings::getThemeIcon("accept"));
     m_acceptButton->setText(QString("Accept"));
     m_acceptButton->setFixedHeight(50);
     m_acceptButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);

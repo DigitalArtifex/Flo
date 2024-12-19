@@ -10,22 +10,13 @@
 #include <QPixmap>
 #include <QPainter>
 #include <QIcon>
+#include <QGraphicsEffect>
 
 class QIconButton : public QFrame
 {
     Q_OBJECT
 
 public:
-    enum Flags
-    {
-        IconHCentered = 1,
-        IconVCentered = 2,
-        IconCentered = IconHCentered | IconVCentered,
-        TextHCentered = 4,
-        TextVCentered = 8,
-        TextCentered = TextHCentered | TextVCentered
-    };
-
     explicit QIconButton(QWidget *parent = nullptr);
     ~QIconButton();
 
@@ -46,9 +37,15 @@ public:
 
     QSize iconSize() const;
 
-    Flags flags() const;
-
     QMargins textMargins() const;
+
+    Qt::Alignment textAlignment() const;
+
+    Qt::Alignment iconAlignment() const;
+
+    QGraphicsEffect *textEffect() const;
+
+    QGraphicsEffect *iconEffect() const;
 
 public slots:
     void setIcon(const QIcon &icon);
@@ -56,10 +53,15 @@ public slots:
 
     void setIconSize(const QSize &iconSize);
 
-    void setFlags(Flags flags);
-    void setFlag(Flags flag, bool on = true);
-
     void setTextMargins(const QMargins &textMargins);
+
+    void setTextAlignment(const Qt::Alignment &textAlignment);
+
+    void setIconAlignment(const Qt::Alignment &iconAlignment);
+
+    void setTextEffect(QGraphicsEffect *textEffect);
+
+    void setIconEffect(QGraphicsEffect *iconEffect);
 
 protected:
     void setupUi();
@@ -81,12 +83,25 @@ signals:
 
     void textMarginsChanged();
 
+    void textAlignmentChanged();
+
+    void iconAlignmentChanged();
+
+    void textEffectChanged();
+
+    void iconEffectChanged();
+
 private:
     bool m_pressed = false;
     bool m_checked = false;
     bool m_checkable = false;
     bool m_exclusive = false;
-    Flags m_flags = Flags(IconVCentered | TextCentered);
+
+    QGraphicsEffect *m_textEffect = nullptr;
+    QGraphicsEffect *m_iconEffect = nullptr;
+
+    Qt::Alignment m_iconAlignment = Qt::AlignLeft | Qt::AlignVCenter;
+    Qt::Alignment m_textAlignment = Qt::AlignCenter;
 
     QString m_text;
 
@@ -96,11 +111,14 @@ private:
     QIcon m_icon;
     QSize m_iconSize = QSize(24,24);
 
-    QMargins m_textMargins = QMargins(34, 0, 0, 0);
+    QMargins m_textMargins = QMargins(0, 0, 0, 0);
 
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize NOTIFY iconSizeChanged FINAL)
-    Q_PROPERTY(Flags flags READ flags WRITE setFlags NOTIFY flagsChanged FINAL)
     Q_PROPERTY(QMargins textMargins READ textMargins WRITE setTextMargins NOTIFY textMarginsChanged FINAL)
+    Q_PROPERTY(Qt::Alignment textAlignment READ textAlignment WRITE setTextAlignment NOTIFY textAlignmentChanged FINAL)
+    Q_PROPERTY(Qt::Alignment iconAlignment READ iconAlignment WRITE setIconAlignment NOTIFY iconAlignmentChanged FINAL)
+    Q_PROPERTY(QGraphicsEffect *textEffect READ textEffect WRITE setTextEffect NOTIFY textEffectChanged FINAL)
+    Q_PROPERTY(QGraphicsEffect *iconEffect READ iconEffect WRITE setIconEffect NOTIFY iconEffectChanged FINAL)
 };
 
 #endif // QICONBUTTON_H

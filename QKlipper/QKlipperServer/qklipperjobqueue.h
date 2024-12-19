@@ -59,6 +59,7 @@ public slots:
     void clearJobs();
 
     void setState(State state);
+    void setState(QString stateString);
 
 private slots:
 
@@ -69,6 +70,14 @@ signals:
     void jobRemoved(QKlipperPrintJob *);
 
 private:
+    //string values as sent by klipper
+    const static inline QMap<QString, State> m_stateStrings = {
+        { "ready", Ready },
+        { "paused", Paused },
+        { "loading", Loading },
+        { "starting", Starting }
+    };
+
     QList<QKlipperPrintJob*> m_queue;
     State m_state = Error;
 

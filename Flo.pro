@@ -1,6 +1,6 @@
 QT       += core gui network multimedia multimediawidgets websockets charts graphs 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation qml quick 3dquick
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets openglwidgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets openglwidgets virtualkeyboard
 
 CONFIG += c++17
 
@@ -20,18 +20,12 @@ SOURCES += \
     QKlipper/QKlipperPrinter/qklipperfan.cpp \
     QKlipper/QKlipperPrinter/qklippergcodemove.cpp \
     QKlipper/QKlipperPrinter/qklippermcu.cpp \
-    QKlipper/QKlipperPrinter/qklipperposition.cpp \
     QKlipper/QKlipperPrinter/qklipperprintbed.cpp \
     QKlipper/QKlipperPrinter/qklipperprintbedmesh.cpp \
     QKlipper/QKlipperPrinter/qklipperprinter.cpp \
-    QKlipper/QKlipperPrinter/qklipperprobedata.cpp \
-    QKlipper/QKlipperPrinter/qklippersafezhome.cpp \
     QKlipper/QKlipperPrinter/qklippersteppermotor.cpp \
     QKlipper/QKlipperPrinter/qklippertoolhead.cpp \
-    QKlipper/QKlipperServer/qklipperaccessdetails.cpp \
-    QKlipper/QKlipperServer/qklipperannouncement.cpp \
     QKlipper/QKlipperServer/qklippergcodestore.cpp \
-    QKlipper/QKlipperServer/qklippergcodestorevalue.cpp \
     QKlipper/QKlipperServer/qklipperjobqueue.cpp \
     QKlipper/QKlipperServer/qklipperprintjob.cpp \
     QKlipper/QKlipperServer/qklipperserver.cpp \
@@ -48,20 +42,15 @@ SOURCES += \
     QKlipper/QKlipperSystem/qklippernetworkstatsentry.cpp \
     QKlipper/QKlipperSystem/qklipperpowerdevice.cpp \
     QKlipper/QKlipperSystem/qklippersdinfo.cpp \
+    QKlipper/QKlipperSystem/qklippersensor.cpp \
+    QKlipper/QKlipperSystem/qklippersensordata.cpp \
     QKlipper/QKlipperSystem/qklipperserialperipheral.cpp \
-    QKlipper/QKlipperSystem/qklipperservicestate.cpp \
+    QKlipper/QKlipperSystem/qklipperservice.cpp \
     QKlipper/QKlipperSystem/qklippersystem.cpp \
     QKlipper/QKlipperSystem/qklipperthrottlestate.cpp \
-    QKlipper/QKlipperSystem/qklipperupdatecommit.cpp \
     QKlipper/QKlipperSystem/qklipperupdatemanager.cpp \
-    QKlipper/QKlipperSystem/qklipperupdatepackage.cpp \
-    QKlipper/QKlipperSystem/qklipperusbperipheral.cpp \
-    QKlipper/QKlipperSystem/qklipperv412device.cpp \
-    QKlipper/QKlipperSystem/qklipperv412mode.cpp \
     QKlipper/QKlipperSystem/qklippervirtualizationstate.cpp \
     QKlipper/QKlipperSystem/qklippervirtualsdcard.cpp \
-    QKlipper/QKlipperSystem/qklipperwebcam.cpp \
-    QKlipper/qklippererror.cpp \
     QSourceHighlite/languagedata.cpp \
     QSourceHighlite/qsourcehighliter.cpp \
     QSourceHighlite/qsourcehighliterthemes.cpp \
@@ -95,10 +84,16 @@ SOURCES += \
     pages/printer/filebrowser/newfolder/newfolderdialog.cpp \
     pages/printer/filebrowser/overlay/filebrowseroverlay.cpp \
     pages/printer/filebrowser/preview/filepreviewwindow.cpp \
+    pages/printer/ledstrips/ledstripcard.cpp \
+    pages/printer/ledstrips/ledstripview.cpp \
+    pages/printer/macros/gcodemacrodialog.cpp \
     pages/printer/offline/printerofflinescreen.cpp \
     pages/printer/powerdevices/powerdevicecard.cpp \
     pages/printer/powerdevices/powerdeviceview.cpp \
     pages/printer/printerpage.cpp \
+    pages/printer/printing/printingpage.cpp \
+    pages/printer/sensors/sensorcard.cpp \
+    pages/printer/sensors/sensorview.cpp \
     pages/printer/settings/announcements/printerannouncementitem.cpp \
     pages/printer/settings/announcements/printerannouncementview.cpp \
     pages/printer/settings/announcements/printerannouncementwidget.cpp \
@@ -116,12 +111,20 @@ SOURCES += \
     pages/printer/settings/users/editor/printerusereditor.cpp \
     pages/printer/settings/users/printerusercard.cpp \
     pages/printer/settings/users/printerusersview.cpp \
-    pages/printer/temperature/temperaturegraph.cpp \
     pages/printer/terminal/printerterminal.cpp \
     pages/printer/terminal/printerterminalitem.cpp \
     pages/printer/terminal/printerterminalwidget.cpp \
+    pages/printer/widgets/extruder/extruderinfodialog.cpp \
+    pages/printer/widgets/extruder/extrudermaterialsdialog.cpp \
+    pages/printer/widgets/extruder/extrudertemperaturechart.cpp \
+    pages/printer/widgets/extruder/extrudertemperaturewidget.cpp \
     pages/printer/widgets/extruder/extruderwidget.cpp \
+    pages/printer/widgets/printerbed/bedtemperaturechart.cpp \
+    pages/printer/widgets/printerbed/bedtemperaturewidget.cpp \
+    pages/printer/widgets/printerbed/printerbedinfodialog.cpp \
+    pages/printer/widgets/printerbed/printerbedtoolsdialog.cpp \
     pages/printer/widgets/printerbed/printerbedwidget.cpp \
+    pages/printer/widgets/printerfan/printerfanitem.cpp \
     pages/printer/widgets/printerfan/printerfanwidget.cpp \
     pages/printer/widgets/printerwebcam/empty/emptyprinterwebcamframe.cpp \
     pages/printer/widgets/printerwebcam/printerwebcamwidget.cpp \
@@ -138,8 +141,11 @@ SOURCES += \
     system/flo.cpp \
     system/qklipperinstancepool.cpp \
     system/settings.cpp \
+    ui/PositionDialog/positiondialog.cpp \
+    ui/ProgressDialog/progressdialog.cpp \
     ui/QIconButton/qiconbutton.cpp \
     ui/QMaskedButton/qmaskedbutton.cpp \
+    ui/QThrobber/qthrobber.cpp \
     ui/QWebcamWidget/qwebcamsource.cpp \
     ui/QWebcamWidget/qwebcamwidget.cpp \
     ui/Switch/switch.cpp \
@@ -152,6 +158,7 @@ SOURCES += \
     ui/list/qanimatedlistwidget.cpp \
     ui/menubutton.cpp \
     ui/messagedialog.cpp \
+    ui/piddialog.cpp \
     ui/qanimatedwidget.cpp \
     ui/qwidgetanimation.cpp \
     ui/widgetanimation.cpp \
@@ -208,8 +215,10 @@ HEADERS += \
     QKlipper/QKlipperSystem/qklippernetworkstatsentry.h \
     QKlipper/QKlipperSystem/qklipperpowerdevice.h \
     QKlipper/QKlipperSystem/qklippersdinfo.h \
+    QKlipper/QKlipperSystem/qklippersensor.h \
+    QKlipper/QKlipperSystem/qklippersensordata.h \
     QKlipper/QKlipperSystem/qklipperserialperipheral.h \
-    QKlipper/QKlipperSystem/qklipperservicestate.h \
+    QKlipper/QKlipperSystem/qklipperservice.h \
     QKlipper/QKlipperSystem/qklippersystem.h \
     QKlipper/QKlipperSystem/qklipperthrottlestate.h \
     QKlipper/QKlipperSystem/qklipperupdatecommit.h \
@@ -255,10 +264,16 @@ HEADERS += \
     pages/printer/filebrowser/newfolder/newfolderdialog.h \
     pages/printer/filebrowser/overlay/filebrowseroverlay.h \
     pages/printer/filebrowser/preview/filepreviewwindow.h \
+    pages/printer/ledstrips/ledstripcard.h \
+    pages/printer/ledstrips/ledstripview.h \
+    pages/printer/macros/gcodemacrodialog.h \
     pages/printer/offline/printerofflinescreen.h \
     pages/printer/powerdevices/powerdevicecard.h \
     pages/printer/powerdevices/powerdeviceview.h \
     pages/printer/printerpage.h \
+    pages/printer/printing/printingpage.h \
+    pages/printer/sensors/sensorcard.h \
+    pages/printer/sensors/sensorview.h \
     pages/printer/settings/announcements/printerannouncementitem.h \
     pages/printer/settings/announcements/printerannouncementview.h \
     pages/printer/settings/announcements/printerannouncementwidget.h \
@@ -276,12 +291,20 @@ HEADERS += \
     pages/printer/settings/users/editor/printerusereditor.h \
     pages/printer/settings/users/printerusercard.h \
     pages/printer/settings/users/printerusersview.h \
-    pages/printer/temperature/temperaturegraph.h \
     pages/printer/terminal/printerterminal.h \
     pages/printer/terminal/printerterminalitem.h \
     pages/printer/terminal/printerterminalwidget.h \
+    pages/printer/widgets/extruder/extruderinfodialog.h \
+    pages/printer/widgets/extruder/extrudermaterialsdialog.h \
+    pages/printer/widgets/extruder/extrudertemperaturechart.h \
+    pages/printer/widgets/extruder/extrudertemperaturewidget.h \
     pages/printer/widgets/extruder/extruderwidget.h \
+    pages/printer/widgets/printerbed/bedtemperaturechart.h \
+    pages/printer/widgets/printerbed/bedtemperaturewidget.h \
+    pages/printer/widgets/printerbed/printerbedinfodialog.h \
+    pages/printer/widgets/printerbed/printerbedtoolsdialog.h \
     pages/printer/widgets/printerbed/printerbedwidget.h \
+    pages/printer/widgets/printerfan/printerfanitem.h \
     pages/printer/widgets/printerfan/printerfanwidget.h \
     pages/printer/widgets/printerwebcam/empty/emptyprinterwebcamframe.h \
     pages/printer/widgets/printerwebcam/printerwebcamwidget.h \
@@ -298,8 +321,11 @@ HEADERS += \
     system/flo.h \
     system/qklipperinstancepool.h \
     system/settings.h \
+    ui/PositionDialog/positiondialog.h \
+    ui/ProgressDialog/progressdialog.h \
     ui/QIconButton/qiconbutton.h \
     ui/QMaskedButton/qmaskedbutton.h \
+    ui/QThrobber/qthrobber.h \
     ui/QWebcamWidget/qwebcamsource.h \
     ui/QWebcamWidget/qwebcamwidget.h \
     ui/Switch/style.h \
@@ -313,6 +339,7 @@ HEADERS += \
     ui/list/qanimatedlistwidget.h \
     ui/menubutton.h \
     ui/messagedialog.h \
+    ui/piddialog.h \
     ui/qanimatedwidget.h \
     ui/qwidgetanimation.h \
     ui/widgetanimation.h \
@@ -332,7 +359,6 @@ FORMS += \
     pages/printer/offline/printerofflinescreen.ui \
     pages/printer/printerpage.ui \
     pages/printer/settings/printersettingspage.ui \
-    pages/printer/temperature/temperaturegraph.ui \
     pages/printer/widgets/extruder/extruderwidget.ui \
     pages/printer/widgets/printerbed/printerbedwidget.ui \
     pages/settings/edit_printer/editprinterdialog.ui \

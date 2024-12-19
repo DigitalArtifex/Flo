@@ -5,6 +5,8 @@ MessageDialog::MessageDialog(QWidget *parent)
     : Dialog{parent}
 {
     setupUi();
+
+    setStyleSheet(Settings::currentTheme());
 }
 
 QIcon MessageDialog::icon() const
@@ -38,7 +40,7 @@ void MessageDialog::setupUi()
     m_centralLayout->addLayout(m_informationLayout);
 
     m_iconLabel = new QLabel(this);
-    m_iconLabel->setFixedSize(100,100);
+    m_iconLabel->setFixedSize(50,50);
     m_iconLabel->setProperty("class", "MessageDialogIcon");
     m_informationLayout->addWidget(m_iconLabel);
 
@@ -47,10 +49,13 @@ void MessageDialog::setupUi()
     m_textLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_informationLayout->addWidget(m_textLabel);
 
+    m_centralLayout->addItem(new QSpacerItem(0,20));
+
     m_acceptButton = new QIconButton(this);
     m_acceptButton->setText("Okay");
-    m_acceptButton->setIcon(Settings::getThemeIcon("accept-icon"));
+    m_acceptButton->setIcon(Settings::getThemeIcon("accept"));
     m_acceptButton->setMinimumSize(200,50);
+    m_acceptButton->setFixedHeight(50);
     m_acceptButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_centralLayout->addWidget(m_acceptButton);
 

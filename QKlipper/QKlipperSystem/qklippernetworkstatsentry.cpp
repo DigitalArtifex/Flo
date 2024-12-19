@@ -1,77 +1,38 @@
 #include "qklippernetworkstatsentry.h"
 
-QKlipperNetworkStatsEntry::QKlipperNetworkStatsEntry(QObject *parent)
-    : QObject{parent}
-{}
-
 QKlipperNetworkStatsEntry::QKlipperNetworkStatsEntry(const QKlipperNetworkStatsEntry &value)
 {
-    m_bandwidth = value.m_bandwidth;
     m_rxBytes = value.m_rxBytes;
     m_txBytes = value.m_txBytes;
+    m_bandwidth = value.m_bandwidth;
 }
 
-QKlipperNetworkStatsEntry::QKlipperNetworkStatsEntry(QKlipperNetworkStatsEntry &&value)
+bool QKlipperNetworkStatsEntry::operator==(const QKlipperNetworkStatsEntry &value) const
 {
-    m_bandwidth = value.m_bandwidth;
-    m_rxBytes = value.m_rxBytes;
-    m_txBytes = value.m_txBytes;
+    if(m_bandwidth != value.m_bandwidth) return false;
+    if(m_rxBytes != value.m_rxBytes) return false;
+    if(m_txBytes != value.m_txBytes) return false;
+
+    return true;
+}
+
+bool QKlipperNetworkStatsEntry::operator!=(const QKlipperNetworkStatsEntry &value) const
+{
+    if(m_bandwidth == value.m_bandwidth &&
+        m_rxBytes == value.m_rxBytes &&
+        m_txBytes == value.m_txBytes)
+        return false;
+
+    return true;
 }
 
 QKlipperNetworkStatsEntry &QKlipperNetworkStatsEntry::operator=(const QKlipperNetworkStatsEntry &value)
 {
-    m_bandwidth = value.m_bandwidth;
     m_rxBytes = value.m_rxBytes;
     m_txBytes = value.m_txBytes;
-
-    return *this;
-}
-
-QKlipperNetworkStatsEntry &QKlipperNetworkStatsEntry::operator=(QKlipperNetworkStatsEntry &&value)
-{
     m_bandwidth = value.m_bandwidth;
-    m_rxBytes = value.m_rxBytes;
-    m_txBytes = value.m_txBytes;
 
-    return *this;
-}
-
-bool QKlipperNetworkStatsEntry::operator==(const QKlipperNetworkStatsEntry &value)
-{
-    if(m_bandwidth != value.m_bandwidth) return false;
-    if(m_rxBytes != value.m_rxBytes) return false;
-    if(m_txBytes != value.m_txBytes) return false;
-
-    return true;
-}
-
-bool QKlipperNetworkStatsEntry::operator==(QKlipperNetworkStatsEntry &&value)
-{
-    if(m_bandwidth != value.m_bandwidth) return false;
-    if(m_rxBytes != value.m_rxBytes) return false;
-    if(m_txBytes != value.m_txBytes) return false;
-
-    return true;
-}
-
-bool QKlipperNetworkStatsEntry::operator!=(const QKlipperNetworkStatsEntry &value)
-{
-    if(m_bandwidth == value.m_bandwidth &&
-        m_rxBytes == value.m_rxBytes &&
-        m_txBytes == value.m_txBytes)
-        return false;
-
-    return true;
-}
-
-bool QKlipperNetworkStatsEntry::operator!=(QKlipperNetworkStatsEntry &&value)
-{
-    if(m_bandwidth == value.m_bandwidth &&
-        m_rxBytes == value.m_rxBytes &&
-        m_txBytes == value.m_txBytes)
-        return false;
-
-    return true;
+    return (*this);
 }
 
 qreal QKlipperNetworkStatsEntry::rxBytes() const
@@ -81,10 +42,7 @@ qreal QKlipperNetworkStatsEntry::rxBytes() const
 
 void QKlipperNetworkStatsEntry::setRxBytes(qreal rxBytes)
 {
-    if (qFuzzyCompare(m_rxBytes, rxBytes))
-        return;
     m_rxBytes = rxBytes;
-    emit rxBytesChanged();
 }
 
 qreal QKlipperNetworkStatsEntry::txBytes() const
@@ -94,10 +52,7 @@ qreal QKlipperNetworkStatsEntry::txBytes() const
 
 void QKlipperNetworkStatsEntry::setTxBytes(qreal txBytes)
 {
-    if (qFuzzyCompare(m_txBytes, txBytes))
-        return;
     m_txBytes = txBytes;
-    emit txBytesChanged();
 }
 
 qreal QKlipperNetworkStatsEntry::bandwidth() const
@@ -107,8 +62,5 @@ qreal QKlipperNetworkStatsEntry::bandwidth() const
 
 void QKlipperNetworkStatsEntry::setBandwidth(qreal bandwidth)
 {
-    if (qFuzzyCompare(m_bandwidth, bandwidth))
-        return;
     m_bandwidth = bandwidth;
-    emit bandwidthChanged();
 }

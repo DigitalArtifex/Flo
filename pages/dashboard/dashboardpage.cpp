@@ -12,11 +12,9 @@ DashboardPage::DashboardPage(QWidget *parent) :
     m_layout = new QFlowLayout(ui->scrollAreaWidgetContents);
     ui->scrollAreaWidgetContents->setLayout(m_layout);
 
-    m_systemWidget = new SystemWidget();
-    ui->scrollAreaWidgetContents->layout()->addWidget(m_systemWidget);
-
-    m_statusWidget = new StatusWidget(this);
-    ui->scrollAreaWidgetContents->layout()->addWidget(m_statusWidget);
+    m_statusWidget = new StatusWidget(ui->scrollAreaWidgetContents);
+    m_statusWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->overviewWidget->layout()->addWidget(m_statusWidget);
 
     setUiClasses();
     loadPrinters();
@@ -61,7 +59,7 @@ void DashboardPage::loadPrinters()
             if(!m_selectedWidget)
             {
                 m_selectedWidget = widget;
-                m_systemWidget->setPrinter(definition);
+                //m_systemWidget->setPrinter(definition);
             }
         }
     }
@@ -69,7 +67,7 @@ void DashboardPage::loadPrinters()
     if(m_selectedWidget == nullptr && !m_printerWidgets.isEmpty())
     {
         m_selectedWidget = m_printerWidgets[0];
-        m_systemWidget->setPrinter(m_selectedWidget->printer());
+        //m_systemWidget->setPrinter(m_selectedWidget->printer());
     }
 }
 
@@ -88,9 +86,6 @@ void DashboardPage::setStyleSheet(QString styleSheet)
 {
     QFrame::setStyleSheet(styleSheet);
 
-    if(m_systemWidget)
-        m_systemWidget->setStyleSheet(styleSheet);
-
     if(m_statusWidget)
         m_statusWidget->setStyleSheet(styleSheet);
 
@@ -102,14 +97,13 @@ void DashboardPage::resizeEvent(QResizeEvent *event)
 {
     QFrame::resizeEvent(event);
 
-    qint32 padding = m_layout->horizontalSpacing() * 2;
-    padding += m_layout->contentsMargins().left();
-    padding += m_layout->contentsMargins().right();
-    qint32 statusWidth = ((width() - padding) - m_systemWidget->width()) - 20;
-    qint32 statusHeight = m_systemWidget->height();
+    // qint32 padding = m_layout->horizontalSpacing() * 2;
+    // padding += m_layout->contentsMargins().left();
+    // padding += m_layout->contentsMargins().right();
+    // qint32 statusWidth = (ui->scrollArea->width() - padding);
 
-    if(m_statusWidget)
-        m_statusWidget->setFixedSize(QSize(statusWidth, statusHeight));
+    // if(m_statusWidget)
+    //     m_statusWidget->setFixedSize(statusWidth, 420);
 }
 
 void DashboardPage::onInstanceAdded(QKlipperInstance *instance)

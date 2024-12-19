@@ -26,7 +26,7 @@ void FileBrowserOverlay::setupUi()
     m_iconLabel = new QLabel(this);
     m_iconLabel->setAlignment(Qt::AlignCenter);
 
-    QPixmap pixmap = Settings::getThemeIcon(QString("empty-icon")).pixmap(64,64);
+    QPixmap pixmap = Settings::getThemeIcon(QString("empty")).pixmap(64,64);
     m_iconLabel->setPixmap(pixmap);
 
     m_topSpacer = new QSpacerItem(20,20, QSizePolicy::Expanding, QSizePolicy::Expanding);

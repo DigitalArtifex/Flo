@@ -14,6 +14,9 @@ public:
     explicit PrinterSystemView(QKlipperInstance *printer, QWidget *parent = nullptr);
     ~PrinterSystemView();
 
+public slots:
+    void setStyleSheet(const QString &styleSheet);
+
 signals:
 
 protected slots:

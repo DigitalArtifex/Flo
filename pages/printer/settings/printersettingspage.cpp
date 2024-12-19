@@ -38,3 +38,20 @@ PrinterSettingsPage::~PrinterSettingsPage()
 {
     delete ui;
 }
+
+void PrinterSettingsPage::setStyleSheet(const QString &styleSheet)
+{
+    if(m_announcementView)
+        m_announcementView->setStyleSheet(styleSheet);
+
+    if(m_systemView)
+        m_systemView->setStyleSheet(styleSheet);
+
+    if(m_usersView)
+        m_usersView->setStyleSheet(styleSheet);
+
+    if(m_servicesView)
+        m_servicesView->setStyleSheet(styleSheet);
+
+    QFrame::setStyleSheet(styleSheet);
+}

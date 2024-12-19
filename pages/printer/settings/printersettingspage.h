@@ -26,6 +26,9 @@ public:
     explicit PrinterSettingsPage(QKlipperInstance *instance, QWidget *parent = nullptr);
     ~PrinterSettingsPage();
 
+public slots:
+    void setStyleSheet(const QString &styleSheet);
+
 protected slots:
 
 private:

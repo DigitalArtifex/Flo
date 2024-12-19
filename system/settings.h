@@ -37,13 +37,6 @@
 class Settings : public QObject
 {
     Q_OBJECT
-    static QMap<QString,QVariant> themeSettings;
-    static QMap<QString, QString> themeMap;
-    static QMap<QString,QIcon> m_iconMap;
-    static QMap<QString, QString> m_iconNames;
-    static QString m_loadedTheme;
-
-    static void loadThemes();
 
 public:
 
@@ -72,6 +65,7 @@ public:
     static QString getTheme(QString key);
     static QIcon getThemeIcon(QString key, QColor color = QColor());
     static QStringList getThemeList();
+    static QStringList getIconSetList();
     void setTheme(QString key);
     static QStringList themeList();
     static bool saveTheme(const QString &name, const QVariableStyleSheet &sheet);
@@ -102,6 +96,10 @@ public:
 
     static EffectsStyle animationEffectOutStyle();
 
+    static QString currentIconSetName();
+
+    static QString currentThemeName();
+
 signals:
     void currentThemeChanged();
 
@@ -121,9 +119,22 @@ public slots:
     static void setAnimationEffectInStyle(EffectsStyle animationEffectInStyle);
 
     static void setAnimationEffectOutStyle(EffectsStyle animationEffectOutStyle);
+    static void setIconSet(const QString &name);
 
 private:
     explicit Settings();
+
+    static QMap<QString,QVariant> themeSettings;
+    static QMap<QString, QString> themeMap;
+    static QMap<QString,QIcon> m_iconMap;
+    static QMap<QString,QString> m_iconSetMap;
+    static QMap<QString, QString> m_iconNames;
+    static QString m_currentThemeName;
+    static QString m_currentIconSetName;
+
+    static void loadThemes();
+    static void loadIconSets();
+    static void loadIcons();
 
     static bool inflateSettingsDirectory();
     static bool scanForKlipperInstances();

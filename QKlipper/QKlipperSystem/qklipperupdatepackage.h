@@ -23,193 +23,226 @@
 
 #include "qklipperupdatecommit.h"
 
-class QKlipperUpdatePackage : public QObject
+class QKlipperConsole;
+
+class QKlipperUpdatePackage
 {
-    Q_OBJECT
+        friend QKlipperConsole;
 public:
-    explicit QKlipperUpdatePackage(QObject *parent = nullptr);
+    QKlipperUpdatePackage() = default;
+    ~QKlipperUpdatePackage() = default;
+
+    QKlipperUpdatePackage(const QKlipperUpdatePackage &value)
+    {
+        m_debugEnabled = value.m_debugEnabled;
+        m_isValid = value.m_isValid;
+        m_isDirty = value.m_isDirty;
+        m_corrupt = value.m_corrupt;
+        m_detached = value.m_detached;
+        m_pristine = value.m_pristine;
+
+        m_channel = value.m_channel;
+        m_configuredType = value.m_configuredType;
+        m_detectedType = value.m_detectedType;
+        m_remoteAlias = value.m_remoteAlias;
+        m_branch = value.m_branch;
+        m_owner = value.m_owner;
+        m_repoName = value.m_repoName;
+        m_version = value.m_version;
+        m_rollbackVersion = value.m_rollbackVersion;
+        m_remoteVersion = value.m_remoteVersion;
+        m_currentHash = value.m_currentHash;
+        m_remoteHash = value.m_remoteHash;
+        m_fullVersionString = value.m_fullVersionString;
+        m_recoveryUrl = value.m_recoveryUrl;
+        m_remoteUrl = value.m_remoteUrl;
+
+        m_warnings = value.m_warnings;
+        m_anomalies = value.m_anomalies;
+        m_infoTags = value.m_infoTags;
+        m_gitMessages = value.m_gitMessages;
+
+        m_commitsBehind = value.m_commitsBehind;
+    }
+    QKlipperUpdatePackage &operator=(const QKlipperUpdatePackage &value)
+    {
+        m_debugEnabled = value.m_debugEnabled;
+        m_isValid = value.m_isValid;
+        m_isDirty = value.m_isDirty;
+        m_corrupt = value.m_corrupt;
+        m_detached = value.m_detached;
+        m_pristine = value.m_pristine;
+
+        m_channel = value.m_channel;
+        m_configuredType = value.m_configuredType;
+        m_detectedType = value.m_detectedType;
+        m_remoteAlias = value.m_remoteAlias;
+        m_branch = value.m_branch;
+        m_owner = value.m_owner;
+        m_repoName = value.m_repoName;
+        m_version = value.m_version;
+        m_rollbackVersion = value.m_rollbackVersion;
+        m_remoteVersion = value.m_remoteVersion;
+        m_currentHash = value.m_currentHash;
+        m_remoteHash = value.m_remoteHash;
+        m_fullVersionString = value.m_fullVersionString;
+        m_recoveryUrl = value.m_recoveryUrl;
+        m_remoteUrl = value.m_remoteUrl;
 
-    QKlipperUpdatePackage(const QKlipperUpdatePackage &value);
-    QKlipperUpdatePackage(QKlipperUpdatePackage &&value);
-    QKlipperUpdatePackage &operator=(const QKlipperUpdatePackage &value);
-    QKlipperUpdatePackage &operator=(QKlipperUpdatePackage &&value);
-    bool operator==(const QKlipperUpdatePackage &value);
-    bool operator==(QKlipperUpdatePackage &&value);
-    bool operator!=(const QKlipperUpdatePackage &value);
-    bool operator!=(QKlipperUpdatePackage &&value);
+        m_warnings = value.m_warnings;
+        m_anomalies = value.m_anomalies;
+        m_infoTags = value.m_infoTags;
+        m_gitMessages = value.m_gitMessages;
 
-    bool debugEnabled() const;
+        m_commitsBehind = value.m_commitsBehind;
 
-    bool isValid() const;
+        return *this;
+    }
+    bool operator==(const QKlipperUpdatePackage &value) const
+    {
+        if(m_debugEnabled != value.m_debugEnabled) return false;
+        if(m_isValid != value.m_isValid) return false;
+        if(m_isDirty != value.m_isDirty) return false;
+        if(m_corrupt != value.m_corrupt) return false;
+        if(m_detached != value.m_detached) return false;
+        if(m_pristine != value.m_pristine) return false;
 
-    bool isDirty() const;
+        if(m_channel != value.m_channel) return false;
+        if(m_configuredType != value.m_configuredType) return false;
+        if(m_detectedType != value.m_detectedType) return false;
+        if(m_remoteAlias != value.m_remoteAlias) return false;
+        if(m_branch != value.m_branch) return false;
+        if(m_owner != value.m_owner) return false;
+        if(m_repoName != value.m_repoName) return false;
+        if(m_version != value.m_version) return false;
+        if(m_rollbackVersion != value.m_rollbackVersion) return false;
+        if(m_remoteVersion != value.m_remoteVersion) return false;
+        if(m_currentHash != value.m_currentHash) return false;
+        if(m_remoteHash != value.m_remoteHash) return false;
+        if(m_fullVersionString != value.m_fullVersionString) return false;
+        if(m_recoveryUrl != value.m_recoveryUrl) return false;
+        if(m_remoteUrl != value.m_remoteUrl) return false;
 
-    bool corrupt() const;
+        if(m_warnings != value.m_warnings) return false;
+        if(m_anomalies != value.m_anomalies) return false;
+        if(m_infoTags != value.m_infoTags) return false;
+        if(m_gitMessages != value.m_gitMessages) return false;
 
-    bool detached() const;
+        if(m_commitsBehind != value.m_commitsBehind) return false;
 
-    bool pristine() const;
+        return true;
+    }
 
-    QString channel() const;
+    bool operator!=(const QKlipperUpdatePackage &value) const { return !(*this == value); }
 
-    QString configuredType() const;
+    bool debugEnabled() const { return m_debugEnabled; }
 
-    QString detectedType() const;
+    bool isValid() const { return m_isValid; }
 
-    QString remoteAlias() const;
+    bool isDirty() const { return m_isDirty; }
 
-    QString branch() const;
+    bool corrupt() const { return m_corrupt; }
 
-    QString owner() const;
+    bool detached() const { return m_detached; }
 
-    QString repoName() const;
+    bool pristine() const { return m_pristine; }
 
-    QString version() const;
+    QString channel() const { return m_channel; }
 
-    QString rollbackVersion() const;
+    QString configuredType() const { return m_configuredType; }
 
-    QString remoteVersion() const;
+    QString detectedType() const { return m_detectedType; }
 
-    QString currentHash() const;
+    QString remoteAlias() const { return m_remoteAlias; }
 
-    QString remoteHash() const;
+    QString branch() const { return m_branch; }
 
-    QString fullVersionString() const;
+    QString owner() const { return m_owner; }
 
-    QString recoveryUrl() const;
+    QString repoName() const { return m_repoName; }
 
-    QString remoteUrl() const;
+    QString version() const { return m_version; }
 
-    QStringList warnings() const;
+    QString rollbackVersion() const { return m_rollbackVersion; }
 
-    QStringList anomalies() const;
+    QString remoteVersion() const { return m_remoteVersion; }
 
-    QStringList infoTags() const;
+    QString currentHash() const { return m_currentHash; }
 
-    QStringList gitMessages() const;
+    QString remoteHash() const { return m_remoteHash; }
 
-    QList<QKlipperUpdateCommit> commitsBehind() const;
+    QString fullVersionString() const { return m_fullVersionString; }
 
-    bool updating() const;
+    QString recoveryUrl() const { return m_recoveryUrl; }
 
-    QString stateMessage() const;
+    QString remoteUrl() const { return m_remoteUrl; }
 
-public slots:
-    void setDebugEnabled(bool debugEnabled);
+    QStringList warnings() const { return m_warnings; }
 
-    void setIsValid(bool isValid);
+    QStringList anomalies() const { return m_anomalies; }
 
-    void setIsDirty(bool isDirty);
+    QStringList infoTags() const { return m_infoTags; }
 
-    void setCorrupt(bool corrupt);
+    QStringList gitMessages() const { return m_gitMessages; }
 
-    void setDetached(bool detached);
+    QList<QKlipperUpdateCommit> commitsBehind() const { return m_commitsBehind; }
 
-    void setPristine(bool pristine);
+    QString stateMessage() const { return m_stateMessage; }
 
-    void setChannel(const QString &channel);
+protected:
+    void setDebugEnabled(bool debugEnabled) { m_debugEnabled = debugEnabled; }
 
-    void setConfiguredType(const QString &configuredType);
+    void setIsValid(bool isValid) { m_isValid = isValid; }
 
-    void setDetectedType(const QString &detectedType);
+    void setIsDirty(bool isDirty) { m_isDirty = isDirty; }
 
-    void setRemoteAlias(const QString &remoteAlias);
+    void setCorrupt(bool corrupt) { m_corrupt = corrupt; }
 
-    void setBranch(const QString &branch);
+    void setDetached(bool detached) { m_detached = detached; }
 
-    void setOwner(const QString &owner);
+    void setPristine(bool pristine) { m_pristine = pristine; }
 
-    void setRepoName(const QString &repoName);
+    void setChannel(const QString &channel) { m_channel = channel; }
 
-    void setVersion(const QString &version);
+    void setConfiguredType(const QString &configuredType) { m_configuredType = configuredType; }
 
-    void setRollbackVersion(const QString &rollbackVersion);
+    void setDetectedType(const QString &detectedType) { m_detectedType = detectedType; }
 
-    void setRemoteVersion(const QString &remoteVersion);
+    void setRemoteAlias(const QString &remoteAlias) { m_remoteAlias = remoteAlias; }
 
-    void setCurrentHash(const QString &currentHash);
+    void setBranch(const QString &branch) { m_branch = branch; }
 
-    void setRemoteHash(const QString &remoteHash);
+    void setOwner(const QString &owner) { m_owner = owner; }
 
-    void setFullVersionString(const QString &fullVersionString);
+    void setRepoName(const QString &repoName) { m_repoName = repoName; }
 
-    void setRecoveryUrl(const QString &recoveryUrl);
+    void setVersion(const QString &version) { m_version = version; }
 
-    void setRemoteUrl(const QString &remoteUrl);
+    void setRollbackVersion(const QString &rollbackVersion) { m_rollbackVersion = rollbackVersion; }
 
-    void setWarnings(const QStringList &warnings);
+    void setRemoteVersion(const QString &remoteVersion) { m_remoteVersion = remoteVersion; }
 
-    void setAnomalies(const QStringList &anomalies);
+    void setCurrentHash(const QString &currentHash) { m_currentHash = currentHash; }
 
-    void setInfoTags(const QStringList &infoTags);
+    void setRemoteHash(const QString &remoteHash) { m_remoteHash = remoteHash; }
 
-    void setGitMessages(const QStringList &gitMessages);
+    void setFullVersionString(const QString &fullVersionString) { m_fullVersionString = fullVersionString; }
 
-    void setCommitsBehind(const QList<QKlipperUpdateCommit> &commitsBehind);
+    void setRecoveryUrl(const QString &recoveryUrl) { m_recoveryUrl = recoveryUrl; }
 
-    void setUpdating(bool updating);
-    void setUpdatingFinished(bool finished);
+    void setRemoteUrl(const QString &remoteUrl) { m_remoteUrl = remoteUrl; }
 
-    void setStateMessage(const QString &stateMessage);
+    void setWarnings(const QStringList &warnings) { m_warnings = warnings; }
 
-signals:
+    void setAnomalies(const QStringList &anomalies) { m_anomalies = anomalies; }
 
-    void debugEnabledChanged();
+    void setInfoTags(const QStringList &infoTags) { m_infoTags = infoTags; }
 
-    void isValidChanged();
+    void setGitMessages(const QStringList &gitMessages) { m_gitMessages = gitMessages; }
 
-    void isDirtyChanged();
+    void setCommitsBehind(const QList<QKlipperUpdateCommit> &commitsBehind) { m_commitsBehind = commitsBehind; }
 
-    void corruptChanged();
-
-    void detachedChanged();
-
-    void pristineChanged();
-
-    void channelChanged();
-
-    void configuredTypeChanged();
-
-    void detectedTypeChanged();
-
-    void remoteAliasChanged();
-
-    void branchChanged();
-
-    void ownerChanged();
-
-    void repoNameChanged();
-
-    void versionChanged();
-
-    void rollbackVersionChanged();
-
-    void remoteVersionChanged();
-
-    void currentHashChanged();
-
-    void remoteHashChanged();
-
-    void fullVersionStringChanged();
-
-    void recoveryUrlChanged();
-
-    void remoteUrlChanged();
-
-    void warningsChanged();
-
-    void anomaliesChanged();
-
-    void infoTagsChanged();
-
-    void gitMessagesChanged();
-
-    void commitsBehindChanged();
-
-    void updatingChanged();
-    void updatingFinished();
-
-    void stateMessageChanged();
+    void setStateMessage(const QString &stateMessage) { m_stateMessage = stateMessage; }
 
 private:
     bool m_debugEnabled = false;
@@ -218,7 +251,6 @@ private:
     bool m_corrupt = false;
     bool m_detached = false;
     bool m_pristine = false;
-    bool m_updating = false;
 
     QString m_channel;
     QString m_configuredType;
@@ -243,35 +275,8 @@ private:
     QStringList m_gitMessages;
 
     QList<QKlipperUpdateCommit> m_commitsBehind;
-
-    Q_PROPERTY(bool debugEnabled READ debugEnabled WRITE setDebugEnabled NOTIFY debugEnabledChanged FINAL)
-    Q_PROPERTY(bool isValid READ isValid WRITE setIsValid NOTIFY isValidChanged FINAL)
-    Q_PROPERTY(bool isDirty READ isDirty WRITE setIsDirty NOTIFY isDirtyChanged FINAL)
-    Q_PROPERTY(bool corrupt READ corrupt WRITE setCorrupt NOTIFY corruptChanged FINAL)
-    Q_PROPERTY(bool detached READ detached WRITE setDetached NOTIFY detachedChanged FINAL)
-    Q_PROPERTY(bool pristine READ pristine WRITE setPristine NOTIFY pristineChanged FINAL)
-    Q_PROPERTY(QString channel READ channel WRITE setChannel NOTIFY channelChanged FINAL)
-    Q_PROPERTY(QString configuredType READ configuredType WRITE setConfiguredType NOTIFY configuredTypeChanged FINAL)
-    Q_PROPERTY(QString detectedType READ detectedType WRITE setDetectedType NOTIFY detectedTypeChanged FINAL)
-    Q_PROPERTY(QString remoteAlias READ remoteAlias WRITE setRemoteAlias NOTIFY remoteAliasChanged FINAL)
-    Q_PROPERTY(QString branch READ branch WRITE setBranch NOTIFY branchChanged FINAL)
-    Q_PROPERTY(QString owner READ owner WRITE setOwner NOTIFY ownerChanged FINAL)
-    Q_PROPERTY(QString repoName READ repoName WRITE setRepoName NOTIFY repoNameChanged FINAL)
-    Q_PROPERTY(QString version READ version WRITE setVersion NOTIFY versionChanged FINAL)
-    Q_PROPERTY(QString rollbackVersion READ rollbackVersion WRITE setRollbackVersion NOTIFY rollbackVersionChanged FINAL)
-    Q_PROPERTY(QString remoteVersion READ remoteVersion WRITE setRemoteVersion NOTIFY remoteVersionChanged FINAL)
-    Q_PROPERTY(QString currentHash READ currentHash WRITE setCurrentHash NOTIFY currentHashChanged FINAL)
-    Q_PROPERTY(QString remoteHash READ remoteHash WRITE setRemoteHash NOTIFY remoteHashChanged FINAL)
-    Q_PROPERTY(QString fullVersionString READ fullVersionString WRITE setFullVersionString NOTIFY fullVersionStringChanged FINAL)
-    Q_PROPERTY(QString recoveryUrl READ recoveryUrl WRITE setRecoveryUrl NOTIFY recoveryUrlChanged FINAL)
-    Q_PROPERTY(QString remoteUrl READ remoteUrl WRITE setRemoteUrl NOTIFY remoteUrlChanged FINAL)
-    Q_PROPERTY(QStringList warnings READ warnings WRITE setWarnings NOTIFY warningsChanged FINAL)
-    Q_PROPERTY(QStringList anomalies READ anomalies WRITE setAnomalies NOTIFY anomaliesChanged FINAL)
-    Q_PROPERTY(QStringList infoTags READ infoTags WRITE setInfoTags NOTIFY infoTagsChanged FINAL)
-    Q_PROPERTY(QStringList gitMessages READ gitMessages WRITE setGitMessages NOTIFY gitMessagesChanged FINAL)
-    Q_PROPERTY(QList<QKlipperUpdateCommit> commitsBehind READ commitsBehind WRITE setCommitsBehind NOTIFY commitsBehindChanged FINAL)
-    Q_PROPERTY(bool updating READ updating WRITE setUpdating NOTIFY updatingChanged FINAL)
-    Q_PROPERTY(QString stateMessage READ stateMessage WRITE setStateMessage NOTIFY stateMessageChanged FINAL)
 };
+
+Q_DECLARE_METATYPE(QKlipperUpdatePackage)
 
 #endif // QKLIPPERUPDATEPACKAGE_H

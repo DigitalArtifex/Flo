@@ -5,14 +5,16 @@ BedMeshHealthCard::BedMeshHealthCard(BedMeshData *data, QWidget *parent)
 {
     m_meshData = data;
     setupUi();
-    setIcons();
+    setupIcons();
+
+    onBedMeshUpdated();
 
     connect(m_meshData, SIGNAL(dataChanged()), this, SLOT(onBedMeshUpdated()));
 }
 
 void BedMeshHealthCard::setStyleSheet(const QString &stylesheet)
 {
-    setIcons();
+    setupIcons();
 
     CardWidget::setStyleSheet(stylesheet);
 }
@@ -51,9 +53,9 @@ void BedMeshHealthCard::setupUi()
     setCentralWidget(m_centralWidget);
 }
 
-void BedMeshHealthCard::setIcons()
+void BedMeshHealthCard::setupIcons()
 {
-    setIcon(Settings::getThemeIcon("health-icon"));
+    setIcon(Settings::getThemeIcon("health"));
 }
 
 void BedMeshHealthCard::onBedMeshUpdated()
@@ -65,12 +67,14 @@ void BedMeshHealthCard::onBedMeshUpdated()
     m_varianceLabel->setText(QString("Variance: %1mm").arg(QString::number(variance, 'f', 2)));
 
     qreal health = (1 - (variance / 0.3000)) * 100;
+
+    if(variance == 0 && m_meshData->maximum() == 0 && m_meshData->minimum() == 0)
+        health = 0; //no result yet
+
     m_bedHealth->setValue(health);
 
     if(health > 50.0)
-    {
-        m_statusIconLabel->setPixmap(Settings::getThemeIcon("thumbs-up-icon").pixmap(100,100));
-    }
+        m_statusIconLabel->setPixmap(Settings::getThemeIcon("mesh-acceptable").pixmap(100,100));
     else
-        m_statusIconLabel->setPixmap(Settings::getThemeIcon("thumbs-down-icon").pixmap(100,100));
+        m_statusIconLabel->setPixmap(Settings::getThemeIcon("mesh-error").pixmap(100,100));
 }

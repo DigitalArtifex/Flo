@@ -44,7 +44,7 @@ void PrintJobListItem::setupUi()
     layout->addWidget(m_jobNameLabel,0,1,1,2);
 
     m_closeButton = new QToolButton(this);
-    m_closeButton->setIcon(Settings::getThemeIcon(QString("close-icon")));
+    m_closeButton->setIcon(Settings::getThemeIcon(QString("close")));
     connect(m_closeButton, SIGNAL(clicked(bool)), this, SLOT(closeButtonClickEvent()));
     layout->addWidget(m_closeButton,0,3,1,1);
 
@@ -106,23 +106,23 @@ void PrintJobListItem::setPrintJob(QKlipperPrintJob *job)
     case QKlipperPrintJob::Standby:
         break;
     case QKlipperPrintJob::Printing:
-        pixmap = Settings::getThemeIcon(QString("printjob-printing-icon")).pixmap(m_iconLabel->size());
+        pixmap = Settings::getThemeIcon(QString("printjob-printing")).pixmap(m_iconLabel->size());
         m_iconLabel->setPixmap(pixmap);
         break;
     case QKlipperPrintJob::Paused:
-        pixmap = Settings::getThemeIcon(QString("printjob-paused-icon")).pixmap(m_iconLabel->size());
+        pixmap = Settings::getThemeIcon(QString("printjob-paused")).pixmap(m_iconLabel->size());
         m_iconLabel->setPixmap(pixmap);
         break;
     case QKlipperPrintJob::Complete:
-        pixmap = Settings::getThemeIcon(QString("printjob-completed-icon")).pixmap(m_iconLabel->size());
+        pixmap = Settings::getThemeIcon(QString("printjob-completed")).pixmap(m_iconLabel->size());
         m_iconLabel->setPixmap(pixmap);
         break;
     case QKlipperPrintJob::Cancelled:
-        pixmap = Settings::getThemeIcon(QString("printjob-cancelled-icon")).pixmap(m_iconLabel->size());
+        pixmap = Settings::getThemeIcon(QString("printjob-cancelled")).pixmap(m_iconLabel->size());
         m_iconLabel->setPixmap(pixmap);
         break;
     case QKlipperPrintJob::Error:
-        pixmap = Settings::getThemeIcon(QString("printjob-error-icon")).pixmap(m_iconLabel->size());
+        pixmap = Settings::getThemeIcon(QString("printjob-error")).pixmap(m_iconLabel->size());
         m_iconLabel->setPixmap(pixmap);
         break;
     }
@@ -147,17 +147,17 @@ void PrintJobListItem::onPrintJobStateChanged()
         break;
 
     case QKlipperPrintJob::Printing:
-        pixmap = Settings::getThemeIcon(QString("printjob-printing-icon")).pixmap(m_iconLabel->size());
+        pixmap = Settings::getThemeIcon(QString("printjob-printing")).pixmap(m_iconLabel->size());
         m_iconLabel->setPixmap(pixmap);
         break;
 
     case QKlipperPrintJob::Paused:
-        pixmap = Settings::getThemeIcon(QString("printjob-paused-icon")).pixmap(m_iconLabel->size());
+        pixmap = Settings::getThemeIcon(QString("printjob-paused")).pixmap(m_iconLabel->size());
         m_iconLabel->setPixmap(pixmap);
         break;
 
     case QKlipperPrintJob::Complete:
-        pixmap = Settings::getThemeIcon(QString("printjob-completed-icon")).pixmap(m_iconLabel->size());
+        pixmap = Settings::getThemeIcon(QString("printjob-completed")).pixmap(m_iconLabel->size());
         m_iconLabel->setPixmap(pixmap);
 
         if(!m_autoRemoveTimer)
@@ -170,7 +170,7 @@ void PrintJobListItem::onPrintJobStateChanged()
         break;
 
     case QKlipperPrintJob::Cancelled:
-        pixmap = Settings::getThemeIcon(QString("printjob-cancelled-icon")).pixmap(m_iconLabel->size());
+        pixmap = Settings::getThemeIcon(QString("printjob-cancelled")).pixmap(m_iconLabel->size());
         m_iconLabel->setPixmap(pixmap);
 
         if(!m_autoRemoveTimer)
@@ -184,7 +184,7 @@ void PrintJobListItem::onPrintJobStateChanged()
         break;
 
     case QKlipperPrintJob::Error:
-        pixmap = Settings::getThemeIcon(QString("printjob-error-icon")).pixmap(m_iconLabel->size());
+        pixmap = Settings::getThemeIcon(QString("printjob-error")).pixmap(m_iconLabel->size());
         m_iconLabel->setPixmap(pixmap);
         break;
     }

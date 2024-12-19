@@ -49,7 +49,7 @@ public:
 
     QStringList systemPackages() const;
 
-    QMap<QString, QKlipperUpdatePackage *> packages() const;
+    QMap<QString, QKlipperUpdatePackage > packages() const;
 
     QString currentStateMessage() const;
 
@@ -68,8 +68,8 @@ public slots:
 
     void setSystemPackages(const QStringList &systemPackages);
 
-    void setPackages(const QMap<QString, QKlipperUpdatePackage *> &packages);
-    void setPackage(const QString &key, QKlipperUpdatePackage *package);
+    void setPackages(const QMap<QString, QKlipperUpdatePackage > &packages);
+    void setPackage(const QString &key, QKlipperUpdatePackage package);
 
     void setCurrentStateMessage(const QString &currentStateMessage);
 
@@ -99,10 +99,12 @@ private:
 
     QStringList m_systemPackages;
 
-    QMap<QString, QKlipperUpdatePackage*> m_packages;
+    QMap<QString, QKlipperUpdatePackage> m_packages;
 
     QString m_currentStateMessage;
     QString m_currentApplication;
+
+    bool m_isUpdating = true;
 
     Q_PROPERTY(bool isBusy READ isBusy WRITE setIsBusy NOTIFY isBusyChanged FINAL)
     Q_PROPERTY(qint32 githubRateLimit READ githubRateLimit WRITE setGithubRateLimit NOTIFY githubRateLimitChanged FINAL)
@@ -110,7 +112,7 @@ private:
     Q_PROPERTY(qint32 githubLimitResetTime READ githubLimitResetTime WRITE setGithubLimitResetTime NOTIFY githubLimitResetTimeChanged FINAL)
     Q_PROPERTY(qint32 systemPackageCount READ systemPackageCount WRITE setSystemPackageCount NOTIFY systemPackageCountChanged FINAL)
     Q_PROPERTY(QStringList systemPackages READ systemPackages WRITE setSystemPackages NOTIFY systemPackagesChanged FINAL)
-    Q_PROPERTY(QMap<QString, QKlipperUpdatePackage*> packages READ packages WRITE setPackages NOTIFY packagesChanged FINAL)
+    Q_PROPERTY(QMap<QString, QKlipperUpdatePackage> packages READ packages WRITE setPackages NOTIFY packagesChanged FINAL)
     Q_PROPERTY(QString currentStateMessage READ currentStateMessage WRITE setCurrentStateMessage NOTIFY currentStateMessageChanged FINAL)
     Q_PROPERTY(QString currentApplication READ currentApplication WRITE setCurrentApplication NOTIFY currentApplicationChanged FINAL)
 };

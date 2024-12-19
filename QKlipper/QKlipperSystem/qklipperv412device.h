@@ -26,66 +26,121 @@
 class QKlipperSystem;
 class QKlipperConsole;
 
-class QKlipperV412Device : public QVariant
+class QKlipperV412Device
 {
     friend QKlipperSystem;
     friend QKlipperConsole;
 public:
 
-    QKlipperV412Device();
+    QKlipperV412Device() = default;
+    ~QKlipperV412Device() = default;
 
-    QKlipperV412Device(const QKlipperV412Device &value);
-    QKlipperV412Device &operator=(const QKlipperV412Device &value);
-    bool operator==(const QKlipperV412Device &value);
-    bool operator!=(const QKlipperV412Device &value);
+    QKlipperV412Device(const QKlipperV412Device &value)
+    {
+        m_name = value.m_name;
+        m_path = value.m_path;
+        m_cameraName = value.m_cameraName;
+        m_driver = value.m_driver;
+        m_altName = value.m_altName;
+        m_hardwareBus = value.m_hardwareBus;
+        m_version = value.m_version;
+        m_hardwarePath = value.m_hardwarePath;
+        m_pathById = value.m_pathById;
+        m_usbLocation = value.m_usbLocation;
 
-    QString name() const;
+        m_capabilities = value.m_capabilities;
+        m_modes = value.m_modes;
+    }
 
-    QString path() const;
+    QKlipperV412Device &operator=(const QKlipperV412Device &value)
+    {
+        m_name = value.m_name;
+        m_path = value.m_path;
+        m_cameraName = value.m_cameraName;
+        m_driver = value.m_driver;
+        m_altName = value.m_altName;
+        m_hardwareBus = value.m_hardwareBus;
+        m_version = value.m_version;
+        m_hardwarePath = value.m_hardwarePath;
+        m_pathById = value.m_pathById;
+        m_usbLocation = value.m_usbLocation;
 
-    QString cameraName() const;
+        m_capabilities = value.m_capabilities;
+        m_modes = value.m_modes;
 
-    QString driver() const;
+        return *this;
+    }
 
-    QString altName() const;
+    bool operator==(const QKlipperV412Device &value) const
+    {
+        if(m_name != value.m_name) return false;
+        if(m_path != value.m_path) return false;
+        if(m_cameraName != value.m_cameraName) return false;
+        if(m_driver != value.m_driver) return false;
+        if(m_altName != value.m_altName) return false;
+        if(m_hardwareBus != value.m_hardwareBus) return false;
+        if(m_version != value.m_version) return false;
+        if(m_hardwarePath != value.m_hardwarePath) return false;
+        if(m_pathById != value.m_pathById) return false;
+        if(m_usbLocation != value.m_usbLocation) return false;
 
-    QString hardwareBus() const;
+        if(m_capabilities != value.m_capabilities) return false;
 
-    QString version() const;
+        if(m_modes != value.m_modes) return false;
 
-    QString hardwarePath() const;
+        return true;
+    }
 
-    QString pathById() const;
+    bool operator!=(const QKlipperV412Device &value) const { return !(*this == value); }
 
-    QString usbLocation() const;
+    QString name() const { return m_name; }
 
-    QStringList capabilities() const;
+    QString path() const { return m_path; }
 
-    QList<QKlipperV412Mode> modes() const;
+    QString cameraName() const { return m_cameraName; }
 
-    void setName(const QString &name);
+    QString driver() const { return m_driver; }
 
-    void setPath(const QString &path);
+    QString altName() const { return m_altName; }
 
-    void setCameraName(const QString &cameraName);
+    QString hardwareBus() const { return m_hardwareBus; }
 
-    void setDriver(const QString &driver);
+    QString version() const { return m_version; }
 
-    void setAltName(const QString &altName);
+    QString hardwarePath() const { return m_hardwarePath; }
 
-    void setHardwareBus(const QString &hardwareBus);
+    QString pathById() const { return m_pathById; }
 
-    void setVersion(const QString &version);
+    QString usbLocation() const { return m_usbLocation; }
 
-    void setHardwarePath(const QString &hardwarePath);
+    QStringList capabilities() const { return m_capabilities; }
 
-    void setPathById(const QString &pathById);
+    QList<QKlipperV412Mode> modes() const { return m_modes; }
 
-    void setUsbLocation(const QString &usbLocation);
+protected:
+    void setName(const QString &name) { m_name = name; }
 
-    void setCapabilities(const QStringList &capabilities);
+    void setPath(const QString &path) { m_path = path; }
 
-    void setModes(const QList<QKlipperV412Mode> &modes);
+    void setCameraName(const QString &cameraName) { m_cameraName = cameraName; }
+
+    void setDriver(const QString &driver) { m_driver = driver; }
+
+    void setAltName(const QString &altName) { m_altName = altName; }
+
+    void setHardwareBus(const QString &hardwareBus) { m_hardwareBus = hardwareBus; }
+
+    void setVersion(const QString &version) { m_version = version; }
+
+    void setHardwarePath(const QString &hardwarePath) { m_hardwarePath = hardwarePath; }
+
+    void setPathById(const QString &pathById) { m_pathById = pathById; }
+
+    void setUsbLocation(const QString &usbLocation) { m_usbLocation = usbLocation; }
+
+    void setCapabilities(const QStringList &capabilities) { m_capabilities = capabilities; }
+
+    void setModes(const QList<QKlipperV412Mode> &modes) { m_modes = modes; }
 
 private:
     QString m_name;

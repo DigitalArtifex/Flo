@@ -33,7 +33,7 @@ protected slots:
     void convertBytes(qreal &bytes, QString &label);
 
 private:
-    QKlipperPrinter *m_printer = nullptr;
+    QKlipperPrinter *m_system = nullptr;
 
     QKlipperMCU *m_mcu;
 

@@ -31,13 +31,13 @@ IssueListItem::IssueListItem(QString title, QString source, QString message, QWi
 
     if(title == QString("Error configuring printer"))
     {
-        QPixmap icon = Settings::getThemeIcon(QString("issue-config-icon")).pixmap(32,32);
+        QPixmap icon = Settings::getThemeIcon(QString("issue-config")).pixmap(32,32);
         m_iconLabel->setPixmap(icon);
         m_iconLabel->setAlignment(Qt::AlignCenter);
     }
     else
     {
-        QPixmap icon = Settings::getThemeIcon(QString("issue-default-icon")).pixmap(32,32);
+        QPixmap icon = Settings::getThemeIcon(QString("issue-default")).pixmap(32,32);
         m_iconLabel->setPixmap(icon);
         m_iconLabel->setAlignment(Qt::AlignCenter);
     }
@@ -84,7 +84,7 @@ void IssueListItem::setupUi()
     layout->addItem(m_buttonSpacer,0,3,1,1);
 
     m_closeButton = new QToolButton(this);
-    m_closeButton->setIcon(Settings::getThemeIcon(QString("close-icon")));
+    m_closeButton->setIcon(Settings::getThemeIcon(QString("close")));
     layout->addWidget(m_closeButton,0,4,1,1);
 
     connect(m_closeButton, SIGNAL(clicked(bool)), this, SLOT(on_closeButton_clicked()));

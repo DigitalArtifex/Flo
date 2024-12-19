@@ -18,13 +18,18 @@ public:
     PrinterTerminalWidget(QWidget *parent = nullptr);
 
     void addMessage(QKlipperMessage *message);
+    void addMessage(QString title, QString message);
     void addErrorMessage(QString title, QString message);
+    void addGcodeResponse(QString &message);
 
 protected:
-    virtual void showEvent(QShowEvent *event);
 
-protected:
+private:
     QMap<qint64, PrinterTerminalItem*> m_itemMap;
+
+    const static inline QRegularExpression s_gcodeErrorResponseCleanup = QRegularExpression("(\\!\\! )|\n");
+    const static inline QRegularExpression s_gcodeResponseCleanup = QRegularExpression("(\\/\\/ )|\n");
+
 };
 
 #endif // PRINTERTERMINALWIDGET_H

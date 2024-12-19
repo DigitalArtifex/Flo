@@ -5,7 +5,7 @@
 PrinterUserCard::PrinterUserCard(QKlipperUser user, QWidget *parent)
     : CardWidget{CardWidget::SubWidget, parent}
 {
-    setIcon(Settings::getThemeIcon("user-icon"));
+    setIcon(Settings::getThemeIcon("user"));
     m_user = user;
 
     setupUi();
@@ -27,7 +27,7 @@ void PrinterUserCard::setupUi()
     m_iconLabel = new QLabel(m_centralWidget);
     m_iconLabel->setFixedSize(100,100);
     m_iconLabel->setAlignment(Qt::AlignCenter);
-    m_iconLabel->setPixmap(Settings::getThemeIcon("user-card-icon").pixmap(100,100));
+    m_iconLabel->setPixmap(Settings::getThemeIcon("user-card").pixmap(100,100));
     m_centralLayout->addWidget(m_iconLabel);
     setTitle(m_user.username());
 
@@ -39,11 +39,11 @@ void PrinterUserCard::setupUi()
 
     //setup footer
     m_editButton = new QToolButton(this);
-    m_editButton->setIcon(Settings::getThemeIcon("edit-icon"));
+    m_editButton->setIcon(Settings::getThemeIcon("edit"));
     m_editButton->setFixedSize(32,32);
 
     m_deleteButton = new QToolButton(this);
-    m_deleteButton->setIcon(Settings::getThemeIcon("remove-icon"));
+    m_deleteButton->setIcon(Settings::getThemeIcon("remove"));
     m_deleteButton->setFixedSize(32,32);
 
     connect(m_editButton, SIGNAL(clicked(bool)), this, SLOT(editButtonClickEvent(bool)));
@@ -74,7 +74,7 @@ QKlipperUser PrinterUserCard::user() const
 
 void PrinterUserCard::setStyleSheet(const QString &styleSheet)
 {
-    setIcon(Settings::getThemeIcon("user-icon"));
+    setIcon(Settings::getThemeIcon("user"));
 
     CardWidget::setStyleSheet(styleSheet);
 }

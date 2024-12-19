@@ -26,8 +26,10 @@ class QWebcamWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QWebcamWidget(QString source, QWidget *parent = nullptr, int timeout = 5000);
+    QWebcamWidget(QString source = "", int timeout = 10000, QWidget *parent = nullptr);
     ~QWebcamWidget();
+
+    void setStateIcon(QWebcamSource::State state, QIcon icon);
 
     void setSource(QString &source);
     void setTitle(QString &title);
@@ -48,8 +50,6 @@ public:
     QWebcamSource::State state() const;
 
 public slots:
-    void setupIcons();
-    void setStyleSheet(const QString &styleSheet);
 
 signals:
     void stateChanged();
@@ -57,16 +57,18 @@ signals:
 
 protected:
     void setupUi();
+    void setupIcons();
+
+    virtual void changeEvent(QEvent *event) override;
+    virtual void resizeEvent(QResizeEvent *event) override;
+    virtual void hideEvent(QHideEvent *event) override;
+    virtual void showEvent(QShowEvent *event) override;
+    virtual void paintEvent(QPaintEvent *event) override;
 
 protected slots:
     void on_playbackRateChanged(qreal rate);
     void videoFrameChangeEvent(QVideoFrame frame);
     void webcamSourceStateChanged();
-
-    virtual void resizeEvent(QResizeEvent *event);
-    virtual void hideEvent(QHideEvent *event);
-    virtual void showEvent(QShowEvent *event);
-    virtual void paintEvent(QPaintEvent *event);
 
 private:
     QThread *m_webcamThread;
@@ -90,6 +92,11 @@ private:
     QSpacerItem *m_overlayTopSpacer = nullptr;
     QSpacerItem *m_overlayBottomSpacer = nullptr;
     QGridLayout *m_overlayLayout = nullptr;
+
+    quint32 m_timeout = 10000;
+
+    QMap<QWebcamSource::State, QIcon> m_iconMap;
+    QSize m_iconSize = QSize(32, 32);
 };
 
 #endif // QWEBCAMWIDGET_H

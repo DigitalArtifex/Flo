@@ -2,14 +2,18 @@
 
 using namespace QSourceHighlite;
 
-PrinterTerminal::PrinterTerminal(QKlipperInstance *instance, QWidget *parent)
+PrinterTerminal::PrinterTerminal(QKlipperInstance *instance, QWidget *parent) :
+    Dialog(parent)
 {
     m_gcodeExpression = QRegularExpression("^\\s*[g|G|m|M]\\d+", QRegularExpression::MultilineOption);
     m_instance = instance;
 
     setupUi();
 
+    setWindowTitle(QString("%1 Terminal").arg(instance->name()));
+
     connect(m_instance->console(), SIGNAL(messageSent(QKlipperMessage*)), this, SLOT(on_console_message(QKlipperMessage*)));
+    connect(m_instance->console(), SIGNAL(gcodeResponse(QString&)), this, SLOT(onConsoleGcodeResponse(QString&)));
 }
 
 PrinterTerminal::~PrinterTerminal()
@@ -53,6 +57,11 @@ void PrinterTerminal::on_commandEdit_textChanged()
 void PrinterTerminal::on_commandSendButton_clicked()
 {
     sendCommand();
+}
+
+void PrinterTerminal::onConsoleGcodeResponse(QString &message)
+{
+    m_terminal->addGcodeResponse(message);
 }
 
 void PrinterTerminal::setupUi()

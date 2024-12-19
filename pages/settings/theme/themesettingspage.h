@@ -30,6 +30,8 @@ private slots:
 
     void on_variableTableWidget_cellDoubleClicked(int row, int column);
 
+    void on_iconSetSelector_currentTextChanged(const QString &arg1);
+
 private:
     void addThemeVariable(const QString &name, const QString &value);
     Ui::ThemeSettingsPage *ui;

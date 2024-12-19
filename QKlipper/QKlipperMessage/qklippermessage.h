@@ -92,6 +92,8 @@ public:
 
     QJsonValue bodyData() const;
 
+    bool isGcode() const;
+
 public slots:
 
     void setId(qint32 id);
@@ -127,6 +129,8 @@ public slots:
 
     void setBodyData(const QJsonValue &bodyData);
 
+    void setIsGcode(bool isGcode);
+
 protected slots:
     void on_responseTimerTimeout();
 
@@ -148,6 +152,8 @@ signals:
     void errorChanged();
 
     void bodyDataChanged();
+
+    void isGcodeChanged();
 
 private:
     static qint32 s_currentId;
@@ -171,6 +177,8 @@ private:
 
     QKlipperError m_error;
 
+    bool m_isGcode = false;
+
     Q_PROPERTY(qint32 id READ id WRITE setId RESET resetId NOTIFY idChanged FINAL)
     Q_PROPERTY(Protocol protocol READ protocol WRITE setProtocol RESET resetProtocol NOTIFY protocolChanged FINAL)
     Q_PROPERTY(QMap<QString, QVariant> params READ params WRITE setParams RESET resetParams NOTIFY paramsChanged FINAL)
@@ -182,6 +190,7 @@ private:
     Q_PROPERTY(QDateTime responseTimestamp READ responseTimestamp WRITE setResponseTimestamp NOTIFY responseTimestampChanged FINAL)
     Q_PROPERTY(QKlipperError error READ error WRITE setError NOTIFY errorChanged FINAL)
     Q_PROPERTY(QJsonValue bodyData READ bodyData WRITE setBodyData NOTIFY bodyDataChanged FINAL)
+    Q_PROPERTY(bool isGcode READ isGcode WRITE setIsGcode NOTIFY isGcodeChanged FINAL)
 };
 
 #endif // QKLIPPERMESSAGE_H

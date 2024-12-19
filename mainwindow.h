@@ -16,6 +16,10 @@
 #include <QLabel>
 #include <QTimer>
 #include <QColorDialog>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
+#include <QTextEdit>
 
 #include <QParallelAnimationGroup>
 
@@ -51,6 +55,7 @@ public:
     void changePage(QAnimatedWidget *page, QString title);
 
     virtual void init();
+    virtual bool eventFilter(QObject *object, QEvent *event) override;
 
 signals:
 
@@ -113,6 +118,7 @@ private:
     //Menu Buttons
     MenuButton *m_dashboardButton = nullptr;
     QList<MenuButton*> m_printerButtons = QList<MenuButton*>();
+    QKlipperInstanceList m_instances;
     MenuButton *m_settingsButton = nullptr;
 
     //Dialogs

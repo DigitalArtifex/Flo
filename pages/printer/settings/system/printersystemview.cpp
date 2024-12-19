@@ -14,6 +14,18 @@ PrinterSystemView::~PrinterSystemView()
         m_layout->deleteLater();
 }
 
+void PrinterSystemView::setStyleSheet(const QString &styleSheet)
+{
+    if(m_systemWidget)
+        m_systemWidget->setStyleSheet(styleSheet);
+
+    if(m_driveWidget)
+        m_driveWidget->setStyleSheet(styleSheet);
+
+    if(m_networkWidget)
+        m_networkWidget->setStyleSheet(styleSheet);
+}
+
 void PrinterSystemView::setupUi()
 {
     m_centralWidget = new QWidget(this);

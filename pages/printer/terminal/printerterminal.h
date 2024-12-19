@@ -12,7 +12,9 @@
 #include <QKlipper/qklipper.h>
 #include "../../../QSourceHighlite/qsourcehighliter.h"
 
-class PrinterTerminal : public QFrame
+#include "ui/common/dialog/dialog.h"
+
+class PrinterTerminal : public Dialog
 {
     Q_OBJECT
 public:
@@ -25,6 +27,8 @@ protected slots:
     void on_commandEdit_returnPressed();
     void on_commandEdit_textChanged();
     void on_commandSendButton_clicked();
+
+    void onConsoleGcodeResponse(QString &message);
 
 protected:
     virtual void setupUi();

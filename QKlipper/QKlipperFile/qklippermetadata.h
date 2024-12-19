@@ -27,7 +27,6 @@
 //File metadata
 class QKlipperMetadata
 {
-    Q_GADGET
 public:
     qreal printStartTime = 0;
     qreal modified = 0;
@@ -54,20 +53,62 @@ public:
 
     QList<QKlipperThumbnail> thumbnails;
 
+    QKlipperMetadata() = default;
+    ~QKlipperMetadata() = default;
+
+    QKlipperMetadata(const QKlipperMetadata &value)
+    {
+        printStartTime = value.printStartTime;
+        modified = value.modified;
+        layerHeight = value.layerHeight;
+        firstLayerHeight = value.firstLayerHeight;
+        firstLayerBedTemp = value.firstLayerBedTemp;
+        firstLayerExtruderTemp = value.firstLayerExtruderTemp;
+        objectHeight = value.objectHeight;
+        filamentTotal = value.filamentTotal;
+        filamentTotalWeight = value.filamentTotalWeight;
+        nozzleDiameter = value.nozzleDiameter;
+        jobId = value.jobId;
+        estimatedTime = value.estimatedTime;
+        gcodeEndByte = value.gcodeEndByte;
+        gcodeStartByte = value.gcodeStartByte;
+        size = value.size;
+        filename = value.filename;
+        filamentName = value.filamentName;
+        slicer = value.slicer;
+        slicerVersion = value.slicerVersion;
+        uuid = value.uuid;
+    }
+
+    QKlipperMetadata &operator=(const QKlipperMetadata &value)
+    {
+        printStartTime = value.printStartTime;
+        modified = value.modified;
+        layerHeight = value.layerHeight;
+        firstLayerHeight = value.firstLayerHeight;
+        firstLayerBedTemp = value.firstLayerBedTemp;
+        firstLayerExtruderTemp = value.firstLayerExtruderTemp;
+        objectHeight = value.objectHeight;
+        filamentTotal = value.filamentTotal;
+        filamentTotalWeight = value.filamentTotalWeight;
+        nozzleDiameter = value.nozzleDiameter;
+        jobId = value.jobId;
+        estimatedTime = value.estimatedTime;
+        gcodeEndByte = value.gcodeEndByte;
+        gcodeStartByte = value.gcodeStartByte;
+        size = value.size;
+        filename = value.filename;
+        filamentName = value.filamentName;
+        slicer = value.slicer;
+        slicerVersion = value.slicerVersion;
+        uuid = value.uuid;
+
+        return *this;
+    }
+
     bool operator==(const QKlipperMetadata &value)
     {
-        for(QKlipperThumbnail thumbnail : value.thumbnails)
-        {
-            if(!thumbnails.contains(thumbnail))
-                return false;
-        }
-
-        for(QKlipperThumbnail thumbnail : thumbnails)
-        {
-            if(!value.thumbnails.contains(thumbnail))
-                return false;
-        }
-
+        if(thumbnails != value.thumbnails) return false;
         if(estimatedTime != value.estimatedTime) return false;
         if(gcodeEndByte != value.gcodeEndByte) return false;
         if(gcodeStartByte != value.gcodeStartByte) return false;

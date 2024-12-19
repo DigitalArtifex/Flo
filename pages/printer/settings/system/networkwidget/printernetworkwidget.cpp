@@ -11,7 +11,7 @@ PrinterNetworkWidget::PrinterNetworkWidget(QKlipperSystem *system, QWidget *pare
 
 void PrinterNetworkWidget::setStyleSheet(const QString &styleSheet)
 {
-    setIcon(Settings::getThemeIcon("network-icon"));
+    setIcon(Settings::getThemeIcon("network"));
     CardWidget::setStyleSheet(styleSheet);
 }
 
@@ -28,5 +28,5 @@ void PrinterNetworkWidget::setupUi()
 
     m_centralWidget->setLayout(m_centralLayout);
     setCentralWidget(m_centralWidget);
-    setIcon(Settings::getThemeIcon("network-icon"));
+    setIcon(Settings::getThemeIcon("network"));
 }

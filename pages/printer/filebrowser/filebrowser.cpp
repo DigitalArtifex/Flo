@@ -5,7 +5,7 @@
 #include "ui/messagedialog.h"
 
 FileBrowser::FileBrowser(QKlipperInstance *printer, QString root, QWidget *parent, Mode mode) :
-    QWidget(parent)
+    Dialog(parent)
 {
     m_rootDirectory = root;
     m_mode = mode;
@@ -16,6 +16,7 @@ FileBrowser::FileBrowser(QKlipperInstance *printer, QString root, QWidget *paren
     setupConnections();
 
     setStyleSheet(Settings::currentTheme());
+    setWindowTitle("G-Code File Browser");
 }
 
 FileBrowser::~FileBrowser()
@@ -57,7 +58,7 @@ void FileBrowser::setupUi()
 
     m_upDirectoryButton = new QToolButton(m_actionBar);
     m_upDirectoryButton->setEnabled(false);
-    m_upDirectoryButton->setFixedSize(35,35);
+    m_upDirectoryButton->setFixedSize(50,50);
     m_upDirectoryButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_actionBarLayout->addWidget(m_upDirectoryButton, 0, 0, 1, 1);
 
@@ -70,22 +71,22 @@ void FileBrowser::setupUi()
     m_actionBarLayout->addItem(actionSpacer, 0, 2, 1, 1);
 
     m_refreshButton = new QToolButton(m_actionBar);
-    m_refreshButton->setFixedSize(35,35);
+    m_refreshButton->setFixedSize(50,50);
     m_refreshButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_actionBarLayout->addWidget(m_refreshButton, 0, 3, 1, 1);
 
     m_uploadFileButton = new QToolButton(m_actionBar);
-    m_uploadFileButton->setFixedSize(35,35);
+    m_uploadFileButton->setFixedSize(50,50);
     m_uploadFileButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_actionBarLayout->addWidget(m_uploadFileButton, 0, 4, 1, 1);
 
     m_newFolderButton = new QToolButton(m_actionBar);
-    m_newFolderButton->setFixedSize(35,35);
+    m_newFolderButton->setFixedSize(50,50);
     m_newFolderButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_actionBarLayout->addWidget(m_newFolderButton, 0, 5, 1, 1);
 
     m_downloadFolderButton = new QToolButton(m_actionBar);
-    m_downloadFolderButton->setFixedSize(35,35);
+    m_downloadFolderButton->setFixedSize(50,50);
     m_downloadFolderButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_actionBarLayout->addWidget(m_downloadFolderButton, 0, 6, 1, 1);
 
@@ -110,20 +111,20 @@ void FileBrowser::setupUi()
         m_thumbnailLabel->setFixedSize(200,200);
         m_sideBarLayout->addWidget(m_thumbnailLabel, 1, 0, 1, 1, Qt::AlignLeft);
 
-        QPixmap pixmap = Settings::getThemeIcon("print-icon").pixmap(28,28);
+        QPixmap pixmap = Settings::getThemeIcon("print").pixmap(28,28);
         m_printFileButton = new QIconButton(this);
         m_printFileButton->setFixedSize(250,50);
         m_printFileButton->setText("Print File");
-        m_printFileButton->setIcon(Settings::getThemeIcon("print-icon"));
+        m_printFileButton->setIcon(Settings::getThemeIcon("print"));
 
         m_printFileButton->setEnabled(false);
         m_sideBarLayout->addWidget(m_printFileButton, 2, 0, 1, 1);
 
-        pixmap = Settings::getThemeIcon("edit-icon").pixmap(28,28);
+        pixmap = Settings::getThemeIcon("edit").pixmap(28,28);
         m_editFileButton = new QIconButton(this);
         m_editFileButton->setFixedSize(250,50);
         m_editFileButton->setText("Edit File");
-        m_editFileButton->setIcon(Settings::getThemeIcon("edit-icon"));
+        m_editFileButton->setIcon(Settings::getThemeIcon("edit"));
 
         m_printFileButton->setEnabled(false);
         m_sideBarLayout->addWidget(m_editFileButton, 3, 0, 1, 1);
@@ -131,22 +132,17 @@ void FileBrowser::setupUi()
         QSpacerItem *spacer = new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Expanding);
         m_sideBarLayout->addItem(spacer, 4, 0, 1, 1, Qt::AlignLeft);
 
-        pixmap = Settings::getThemeIcon("delete-icon").pixmap(28,28);
+        pixmap = Settings::getThemeIcon("delete").pixmap(28,28);
         m_deleteFileButton = new QIconButton(this);
         m_deleteFileButton->setFixedSize(250,50);
         m_deleteFileButton->setText("Delete File");
-        m_deleteFileButton->setIcon(Settings::getThemeIcon("delete-icon"));
+        m_deleteFileButton->setIcon(Settings::getThemeIcon("delete"));
 
         m_printFileButton->setEnabled(false);
         m_sideBarLayout->addWidget(m_deleteFileButton, 5, 0, 1, 1);
     }
 
     m_sideBar->setLayout(m_sideBarLayout);
-    m_upDirectoryButton->setFixedSize(32,32);
-    m_newFolderButton->setFixedSize(32,32);
-    m_uploadFileButton->setFixedSize(32,32);
-    m_downloadFolderButton->setFixedSize(32,32);
-    m_refreshButton->setFixedSize(32,32);
 
     m_actionBarLayout->setContentsMargins(4,4,4,4);
 
@@ -155,11 +151,11 @@ void FileBrowser::setupUi()
     if(m_sideBar)
         m_sideBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageSideBar"));
 
-    m_upDirectoryButton->setIcon(Settings::getThemeIcon(QString("up-directory-icon")));
-    m_refreshButton->setIcon(Settings::getThemeIcon(QString("refresh-icon")));
-    m_uploadFileButton->setIcon(Settings::getThemeIcon(QString("file-upload-icon")));
-    m_newFolderButton->setIcon(Settings::getThemeIcon(QString("folder-create-icon")));
-    m_downloadFolderButton->setIcon(Settings::getThemeIcon(QString("folder-download-icon")));
+    m_upDirectoryButton->setIcon(Settings::getThemeIcon(QString("up-directory")));
+    m_refreshButton->setIcon(Settings::getThemeIcon(QString("refresh")));
+    m_uploadFileButton->setIcon(Settings::getThemeIcon(QString("file-upload")));
+    m_newFolderButton->setIcon(Settings::getThemeIcon(QString("folder-create")));
+    m_downloadFolderButton->setIcon(Settings::getThemeIcon(QString("folder-download")));
 
     if(m_mode == Page)
     {
@@ -206,11 +202,11 @@ void FileBrowser::setStyleSheet(const QString &styleSheet)
     if(m_overlay)
         m_overlay->setStyleSheet(styleSheet);
 
-    m_upDirectoryButton->setIcon(Settings::getThemeIcon(QString("up-directory-icon")));
-    m_refreshButton->setIcon(Settings::getThemeIcon(QString("refresh-icon")));
-    m_uploadFileButton->setIcon(Settings::getThemeIcon(QString("file-upload-icon")));
-    m_newFolderButton->setIcon(Settings::getThemeIcon(QString("folder-create-icon")));
-    m_downloadFolderButton->setIcon(Settings::getThemeIcon(QString("folder-download-icon")));
+    m_upDirectoryButton->setIcon(Settings::getThemeIcon(QString("up-directory")));
+    m_refreshButton->setIcon(Settings::getThemeIcon(QString("refresh")));
+    m_uploadFileButton->setIcon(Settings::getThemeIcon(QString("file-upload")));
+    m_newFolderButton->setIcon(Settings::getThemeIcon(QString("folder-create")));
+    m_downloadFolderButton->setIcon(Settings::getThemeIcon(QString("folder-download")));
 }
 
 void FileBrowser::resizeEvent(QResizeEvent *event)
@@ -259,7 +255,7 @@ void FileBrowser::setActionsEnabled(bool enabled)
 
 void FileBrowser::uploadFileButtonClickEvent()
 {
-    showOverlay(QString("Uploading Files"), QString("refresh-icon"));
+    showOverlay(QString("Uploading Files"), QString("refresh"));
 
     QString fileTypes = QString("GCode (*.g *.gcode)");
 
@@ -324,7 +320,7 @@ void FileBrowser::downloadFolderButtonClickEvent()
 
 void FileBrowser::refreshButtonClickEvent()
 {
-    showOverlay(QString("Refreshing Directory"), QString("refresh-icon"));
+    showOverlay(QString("Refreshing Directory"), QString("refresh"));
 
     m_currentDirectoryLabel->setText(m_rootDirectory + QString("/") + m_currentDirectory + QString("/"));
 
@@ -334,7 +330,7 @@ void FileBrowser::refreshButtonClickEvent()
 
 void FileBrowser::upDirectoryButtonClickEvent()
 {
-    showOverlay(QString("Requesting Directory"), QString("refresh-icon"));
+    showOverlay(QString("Requesting Directory"), QString("refresh"));
 
     if(m_currentDirectory.contains(QString("/")))
         m_currentDirectory = m_currentDirectory.mid(0, m_currentDirectory.lastIndexOf(QString("/")));
@@ -579,7 +575,7 @@ void FileBrowser::newFolderDialogAcceptEvent(QString value)
         m_newFolderDialog = nullptr;
     }
 
-    showOverlay(QString("Creating Folder"), QString("folder-icon"));
+    showOverlay(QString("Creating Folder"), QString("folder"));
 
     m_instance->console()->serverDirectoryPost(path);
 }

@@ -14,25 +14,22 @@
    <string>Frame</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="3">
-    <widget class="QPushButton" name="calibrateButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
+   <item row="0" column="0">
+    <widget class="QLabel" name="iconLabel">
      <property name="minimumSize">
       <size>
-       <width>35</width>
-       <height>35</height>
+       <width>32</width>
+       <height>32</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>200</width>
-       <height>35</height>
+       <width>32</width>
+       <height>32</height>
       </size>
      </property>
      <property name="text">
-      <string>Calibrate</string>
+      <string/>
      </property>
     </widget>
    </item>
@@ -40,44 +37,6 @@
     <widget class="QLabel" name="label">
      <property name="text">
       <string>No Data Found</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="iconLabel">
-     <property name="minimumSize">
-      <size>
-       <width>24</width>
-       <height>24</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>24</width>
-       <height>24</height>
-      </size>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QToolButton" name="homeButton">
-     <property name="minimumSize">
-      <size>
-       <width>35</width>
-       <height>35</height>
-      </size>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
      </property>
     </widget>
    </item>

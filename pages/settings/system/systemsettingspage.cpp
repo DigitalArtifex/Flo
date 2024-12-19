@@ -9,6 +9,8 @@ SystemSettingsPage::SystemSettingsPage(QWidget *parent)
     ui->setupUi(this);
 
     reset();
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    ui->scrollAreaWidgetContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
 }
 
 SystemSettingsPage::~SystemSettingsPage()
@@ -18,8 +20,8 @@ SystemSettingsPage::~SystemSettingsPage()
 
 void SystemSettingsPage::reset()
 {
-    ui->openGlCheckbox->setChecked(Settings::get("ui-opengl").toBool());
-    ui->pageAnimationDurationSpinBox->setValue(Settings::get("ui-animations-duration", 500).toDouble());
+    //ui->openGlCheckbox->setChecked(Settings::get("ui-opengl").toBool());
+    ui->pageAnimationDurationSpinBox->setValue(Settings::get("ui/animations-duration", 500).toDouble());
 
     if(Settings::isAnimationEnabled())
         ui->pageAnimationEnableComboBox->setCurrentIndex(0);
@@ -34,11 +36,11 @@ void SystemSettingsPage::reset()
 
 void SystemSettingsPage::apply()
 {
-    if(Settings::get("ui-opengl", false).toBool() != ui->openGlCheckbox->isChecked())
-    {
-        Settings::set("ui-opengl", ui->openGlCheckbox->isChecked());
-        m_requiresRestart = true;
-    }
+    // if(Settings::get("ui-opengl", false).toBool() != ui->openGlCheckbox->isChecked())
+    // {
+    //     Settings::set("ui-opengl", ui->openGlCheckbox->isChecked());
+    //     m_requiresRestart = true;
+    // }
 
     Settings::setAnimationDuration(ui->pageAnimationDurationSpinBox->value());
 
@@ -51,6 +53,11 @@ void SystemSettingsPage::apply()
         Settings::setIsAnimationEnabled(true);
     else
         Settings::setIsAnimationEnabled(false);
+
+    if(Settings::get("ui/virtual-keyboard", false).toBool() != ui->virtualKeyboardCheckBox->isChecked())
+        Settings::set("ui/virtual-keyboard", ui->virtualKeyboardCheckBox->isChecked());
+
+    Settings::save();
 }
 
 bool SystemSettingsPage::requiresRestart()

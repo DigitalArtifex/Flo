@@ -40,11 +40,12 @@ int QFlowLayout::horizontalSpacing() const
 
 int QFlowLayout::verticalSpacing() const
 {
-    if (m_vSpace >= 0) {
-        return m_vSpace;
-    } else {
-        return smartSpacing(QStyle::PM_LayoutVerticalSpacing);
-    }
+    return spacing();
+    // if (m_vSpace >= 0) {
+    //     return m_vSpace;
+    // } else {
+    //     return smartSpacing(QStyle::PM_LayoutVerticalSpacing);
+    // }
 }
 
 int QFlowLayout::count() const

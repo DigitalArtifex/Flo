@@ -12,31 +12,37 @@ PrinterTerminalItem::~PrinterTerminalItem()
     //     m_layout->deleteLater();
 }
 
+QKlipperMessage *PrinterTerminalItem::message() const
+{
+    return m_message;
+}
+
 void PrinterTerminalItem::setupUi()
 {
     m_layout = new QGridLayout(this);
-    m_layout->setSpacing(12);
+    m_layout->setSpacing(9);
 
     m_messageTimestampLabel = new QLabel();
-    m_messageTimestampLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    m_messageTimestampLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     m_messageTimestampLabel->setAlignment(Qt::AlignRight | Qt::AlignBottom);
     m_messageTimestampLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessageTimestamp"));
 
     m_messageMethodLabel = new QLabel();
-    m_messageMethodLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    m_messageMethodLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_messageMethodLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessageTitle"));
 
     m_responseMessageLabel = new QLabel();
-    m_responseMessageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_responseMessageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_messageTimestampLabel->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
     m_responseMessageLabel->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessageText"));
 
-    m_layout->addWidget(m_messageMethodLabel,0,0,1,1);
+    m_layout->addWidget(m_messageMethodLabel,0,0,1,2);
     m_layout->addWidget(m_responseMessageLabel,1,0,1,1);
     m_layout->addWidget(m_messageTimestampLabel,1,1,1,1);
 
     setLayout(m_layout);
 
-    //setFixedHeight(75);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessage"));
     style()->polish(this);
@@ -44,11 +50,23 @@ void PrinterTerminalItem::setupUi()
 
 void PrinterTerminalItem::onMessageResponseChanged()
 {
-    if(m_message->error().type() == QKlipperError::NoError)
+    QString message = m_responseMessageLabel->text();
+
+    if(m_message->response().toString().isEmpty() && message.startsWith("Awaiting"))
     {
-        m_responseMessageLabel->setText(QString("OK"));
-        setProperty("status", QVariant::fromValue<QString>("ok"));
+        if(m_message->error().type() == QKlipperError::NoError)
+            message = "OK";
     }
+    else
+        message += m_message->response().toString();
+
+    m_responseMessageLabel->setText(message);
+
+    if(m_message->error().type() == QKlipperError::NoError)
+        setProperty("status", QVariant::fromValue<QString>("ok"));
+
+    if(message.startsWith("// Unknown Command:", Qt::CaseInsensitive))
+        setProperty("status", QVariant::fromValue<QString>("error"));
 
     qint64 span = m_timestamp.secsTo(m_message->responseTimestamp());
 
@@ -89,10 +107,21 @@ QJsonValue PrinterTerminalItem::response() const
 
 void PrinterTerminalItem::setErrorMessage(QString title, QString message)
 {
-    m_messageMethodLabel->setText(title);
+    if(m_message)
+    {
+        disconnect(m_message, SIGNAL(responseChanged()), this, SLOT(onMessageResponseChanged()));
+        disconnect(m_message, SIGNAL(errorChanged()), this, SLOT(onMessageErrorChanged()));
+    }
+
+    if(title.isEmpty())
+        m_messageMethodLabel->setMaximumHeight(0);
+    else
+        m_messageMethodLabel->setText(title);
 
     m_responseMessageLabel->setText(message);
     m_responseMessageLabel->setWordWrap(true);
+
+    m_messageTimestampLabel->setText(QDateTime::currentDateTime().toString(QString("hh:mm:ss")));
 
     m_isErrorMessage = true;
 
@@ -122,12 +151,44 @@ void PrinterTerminalItem::setMessage(QKlipperMessage *message)
 
     if(method == QString("printer.gcode.script"))
     {
-        m_messageMethodLabel->setText(QString("GCode: %1").arg(message->param("script").toString()));
+        m_messageMethodLabel->setText(QString("GCode: %1").arg(message->param("script").toString().toUpper()));
     }
     else
         m_messageMethodLabel->setText(method);
 
     m_responseMessageLabel->setText(QString("Awaiting response.."));
+
+    style()->polish(this);
+}
+
+void PrinterTerminalItem::setMessage(QString title, QString message)
+{
+    if(m_message)
+    {
+        disconnect(m_message, SIGNAL(responseChanged()), this, SLOT(onMessageResponseChanged()));
+        disconnect(m_message, SIGNAL(errorChanged()), this, SLOT(onMessageErrorChanged()));
+    }
+
+    if(title.isEmpty())
+    {
+        m_messageMethodLabel->setVisible(false);
+        m_messageMethodLabel->setMaximumHeight(0);
+
+        m_layout->removeWidget(m_messageMethodLabel);
+        m_layout->removeWidget(m_responseMessageLabel);
+        m_layout->removeWidget(m_messageTimestampLabel);
+
+        //m_layout->addWidget(m_messageMethodLabel,0,0,1,2);
+        m_layout->addWidget(m_responseMessageLabel,0,0,1,1, Qt::AlignTop);
+        m_layout->addWidget(m_messageTimestampLabel,0,1,1,1, Qt::AlignTop);
+    }
+    else
+        m_messageMethodLabel->setText(title);
+
+    m_responseMessageLabel->setText(message);
+    m_responseMessageLabel->setWordWrap(true);
+
+    m_messageTimestampLabel->setText(QDateTime::currentDateTime().toString(QString("hh:mm:ss")));
 
     style()->polish(this);
 }

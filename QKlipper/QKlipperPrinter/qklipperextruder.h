@@ -58,7 +58,7 @@ public:
     ~QKlipperExtruder();
 
     /*!
-     * The fan object associated with the extruder that is determined during
+     * The fan object associated with the extruder is determined during
      * the QKlipperConsole startup sequence. This object will change at least once,
      * so be sure to subscribe to it's changed signal.
      *
@@ -419,6 +419,15 @@ public slots:
     void extrude(qreal amount, qreal speed);
 
     /*!
+     * Sends a gcode script to retract the requested length of material
+     * at the requested speed
+     *
+     * \param amount The amount to extrude (in mm)
+     * \param speed The speed of the extrusion
+     */
+    void retract(qreal amount, qreal speed);
+
+    /*!
      * Sends a gcode script to calibrate the extruder at the target temperature.
      *
      * \param target The temperature to use in the PID calibration
@@ -505,7 +514,7 @@ private slots:
     void setTemperatureStore(const QKlipperTemperatureStore &temperatureStore);
     void setTemperatureStoreValue(const QKlipperTemperatureStoreValue &value);
 
-    void setOffset(const QKlipperPosition &offset);
+    void setOffsetData(const QKlipperPosition &offset);
 
     void setConsole(QKlipperConsole *console);
 
@@ -559,6 +568,10 @@ signals:
 
     void pidKPChanged();
 
+    void pidCalibrating();
+
+    void pidCalibratingFinished();
+
     void maxExtrudeCrossSectionChanged();
 
     void maxExtrudeOnlyAccelerationChanged();
@@ -602,7 +615,7 @@ signals:
     void consoleChanged();
 
 private:
-    QKlipperPosition    m_offset;
+    QKlipperPosition     m_offset;
     QKlipperFan         *m_fan;
 
     QKlipperGearRatio m_gearRatio;
@@ -621,7 +634,7 @@ private:
     qreal m_nozzleDiameter = 0;
     qreal m_power = 0;
     qreal m_watts = 0;
-    qreal m_maxWatts;
+    qreal m_maxWatts = 24;
     qreal m_inlineResistor = 0;
     qreal m_pullupResistor = 0;
     qreal m_pwmCycle = 0;
@@ -638,8 +651,8 @@ private:
     qreal m_maxExtrudeOnlyAcceleration = 0;
     qreal m_maxExtrudeOnlyDistance = 0;
     qreal m_maxExtrudeOnlyVelocity = 0;
-    qreal m_maxTemp = 0;
-    qreal m_maxPower = 0;
+    qreal m_maxTemp = 250;
+    qreal m_maxPower = 1;
 
     //minimums
     qreal m_minExtrudeTemp = 0;

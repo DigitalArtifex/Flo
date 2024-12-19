@@ -9,7 +9,7 @@ MenuButton::MenuButton(int id, QWidget *parent) :
     ui(new Ui::MenuButton)
 {
     ui->setupUi(this);
-    ui->text->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuButtonText"));
+    //ui->text->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuButtonText"));
     this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "MenuButton"));
 }
 
@@ -18,15 +18,16 @@ MenuButton::~MenuButton()
     delete ui;
 }
 
-void MenuButton::setIcon(QString icon)
+void MenuButton::setIcon(QIcon icon)
 {
-    m_icon = Settings::getThemeIcon(icon);
+    m_icon = icon;
+    update();
 }
 
 void MenuButton::setText(QString text)
 {
     this->text = text;
-    ui->text->setText(this->text);
+    //ui->text->setText(this->text);
 }
 
 void MenuButton::setChecked(bool checked)
@@ -77,17 +78,18 @@ void MenuButton::paintEvent(QPaintEvent *event)
     QPixmap pixmap;
 
     QSize size(36,36);
-    int x = 10;
+
+    if(property("iconSize").isValid())
+        size = property("iconSize").toSize();
+
+    int x = ((width() / 2) - (size.width() / 2));
     int y = ((height() / 2) - (size.height() / 2));
 
-    if(property("icon-right").isValid())
-        x = property("icon-right").toInt();
+    if(property("iconRight").isValid())
+        x = property("iconRight").toInt();
 
-    if(property("icon-top").isValid())
-        y = property("icon-top").toInt();
-
-    if(property("icon-size").isValid())
-        size = property("icon-size").toSize();
+    if(property("iconTop").isValid())
+        y = property("iconTop").toInt();
 
     if(isEnabled())
         pixmap = (m_icon.pixmap(size, QIcon::Normal, QIcon::On));
@@ -104,4 +106,21 @@ void MenuButton::paintEvent(QPaintEvent *event)
 void MenuButton::changeEvent(QEvent *event)
 {
     QFrame::changeEvent(event);
+}
+
+QSize MenuButton::iconSize() const
+{
+    return m_iconSize;
+}
+
+void MenuButton::setIconSize(const QSize &iconSize)
+{
+    if (m_iconSize == iconSize)
+        return;
+
+    m_iconSize = iconSize;
+
+    update();
+
+    emit iconSizeChanged();
 }

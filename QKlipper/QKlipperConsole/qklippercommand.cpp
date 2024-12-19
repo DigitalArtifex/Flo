@@ -1,11 +1,6 @@
 #include "qklippercommand.h"
 
-QMap<QString, QKlipperCommand*> QKlipperCommand::m_commands;
-bool QKlipperCommand::m_isInitialized = false;
-bool QKlipperCommand::m_isInitializing = false;
-
 QKlipperCommand::QKlipperCommand(QString command)
-    : QVariant{}
 {
     initialize();
     m_command = command;
@@ -17,35 +12,36 @@ QKlipperCommand::QKlipperCommand(QString command)
     }
 }
 
+QKlipperCommand::QKlipperCommand(const QKlipperCommand &value)
+{
+    m_command = value.m_command;
+    m_help = value.m_help;
+    m_parameters = value.m_parameters;
+}
+
+QKlipperCommand &QKlipperCommand::operator=(const QKlipperCommand &value)
+{
+    m_command = value.m_command;
+    m_help = value.m_help;
+    m_parameters = value.m_parameters;
+
+    return *this;
+}
+
+bool QKlipperCommand::operator==(const QKlipperCommand &value) const
+{
+    if(m_command == value.m_command &&
+        m_help == value.m_help &&
+        m_parameters == value.m_parameters)
+        return true;
+
+    return false;
+}
+
 bool QKlipperCommand::isKlipperCommand(const QString &command)
 {
     initialize();
     return m_commands.contains(command);
-}
-
-QString QKlipperCommand::command() const
-{
-    return m_command;
-}
-
-void QKlipperCommand::setCommand(const QString &command)
-{
-    m_command = command;
-}
-
-QString QKlipperCommand::help() const
-{
-    return m_help;
-}
-
-void QKlipperCommand::setHelp(const QString &help)
-{
-    m_help = help;
-}
-
-void QKlipperCommand::setParameter(const QString &key)
-{
-    m_parameters += key;
 }
 
 void QKlipperCommand::initialize()
@@ -107,9 +103,4 @@ void QKlipperCommand::initialize()
             }
         }
     }
-}
-
-QStringList QKlipperCommand::parameters() const
-{
-    return m_parameters;
 }

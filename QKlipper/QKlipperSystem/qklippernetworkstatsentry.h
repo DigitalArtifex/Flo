@@ -25,48 +25,35 @@ class QKlipperConsole;
 /*!
  * \brief Filled by machine.proc_stats
  */
-class QKlipperNetworkStatsEntry : public QObject
+class QKlipperNetworkStatsEntry
 {
-    Q_OBJECT
-
     friend QKlipperSystem;
     friend QKlipperConsole;
 public:
-    explicit QKlipperNetworkStatsEntry(QObject *parent = nullptr);
-
+    QKlipperNetworkStatsEntry() = default;
+    ~QKlipperNetworkStatsEntry() = default;
     QKlipperNetworkStatsEntry(const QKlipperNetworkStatsEntry &value);
-    QKlipperNetworkStatsEntry(QKlipperNetworkStatsEntry &&value);
+
+    bool operator==(const QKlipperNetworkStatsEntry &value) const;
+    bool operator!=(const QKlipperNetworkStatsEntry &value) const;
     QKlipperNetworkStatsEntry &operator=(const QKlipperNetworkStatsEntry &value);
-    QKlipperNetworkStatsEntry &operator=(QKlipperNetworkStatsEntry &&value);
-    bool operator==(const QKlipperNetworkStatsEntry &value);
-    bool operator==(QKlipperNetworkStatsEntry &&value);
-    bool operator!=(const QKlipperNetworkStatsEntry &value);
-    bool operator!=(QKlipperNetworkStatsEntry &&value);
 
     qreal rxBytes() const;
     qreal txBytes() const;
     qreal bandwidth() const;
 
-public slots:
     void setRxBytes(qreal rxBytes);
     void setTxBytes(qreal txBytes);
     void setBandwidth(qreal bandwidth);
 
-private slots:
-
-signals:
-    void rxBytesChanged();
-    void txBytesChanged();
-    void bandwidthChanged();
+private:
 
 private:
     qreal m_rxBytes = 0;
     qreal m_txBytes = 0;
     qreal m_bandwidth = 0;
-
-    Q_PROPERTY(qreal rxBytes READ rxBytes WRITE setRxBytes NOTIFY rxBytesChanged FINAL)
-    Q_PROPERTY(qreal txBytes READ txBytes WRITE setTxBytes NOTIFY txBytesChanged FINAL)
-    Q_PROPERTY(qreal bandwidth READ bandwidth WRITE setBandwidth NOTIFY bandwidthChanged FINAL)
 };
+
+Q_DECLARE_METATYPE(QKlipperNetworkStatsEntry)
 
 #endif // QKLIPPERNETWORKSTATSENTRY_H

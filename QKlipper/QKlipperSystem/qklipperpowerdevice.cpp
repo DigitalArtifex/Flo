@@ -6,6 +6,17 @@ QKlipperPowerDevice::QKlipperPowerDevice(QObject *parent)
     : QObject{parent}
 {}
 
+QKlipperPowerDevice::QKlipperPowerDevice(QString name, Type type, bool isOn, bool lockedWhilePrinting)
+{
+    m_name = name;
+    m_type = type;
+    m_isOn = isOn;
+    m_lockedWhilePrinting = lockedWhilePrinting;
+
+    if((int)type < m_typeNames.count() && (int)type > 0)
+        m_typeString = m_typeNames[type];
+}
+
 QString QKlipperPowerDevice::name() const
 {
     return m_name;

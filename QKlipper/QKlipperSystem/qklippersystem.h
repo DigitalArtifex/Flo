@@ -34,7 +34,7 @@
 #include "qklippernetworkstatsentry.h"
 #include "qklippersdinfo.h"
 #include "qklipperserialperipheral.h"
-#include "qklipperservicestate.h"
+#include "qklipperservice.h"
 #include "qklipperthrottlestate.h"
 #include "qklipperupdatemanager.h"
 #include "qklipperusbperipheral.h"
@@ -44,6 +44,7 @@
 #include "qklipperwebcam.h"
 #include "qklipperpowerdevice.h"
 #include "qklipperledstrip.h"
+#include "qklippersensor.h"
 
 class QKlipperConsole;
 
@@ -97,8 +98,6 @@ class QKlipperSystem : public QObject
 
         QStringList availableServices() const;
 
-        QMap<QString, QKlipperServiceState> serviceStates() const;
-
         QList<QKlipperUsbPeripheral> usbPeripherals() const;
 
         QList<QKlipperSerialPeripheral> serialPeripherals() const;
@@ -123,6 +122,10 @@ class QKlipperSystem : public QObject
 
         QKlipperLedStripList ledStrips() const;
 
+        QKlipperSensorMap sensors() const;
+
+        QMap<QString, QKlipperService *> services() const;
+
     public slots:
         Q_INVOKABLE bool stopService(QString serviceName);
         Q_INVOKABLE bool startService(QString serviceName);
@@ -133,6 +136,8 @@ class QKlipperSystem : public QObject
 
         void setLedStrips(const QKlipperLedStripList &ledStrips);
         void setLedStrip(QKlipperLedStrip *strip);
+
+        void setServices(const QMap<QString, QKlipperService *> &services);
 
     private slots:
 
@@ -173,7 +178,9 @@ class QKlipperSystem : public QObject
 
         void setAvailableServices(const QStringList &availableServices);
 
-        void setServiceStates(const QMap<QString, QKlipperServiceState> &serviceStates);
+        void addService(QKlipperService *state);
+        void deleteService(QString name);
+        QKlipperService *service(const QString &name) const;
 
         void setUsbPeripherals(const QList<QKlipperUsbPeripheral> &usbPeripherals);
 
@@ -190,6 +197,9 @@ class QKlipperSystem : public QObject
         void setVirtualSDCard(QKlipperVirtualSDCard *virtualSDCard);
 
         void setPythonVersion(const QString &pythonVersion);
+
+        void setSensors(const QKlipperSensorMap &sensors);
+        void addSensor(QKlipperSensor *sensor);
 
     signals:
 
@@ -227,8 +237,6 @@ class QKlipperSystem : public QObject
 
         void availableServicesChanged();
 
-        void serviceStatesChanged();
-
         void usbPeripheralsChanged();
 
         void serialPeripheralsChanged();
@@ -255,6 +263,10 @@ class QKlipperSystem : public QObject
 
         void ledStripsChanged();
 
+        void sensorsChanged();
+
+        void servicesChanged();
+
     private:
         qint64                                    m_driveCapacity = 0;
         qint64                                    m_driveUsage = 0;
@@ -280,7 +292,7 @@ class QKlipperSystem : public QObject
         QKlipperCanBus                           *m_canBus;
 
         QStringList                               m_availableServices;
-        QMap<QString,QKlipperServiceState>        m_serviceStates;
+        QMap<QString,QKlipperService*>            m_services;
 
         //Filled by machine.peripherals.usb
         QList<QKlipperUsbPeripheral>              m_usbPeripherals;
@@ -302,8 +314,245 @@ class QKlipperSystem : public QObject
 
         QString                                   m_pythonVersion;
         State                                     m_state;
-        QKlipperPowerDeviceList m_powerDevices;
-        QKlipperLedStripList m_ledStrips;
+//#define QKLIPPER_TEST_DEVICES
+#ifndef QKLIPPER_TEST_DEVICES
+        QKlipperPowerDeviceList                   m_powerDevices;
+        QKlipperLedStripList                      m_ledStrips;
+        QKlipperSensorMap                         m_sensors;
+#else
+        QKlipperSensorMap                         m_sensors =
+        {
+            {
+                "main_sensor",
+                new QKlipperSensor
+                {
+                    "main_sensor",
+                    "Main Sensor",
+                    "mqtt",
+                    QMultiMap<QString, QVariant> {
+                        { "value1", 12.95 },
+                        { "value2", 105.20 },
+                    },
+                    QMap<QString, QString> {
+                        { "value1", "V" },
+                        { "value2", "kWh" },
+                    },
+                    QKlipperSensorDataMap {
+                        {
+                            "value2",
+                            QKlipperSensorData
+                            {
+                                "power_consumption",
+                                "sensor main_sensor",
+                                "Printer Power Consumption",
+                                "delta",
+                                "kWh",
+                                "value2",
+                                true,
+                                false,
+                                true,
+                                true,
+                                6
+                            }
+                        },
+                        {
+                            "value1",
+                            QKlipperSensorData
+                            {
+                                "max_voltage",
+                                "sensor main_sensor",
+                                "Maximum Voltage",
+                                "maximum",
+                                "V",
+                                "value1",
+                                true,
+                                false,
+                                false,
+                                false,
+                                6
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        QKlipperLedStripList m_ledStrips =
+        {
+            {
+                "main_lights",
+                new QKlipperLedStrip
+                {
+                    "main_lights",
+                    "",
+                    32,
+                    3,
+                    100,
+                    100,
+                    9,
+                    true
+                }
+            },
+            {
+                "toolhead_lights",
+                new QKlipperLedStrip
+                {
+                    "toolhead_lights",
+                    "",
+                    4,
+                    3,
+                    100,
+                    100,
+                    9,
+                    false
+                }
+            },
+            {
+                "nice_lights",
+                new QKlipperLedStrip
+                {
+                    "nice_lights",
+                    "",
+                    69,
+                    32,
+                    100,
+                    100,
+                    32,
+                    true
+                }
+            },
+            {
+                "cheap_lights",
+                new QKlipperLedStrip
+                {
+                    "cheap_lights",
+                    "Could not connect",
+                    4,
+                    3,
+                    100,
+                    100,
+                    9,
+                    false
+                }
+            }
+        };
+
+        QKlipperPowerDeviceList m_powerDevices =
+        {
+            {
+                "KlipperDevice", new QKlipperPowerDevice {
+                    "KlipperDevice",
+                    QKlipperPowerDevice::KlipperDevice,
+                    true,
+                    true,
+                }
+            },
+            {
+                "HttpDevice", new QKlipperPowerDevice {
+                    "HttpDevice",
+                    QKlipperPowerDevice::HttpDevice,
+                    true,
+                    true,
+                }
+            },
+            {
+                "RfDevice", new QKlipperPowerDevice {
+                    "RfDevice",
+                    QKlipperPowerDevice::RfDevice,
+                    true,
+                    true,
+                }
+            },
+            {
+                "GPIO", new QKlipperPowerDevice {
+                    "GPIO",
+                    QKlipperPowerDevice::GPIO,
+                    true,
+                    true,
+                }
+            },
+            {
+                "HomeAssistant", new QKlipperPowerDevice {
+                    "HomeAssistant",
+                    QKlipperPowerDevice::HomeAssistant,
+                    true,
+                    true,
+                }
+            },
+            {
+                "Homeseer", new QKlipperPowerDevice {
+                    "Homeseer",
+                    QKlipperPowerDevice::Homeseer,
+                    true,
+                    true,
+                }
+            },
+            {
+                "Loxonevl", new QKlipperPowerDevice {
+                    "Loxonevl",
+                    QKlipperPowerDevice::Loxonevl,
+                    true,
+                    true,
+                }
+            },
+            {
+                "Mqtt", new QKlipperPowerDevice {
+                    "Mqtt",
+                    QKlipperPowerDevice::Mqtt,
+                    true,
+                    true,
+                }
+            },
+            {
+                "light_switch", new QKlipperPowerDevice {
+                    "light_switch",
+                    QKlipperPowerDevice::PhilipsHue,
+                    true,
+                    true,
+                }
+            },
+            {
+                "Shelly", new QKlipperPowerDevice {
+                    "Shelly",
+                    QKlipperPowerDevice::Shelly,
+                    true,
+                    true,
+                }
+            },
+            {
+                "SmartThings", new QKlipperPowerDevice {
+                    "SmartThings",
+                    QKlipperPowerDevice::SmartThings,
+                    true,
+                    true,
+                }
+            },
+            {
+                "Tasmota", new QKlipperPowerDevice {
+                    "Tasmota",
+                    QKlipperPowerDevice::Tasmota,
+                    true,
+                    true,
+                }
+            },
+            {
+                "TpLink", new QKlipperPowerDevice {
+                    "TpLink",
+                    QKlipperPowerDevice::TpLink,
+                    true,
+                    true,
+                }
+            },
+            {
+                "UHubCtl", new QKlipperPowerDevice {
+                    "UHubCtl",
+                    QKlipperPowerDevice::UHubCtl,
+                    true,
+                    true,
+                }
+            }
+        };
+#endif
 
         Q_PROPERTY(qint64 driveCapacity READ driveCapacity WRITE setDriveCapacity NOTIFY driveCapacityChanged FINAL)
         Q_PROPERTY(qint64 driveUsage READ driveUsage WRITE setDriveUsage NOTIFY driveUsageChanged FINAL)
@@ -327,7 +576,6 @@ class QKlipperSystem : public QObject
         Q_PROPERTY(QKlipperCanBus *canBus READ canBus WRITE setCanBus NOTIFY canBusChanged FINAL)
 
         Q_PROPERTY(QStringList availableServices READ availableServices WRITE setAvailableServices NOTIFY availableServicesChanged FINAL)
-        Q_PROPERTY(QMap<QString, QKlipperServiceState> serviceStates READ serviceStates WRITE setServiceStates NOTIFY serviceStatesChanged FINAL)
 
         Q_PROPERTY(QList<QKlipperUsbPeripheral> usbPeripherals READ usbPeripherals WRITE setUsbPeripherals NOTIFY usbPeripheralsChanged FINAL)
         Q_PROPERTY(QList<QKlipperSerialPeripheral> serialPeripherals READ serialPeripherals WRITE setSerialPeripherals NOTIFY serialPeripheralsChanged FINAL)
@@ -341,6 +589,8 @@ class QKlipperSystem : public QObject
         Q_PROPERTY(State state READ state WRITE setState NOTIFY stateChanged FINAL)
         Q_PROPERTY(QKlipperPowerDeviceList powerDevices READ powerDevices WRITE setPowerDevices NOTIFY powerDevicesChanged FINAL)
         Q_PROPERTY(QKlipperLedStripList ledStrips READ ledStrips WRITE setLedStrips NOTIFY ledStripsChanged FINAL)
+        Q_PROPERTY(QKlipperSensorMap sensors READ sensors WRITE setSensors NOTIFY sensorsChanged FINAL)
+        Q_PROPERTY(QMap<QString, QKlipperService *> services READ services WRITE setServices NOTIFY servicesChanged FINAL)
 };
 
 #endif // QKLIPPERSYSTEM_H

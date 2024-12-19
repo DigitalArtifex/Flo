@@ -11,35 +11,106 @@ PrinterBedWidget::PrinterBedWidget(QKlipperPrintBed *printerBed, QWidget *parent
 
     setPrinterBed(printerBed);
 
-    //QGridLayout *layout = new QGridLayout(ui->adjustmentScrewFrame);
-    //ui->adjustmentScrewFrame->setLayout(layout);
-
     m_bedTemperatureBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
     m_bedTemperatureBar->setMaximum(150);
-
+    m_bedTemperatureBar->setIconSize(QSize(36,36));
+    m_bedTemperatureBar->setFixedSize(150,150);
     ui->bedLayout->addWidget(m_bedTemperatureBar);
+
+    m_bedHealthProgressBar = new CircularProgressBar(ui->healthWidget, CircularProgressBar::Percent);
+    m_bedHealthProgressBar->setIconSize(QSize(16,16));
+    ui->healthWidget->layout()->addWidget(m_bedHealthProgressBar);
+
+    m_bedPowerProgressBar = new CircularProgressBar(ui->powerWidget, CircularProgressBar::Percent);
+    m_bedPowerProgressBar->setIconSize(QSize(16,16));
+    ui->powerLayout->addWidget(m_bedPowerProgressBar);
+
+    m_bedTempChart = new BedTemperatureWidget(printerBed, ui->infoWidget);
+    ui->infoWidget->layout()->addWidget(m_bedTempChart);
+
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget"));
-    //ui->toolsWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetSideCard"));
     ui->contentWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetContents"));
     ui->bedInfoWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "PrinterSubWidget"));
-    //ui->adjustmentScrewFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "PrinterSubWidget"));
-    ui->titleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar" << "PrinterSubWidget"));
-    //ui->adjustmentFrameTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar" << "PrinterSubWidget"));
+    ui->powerWidget->setProperty("class", QStringList { "Widget" , "PrinterWidget" });
+    ui->infoWidget->setProperty("class", QStringList { "Widget" , "PrinterWidget" });
+    ui->targetTempWidget->setProperty("class", QStringList { "Widget" , "PrinterWidget" });
+    ui->healthWidget->setProperty("class", QStringList { "Widget" , "PrinterWidget" });
 
-    ui->settingsTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidgetTitleBar"));
-    ui->settingsTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
-    ui->bedSettingsWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "PrinterSubWidget"));
+    QGridLayout *buttonLayout = qobject_cast<QGridLayout*>(ui->buttonWidget->layout());
 
-    // m_bedMeshFrame = new BedMeshFrame(m_printerBed, ui->bedMeshContent);
-    // ui->bedMeshContent->layout()->addWidget(m_bedMeshFrame);
+    if(buttonLayout)
+    {
+        QStringList buttonClass { "Button", "PrinterActionButton" };
 
-    // m_adjustmentScrewFrame = new AdjustmentScrewFrame(m_printerBed, ui->adjustmentScrewFrame);
-    // ui->adjustmentScrewContent->layout()->addWidget(m_adjustmentScrewFrame);
+        m_pidButton = new QIconButton(this);
+        m_pidButton->setIcon(Settings::getThemeIcon("sine"));
+        m_pidButton->setIconSize(QSize(36,36));
+        m_pidButton->setFixedSize(QSize(100,100));
+        m_pidButton->setText("PID Tune");
+        m_pidButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
+        m_pidButton->setIconAlignment(Qt::AlignCenter);
+        m_pidButton->setProperty("class", buttonClass);
+        m_pidButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        buttonLayout->addWidget(m_pidButton, 0, 0, 1, 1, Qt::AlignTop);
 
-    //connect(ui->toggleToolsButton, SIGNAL(clicked(bool)), this, SLOT(onToggleToolsButtonClicked(bool)));
+        m_meshViewerButton = new QIconButton(this);
+        m_meshViewerButton->setIcon(Settings::getThemeIcon("mesh-viewer"));
+        m_meshViewerButton->setIconSize(QSize(36,36));
+        m_meshViewerButton->setFixedSize(QSize(100,100));
+        m_meshViewerButton->setText("Mesh Viewer");
+        m_meshViewerButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
+        m_meshViewerButton->setIconAlignment(Qt::AlignCenter);
+        m_meshViewerButton->setProperty("class", buttonClass);
+        m_meshViewerButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        buttonLayout->addWidget(m_meshViewerButton, 0, 1, 1, 1, Qt::AlignTop);
 
-    setIcons();
-    setupAnimations();
+        m_calibrateScrewsButton = new QIconButton(this);
+        m_calibrateScrewsButton->setIcon(Settings::getThemeIcon("adjustment-screws-calibrate"));
+        m_calibrateScrewsButton->setIconSize(QSize(36,36));
+        m_calibrateScrewsButton->setFixedSize(QSize(100,100));
+        m_calibrateScrewsButton->setText("Bed Screws");
+        m_calibrateScrewsButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
+        m_calibrateScrewsButton->setIconAlignment(Qt::AlignCenter);
+        m_calibrateScrewsButton->setProperty("class", buttonClass);
+        m_calibrateScrewsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        buttonLayout->addWidget(m_calibrateScrewsButton, 1, 0, 1, 1, Qt::AlignTop);
+
+        m_calibrateMeshButton = new QIconButton(this);
+        m_calibrateMeshButton->setIcon(Settings::getThemeIcon("mesh-calibrate"));
+        m_calibrateMeshButton->setIconSize(QSize(36,36));
+        m_calibrateMeshButton->setFixedSize(QSize(100,100));
+        m_calibrateMeshButton->setText("Scan Mesh");
+        m_calibrateMeshButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
+        m_calibrateMeshButton->setIconAlignment(Qt::AlignCenter);
+        m_calibrateMeshButton->setProperty("class", buttonClass);
+        m_calibrateMeshButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        buttonLayout->addWidget(m_calibrateMeshButton, 1, 1, 1, 1, Qt::AlignTop);
+
+        m_bedInfoButton = new QIconButton(this);
+        m_bedInfoButton->setIcon(Settings::getThemeIcon("mesh-info"));
+        m_bedInfoButton->setIconSize(QSize(36,36));
+        m_bedInfoButton->setFixedSize(QSize(100,206));
+        m_bedInfoButton->setText("Information");
+        m_bedInfoButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
+        m_bedInfoButton->setIconAlignment(Qt::AlignCenter);
+        m_bedInfoButton->setProperty("class", buttonClass);
+        buttonLayout->addWidget(m_bedInfoButton, 0, 2, 2, 1, Qt::AlignTop);
+        buttonLayout->addItem(new QSpacerItem(QSizePolicy::Expanding, QSizePolicy::Expanding), 2, 0, 1, 1);
+
+        connect(m_calibrateMeshButton, SIGNAL(clicked()), this, SLOT(onCalibrateBedMeshButtonClicked()));
+        connect(m_calibrateScrewsButton, SIGNAL(clicked()), this, SLOT(onCalibrateScrewsButtonClicked()));
+        connect(m_meshViewerButton, SIGNAL(clicked()), this, SLOT(onViewBedMeshButtonClicked()));
+        connect(m_bedInfoButton, SIGNAL(clicked()), this, SLOT(onSettingsButtonClicked()));
+        connect(m_pidButton, SIGNAL(clicked()), this, SLOT(onPidTuneButtonClicked()));
+    }
+
+    setupIcons();
+
+    m_bedMeshData = new BedMeshData(printerBed, this);
+    onBedMeshDataChanged();
+    connect(m_bedMeshData, SIGNAL(dataChanged()), this, SLOT(onBedMeshDataChanged()));
+
+    ui->targetTempSpinBox->setInputMethodHints(inputMethodHints() | Qt::InputMethodHint::ImhDigitsOnly);
 }
 
 PrinterBedWidget::~PrinterBedWidget()
@@ -52,13 +123,11 @@ PrinterBedWidget::~PrinterBedWidget()
 
 void PrinterBedWidget::onPrintbedCurrentTempChanged()
 {
-    m_bedTemperatureBar->setProgress(m_printerBed->currentTemp());
-    ui->bedTemperatureLabel->setText(QString::number(m_printerBed->currentTemp()) + QString("°"));
+    m_bedTemperatureBar->setValue(m_printerBed->currentTemp());
 }
 
 void PrinterBedWidget::onPrintbedTargetTempChanged()
 {
-    ui->bedTargetTempLabel->setText(QString::number(m_printerBed->targetTemp()) + QString("°"));
 
     if(!m_targetTempEdited)
         ui->targetTempSpinBox->setValue(m_printerBed->targetTemp());
@@ -66,24 +135,47 @@ void PrinterBedWidget::onPrintbedTargetTempChanged()
 
 void PrinterBedWidget::onPrintbedPowerChanged()
 {
-    ui->bedPowerLabel->setText(QString::number(m_printerBed->power()) + QString(""));
+    m_bedPowerProgressBar->setValue((m_printerBed->power() * 100));
+}
+
+void PrinterBedWidget::showThrobber()
+{
+    if(!m_throbberFrame)
+    {
+        m_throbberFrame = new QFrame(ui->contentWidget);
+        QVBoxLayout *layout = new QVBoxLayout(m_throbberFrame);
+        m_throbberFrame->setFixedSize(ui->contentWidget->width(), ui->contentWidget->height());
+        m_throbberFrame->setLayout(layout);
+        m_throbberFrame->setProperty("class", "PopupOverlay");
+        m_throbberFrame->setStyleSheet(Settings::currentTheme());
+        m_throbberFrame->setVisible(true);
+        m_throbberFrame->raise();
+
+        m_throbber = new QThrobber(m_throbberFrame);
+        m_throbber->setFixedSize(150, 150);
+        m_throbber->setThrobberWidth(4);
+        m_throbber->setText("Calibrating");
+
+        layout->addWidget(m_throbber, 0, Qt::AlignCenter);
+        m_throbber->start();
+    }
+}
+
+void PrinterBedWidget::hideThrobber()
+{
+    if(m_throbberFrame)
+    {
+        m_throbber->stop();
+        m_throbberFrame->hide();
+
+        delete m_throbberFrame;
+        m_throbberFrame = nullptr;
+    }
 }
 
 void PrinterBedWidget::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-
-    // if(m_bedMeshFrame->isVisible() && (m_bedMeshAnimationGroup->state() == QParallelAnimationGroup::Stopped))
-    // {
-    //     m_bedMeshWidgetHeight = m_bedMeshFrame->height();
-    //     m_bedMeshFrameHeight = ui->bedMeshFrame->height();
-    // }
-
-    // if(m_adjustmentScrewFrame->isVisible() && (m_adjustmentScrewAnimationGroup->state() == QParallelAnimationGroup::Stopped))
-    // {
-    //     m_adjustmentScrewFrameHeight = ui->adjustmentScrewFrame->height();
-    //     m_adjustmentScrewWidgetHeight = m_adjustmentScrewFrame->height();
-    // }
 }
 
 QKlipperPrintBed *PrinterBedWidget::printerBed() const
@@ -98,6 +190,10 @@ void PrinterBedWidget::setPrinterBed(QKlipperPrintBed *printerBed)
         disconnect(m_printerBed, SIGNAL(currentTempChanged()), this, SLOT(onPrintbedCurrentTempChanged()));
         disconnect(m_printerBed, SIGNAL(targetTempChanged()), this, SLOT(onPrintbedTargetTempChanged()));
         disconnect(m_printerBed, SIGNAL(powerChanged()), this, SLOT(onPrintbedPowerChanged()));
+        disconnect(m_printerBed, SIGNAL(bedMeshCalibrating()), this, SLOT(showThrobber()));
+        disconnect(m_printerBed, SIGNAL(adjustmentScrewsCalibrating()), this, SLOT(showThrobber()));
+        disconnect(m_printerBed, SIGNAL(bedMeshCalibratingFinished()), this, SLOT(hideThrobber()));
+        disconnect(m_printerBed, SIGNAL(adjustmentScrewsCalibratingFinished()), this, SLOT(hideThrobber()));
     }
 
     m_printerBed = printerBed;
@@ -105,6 +201,12 @@ void PrinterBedWidget::setPrinterBed(QKlipperPrintBed *printerBed)
     connect(m_printerBed, SIGNAL(currentTempChanged()), this, SLOT(onPrintbedCurrentTempChanged()));
     connect(m_printerBed, SIGNAL(targetTempChanged()), this, SLOT(onPrintbedTargetTempChanged()));
     connect(m_printerBed, SIGNAL(powerChanged()), this, SLOT(onPrintbedPowerChanged()));
+    connect(m_printerBed, SIGNAL(bedMeshCalibrating()), this, SLOT(showThrobber()));
+    connect(m_printerBed, SIGNAL(adjustmentScrewsCalibrating()), this, SLOT(showThrobber()));
+    connect(m_printerBed, SIGNAL(pidCalibrating()), this, SLOT(showThrobber()));
+    connect(m_printerBed, SIGNAL(bedMeshCalibratingFinished()), this, SLOT(hideThrobber()));
+    connect(m_printerBed, SIGNAL(adjustmentScrewsCalibratingFinished()), this, SLOT(hideThrobber()));
+    connect(m_printerBed, SIGNAL(pidCalibratingFinished()), this, SLOT(hideThrobber()));
 }
 
 void PrinterBedWidget::setPrintActionsEnabled(bool enabled)
@@ -112,20 +214,67 @@ void PrinterBedWidget::setPrintActionsEnabled(bool enabled)
 
 }
 
-void PrinterBedWidget::setIcons()
+void PrinterBedWidget::setupIcons()
 {
-    QPixmap pixmap = Settings::getThemeIcon(QString("bed-icon")).pixmap(28,28);
-    ui->iconLabel->setPixmap(pixmap);
-    pixmap = Settings::getThemeIcon("settings-icon").pixmap(18,18);
-    ui->settingsFrameIcon->setPixmap(pixmap);
+    QPixmap pixmap = Settings::getThemeIcon("settings").pixmap(18,18);
 
-    pixmap = Settings::getThemeIcon("temperature-icon").pixmap(18,18);
+    pixmap = Settings::getThemeIcon("temperature").pixmap(18,18);
     ui->targetTemperatureIconLabel->setPixmap(pixmap);
+
+    m_pidButton->setIcon(Settings::getThemeIcon("sine"));
+
+    m_calibrateMeshButton->setIcon(
+        Settings::getThemeIcon(
+            "mesh-calibrate",
+            QColor(Settings::get("theme/icon-color-alt").toString())
+            )
+        );
+
+    m_calibrateScrewsButton->setIcon(
+        Settings::getThemeIcon(
+            "adjustment-screws-calibrate",
+            QColor(Settings::get("theme/icon-color-alt").toString())
+            )
+        );
+
+    m_meshViewerButton->setIcon(
+        Settings::getThemeIcon(
+            "mesh-viewer",
+            QColor(Settings::get("theme/icon-color").toString())
+            )
+        );
+
+    m_bedInfoButton->setIcon(
+        Settings::getThemeIcon(
+            "mesh-info",
+            QColor(Settings::get("theme/icon-color-alt1").toString())
+            )
+        );
+
+    m_bedTemperatureBar->setIcon(
+        Settings::getThemeIcon(
+            "temperature"
+            )
+        );
+
+    m_bedPowerProgressBar->setIcon(
+        Settings::getThemeIcon(
+            "power-device",
+            QColor(Settings::get("theme/icon-color-alt").toString())
+            )
+        );
+
+    m_bedHealthProgressBar->setIcon(
+        Settings::getThemeIcon(
+            "health",
+            QColor(Settings::get("theme/icon-color-alt1").toString())
+            )
+        );
 }
 
 void PrinterBedWidget::setStyleSheet(const QString &styleSheet)
 {
-    setIcons();
+    setupIcons();
 
     QFrame::setStyleSheet(styleSheet);
 }
@@ -146,186 +295,81 @@ void PrinterBedWidget::on_resetButton_clicked()
 void PrinterBedWidget::on_targetTempSpinBox_valueChanged(double arg1)
 {
     bool changed = (arg1 != m_printerBed->targetTemp());
+
     m_targetTempEdited = changed;
     ui->resetButton->setEnabled(changed);
     ui->applyButton->setEnabled(changed);
 }
 
-void PrinterBedWidget::onToggleToolsButtonClicked(bool toggled)
+
+void PrinterBedWidget::onSettingsButtonClicked()
 {
-    if(toggled)
-        showAdjustmentScrews();
-    else
-        hideAdjustmentScrews();
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
+
+    PrinterBedInfoDialog *dialog = new PrinterBedInfoDialog(m_printerBed, this);
+    dialog->setWindowModality(Qt::WindowModal);
+
+    dialog->setFixedSize(screenGeometry.width() * 0.75, screenGeometry.height() * 0.75);
+
+    dialog->exec();
+
+    delete dialog;
 }
 
-void PrinterBedWidget::onToggleBedMeshButtonClicked(bool toggled)
+
+void PrinterBedWidget::onViewBedMeshButtonClicked()
 {
-    if(toggled)
-        showBedMesh();
-    else
-        hideBedMesh();
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
+    BedMeshWidget *bedMeshWidget = new BedMeshWidget(m_printerBed, this);
+
+    bedMeshWidget->setFixedSize(screenGeometry.width() * 0.75, screenGeometry.height() * 0.75);
+    bedMeshWidget->exec();
+
+    delete bedMeshWidget;
 }
 
-void PrinterBedWidget::showAdjustmentScrews()
+
+void PrinterBedWidget::onCalibrateBedMeshButtonClicked()
 {
-    // m_toolsShown = true;
-    // int currentFrameHeight = ui->adjustmentFrameTitleBar->height();
-    // int currentWidgetHeight = 0;
-
-    // bool isRunning = (m_adjustmentScrewAnimationGroup->state() == QParallelAnimationGroup::Running);
-
-    // if(isRunning)
-    // {
-    //     m_adjustmentScrewAnimationGroup->pause();
-    //     currentFrameHeight = ui->adjustmentScrewFrame->height();
-    //     currentWidgetHeight = m_adjustmentScrewFrame->height();
-    // }
-
-    // ui->toggleToolsButton->setIcon(Settings::getThemeIcon("collapse-icon"));
-
-    // m_adjustmentScrewFrameAnimation->setStartValue(QRect(ui->adjustmentScrewFrame->x(), ui->adjustmentScrewFrame->y(), ui->adjustmentScrewFrame->width(), currentFrameHeight));
-    // m_adjustmentScrewFrameAnimation->setEndValue(QRect(ui->adjustmentScrewFrame->x(), ui->adjustmentScrewFrame->y(), ui->adjustmentScrewFrame->width(), m_adjustmentScrewFrameHeight));
-
-    // m_adjustmentScrewWidgetAnimation->setStartValue(QRect(m_adjustmentScrewFrame->x(), m_adjustmentScrewFrame->y(), m_adjustmentScrewFrame->width(), currentWidgetHeight));
-    // m_adjustmentScrewWidgetAnimation->setEndValue(QRect(m_adjustmentScrewFrame->x(), m_adjustmentScrewFrame->y(), m_adjustmentScrewFrame->width(), m_adjustmentScrewWidgetHeight));
-
-    // ui->adjustmentScrewLayout->addWidget(m_adjustmentScrewFrame, 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-    // if(isRunning)
-    //     m_adjustmentScrewAnimationGroup->resume();
-    // else
-    //     m_adjustmentScrewAnimationGroup->start();
-
-    // m_adjustmentScrewFrame->setVisible(true);
+    if(m_printerBed)
+    {
+        m_printerBed->calibrateBedMesh();
+    }
 }
 
-void PrinterBedWidget::hideAdjustmentScrews()
+
+void PrinterBedWidget::onCalibrateScrewsButtonClicked()
 {
-    // m_toolsShown = false;
-    // int currentFrameHeight = m_adjustmentScrewFrameHeight;
-    // int currentWidgetHeight = m_adjustmentScrewWidgetHeight;
-
-    // bool isRunning = (m_adjustmentScrewAnimationGroup->state() == QParallelAnimationGroup::Running);
-
-    // if(isRunning)
-    // {
-    //     m_adjustmentScrewAnimationGroup->pause();
-    //     currentFrameHeight = m_adjustmentScrewFrame->height();
-    //     currentWidgetHeight = ui->adjustmentScrewFrame->height();
-    // }
-
-    // ui->toggleToolsButton->setIcon(Settings::getThemeIcon("expand-icon"));
-
-    // m_adjustmentScrewFrameAnimation->setStartValue(QRect(ui->adjustmentScrewFrame->x(), ui->adjustmentScrewFrame->y(), ui->adjustmentScrewFrame->width(), currentFrameHeight));
-    // m_adjustmentScrewFrameAnimation->setEndValue(QRect(ui->adjustmentScrewFrame->x(), ui->adjustmentScrewFrame->y(), ui->adjustmentScrewFrame->width(), ui->adjustmentFrameTitleBar->height()));
-
-    // m_adjustmentScrewWidgetAnimation->setStartValue(QRect(m_adjustmentScrewFrame->x(), m_adjustmentScrewFrame->y(), m_adjustmentScrewFrame->width(), currentWidgetHeight));
-    // m_adjustmentScrewWidgetAnimation->setEndValue(QRect(m_adjustmentScrewFrame->x(), m_adjustmentScrewFrame->y(), m_adjustmentScrewFrame->width(), 0));
-
-    // if(isRunning)
-    //     m_adjustmentScrewAnimationGroup->resume();
-    // else
-    //     m_adjustmentScrewAnimationGroup->start();
+    if(m_printerBed)
+        m_printerBed->calibrateAdjustmentScrews();
 }
 
-void PrinterBedWidget::showBedMesh()
+void PrinterBedWidget::onPidTuneButtonClicked()
 {
-    // m_bedMeshShown = true;
-    // bool isRunning = (m_bedMeshAnimationGroup->state() == QParallelAnimationGroup::Running);
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
 
-    // if(isRunning)
-    //     m_bedMeshAnimationGroup->pause();
+    PidDialog *pidDialog = new PidDialog(this);
 
-    // ui->toggleBedMeshButton->setIcon(Settings::getThemeIcon("collapse-icon"));
+    pidDialog->setMinimumWidth(screenGeometry.width() * 0.33);
 
-    // m_bedMeshWidgetAnimation->setStartValue(QRect(0, 0, 400, 0));
-    // m_bedMeshWidgetAnimation->setEndValue(QRect(0, 0, 400, m_bedMeshWidgetHeight));
+    if(pidDialog->exec() == Dialog::Accepted && m_printerBed && pidDialog->target() > 0)
+        m_printerBed->calibratePid(pidDialog->target());
 
-    // m_bedMeshFrameAnimation->setStartValue(QRect(0, 0, 400, ui->bedMeshTitleBar->height()));
-    // m_bedMeshFrameAnimation->setEndValue(QRect(0, 0, 400, m_bedMeshFrameHeight));
-
-    // ui->bedMeshLayout->addWidget(m_bedMeshFrame, 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-    // if(isRunning)
-    //     m_bedMeshAnimationGroup->resume();
-    // else
-    //     m_bedMeshAnimationGroup->start();
-
-    // m_bedMeshFrame->setVisible(true);
+    delete pidDialog;
 }
 
-void PrinterBedWidget::hideBedMesh()
+void PrinterBedWidget::onBedMeshDataChanged()
 {
-    // m_bedMeshShown = false;
-    // bool isRunning = (m_bedMeshAnimationGroup->state() == QParallelAnimationGroup::Running);
+    qreal variance = m_bedMeshData->maximum() - m_bedMeshData->minimum();
+    qreal health = (1 - (variance / 0.3000)) * 100;
 
-    // if(isRunning)
-    //     m_bedMeshAnimationGroup->pause();
+    if(variance == 0 && m_bedMeshData->maximum() == 0 && m_bedMeshData->minimum() == 0)
+        health = 0; //no result yet
 
-    // ui->toggleBedMeshButton->setIcon(Settings::getThemeIcon("collapse-icon"));
-
-    // m_bedMeshWidgetAnimation->setStartValue(QRect(m_bedMeshFrame->x(), m_bedMeshFrame->y(), m_bedMeshFrame->width(), m_bedMeshWidgetHeight));
-    // m_bedMeshWidgetAnimation->setEndValue(QRect(m_bedMeshFrame->x(), m_bedMeshFrame->y(), m_bedMeshFrame->width(), 0));
-
-    // m_bedMeshFrameAnimation->setStartValue(QRect(ui->bedMeshFrame->x(), ui->bedMeshFrame->y(), ui->bedMeshFrame->width(), m_bedMeshFrameHeight));
-    // m_bedMeshFrameAnimation->setEndValue(QRect(ui->bedMeshFrame->x(), ui->bedMeshFrame->y(), ui->bedMeshFrame->width(), ui->bedMeshTitleBar->height()));
-
-    // if(isRunning)
-    //     m_bedMeshAnimationGroup->resume();
-    // else
-    //     m_bedMeshAnimationGroup->start();
-}
-
-void PrinterBedWidget::onToolsWidgetAnimationFinished()
-{
-    // if(!m_toolsShown)
-    // {
-    //     ui->adjustmentScrewLayout->removeWidget(m_adjustmentScrewFrame);
-    //     //m_adjustmentScrewWidgetHeight = m_adjustmentScrewFrame->height();
-    // }
-
-    // m_adjustmentScrewFrame->setHidden(!m_toolsShown);
-}
-
-void PrinterBedWidget::onBedMeshAnimationFinished()
-{
-    // if(!m_bedMeshShown)
-    // {
-    //     ui->bedMeshLayout->removeWidget(m_bedMeshFrame);
-    //     //m_bedMeshWidgetHeight = m_bedMeshFrame->height();
-    // }
-
-    // m_bedMeshFrame->setHidden(!m_bedMeshShown);
-}
-
-void PrinterBedWidget::setupAnimations()
-{
-    // m_bedMeshWidgetAnimation = new QPropertyAnimation(m_bedMeshFrame, "geometry");
-    // m_bedMeshWidgetAnimation->setDuration(500);
-    // m_bedMeshWidgetAnimation->setEasingCurve(QEasingCurve::Linear);
-
-    // m_bedMeshFrameAnimation = new QPropertyAnimation(ui->bedMeshFrame, "geometry");
-    // m_bedMeshFrameAnimation->setDuration(500);
-    // m_bedMeshFrameAnimation->setEasingCurve(QEasingCurve::Linear);
-
-    // m_bedMeshAnimationGroup = new QParallelAnimationGroup(this);
-    // m_bedMeshAnimationGroup->addAnimation(m_bedMeshWidgetAnimation);
-    // m_bedMeshAnimationGroup->addAnimation(m_bedMeshFrameAnimation);
-
-    // m_adjustmentScrewWidgetAnimation = new QPropertyAnimation(m_adjustmentScrewFrame, "geometry");
-    // m_adjustmentScrewWidgetAnimation->setDuration(500);
-    // m_adjustmentScrewWidgetAnimation->setEasingCurve(QEasingCurve::Linear);
-
-    // m_adjustmentScrewFrameAnimation = new QPropertyAnimation(ui->adjustmentScrewFrame, "geometry");
-    // m_adjustmentScrewFrameAnimation->setDuration(500);
-    // m_adjustmentScrewFrameAnimation->setEasingCurve(QEasingCurve::Linear);
-
-    // m_adjustmentScrewAnimationGroup = new QParallelAnimationGroup(this);
-    // m_adjustmentScrewAnimationGroup->addAnimation(m_adjustmentScrewFrameAnimation);
-    // m_adjustmentScrewAnimationGroup->addAnimation(m_adjustmentScrewWidgetAnimation);
-
-    // connect(m_bedMeshAnimationGroup, SIGNAL(finished()), this, SLOT(onBedMeshAnimationFinished()));
-    // connect(m_adjustmentScrewAnimationGroup, SIGNAL(finished()), this, SLOT(onToolsWidgetAnimationFinished()));
+    if(m_bedHealthProgressBar)
+        m_bedHealthProgressBar->setValue(health);
 }
 

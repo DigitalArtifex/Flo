@@ -49,9 +49,9 @@ void StatusWidget::loadPrintJobs()
 void StatusWidget::setStyleSheet(QString styleSheet)
 {
     QTabWidget::setStyleSheet(styleSheet);
-    setTabIcon(2, Settings::getThemeIcon(QString("error-icon")));
-    setTabIcon(1, Settings::getThemeIcon(QString("voltage-icon")));
-    setTabIcon(0, Settings::getThemeIcon(QString("list-icon")));
+    setTabIcon(2, Settings::getThemeIcon(QString("error")));
+    setTabIcon(1, Settings::getThemeIcon(QString("voltage")));
+    setTabIcon(0, Settings::getThemeIcon(QString("list")));
 
     m_printJobList->setStyleSheet(styleSheet);
 }
@@ -70,7 +70,7 @@ void StatusWidget::setupJobPage()
 {
     m_printJobList = new PrintJobListWidget(this);
 
-    addTab(m_printJobList, Settings::getThemeIcon(QString("list-icon")), QString("Jobs"));
+    addTab(m_printJobList, Settings::getThemeIcon(QString("list")), QString("Jobs"));
 
     // connect(PrinterPool::instance(), SIGNAL(printJobStarted(PrintJob*)), this, SLOT(on_printerPool_jobStarted(PrintJob*)));
     // connect(PrinterPool::instance(), SIGNAL(printJobFinished(PrintJob*)), this, SLOT(on_printerPool_jobFinished(PrintJob*)));
@@ -79,11 +79,11 @@ void StatusWidget::setupJobPage()
 void StatusWidget::setupEnergyPage()
 {
     m_energyConsumption = new EnergyConsumptionWidget;
-    addTab(m_energyConsumption, Settings::getThemeIcon(QString("voltage-icon")), QString("Energy Consumption"));
+    addTab(m_energyConsumption, Settings::getThemeIcon(QString("voltage")), QString("Energy Consumption"));
 }
 
 void StatusWidget::setupIssuesPage()
 {
     m_issueList = new IssueListWidget(this);
-    addTab(m_issueList, Settings::getThemeIcon(QString("error-icon")), QString("Issues"));
+    addTab(m_issueList, Settings::getThemeIcon(QString("error")), QString("Issues"));
 }

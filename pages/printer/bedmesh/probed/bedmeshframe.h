@@ -20,25 +20,15 @@ public:
     explicit BedMeshFrame(QKlipperPrintBed *bed, QWidget *parent = nullptr);
     ~BedMeshFrame();
 
-    void showLoadingScreen();
-    void hideLoadingScreen();
-
 public slots:
-    void setStyleSheet(const QString &styleSheet);
+    virtual void changeEvent(QEvent *event) override;
 
 protected:
     void setupIcons();
-    void setupUiClasses();
 
 protected slots:
-    void on_loadingAnimation_finished();
-
-    void onToolheadHoming();
-    void onToolheadHomed();
 
     void onBedMeshCalibratingFinished();
-    void onBedMeshCalibrating();
-    void onMatrixChanged();
 
     void clearLayout();
 
@@ -47,14 +37,6 @@ private:
     QGridLayout *m_centralLayout = nullptr;
 
     BedMeshEmptyFrame *m_emptyFrame = nullptr;
-
-    QMovie *m_loadingGif = nullptr;
-    QLabel *m_loadingLabel = nullptr;
-
-    QFrame *m_loadingFrame = nullptr;
-    QHBoxLayout *m_loadingFrameLayout = nullptr;
-
-    QWidgetAnimation *m_loadingAnimation = nullptr;
 
     QKlipperPrintBed *m_printerBed;
 

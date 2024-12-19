@@ -1,446 +1,353 @@
 {
-    "name": "System Theme",
-    "files":
-    [
-		"theme.css"
-    ],
     "icons":
-	[
-		{
-			"name": "crowsnest-icon",
-			"icon": "icons8-pirate-50.png"
-		},
-		{
-			"name": "mainsail-icon",
-			"icon": "icons8-sail-96.png"
-		},
-		{
-			"name": "klipper-icon",
-			"icon": "klipper.png"
-		},
-		{
-			"name": "printer-info",
-			"icon": "icons8-printer-maintenance-80.png" 
-		},
-		{
-			"name": "dashboard",
-			"icon": "icons8-dashboard-64-alt.png" 
-		},
-		{
-			"name": "console-icon",
-			"icon": "icons8-code-64.png" 
-		},
-		{
-			"name": "moonraker",
-			"icon": "icons8-code-64.png" 
-		},
-		{
-			"name": "files",
-			"icon": "icons8-error-folder-64.png" 
-		},
-		{
-			"name": "menu-icon",
-			"icon": "icons8-menu-64.png" 
-		},
-		{
-			"name": "settings",
-			"icon": "icons8-browser-settings-64.png" 
-		},
-		{
-			"name": "printer",
-			"icon": "icons8-3d-printer-64.png"
-		},
-		{
-			"name": "browser-icon",
-			"icon": "icons8-browser-64.png"
-		},
-		{
-			"name": "mesh-icon",
-			"icon": "icons8-grid-50.png"
-		},
-		{
-			"name": "overview-icon",
-			"icon": "icons8-connection-nodes-64.png"
-		},
-		{
-			"name": "printer-icon",
-			"icon": "icons8-3d-printer-64.png" 
-		},
-		{
-			"name": "printer-error-icon",
-			"icon": "icons8-3d-printer-error-64.png" 
-		},
-		{
-			"name": "printer-ready-icon",
-			"icon": "icons8-3d-printer-ready-64.png" 
-		},
-		{
-			"name": "printer-paused-icon",
-			"icon": "icons8-3d-printer-paused-64.png" 
-		},
-		{
-			"name": "printer-offline-icon",
-			"icon": "icons8-3d-printer-offline-64.png" 
-		},
-		{
-			"name": "no-connection-icon",
-			"icon": "icons8-no-connection-64.png"
-		},
-		{
-			"name": "connect-icon",
-			"icon": "icons8-connect-64.png"
-		},
-		{
-			"name": "bed-mesh-icon",
-			"icon": "icons8-mesh-64.png" 
-		},
-		{
-			"name": "bed-icon",
-			"icon": "icons8-grid-50.png" 
-		},
-		{
-			"name": "adjustment-screw-icon",
-			"icon": "icons8-threading-metal-90.png" 
-		},
-		{
-			"name": "empty-icon",
-			"icon": "icons8-empty-67.png" 
-		},
-		{
-			"name": "search-icon",
-			"icon": "icons8-search-64.png" 
-		},
-		{
-			"name": "print-icon",
-			"icon": "icons8-print-file-64.png"
-		},
-		{
-			"name": "update-icon",
-			"icon": "icons8-update-64.png"
-		},
-		{
-			"name": "file-upload-icon",
-			"icon": "icons8-upload-64.png" 
-		},
-		{
-			"name": "file-delete-icon",
-			"icon": "icons8-delete-file-64.png" 
-		},
-		{
-			"name": "file-icon",
-			"icon": "icons8-code-file-64.png"
-		},
-		{
-			"name": "multiply-icon",
-			"icon": "icons8-multiply-64.png"
-		},
-		{
-			"name": "file-firmware-icon",
-			"icon": "icons8-firmware-file.png" 
-		},
-		{
-			"name": "file-archive-icon",
-			"icon": "icons8-archive-64.png" 
-		},
-		{
-			"name": "folder-icon",
-			"icon": "icons8-error-folder-64.png" 
-		},
-		{
-			"name": "folder-download-icon",
-			"icon": "icons8-download-folder-90.png" 
-		},
-		{
-			"name": "folder-create-icon",
-			"icon": "icons8-add-folder-64.png" 
-		},
-		{
-			"name": "power-icon",
-			"icon": "icons8-power-64.png" 
-		},
-		{
-			"name": "fan-icon",
-			"icon": "icons8-fan-64.png" 
-		},
-		{
-			"name": "fan-on-icon",
-			"icon": "icons8-fan-64-alt.png" 
-		},
-		{
-			"name": "temperature-icon",
-			"icon": "icons8-temperature-alt-64.png" 
-		},
-		{
-			"name": "refresh-icon",
-			"icon": "icons8-refresh-64.png"
-		},
-		{
-			"name": "restart-icon",
-			"icon": "icons8-restart-64.png"
-		},
-		{
-			"name": "firmware-icon",
-			"icon": "icons8-firmware-error.png"
-		},
-		{
-			"name": "webcam-icon",
-			"icon": "icons8-webcam-64.png" 
-		},
-		{
-			"name": "no-video-icon",
-			"icon": "icons8-no-video-64.png" 
-		},
-		{
-			"name": "up-directory-icon",
-			"icon": "icons8-go-back-64.png" 
-		},
-		{
-			"name": "accept-icon",
-			"icon": "icons8-accept-64.png" 
-		},
-		{
-			"name": "cancel-icon",
-			"icon": "icons8-cancel-64.png" 
-		},
-		{
-			"name": "close-icon",
-			"icon": "icons8-cancel-64.png" 
-		},
-		{
-			"name": "application-icon",
-			"icon": "flo logo.png" 
-		},
-		{
-			"name": "system-icon",
-			"icon": "icons8-system-information-64.png" 
-		},
-		{
-			"name": "expand-icon",
-			"icon": "icons8-expand-64.png" 
-		},
-		{
-			"name": "collapse-icon",
-			"icon": "icons8-collapse-50.png" 
-		},
-		{
-			"name": "loading-printer-icon",
-			"icon": "icons8-print-file-64.png" 
-		},
-		{
-			"name": "loading-moonraker-icon",
-			"icon": "icons8-print-file-64.png" 
-		},
-		{
-			"name": "loading-klipper-icon",
-			"icon": "icons8-print-file-64.png" 
-		},
-		{
-			"name": "error-icon",
-			"icon": "icons8-error-64.png" 
-		},
-		{
-			"name": "edit-icon",
-			"icon": "icons8-edit-64.png"
-		},
-		{
-			"name": "theme-icon",
-			"icon": "icons8-theme-64.png"
-		},
-		{
-			"name": "voltage-icon",
-			"icon": "icons8-voltage-100.png" 
-		},
-		{
-			"name": "list-icon",
-			"icon": "icons8-list-64.png" 
-		},
-		{
-			"name": "issue-config-icon",
-			"icon": "icons8-file-alert-64.png" 
-		},
-		{
-			"name": "issue-connection-icon",
-			"icon": "icons8-list-64.png" 
-		},
-		{
-			"name": "issue-default-icon",
-			"icon": "icons8-error-64.png" 
-		},
-		{
-			"name": "issue-firmware-icon",
-			"icon": "icons8-firmware-error.png" 
-		},
-		{
-			"name": "joblist-icon",
-			"icon": "icons8-task-planning-96.png" 
-		},
-		{
-			"name": "printjob-printing-icon",
-			"icon": "icons8-play-64.png" 
-		},
-		{
-			"name": "printjob-paused-icon",
-			"icon": "icons8-pause-64.png"
-		},
-		{
-			"name": "pause-icon",
-			"icon": "icons8-pause-64.png"
-		},
-		{
-			"name": "printjob-resumed-icon",
-			"icon": "icons8-resume-button-64.png"
-		},
-		{
-			"name": "resume-icon",
-			"icon": "icons8-resume-button-64.png"
-		},
-		{
-			"name": "printjob-cancelled-icon",
-			"icon": "icons8-stop-64.png" 
-		},
-		{
-			"name": "printjob-completed-icon",
-			"icon": "icons8-complete-50.png" 
-		},
-		{
-			"name": "printjob-error-icon",
-			"icon": "icons8-error-64.png" 
-		},
-		{
-			"name": "counter-clockwise-icon",
-			"icon": "icons8-rotate-left-64.png" 
-		},
-		{
-			"name": "clockwise-icon",
-			"icon": "icons8-rotate-right-64.png" 
-		},
-		{
-			"name": "home-icon",
-			"icon": "icons8-home-50.png" 
-		},
-		{
-			"name": "home-all-icon",
-			"icon": "icons8-home-xyz-50.png" 
-		},
-		{
-			"name": "home-x-icon",
-			"icon": "icons8-home-x-50.png" 
-		},
-		{
-			"name": "home-y-icon",
-			"icon": "icons8-home-y-50.png" 
-		},
-		{
-			"name": "home-z-icon",
-			"icon": "icons8-home-z-50.png" 
-		},
-		{
-			"name": "no-data-icon",
-			"icon": "icons8-no-data-availible-96.png" 
-		},
-		{
-			"name": "add-icon",
-			"icon": "icons8-add-64.png" 
-		},
-		{
-			"name": "minus-icon",
-			"icon": "icons8-minus-64.png" 
-		},
-		{
-			"name": "remove-icon",
-			"icon": "icons8-remove-50.png" 
-		},
-		{
-			"name": "move-up-icon",
-			"icon": "icons8-move-up-50.png" 
-		},
-		{
-			"name": "move-down-icon",
-			"icon": "icons8-move-down-50.png" 
-		},
-		{
-			"name": "location-icon",
-			"icon": "icons8-my-location-50.png" 
-		},
-		{
-			"name": "navigation-icon",
-			"icon": "icons8-navigation-50.png" 
-		},
-		{
-			"name": "diameter-icon",
-			"icon": "icons8-diameter-90.png" 
-		},
-		{
-			"name": "height-icon",
-			"icon": "icons8-height-96.png" 
-		},
-		{
-			"name": "control-icon",
-			"icon": "icons8-control-50.png" 
-		},
-		{
-			"name": "toolhead-icon",
-			"icon": "icons8-controller-64.png" 
-		},
-		{
-			"name": "cooler-icon",
-			"icon": "icons8-cooler-50.png" 
-		},
-		{
-			"name": "extruder-icon",
-			"icon": "extruder-icon-64.png" 
-		},
-		{
-			"name": "pressure-advance-icon",
-			"icon": "icons8-pressure-50.png" 
-		},
-		{
-			"name": "smooth-time-icon",
-			"icon": "icons8-time-50.png" 
-		},
-		{
-			"name": "extrusion-factor-icon",
-			"icon": "icons8-speed-90.png" 
-		},
-		{
-			"name": "print-speed-icon",
-			"icon": "icons8-speed-50.png" 
-		},
-		{
-			"name": "material-icon",
-			"icon": "icons8-triangle-50.png" 
-		},
-		{
-			"name": "settings-icon",
-			"icon": "icons8-settings-50.png"
-		},
-		{
-			"name": "settings-icon",
-			"icon": "icons8-settings-50.png"
-		},
-		{
-			"name": "delete-icon",
-			"icon": "icons8-trash-64.png"
-		},
-		{
-			"name": "start-icon",
-			"icon": "icons8-play-64.png"
-		},
-		{
-			"name": "stop-icon",
-			"icon": "icons8-stop-64.png"
-		},
-		{
-			"name": "user-icon",
-			"icon": "icons8-user-100.png"
-		},
-		{
-			"name": "position-icon",
-			"icon": "icons8-my-location-50.png"
-		},
-		{
-			"name": "save-icon",
-			"icon": "icons8-save-100.png"
-		}
-	]
+    [
+        {
+            "icon": "icons8-dashboard-64.png",
+            "name": "dashboard"
+        },
+        {
+            "icon": "icons8-empty-67.png",
+            "name": "empty"
+        },
+        {
+            "icon": "icons8-print-file-64.png",
+            "name": "print"
+        },
+        {
+            "icon": "icons8-edit-64.png",
+            "name": "edit"
+        },
+        {
+            "icon": "icons8-trash-64.png",
+            "name": "delete"
+        },
+        {
+            "icon": "icons8-go-back-64.png",
+            "name": "up-directory"
+        },
+        {
+            "icon": "icons8-refresh-64.png",
+            "name": "refresh"
+        },
+        {
+            "icon": "icons8-upload-64.png",
+            "name": "file-upload"
+        },
+        {
+            "icon": "icons8-add-folder-64.png",
+            "name": "folder-create"
+        },
+        {
+            "icon": "icons8-download-folder-90.png",
+            "name": "folder-download"
+        },
+        {
+            "icon": "icons8-add-64.png",
+            "name": "add"
+        },
+        {
+            "icon": "icons8-save-100.png",
+            "name": "save"
+        },
+        {
+            "icon": "icons8-multiply-64.png",
+            "name": "multiply"
+        },
+        {
+            "icon": "icons8-update-64.png",
+            "name": "update"
+        },
+        {
+            "icon": "icons8-users-64.png",
+            "name": "users"
+        },
+        {
+            "icon": "icons8-system-information-64.png",
+            "name": "system"
+        },
+        {
+            "icon": "icons8-cloud-networking-64.png",
+            "name": "network"
+        },
+        {
+            "icon": "icons8-integrated-circuit-64.png",
+            "name": "mcu"
+        },
+        {
+            "icon": "icons8-no-connection-64.png",
+            "name": "no-connection"
+        },
+        {
+            "icon": "icons8-connect-64.png",
+            "name": "connect"
+        },
+        {
+            "icon": "extruder-icon-64.png",
+            "name": "extruder"
+        },
+        {
+            "icon": "extruder-settings-icon-64.png",
+            "name": "extruder-settings"
+        },
+        {
+            "icon": "icons8-temperature-alt-64.png",
+            "name": "temperature"
+        },
+        {
+            "icon": "icons8-speed-90.png",
+            "name": "extrusion-factor"
+        },
+        {
+            "icon": "icons8-settings-50.png",
+            "name": "settings"
+        },
+        {
+            "icon": "icons8-triangle-50.png",
+            "name": "material-extrude"
+        },
+        {
+            "icon": "icons8-triangle-inverse-50.png",
+            "name": "material-retract"
+        },
+        {
+            "icon": "icons8-gas-industry-64.png",
+            "name": "preheat"
+        },
+        {
+            "icon": "icons8-3d-printer-64.png",
+            "name": "printer"
+        },
+        {
+            "icon": "icons8-3d-printer-add-64.png",
+            "name": "printer-add"
+        },
+        {
+            "icon": "icons8-3d-printer-remove-64.png",
+            "name": "printer-remove"
+        },
+        {
+            "icon": "icons8-3d-printer-error-64.png",
+            "name": "printer-error"
+        },
+        {
+            "icon": "icons8-3d-printer-edit-64.png",
+            "name": "printer-edit"
+        },
+        {
+            "icon": "calibrate-screws-64.png",
+            "name": "calibrate-screws"
+        },
+        {
+            "icon": "mesh-calibrate-64.png",
+            "name": "mesh-calibrate"
+        },
+        {
+            "icon": "mesh-viewer-64.png",
+            "name": "mesh-viewer"
+        },
+        {
+            "icon": "mesh-info-64.png",
+            "name": "mesh-info"
+        },
+        {
+            "icon": "icons8-grid-50.png",
+            "name": "mesh"
+        },
+        {
+            "icon": "icons8-no-video-64.png",
+            "name": "no-video"
+        },
+        {
+            "icon": "icons8-mesh-64.png",
+            "name": "bed-mesh"
+        },
+        {
+            "icon": "icons8-health-symbol-64.png",
+            "name": "health"
+        },
+        {
+            "icon": "icons8-no-data-availible-96.png",
+            "name": "no-data"
+        },
+        {
+            "icon": "icons8-home-50.png",
+            "name": "home"
+        },
+        {
+            "icon": "icons8-threading-metal-90.png",
+            "name": "adjustment-screw"
+        },
+        {
+            "icon": "icons8-shooting-game-64.png",
+            "name": "calibrate"
+        },
+        {
+            "icon": "icons8-electrical-64.png",
+            "name": "plug"
+        },
+        {
+            "icon": "homeassistant-icon.png",
+            "name": "homeassistant"
+        },
+        {
+            "icon": "homeseer-icon.png",
+            "name": "homeseer"
+        },
+        {
+            "icon": "icons8-connection-64.png",
+            "name": "connection"
+        },
+        {
+            "icon": "icons8-power-64.png",
+            "name": "power"
+        },
+        {
+            "icon": "mqtt-icon.png",
+            "name": "mqtt"
+        },
+        {
+            "icon": "shelly-icon.png",
+            "name": "shelly"
+        },
+        {
+            "icon": "smartthings-icon.png",
+            "name": "smartthings"
+        },
+        {
+            "icon": "tasmota.png",
+            "name": "tasmota"
+        },
+        {
+            "icon": "tplink-icon.png",
+            "name": "tplink"
+        },
+        {
+            "icon": "icons8-power-device-64.png",
+            "name": "power-device"
+        },
+        {
+            "icon": "icons8-restart-64.png",
+            "name": "restart"
+        },
+        {
+            "icon": "icons8-accept-64.png",
+            "name": "accept"
+        },
+        {
+            "icon": "icons8-led-strip-64.png",
+            "name": "led"
+        },
+        {
+            "icon": "icons8-sensor-64.png",
+            "name": "sensor"
+        },
+        {
+            "icon": "icons8-sensors-64.png",
+            "name": "sensors"
+        },
+        {
+            "icon": "icons8-3d-printer-64.png",
+            "name": "printer"
+        },
+        {
+            "icon": "icons8-my-location-50.png",
+            "name": "location"
+        },
+        {
+            "icon": "icons8-height-96.png",
+            "name": "height"
+        },
+        {
+            "icon": "icons8-control-50.png",
+            "name": "control"
+        },
+        {
+            "icon": "icons8-controller-64.png",
+            "name": "toolhead"
+        },
+        {
+            "icon": "icons8-file-explorer-50.png",
+            "name": "browser"
+        },
+        {
+            "icon": "icons8-source-code-64.png",
+            "name": "console"
+        },
+        {
+            "icon": "icons8-gcode-64.png",
+            "name": "gcode"
+        },
+        {
+            "icon": "icons8-3d-printer-settings-64.png",
+            "name": "printer-settings"
+        },
+        {
+            "icon": "icons8-cooler-50.png",
+            "name": "cooler"
+        },
+        {
+            "icon": "icons8-webcam-64.png",
+            "name": "webcam"
+        },
+        {
+            "icon": "icons8-line-chart-80.png",
+            "name": "chart"
+        },
+        {
+            "icon": "icons8-cancel-64.png",
+            "name": "cancel"
+        },
+        {
+            "icon": "icons8-list-64.png",
+            "name": "list"
+        },
+        {
+            "icon": "icons8-voltage-100.png",
+            "name": "voltage"
+        },
+        {
+            "icon": "icons8-error-64.png",
+            "name": "error"
+        },
+        {
+            "icon": "icons8-stop-64.png",
+            "name": "stop"
+        },
+        {
+            "icon": "icons8-pause-64.png",
+            "name": "pause"
+        },
+        {
+            "icon": "icons8-firmware-error.png",
+            "name": "firmware"
+        },
+        {
+            "icon": "icons8-menu-64.png",
+            "name": "menu"
+        },
+        {
+            "icon": "icons8-minus-64.png",
+            "name": "minus"
+        },
+        {
+            "icon": "icons8-theme-64.png",
+            "name": "theme"
+        },
+        {
+            "icon": "zoffset-icon-64.png",
+            "name": "zoffset"
+        },
+        {
+            "name": "thumbs-up",
+            "icon": "icons8-thumbs-up-100.png"
+        },
+        {
+            "name": "thumbs-down",
+            "icon": "icons8-thumbs-down-100.png"
+        },
+        {
+            "name": "input-shaper",
+            "icon": "icons8-impossible-shapes-64.png"
+        }
+    ]
 }

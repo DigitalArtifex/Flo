@@ -4,14 +4,14 @@ EmptyPrinterWebcamFrame::EmptyPrinterWebcamFrame(QWidget *parent) :
     QFrame(parent)
 {
     setupUi();
-    setIcons();
+    setupIcons();
 }
 
 void EmptyPrinterWebcamFrame::setStyleSheet(QString &styleSheet)
 {
     QFrame::setStyleSheet(styleSheet);
 
-    setIcons();
+    setupIcons();
 }
 
 void EmptyPrinterWebcamFrame::setupUi()
@@ -36,8 +36,8 @@ void EmptyPrinterWebcamFrame::setupUi()
     m_layout->addItem(m_bottomSpacer,3,0);
 }
 
-void EmptyPrinterWebcamFrame::setIcons()
+void EmptyPrinterWebcamFrame::setupIcons()
 {
-    QPixmap pixmap = Settings::getThemeIcon("no-video-icon").pixmap(28,28);
+    QPixmap pixmap = Settings::getThemeIcon("no-video").pixmap(28,28);
     m_iconLabel->setPixmap(pixmap);
 }

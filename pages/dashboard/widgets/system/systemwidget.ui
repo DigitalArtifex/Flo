@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>500</height>
+    <height>420</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>400</width>
-    <height>500</height>
+    <height>420</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>400</width>
-    <height>500</height>
+    <width>16777215</width>
+    <height>16777215</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -50,10 +50,10 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Shape::StyledPanel</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_10">
       <item row="0" column="0">
@@ -78,10 +78,10 @@
       <item row="1" column="0" colspan="3">
        <widget class="QFrame" name="systemWidgetContents">
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
+         <enum>QFrame::Shadow::Plain</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_46">
          <property name="leftMargin">
@@ -96,38 +96,8 @@
          <property name="horizontalSpacing">
           <number>0</number>
          </property>
-         <item row="0" column="1">
-          <widget class="QGroupBox" name="memoryFrame">
-           <property name="title">
-            <string/>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_18">
-            <item>
-             <layout class="QVBoxLayout" name="systemMemoryLoadLayout">
-              <item>
-               <widget class="QLabel" name="label_10">
-                <property name="text">
-                 <string>Memory</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="Line" name="line_9">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
          <item row="0" column="0">
-          <widget class="QGroupBox" name="cpuFrame">
-           <property name="title">
-            <string/>
-           </property>
+          <widget class="QFrame" name="cpuFrame">
            <layout class="QVBoxLayout" name="verticalLayout_14">
             <item>
              <layout class="QVBoxLayout" name="systemCpuLoadLayout">
@@ -141,7 +111,31 @@
               <item>
                <widget class="Line" name="line_11">
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QFrame" name="memoryFrame">
+           <layout class="QVBoxLayout" name="verticalLayout_18">
+            <item>
+             <layout class="QVBoxLayout" name="systemMemoryLoadLayout">
+              <item>
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>Memory</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="line_9">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                </widget>
               </item>
@@ -151,10 +145,7 @@
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QGroupBox" name="temperatureFrame">
-           <property name="title">
-            <string/>
-           </property>
+          <widget class="QFrame" name="temperatureFrame">
            <layout class="QVBoxLayout" name="verticalLayout_22">
             <item>
              <layout class="QVBoxLayout" name="systemTemperatureLayout">
@@ -168,7 +159,7 @@
               <item>
                <widget class="Line" name="line_10">
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                </widget>
               </item>
@@ -177,61 +168,18 @@
            </layout>
           </widget>
          </item>
-         <item row="1" column="0" colspan="3">
-          <widget class="QGroupBox" name="statusFrame">
-           <property name="title">
-            <string/>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_9">
-            <item>
-             <widget class="QLabel" name="label_13">
-              <property name="text">
-               <string>Server Status</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="Line" name="line_12">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="printJobsLabel">
-              <property name="font">
-               <font>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Print Jobs: </string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_14">
-              <property name="font">
-               <font>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Printers Online: </string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
         </layout>
        </widget>
       </item>
-      <item row="2" column="0" colspan="3">
-       <widget class="QGroupBox" name="groupBox_2">
-        <property name="title">
-         <string/>
+      <item row="0" column="1">
+       <widget class="QLabel" name="systemTitle">
+        <property name="text">
+         <string>System</string>
         </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="3">
+       <widget class="QFrame" name="frame_2">
         <layout class="QGridLayout" name="gridLayout_3">
          <item row="4" column="0">
           <widget class="QLabel" name="memoryCapacityLabel">
@@ -281,18 +229,11 @@
          <item row="1" column="0">
           <widget class="Line" name="line">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
           </widget>
          </item>
         </layout>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="systemTitle">
-        <property name="text">
-         <string>System</string>
-        </property>
        </widget>
       </item>
      </layout>

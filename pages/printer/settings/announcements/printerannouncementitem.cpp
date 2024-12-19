@@ -31,16 +31,16 @@ void PrinterAnnouncementItem::setupUi()
     m_iconContainer->setFixedWidth(45);
     m_iconLabel->setFixedSize(32,32);
 
-    QPixmap icon = Settings::getThemeIcon(QString("file-icon")).pixmap(32,32);
+    QPixmap icon = Settings::getThemeIcon(QString("file")).pixmap(32,32);
 
     if(m_title.toLower() == QString("crowsnest"))
-        icon = Settings::getThemeIcon(QString("crowsnest-icon")).pixmap(32,32);
+        icon = Settings::getThemeIcon(QString("crowsnest")).pixmap(32,32);
 
     if(m_title.toLower() == QString("klipper"))
-        icon = Settings::getThemeIcon(QString("klipper-icon")).pixmap(32,32);
+        icon = Settings::getThemeIcon(QString("klipper")).pixmap(32,32);
 
     if(m_title.contains("mainsail", Qt::CaseInsensitive))
-        icon = Settings::getThemeIcon(QString("mainsail-icon")).pixmap(32,32);
+        icon = Settings::getThemeIcon(QString("mainsail")).pixmap(32,32);
 
     m_iconLabel->setPixmap(icon);
 
@@ -60,7 +60,7 @@ void PrinterAnnouncementItem::setupUi()
     m_branchLabel->setAlignment(Qt::AlignRight);
 
     m_updateButton = new QToolButton(this);
-    m_updateButton->setIcon(Settings::getThemeIcon(QString("cancel-icon")));
+    m_updateButton->setIcon(Settings::getThemeIcon(QString("cancel")));
     m_updateButton->setIconSize(QSize(32,32));
     m_updateButton->setFixedSize(35,35);
 
@@ -75,7 +75,7 @@ void PrinterAnnouncementItem::setupUi()
     m_versionLabel->setProperty("class", "FileWidgetItemDetails");
     m_titleLabel->setProperty("class", "FileWidgetItemTitle");
 
-    QIcon actionIcon = Settings::getThemeIcon("print-icon");
+    QIcon actionIcon = Settings::getThemeIcon("print");
     m_updateAction = new QAction(actionIcon, "Print", this);
     connect(m_updateAction, SIGNAL(triggered(bool)), this, SLOT(updateActionTriggered(bool)));
 
