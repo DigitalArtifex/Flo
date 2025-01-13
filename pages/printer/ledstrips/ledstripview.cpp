@@ -1,7 +1,7 @@
 #include "ledstripview.h"
 
 LedStripView::LedStripView(QKlipperSystem *system, QWidget *parent) :
-    CardWidget{CardWidget::Widget, parent}
+    CardWidget{CardType::Widget, parent}
 {
     setupUi();
     setSystem(system);

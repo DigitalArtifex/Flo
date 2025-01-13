@@ -100,4 +100,6 @@ void PrinterListWidget::mousePressEvent(QMouseEvent *event)
 
     m_selectedItem = nullptr;
     emit(itemSelected(m_selectedItem));
+
+    QFrame::mousePressEvent(event);
 }

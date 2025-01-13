@@ -2,7 +2,7 @@
 #include "system/settings.h"
 
 PrinterNetworkWidget::PrinterNetworkWidget(QKlipperSystem *system, QWidget *parent)
-    : CardWidget{CardWidget::SubWidget, parent}
+    : CardWidget{CardType::SubWidget, parent}
 {
     m_system = system;
 

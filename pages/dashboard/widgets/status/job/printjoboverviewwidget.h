@@ -1,5 +1,5 @@
-#ifndef PRINTJOBLISTWIDGET_H
-#define PRINTJOBLISTWIDGET_H
+#ifndef PRINTJOBOVERVIEWWIDGET_H
+#define PRINTJOBOVERVIEWWIDGET_H
 
 #include <QScrollArea>
 #include <QGridLayout>
@@ -8,17 +8,17 @@
 
 #include <QKlipper/qklipper.h>
 
-#include "printjoblistitem.h"
+#include "printjoboverviewitem.h"
 
-#include "../../../../../ui/list/qanimatedlistwidget.h"
+#include "ui/list/qanimatedlistwidget.h"
 
-class PrintJobListWidget : public QAnimatedListWidget
+class PrintJobOverviewWidget : public QAnimatedListWidget
 {
     Q_OBJECT
 
 public:
-    explicit PrintJobListWidget(QWidget *parent = nullptr);
-    ~PrintJobListWidget();
+    explicit PrintJobOverviewWidget(QWidget *parent = nullptr);
+    ~PrintJobOverviewWidget();
 
     virtual void setStyleSheet(QString styleSheet);
 
@@ -28,9 +28,9 @@ public:
 protected slots:
     void onPrintJobAdded(QKlipperInstance *instance, QKlipperPrintJob *job);
     void onPrintJobRemoved(QKlipperInstance *instance, QKlipperPrintJob *job);
-    void itemRemoveRequestEvent(PrintJobListItem *item);
+    void itemRemoveRequestEvent(PrintJobOverviewItem *item);
 
 private:
 };
 
-#endif // PRINTJOBLISTWIDGET_H
+#endif // PRINTJOBOVERVIEWWIDGET_H

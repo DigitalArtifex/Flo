@@ -7,7 +7,7 @@
 
 #include <QKlipper/qklipper.h>
 
-#include "job/printjoblistwidget.h"
+#include "job/printjoboverviewwidget.h"
 #include "energy/energyconsumptionwidget.h"
 #include "issue/issuelistwidget.h"
 
@@ -39,7 +39,7 @@ private:
 
 private:
     Ui::StatusWidget *ui;
-    PrintJobListWidget *m_printJobList = nullptr;
+    //PrintJobOverviewWidget *m_printJobList = nullptr;
     EnergyConsumptionWidget *m_energyConsumption = nullptr;
     IssueListWidget *m_issueList = nullptr;
 };

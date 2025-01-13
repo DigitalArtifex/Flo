@@ -34,11 +34,13 @@
 
 #include "widgets/printerfan/printerfanwidget.h"
 
+#include "printing/printingpage.h"
+
 namespace Ui {
 class PrinterPage;
 }
 
-class PrinterPage : public QFrame
+class PrinterPage : public QOpenGLWidget
 {
     Q_OBJECT
     Q_PROPERTY(bool isAnimating READ animating WRITE setAnimating NOTIFY animatingChanged FINAL)
@@ -62,6 +64,7 @@ protected slots:
 protected:
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual void changeEvent(QEvent *event) override;
+    virtual void showEvent(QShowEvent *event) override;
 
     void setupAnimations();
     void setupIcons();
@@ -69,6 +72,7 @@ protected:
 private slots:
     void onOverviewButtonClicked();
     void onSettingsButtonClicked();
+    void onBedMeshButtonClicked();
 
     void on_homeToolheadButton_clicked();
 
@@ -116,7 +120,16 @@ private slots:
 
     void on_gcodeButton_clicked();
 
+    void on_restartButton_clicked();
+
+    void on_restartKlipperButton_clicked();
+
+    void on_toolButton_triggered(QAction *arg1);
+
+    void on_toolButton_clicked();
+
 private:
+    PrintingPage *m_printingPage = nullptr;
     PowerDeviceView *m_powerDeviceView = nullptr;
     SensorView *m_sensorDeviceView = nullptr;
     LedStripView *m_ledDeviceView = nullptr;
@@ -124,8 +137,8 @@ private:
     QFrame *m_statusOverlayFrame = nullptr;
     QLabel *m_statusLabel = nullptr;
 
-    CircularProgressBar *m_chamberTemperatureBar = nullptr;
-    CircularProgressBar *m_printProgressBar = nullptr;
+    QGaugeWidget *m_chamberTemperatureBar = nullptr;
+    QGaugeWidget *m_printProgressBar = nullptr;
 
     PrinterTemperatureWidget *m_temperatureWidget = nullptr;
 

@@ -4,6 +4,7 @@
 #include <QFrame>
 #include <QParallelAnimationGroup>
 #include <QMessageBox>
+#include <QOpenGLWidget>
 
 #include "edit_printer/editprinterdialog.h"
 #include "printerlistwidget.h"
@@ -20,7 +21,7 @@ namespace Ui {
 class SettingsPage;
 }
 
-class SettingsPage : public QFrame
+class SettingsPage : public QOpenGLWidget
 {
     Q_OBJECT
 

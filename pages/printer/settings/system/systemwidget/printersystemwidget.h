@@ -9,7 +9,7 @@
 #include "ui/common/cardwidget/cardwidget.h"
 #include <QKlipper/qklipper.h>
 
-#include "ui/circularprogressbar.h"
+#include "ui/qgaugewidget.h"
 
 class PrinterSystemWidget : public CardWidget
 {
@@ -46,9 +46,9 @@ private:
     QGroupBox *m_cpuGroupBox = nullptr;
     QGroupBox *m_temperatureGroupBox = nullptr;
 
-    CircularProgressBar *m_memoryProgress = nullptr;
-    CircularProgressBar *m_cpuProgress = nullptr;
-    CircularProgressBar *m_temperatureProgress = nullptr;
+    QGaugeWidget *m_memoryProgress = nullptr;
+    QGaugeWidget *m_cpuProgress = nullptr;
+    QGaugeWidget *m_temperatureProgress = nullptr;
 
     QLabel *m_cpuNameLabel = nullptr;
     QLabel *m_cpuCountLabel = nullptr;
@@ -61,7 +61,7 @@ private:
 
     QGroupBox *m_sdGroupBox = nullptr;
 
-    CircularProgressBar *m_sdProgress = nullptr;
+    QGaugeWidget *m_sdProgress = nullptr;
 
     QLabel *m_sdUsedLabel = nullptr;
     QLabel *m_sdAvailableLabel = nullptr;

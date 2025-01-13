@@ -1,7 +1,7 @@
 #include "extrudertemperaturewidget.h"
 
 ExtruderTemperatureWidget::ExtruderTemperatureWidget(QKlipperExtruder *instance, QWidget *parent)
-    : CardWidget{CardWidget::Widget, parent}
+    : CardWidget{CardType::Widget, parent}
 {
     m_instance = instance;
 

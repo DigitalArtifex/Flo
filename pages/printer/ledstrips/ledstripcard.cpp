@@ -2,7 +2,7 @@
 #include "system/settings.h"
 
 LedStripCard::LedStripCard(QKlipperLedStrip *strip, QWidget *parent)
-    : CardWidget{CardWidget::SubWidget,parent}
+    : CardWidget{CardType::SubWidget,parent}
 {
     m_ledStrip = strip;
 

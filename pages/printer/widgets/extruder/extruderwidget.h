@@ -6,7 +6,7 @@
 #include <QStyle>
 #include <QScreen>
 #include <QGraphicsEffect>
-#include "../../../../ui/circularprogressbar.h"
+#include "../../../../ui/qgaugewidget.h"
 #include <QKlipper/qklipper.h>
 
 #include "extruderinfodialog.h"
@@ -76,9 +76,9 @@ private slots:
 private:
     ExtruderTemperatureWidget *m_temperatureWidget = nullptr;
 
-    CircularProgressBar *m_temperatureProgressBar = nullptr;
-    CircularProgressBar *m_powerProgressBar = nullptr;
-    CircularProgressBar *m_extruderFanProgressBar = nullptr;
+    QGaugeWidget *m_temperatureProgressBar = nullptr;
+    QGaugeWidget *m_powerProgressBar = nullptr;
+    QGaugeWidget *m_extruderFanProgressBar = nullptr;
 
     QKlipperExtruder *m_extruder;
     Ui::ExtruderWidget *ui;

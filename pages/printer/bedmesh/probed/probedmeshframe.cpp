@@ -1,9 +1,9 @@
-#include "bedmeshframe.h"
+#include "probedmeshframe.h"
 
 #include "system/settings.h"
 
-BedMeshFrame::BedMeshFrame(QKlipperPrintBed *bed, QWidget *parent)
-    : CardWidget(CardWidget::Widget, parent)
+ProbedMeshFrame::ProbedMeshFrame(QKlipperPrintBed *bed, QWidget *parent)
+    : CardWidget(CardType::Widget, parent)
 {
     setTitle("Probed Data");
 
@@ -18,19 +18,23 @@ BedMeshFrame::BedMeshFrame(QKlipperPrintBed *bed, QWidget *parent)
 
     setCentralWidget(m_centralWidget);
 
+    m_emptyFrame = new ProbedMeshEmptyFrame(m_printerBed, this);
+    m_centralLayout->addWidget(m_emptyFrame);
+
     setupIcons();
     onBedMeshCalibratingFinished();
 
+    //a non-fatal race condition can occur between these 2 signals, so connect to them both
     connect(m_printerBed, SIGNAL(hasBedMeshResultChanged()), this, SLOT(onBedMeshCalibratingFinished()));
     connect(m_printerBed->bedMesh(), SIGNAL(probedChanged()), this, SLOT(onBedMeshCalibratingFinished()));
 }
 
-BedMeshFrame::~BedMeshFrame()
+ProbedMeshFrame::~ProbedMeshFrame()
 {
     //delete ui;
 }
 
-void BedMeshFrame::changeEvent(QEvent *event)
+void ProbedMeshFrame::changeEvent(QEvent *event)
 {
     if (event->type() == QEvent::StyleChange)
     {
@@ -40,14 +44,15 @@ void BedMeshFrame::changeEvent(QEvent *event)
     QWidget::changeEvent(event);
 }
 
-void BedMeshFrame::setupIcons()
+void ProbedMeshFrame::setupIcons()
 {
     setIcon(Settings::getThemeIcon("bed-mesh"));
 }
 
-void BedMeshFrame::onBedMeshCalibratingFinished()
+void ProbedMeshFrame::onBedMeshCalibratingFinished()
 {
-    if(m_printerBed->hasBedMeshResult() && m_printerBed->bedMesh()->probed().count() > 0)
+    //probed is often returning a single empty row, so we need to check the row and col count
+    if(m_printerBed->bedMesh()->probed().count() > 0 && m_printerBed->bedMesh()->probed()[0].count() > 0)
     {
         clearLayout();
 
@@ -57,7 +62,7 @@ void BedMeshFrame::onBedMeshCalibratingFinished()
 
             for(int i = 0; i < row.count(); i++)
             {
-                BedMeshItemFrame *itemFrame = new BedMeshItemFrame(this);
+                ProbedMeshItemFrame *itemFrame = new ProbedMeshItemFrame(this);
                 itemFrame->setValue(row[i]);
 
                 m_centralLayout->addWidget(itemFrame, rowNumber, i, Qt::AlignCenter);
@@ -68,12 +73,12 @@ void BedMeshFrame::onBedMeshCalibratingFinished()
     //show empty frame
     else if(!m_emptyFrame)
     {
-        m_emptyFrame = new BedMeshEmptyFrame(m_printerBed, this);
+        m_emptyFrame = new ProbedMeshEmptyFrame(m_printerBed, this);
         m_centralLayout->addWidget(m_emptyFrame);
     }
 }
 
-void BedMeshFrame::clearLayout()
+void ProbedMeshFrame::clearLayout()
 {
     if(m_emptyFrame)
     {
@@ -83,9 +88,9 @@ void BedMeshFrame::clearLayout()
     }
 
     //remove results
-    QList<BedMeshItemFrame*> itemFrames = findChildren<BedMeshItemFrame*>();
+    QList<ProbedMeshItemFrame*> itemFrames = findChildren<ProbedMeshItemFrame*>();
 
-    for(BedMeshItemFrame *itemFrame : itemFrames)
+    for(ProbedMeshItemFrame *itemFrame : itemFrames)
     {
         m_centralLayout->removeWidget(itemFrame);
         itemFrame->deleteLater();

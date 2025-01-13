@@ -2,7 +2,7 @@
 #include "qabstractaxis.h"
 #include "system/settings.h"
 
-BedMeshWidget::BedMeshWidget(QKlipperPrintBed *bed, QWidget *parent) : Dialog(parent)
+BedMeshWidget::BedMeshWidget(QKlipperPrintBed *bed, QWidget *parent) : QOpenGLWidget(parent)
 {
     m_printBed = bed;
     m_data = new BedMeshData(m_printBed, this);
@@ -11,23 +11,48 @@ BedMeshWidget::BedMeshWidget(QKlipperPrintBed *bed, QWidget *parent) : Dialog(pa
     setupViewer();
     setupSidebar();
     setupButtonBox();
+
+    onToolheadHomedChanged();
+
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printBed->parent());
+
+    if(printer)
+        connect(printer->toolhead(), SIGNAL(isHomedChanged()), this, SLOT(onToolheadHomedChanged()));
 }
 
 BedMeshWidget::~BedMeshWidget()
 {
+    if(m_viewer)
+        delete m_viewer;
+
     if(m_viewerWidget)
     {
         m_layout->removeWidget(m_viewerWidget);
-        m_viewerWidget->deleteLater();
+        delete m_viewerWidget;
     }
 
-    if(m_viewer)
+    if(m_adjustmentScrewFrame)
     {
-        //m_viewer->close();
-        m_viewer->deleteLater();
+        m_layout->removeWidget(m_adjustmentScrewFrame);
+        delete m_adjustmentScrewFrame;
     }
 
-    m_layout->deleteLater();
+    if(m_bedMeshFrame)
+    {
+        m_layout->removeWidget(m_bedMeshFrame);
+        delete m_bedMeshFrame;
+    }
+
+    if(m_healthCard)
+    {
+        m_layout->removeWidget(m_healthCard);
+        delete m_healthCard;
+    }
+
+    if(m_data)
+        delete m_data;
+
+    delete m_layout;
 }
 
 void BedMeshWidget::setStyleSheet(QString styleSheet)
@@ -59,6 +84,14 @@ void BedMeshWidget::setStyleSheet(QString styleSheet)
 void BedMeshWidget::setupUi()
 {
     m_layout = new QGridLayout(this);
+    m_layout->setContentsMargins(0,0,0,0);
+
+    m_centralWidget = new QWidget(this);
+    m_centralLayout = new QGridLayout(m_centralWidget);
+    m_centralWidget->setLayout(m_centralLayout);
+    m_centralWidget->setProperty("class", "Page");
+    m_layout->addWidget(m_centralWidget);
+
     this->setLayout(m_layout);
 }
 
@@ -93,32 +126,32 @@ void BedMeshWidget::setupViewer()
     m_viewer->setColor(QColor("#262626"));
 
     m_viewerWidget = QWidget::createWindowContainer(m_viewer, this);
-    m_bedMeshCard = new CardWidget(CardWidget::Widget, this);
+    m_bedMeshCard = new CardWidget(CardWidget::CardType::Widget, this);
     m_bedMeshCard->setTitle("Bed Mesh");
     m_bedMeshCard->setIcon(Settings::getThemeIcon("bed-mesh"));
     m_bedMeshCard->setCentralWidget(m_viewerWidget);
 
-    m_layout->addWidget(m_bedMeshCard, 0, 0);
+    m_centralLayout->addWidget(m_bedMeshCard, 0, 0);
 
     m_viewer->show();
 }
 
 void BedMeshWidget::setupSidebar()
 {
-    m_sideBarWidget = new QWidget(this);
+    m_sideBarWidget = new QWidget(m_centralWidget);
     m_sideBarWidget->setFixedWidth(420);
-    m_layout->addWidget(m_sideBarWidget, 0, 1, 1, 1);
+    m_centralLayout->addWidget(m_sideBarWidget, 0, 1, 1, 1);
 
     m_sidebarLayout = new QGridLayout(m_sideBarWidget);
     m_sidebarLayout->setContentsMargins(6, 0, 4, 0);
 
-    m_healthCard = new BedMeshHealthCard(m_data, this);
+    m_healthCard = new BedMeshHealthCard(m_data, m_centralWidget);
     m_sidebarLayout->addWidget(m_healthCard, 0, 0, 1, 1);
 
-    m_bedMeshFrame = new BedMeshFrame(m_printBed, m_sideBarWidget);
+    m_bedMeshFrame = new ProbedMeshFrame(m_printBed, m_sideBarWidget);
     m_sidebarLayout->addWidget(m_bedMeshFrame, 1, 0, 1, 1);
 
-    m_adjustmentScrewFrame = new AdjustmentScrewFrame(m_printBed, this);
+    m_adjustmentScrewFrame = new AdjustmentScrewFrame(m_printBed, m_centralWidget);
     m_sidebarLayout->addWidget(m_adjustmentScrewFrame, 2, 0, 1, 1);
 
     m_sidebarLayout->addItem(new QSpacerItem(0, 40, QSizePolicy::Expanding, QSizePolicy::Expanding), 3, 0, 1, 1);
@@ -127,7 +160,7 @@ void BedMeshWidget::setupSidebar()
 
 void BedMeshWidget::setupButtonBox()
 {
-    m_buttonBoxWidget = new QWidget(this);
+    m_buttonBoxWidget = new QWidget(m_centralWidget);
     m_buttonBoxLayout = new QHBoxLayout(m_buttonBoxWidget);
     m_buttonBoxLayout->setContentsMargins(0,0,0,0);
     m_buttonBoxWidget->setLayout(m_buttonBoxLayout);
@@ -160,7 +193,7 @@ void BedMeshWidget::setupButtonBox()
 
     connect(m_calibrateScrewsButton, SIGNAL(clicked()), this, SLOT(onCalibrateScrewsButtonClicked()));
 
-    m_layout->addWidget(m_buttonBoxWidget, 1, 0, 1, 2);
+    m_centralLayout->addWidget(m_buttonBoxWidget, 1, 0, 1, 2);
 }
 
 void BedMeshWidget::onHomeButtonClicked()
@@ -188,4 +221,16 @@ void BedMeshWidget::onCalibrateScrewsButtonClicked()
     {
         m_printBed->calibrateAdjustmentScrews();
     }
+}
+
+void BedMeshWidget::onToolheadHomedChanged()
+{
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printBed->parent());
+
+    if(!printer) //invalid cast
+        return;
+
+    m_calibrateMeshButton->setEnabled(printer->toolhead()->isHomed());
+    m_calibrateScrewsButton->setEnabled(printer->toolhead()->isHomed());
+    m_homeButton->setEnabled(!printer->toolhead()->isHomed());
 }

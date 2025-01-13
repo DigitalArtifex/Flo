@@ -2,7 +2,7 @@
 #include "system/settings.h"
 
 PrinterFanWidget::PrinterFanWidget(QKlipperPrinter *printer, QWidget *parent)
-    : CardWidget(Widget, parent)
+    : CardWidget(CardType::Widget, parent)
 {
     m_printer = printer;
 

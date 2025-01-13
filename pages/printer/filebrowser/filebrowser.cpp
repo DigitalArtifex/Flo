@@ -213,6 +213,8 @@ void FileBrowser::resizeEvent(QResizeEvent *event)
 {
     if(m_overlay)
         m_overlay->setGeometry(0,0,width(),height());
+
+    Dialog::resizeEvent(event);
 }
 
 void FileBrowser::showOverlay(QString title, QString icon)

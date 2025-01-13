@@ -1,6 +1,6 @@
 #include "sensorview.h"
 SensorView::SensorView(QKlipperSystem *system, QWidget *parent) :
-    CardWidget{Widget, parent}
+    CardWidget{CardType::Widget, parent}
 {
     setupUi();
     setSystem(system);

@@ -97,7 +97,7 @@ void PrinterNetworkChart::systemNetworkStatsChanged()
             m_axisY->setMax((bandwidth + (bandwidth * .1)));
 
         if(m_series.contains(key))
-            m_series[key]->append(timestamp.toMSecsSinceEpoch(), bandwidth);
+            m_series[key]->append(x, bandwidth);
         else
         {
             m_series[key] = new QLineSeries(m_chart);
@@ -107,7 +107,16 @@ void PrinterNetworkChart::systemNetworkStatsChanged()
             m_series[key]->attachAxis(m_axisY);
             m_series[key]->attachAxis(m_axisX);
 
-            m_series[key]->append(timestamp.toMSecsSinceEpoch(), bandwidth);
+            m_series[key]->append(x, bandwidth);
+        }
+
+        for(int i = 0; i < m_series[key]->count(); i++)
+        {
+            if(m_series[key]->at(i).y() > rangeStart.toMSecsSinceEpoch())
+            {
+                m_series[key]->remove(i);
+                --i;
+            }
         }
     }
 

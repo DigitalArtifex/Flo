@@ -8,8 +8,14 @@ PrinterWebcamWidget::PrinterWebcamWidget(QKlipperInstance *instance, QWidget *pa
     setupUi();
     setupUiClasses();
 
-    connect(m_instance, SIGNAL(connected(QKlipperInstance*)), this, SLOT(onInstanceOnline(QKlipperInstance*)));
-    connect(m_instance, SIGNAL(disconnected(QKlipperInstance*)), this, SLOT(onInstanceOffline(QKlipperInstance*)));
+    if(m_instance)
+    {
+        if(m_instance->isConnected())
+            onInstanceOnline(m_instance);
+
+        connect(m_instance, SIGNAL(connected(QKlipperInstance*)), this, SLOT(onInstanceOnline(QKlipperInstance*)));
+        connect(m_instance, SIGNAL(disconnected(QKlipperInstance*)), this, SLOT(onInstanceOffline(QKlipperInstance*)));
+    }
 }
 
 PrinterWebcamWidget::~PrinterWebcamWidget()
@@ -20,14 +26,23 @@ PrinterWebcamWidget::~PrinterWebcamWidget()
         delete m_webcamFrame;
     }
 
-    // if(m_webcamFrame_1)
-    //     m_webcamFrame->deleteLater();
+    if(m_webcamFrame_1)
+    {
+        m_layout->removeWidget(m_webcamFrame_1);
+        delete m_webcamFrame_1;
+    }
 
-    // if(m_webcamFrame_2)
-    //     m_webcamFrame->deleteLater();
+    if(m_webcamFrame_2)
+    {
+        m_layout->removeWidget(m_webcamFrame_2);
+        delete m_webcamFrame_2;
+    }
 
-    // if(m_webcamFrame_3)
-    //     m_webcamFrame->deleteLater();
+    if(m_webcamFrame_3)
+    {
+        m_layout->removeWidget(m_webcamFrame_3);
+        delete m_webcamFrame_3;
+    }
 
     // if(m_thumbnailTimer)
     //     m_thumbnailTimer->deleteLater();
@@ -95,7 +110,74 @@ void PrinterWebcamWidget::setupUiClasses()
 
 void PrinterWebcamWidget::setupIcons()
 {
+    if(m_webcamFrame)
+    {
+        m_webcamFrame->setStateIcon(
+            QWebcamSource::Connected | QWebcamSource::Connecting,
+            Settings::getThemeIcon("no-video")
+            );
 
+        m_webcamFrame->setStateIcon(
+            QWebcamSource::Paused,
+            Settings::getThemeIcon("pause")
+            );
+
+        m_webcamFrame->setStateIcon(
+            QWebcamSource::Timeout | QWebcamSource::NoConnection | QWebcamSource::None | QWebcamSource::InvalidFrame,
+            Settings::getThemeIcon("no-video")
+            );
+    }
+    if(m_webcamFrame_1)
+    {
+        m_webcamFrame_1->setStateIcon(
+            QWebcamSource::Connected | QWebcamSource::Connecting,
+            Settings::getThemeIcon("no-video")
+            );
+
+        m_webcamFrame_1->setStateIcon(
+            QWebcamSource::Paused,
+            Settings::getThemeIcon("pause")
+            );
+
+        m_webcamFrame_1->setStateIcon(
+            QWebcamSource::Timeout | QWebcamSource::NoConnection | QWebcamSource::None | QWebcamSource::InvalidFrame,
+            Settings::getThemeIcon("no-video")
+            );
+    }
+    if(m_webcamFrame)
+    {
+        m_webcamFrame->setStateIcon(
+            QWebcamSource::Connected | QWebcamSource::Connecting,
+            Settings::getThemeIcon("no-video")
+            );
+
+        m_webcamFrame->setStateIcon(
+            QWebcamSource::Paused,
+            Settings::getThemeIcon("pause")
+            );
+
+        m_webcamFrame->setStateIcon(
+            QWebcamSource::Timeout | QWebcamSource::NoConnection | QWebcamSource::None | QWebcamSource::InvalidFrame,
+            Settings::getThemeIcon("no-video")
+            );
+    }
+    if(m_webcamFrame)
+    {
+        m_webcamFrame->setStateIcon(
+            QWebcamSource::Connected | QWebcamSource::Connecting,
+            Settings::getThemeIcon("no-video")
+            );
+
+        m_webcamFrame->setStateIcon(
+            QWebcamSource::Paused,
+            Settings::getThemeIcon("pause")
+            );
+
+        m_webcamFrame->setStateIcon(
+            QWebcamSource::Timeout | QWebcamSource::NoConnection | QWebcamSource::None | QWebcamSource::InvalidFrame,
+            Settings::getThemeIcon("no-video")
+            );
+    }
 }
 
 void PrinterWebcamWidget::setupWebcam0()
@@ -116,17 +198,17 @@ void PrinterWebcamWidget::setupWebcam0()
         m_webcamFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
         m_webcamFrame->setStateIcon(
-            QWebcamSource::State(QWebcamSource::Connected | QWebcamSource::Connecting),
+            QWebcamSource::Connected | QWebcamSource::Connecting,
             Settings::getThemeIcon("no-video")
             );
 
         m_webcamFrame->setStateIcon(
-            QWebcamSource::State(QWebcamSource::Paused),
+            QWebcamSource::Paused,
             Settings::getThemeIcon("pause")
             );
 
         m_webcamFrame->setStateIcon(
-            QWebcamSource::State(QWebcamSource::Timeout | QWebcamSource::NoConnection | QWebcamSource::None | QWebcamSource::InvalidFrame),
+            QWebcamSource::Timeout | QWebcamSource::NoConnection | QWebcamSource::None | QWebcamSource::InvalidFrame,
             Settings::getThemeIcon("no-video")
             );
 
@@ -327,6 +409,8 @@ void PrinterWebcamWidget::onSystemWebcamsChanged()
 
 void PrinterWebcamWidget::onInstanceOnline(QKlipperInstance *instance)
 {
+    Q_UNUSED(instance)
+
     onSystemWebcamsChanged();
     connect(m_instance->system(), SIGNAL(webcamsChanged()), this, SLOT(onSystemWebcamsChanged()));
 
@@ -342,6 +426,8 @@ void PrinterWebcamWidget::onInstanceOnline(QKlipperInstance *instance)
 
 void PrinterWebcamWidget::onInstanceOffline(QKlipperInstance *instance)
 {
+    Q_UNUSED(instance)
+
     if(m_webcamFrame)
         m_webcamFrame->stop();
 
@@ -414,5 +500,6 @@ bool PrinterWebcamWidget::animating() const
 
 void PrinterWebcamWidget::setAnimating(bool animating)
 {
+    Q_UNUSED(animating)
 
 }

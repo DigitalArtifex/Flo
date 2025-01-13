@@ -1,5 +1,5 @@
-#ifndef BEDMESHFRAME_H
-#define BEDMESHFRAME_H
+#ifndef PROBEDMESHFRAME_H
+#define PROBEDMESHFRAME_H
 
 #include <QFrame>
 #include <QGridLayout>
@@ -10,15 +10,15 @@
 #include "ui/qwidgetanimation.h"
 #include "ui/common/cardwidget/cardwidget.h"
 
-#include "empty/bedmeshemptyframe.h"
-#include "item/bedmeshitemframe.h"
+#include "empty/probedmeshemptyframe.h"
+#include "item/probedmeshitemframe.h"
 
-class BedMeshFrame : public CardWidget
+class ProbedMeshFrame : public CardWidget
 {
     Q_OBJECT
 public:
-    explicit BedMeshFrame(QKlipperPrintBed *bed, QWidget *parent = nullptr);
-    ~BedMeshFrame();
+    explicit ProbedMeshFrame(QKlipperPrintBed *bed, QWidget *parent = nullptr);
+    ~ProbedMeshFrame();
 
 public slots:
     virtual void changeEvent(QEvent *event) override;
@@ -36,11 +36,11 @@ private:
     QWidget *m_centralWidget = nullptr;
     QGridLayout *m_centralLayout = nullptr;
 
-    BedMeshEmptyFrame *m_emptyFrame = nullptr;
+    ProbedMeshEmptyFrame *m_emptyFrame = nullptr;
 
     QKlipperPrintBed *m_printerBed;
 
     bool m_calibrating = false;
 };
 
-#endif // BEDMESHFRAME_H
+#endif // PROBEDMESHFRAME_H

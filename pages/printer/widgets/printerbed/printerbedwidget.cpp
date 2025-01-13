@@ -11,17 +11,19 @@ PrinterBedWidget::PrinterBedWidget(QKlipperPrintBed *printerBed, QWidget *parent
 
     setPrinterBed(printerBed);
 
-    m_bedTemperatureBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
+    m_bedTemperatureBar = new QGaugeWidget(this, QGaugeWidget::Temperature);
     m_bedTemperatureBar->setMaximum(150);
     m_bedTemperatureBar->setIconSize(QSize(36,36));
     m_bedTemperatureBar->setFixedSize(150,150);
     ui->bedLayout->addWidget(m_bedTemperatureBar);
 
-    m_bedHealthProgressBar = new CircularProgressBar(ui->healthWidget, CircularProgressBar::Percent);
+    m_bedHealthProgressBar = new QGaugeWidget(ui->healthWidget, QGaugeWidget::Percent);
+    m_bedHealthProgressBar->setFontSize(9);
     m_bedHealthProgressBar->setIconSize(QSize(16,16));
     ui->healthWidget->layout()->addWidget(m_bedHealthProgressBar);
 
-    m_bedPowerProgressBar = new CircularProgressBar(ui->powerWidget, CircularProgressBar::Percent);
+    m_bedPowerProgressBar = new QGaugeWidget(ui->powerWidget, QGaugeWidget::Percent);
+    m_bedPowerProgressBar->setFontSize(9);
     m_bedPowerProgressBar->setIconSize(QSize(16,16));
     ui->powerLayout->addWidget(m_bedPowerProgressBar);
 
@@ -111,6 +113,13 @@ PrinterBedWidget::PrinterBedWidget(QKlipperPrintBed *printerBed, QWidget *parent
     connect(m_bedMeshData, SIGNAL(dataChanged()), this, SLOT(onBedMeshDataChanged()));
 
     ui->targetTempSpinBox->setInputMethodHints(inputMethodHints() | Qt::InputMethodHint::ImhDigitsOnly);
+
+    onToolheadHomedChanged();
+
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printerBed->parent());
+
+    if(printer)
+        connect(printer->toolhead(), SIGNAL(isHomedChanged()), this, SLOT(onToolheadHomedChanged()));
 }
 
 PrinterBedWidget::~PrinterBedWidget()
@@ -136,6 +145,18 @@ void PrinterBedWidget::onPrintbedTargetTempChanged()
 void PrinterBedWidget::onPrintbedPowerChanged()
 {
     m_bedPowerProgressBar->setValue((m_printerBed->power() * 100));
+}
+
+void PrinterBedWidget::onToolheadHomedChanged()
+{
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printerBed->parent());
+
+    if(!printer) //invalid cast
+        return;
+
+    m_calibrateMeshButton->setEnabled(printer->toolhead()->isHomed());
+    m_calibrateScrewsButton->setEnabled(printer->toolhead()->isHomed());
+    //m_homeButton->setEnabled(!printer->toolhead()->isHomed());
 }
 
 void PrinterBedWidget::showThrobber()
@@ -211,7 +232,7 @@ void PrinterBedWidget::setPrinterBed(QKlipperPrintBed *printerBed)
 
 void PrinterBedWidget::setPrintActionsEnabled(bool enabled)
 {
-
+    Q_UNUSED(enabled)
 }
 
 void PrinterBedWidget::setupIcons()
@@ -279,6 +300,11 @@ void PrinterBedWidget::setStyleSheet(const QString &styleSheet)
     QFrame::setStyleSheet(styleSheet);
 }
 
+QIconButton *PrinterBedWidget::bedMeshViewerButton()
+{
+    return m_meshViewerButton;
+}
+
 void PrinterBedWidget::on_applyButton_clicked()
 {
     m_printerBed->setTargetTemp(ui->targetTempSpinBox->value());
@@ -320,14 +346,14 @@ void PrinterBedWidget::onSettingsButtonClicked()
 
 void PrinterBedWidget::onViewBedMeshButtonClicked()
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->geometry();
-    BedMeshWidget *bedMeshWidget = new BedMeshWidget(m_printerBed, this);
+    // QScreen *screen = QGuiApplication::primaryScreen();
+    // QRect screenGeometry = screen->geometry();
+    // BedMeshWidget *bedMeshWidget = new BedMeshWidget(m_printerBed, this);
 
-    bedMeshWidget->setFixedSize(screenGeometry.width() * 0.75, screenGeometry.height() * 0.75);
-    bedMeshWidget->exec();
+    // bedMeshWidget->setFixedSize(screenGeometry.width() * 0.75, screenGeometry.height() * 0.75);
+    // bedMeshWidget->exec();
 
-    delete bedMeshWidget;
+    // delete bedMeshWidget;
 }
 
 

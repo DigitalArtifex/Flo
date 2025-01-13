@@ -13,6 +13,7 @@
 #include <QQuick3D>
 #include <QQuickView>
 #include <QQmlEngine>
+#include <QOpenGLWidget>
 #include <QtGraphs/QAbstractAxis>
 #include <QtGraphs/QAreaSeries>
 
@@ -21,12 +22,12 @@
 #include "bedmeshdata.h"
 
 #include "health/bedmeshhealthcard.h"
-#include "probed/bedmeshframe.h"
+#include "probed/probedmeshframe.h"
 #include "adjustment/adjustmentscrewframe.h"
 #include "ui/common/cardwidget/cardwidget.h"
 #include "ui/common/dialog/dialog.h"
 
-class BedMeshWidget : public Dialog
+class BedMeshWidget : public QOpenGLWidget
 {
         Q_OBJECT
     public:
@@ -44,10 +45,13 @@ class BedMeshWidget : public Dialog
         void onHomeButtonClicked();
         void onCalibrateMeshButtonClicked();
         void onCalibrateScrewsButtonClicked();
+        void onToolheadHomedChanged();
 
     private:
         QGridLayout *m_layout = nullptr;
+        QGridLayout *m_centralLayout = nullptr;
         QGridLayout *m_sidebarLayout = nullptr;
+        QWidget *m_centralWidget = nullptr;
         QWidget *m_viewerWidget = nullptr;
         QWidget *m_sideBarWidget = nullptr;
         QQuickView *m_viewer = nullptr;
@@ -55,7 +59,7 @@ class BedMeshWidget : public Dialog
         BedMeshData *m_data = nullptr;
 
         BedMeshHealthCard *m_healthCard = nullptr;
-        BedMeshFrame *m_bedMeshFrame = nullptr;
+        ProbedMeshFrame *m_bedMeshFrame = nullptr;
         AdjustmentScrewFrame *m_adjustmentScrewFrame = nullptr;
         CardWidget *m_bedMeshCard = nullptr;
 

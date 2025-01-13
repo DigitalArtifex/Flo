@@ -54,14 +54,11 @@ public:
 
     void changePage(QAnimatedWidget *page, QString title);
 
-    virtual void init();
-    virtual bool eventFilter(QObject *object, QEvent *event) override;
-
 signals:
 
-protected slots:
-    virtual void resizeEvent(QResizeEvent *event);
-    virtual void closeEvent(QCloseEvent *event);
+protected:
+    virtual void resizeEvent(QResizeEvent *event) override;
+    virtual void closeEvent(QCloseEvent *event) override;
 
 private slots:
     void online();
@@ -147,5 +144,7 @@ private:
     //for faster ui rendering
     QGraphicsView *m_graphicsView = nullptr;
     QGraphicsScene *m_graphicsScene = nullptr;
+
+    QKlipperInstance *m_currentInstance = nullptr;
 };
 #endif // MAINWINDOW_H

@@ -15,8 +15,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setEnabled(false);
-    this->setWindowFlag(Qt::FramelessWindowHint);
+
+    if(Settings::get("ui/kiosk_mode", true).toBool())
+        this->setWindowFlag(Qt::FramelessWindowHint);
+
     this->setWindowIcon(QIcon(":/images/flo_beta.png"));
+
+    QThread::currentThread()->setPriority(QThread::LowestPriority);
 
     m_titleOpacityEffect = new QGraphicsOpacityEffect(this);
     ui->pageTitle->setGraphicsEffect(m_titleOpacityEffect);
@@ -25,17 +30,19 @@ MainWindow::MainWindow(QWidget *parent)
 
     Settings::load();
 
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect  screenGeometry = screen->geometry();
+    // QScreen *screen = QGuiApplication::primaryScreen();
+    // QRect  screenGeometry = screen->geometry();
 
-    //showMaximized();
-    setFixedSize(screenGeometry.size());
+    showMaximized();
+    //setFixedSize(screenGeometry.size());
     //setFixedSize(QSize(1920,1080));
 
     m_initTimer = new QTimer(this);
     m_initTimer->setInterval(50);
     m_initTimer->setSingleShot(true);
 
+
+    //initializing asynchronously avoids an ugly resizing on launch
     connect(m_initTimer, SIGNAL(timeout()), this, SLOT(on_initAsync()));
     m_initTimer->start();
 
@@ -146,15 +153,6 @@ void MainWindow::changePage(QAnimatedWidget *page, QString title)
     }
 }
 
-void MainWindow::init()
-{
-}
-
-bool MainWindow::eventFilter(QObject *object, QEvent *event)
-{
-    return QMainWindow::eventFilter(object, event);
-}
-
 void MainWindow::online()
 {
     setEnabled(true);
@@ -247,12 +245,16 @@ void MainWindow::setupUiClasses()
 
 void MainWindow::on_dashboardMenuButton_toggled(MenuButton* button)
 {
+    Q_UNUSED(button)
+
     m_dashboardButton->setChecked(true);
 
     for(int i = 0; i < m_printerButtons.count(); i++)
         m_printerButtons[i]->setChecked(false);
 
     m_settingsButton->setChecked(false);
+
+    m_currentInstance = nullptr;
 
     if(!m_dashboardPage)
     {
@@ -270,12 +272,16 @@ void MainWindow::on_dashboardMenuButton_toggled(MenuButton* button)
 
 void MainWindow::on_settingsMenuButton_toggled(MenuButton* button)
 {
+    Q_UNUSED(button)
+
     m_dashboardButton->setChecked(false);
 
     for(int i = 0; i < m_printerButtons.count(); i++)
         m_printerButtons[i]->setChecked(false);
 
     m_settingsButton->setChecked(true);
+
+    m_currentInstance = nullptr;
 
     if(!m_settingsPage)
     {
@@ -363,6 +369,18 @@ void MainWindow::on_printerMenuButton_toggled(MenuButton* button)
         }
         else
             m_printerButtons[i]->setChecked(false);
+    }
+
+    PrinterPage *printerPage = qobject_cast<PrinterPage*>(m_printerPages[button->getId()]->widget());
+
+    if(printerPage)
+    {
+        qDebug() << "Setting active printer to " << title;
+
+        QKlipperInstance *parentInstance = qobject_cast<QKlipperInstance*>(printerPage->printer()->parent());
+
+        if(parentInstance)
+            m_currentInstance = parentInstance;
     }
 
     changePage(m_printerPages[button->getId()], title);
@@ -491,8 +509,8 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 {
     QMainWindow::resizeEvent(event);
 
-    qint32 width = this->width() - ui->menuFrame->width();
-    qint32 height = this->height() - ui->menuBar->height();
+    qint32 width = this->width() - ui->menuFrame->width() - 4;
+    qint32 height = this->height() - ui->menuBar->height() - 4;
 
     m_pageSize = QSize(width, height);
     m_pagePositionIn = QPoint(ui->menuFrame->width(), ui->menuBar->height());
@@ -514,25 +532,33 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-
 void MainWindow::on_emergencyStopButton_clicked()
 {
-    //this->m_printer->console()->emergencyStop();
+    m_currentInstance->console()->printerEmergencyStop();
 }
 
 void MainWindow::on_restartAction_triggered(bool checked)
 {
+    Q_UNUSED(checked)
+
+    if(m_currentInstance)
+        m_currentInstance->system()->restart();
 }
 
 void MainWindow::on_shutdownAction_triggered(bool checked)
 {
+    Q_UNUSED(checked)
+
+    if(m_currentInstance)
+        m_currentInstance->system()->shutdown();
 }
 
 void MainWindow::on_closeAction_triggered(bool checked)
 {
+    Q_UNUSED(checked)
+
     this->close();
 }
-
 
 void MainWindow::on_powerButton_clicked()
 {
@@ -542,7 +568,6 @@ void MainWindow::on_powerButton_clicked()
 void MainWindow::on_printerPoolPrinterAdded(QKlipperInstance *printer)
 {
     ui->menuButtonLayout->removeWidget(m_settingsButton);
-
 
     QAnimatedWidget *animatedPage = new QAnimatedWidget(this);
     PrinterPage *printerPage = new PrinterPage(printer, animatedPage);

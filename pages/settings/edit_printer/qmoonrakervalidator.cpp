@@ -19,6 +19,8 @@ QMoonrakerValidator::~QMoonrakerValidator()
  */
 QValidator::State QMoonrakerValidator::validate(QString &text, int &pos) const
 {
+    Q_UNUSED(pos)
+
     if(text.contains(m_httpExpression))
         return QValidator::Acceptable;
 

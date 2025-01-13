@@ -1,5 +1,5 @@
-#ifndef PRINTJOBLISTITEM_H
-#define PRINTJOBLISTITEM_H
+#ifndef PRINTJOBOVERVIEWITEM_H
+#define PRINTJOBOVERVIEWITEM_H
 
 #include <QFrame>
 #include <QLabel>
@@ -14,13 +14,13 @@
 #include <QKlipper/qklipper.h>
 #include "../../../../../ui/list/qanimatedlistitem.h"
 
-class PrintJobListItem : public QAnimatedListItem
+class PrintJobOverviewItem : public QAnimatedListItem
 {
     Q_OBJECT
 
 public:
-    explicit PrintJobListItem(QWidget *parent = nullptr);
-    ~PrintJobListItem();
+    explicit PrintJobOverviewItem(QWidget *parent = nullptr);
+    ~PrintJobOverviewItem();
 
     void setupUi();
 
@@ -30,7 +30,7 @@ public:
     virtual void setStyleSheet(const QString &styleSheet);
 
 signals:
-    void removeRequest(PrintJobListItem *item);
+    void removeRequest(PrintJobOverviewItem *item);
 
 protected slots:
     void onPrintJobStateChanged();
@@ -56,4 +56,4 @@ private:
     QTimer *m_autoRemoveTimer = nullptr;
 };
 
-#endif // PRINTJOBLISTITEM_H
+#endif // PRINTJOBOVERVIEWITEM_H

@@ -2,7 +2,7 @@
 #include "ui_printerpage.h"
 #include "../../system/settings.h"
 PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
-    QFrame(parent),
+    QOpenGLWidget(parent),
     ui(new Ui::PrinterPage)
 {
     ui->setupUi(this);
@@ -11,10 +11,10 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
     m_toolheadControlFrame = new ToolHeadControlFrame(instance->printer()->toolhead(), ui->controlContents);
     ui->controlContents->layout()->addWidget(m_toolheadControlFrame);
 
-    m_chamberTemperatureBar = new CircularProgressBar(this);
+    m_chamberTemperatureBar = new QGaugeWidget(this);
     m_chamberTemperatureBar->setFixedSize(150,150);
 
-    m_printProgressBar = new CircularProgressBar(this);
+    m_printProgressBar = new QGaugeWidget(this);
     ui->printProgressLayout->addWidget(m_printProgressBar);
 
     m_printerFanWidget = new PrinterFanWidget(instance->printer(), ui->fanFrame);
@@ -22,8 +22,6 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
 
     ui->chamberTempLayout->addWidget(m_chamberTemperatureBar);
     ui->chamberWidget->setHidden(false);
-
-    ui->stackedWidget->setCurrentIndex(0);
 
     m_temperatureWidget = new PrinterTemperatureWidget(m_instance, ui->temperatureWidget);
     ui->temperatureLayout->addWidget(m_temperatureWidget);
@@ -53,7 +51,7 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
     m_webcamWidget = new PrinterWebcamWidget(instance, ui->webcamContentWidget);
     ui->webcamContentWidget->layout()->addWidget(m_webcamWidget);
 
-    connect(m_instance, SIGNAL(error(QKlipperInstance*, QKlipperError&)), this, SLOT(onInstanceError(QKlipperInstance*, QKlipperError&)));
+    connect(m_instance, SIGNAL(error(QKlipperInstance*,QKlipperError&)), this, SLOT(onInstanceError(QKlipperInstance*,QKlipperError&)));
     connect(m_instance->printer(), SIGNAL(statusChanged()), this, SLOT(onPrinterStatusChanged()));
     connect(m_instance->system(), SIGNAL(stateChanged()), this, SLOT(onSystemStateChanged()));
 
@@ -78,12 +76,26 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
     ui->toolBox->addItem(m_sensorDeviceView, Settings::getThemeIcon("sensors"), "Sensors");
     ui->toolBox->setCurrentWidget(m_printerBedWidget);
 
+    m_bedMeshWidget = new BedMeshWidget(instance->printer()->bed(),ui->stackedWidget);
+    ui->stackedWidget->addWidget(m_bedMeshWidget);
+
+    m_printingPage = new PrintingPage(instance->printer(), ui->stackedWidget);
+    ui->stackedWidget->addWidget(m_printingPage);
+
+    connect(m_printerBedWidget->bedMeshViewerButton(), SIGNAL(clicked()), this, SLOT(onBedMeshButtonClicked()));
+
+    ui->stackedWidget->setCurrentIndex(0);
+
     setupUiClasses();
     setStyleSheet(Settings::currentTheme());
 
     setupAnimations();
 
     ui->actionBar->setFixedHeight(0);
+
+    m_statusOverlayFrame->resize(ui->printerStatusContents->size());
+    m_statusOverlayFrame->raise();
+    m_statusOverlayFrame->setVisible(true);
 }
 
 PrinterPage::~PrinterPage()
@@ -214,6 +226,7 @@ void PrinterPage::setupUiClasses()
 {
     ui->actionBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageActionBar"));
     ui->pageContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
+    m_bedMeshWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
 
     ui->toolheadWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget"));
     ui->currentPositionFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "PrinterSubWidget"));
@@ -272,6 +285,11 @@ void PrinterPage::onSettingsButtonClicked()
     ui->stackedWidget->setCurrentWidget(ui->settingsWidget);
 }
 
+void PrinterPage::onBedMeshButtonClicked()
+{
+    ui->stackedWidget->setCurrentWidget(m_bedMeshWidget);
+}
+
 QKlipperPrinter *PrinterPage::printer() const
 {
     return m_printer;
@@ -299,10 +317,13 @@ void PrinterPage::setPrinter(QKlipperPrinter *printer)
 
 void PrinterPage::resizeEvent(QResizeEvent *event)
 {
+    QOpenGLWidget::resizeEvent(event);
+
     if(m_printerOfflineScreen)
         m_printerOfflineScreen->setGeometry(QRect(0,0,width(),height()));
 
-    QFrame::resizeEvent(event);
+    if(m_statusOverlayFrame)
+        m_statusOverlayFrame->resize(ui->printerStatusContents->size());
 }
 
 void PrinterPage::setPrintActionsEnabled(bool enabled)
@@ -317,11 +338,18 @@ void PrinterPage::changeEvent(QEvent *event)
     if(event->type() == QEvent::StyleChange)
         setupIcons();
 
-    QFrame::changeEvent(event);
+    QOpenGLWidget::changeEvent(event);
+}
+
+void PrinterPage::showEvent(QShowEvent *event)
+{
+    if(m_statusOverlayFrame)
+        m_statusOverlayFrame->resize(ui->printerStatusContents->size());
 }
 
 void PrinterPage::setupAnimations()
 {
+
 }
 
 void PrinterPage::on_homeToolheadButton_clicked()
@@ -565,25 +593,29 @@ void PrinterPage::onPrinterStatusChanged()
 {
     QString status;
     QPixmap pixmap;
-    QColor color;
+
+    pixmap = Settings::getThemeIcon(QString("printer")).pixmap(28,28);
+    ui->statusIconLabel->setPixmap(pixmap);
+
+    m_statusOverlayFrame->raise();
+    m_statusOverlayFrame->setVisible(true);
+    m_statusOverlayFrame->setGeometry(0, 0, ui->printerStatusContents->width(), ui->printerStatusContents->height());
 
     switch(m_printer->status())
     {
     case QKlipperPrinter::Ready:
+
+        if(ui->stackedWidget->currentWidget() == m_printingPage)
+            ui->stackedWidget->setCurrentIndex(0);
+
         status = QString("Ready");
-
-        pixmap = Settings::getThemeIcon(QString("printer")).pixmap(28,28);
-        ui->statusIconLabel->setPixmap(pixmap);
-
-        ui->cancelPrintButton->setEnabled(false);
-        ui->printSpeedSlider->setEnabled(false);
-        ui->printSpeedSpinBox->setEnabled(false);
-
-        setPrintActionsEnabled(true);
-        m_statusOverlayFrame->raise();
-        m_statusOverlayFrame->setVisible(true);
         break;
+
     case QKlipperPrinter::Error:
+
+        if(ui->stackedWidget->currentWidget() == m_printingPage)
+            ui->stackedWidget->setCurrentIndex(0);
+
         status = QString("Error");
 
         if(m_printer->statusMessage().contains("\n"))
@@ -592,110 +624,47 @@ void PrinterPage::onPrinterStatusChanged()
             status = split.last();
         }
 
-        color = QColor::fromString(Settings::get("theme/icon-error-color").toString());
-
-        pixmap = Settings::getThemeIcon(QString("printer"), color).pixmap(28,28);
-        ui->statusIconLabel->setPixmap(pixmap);
-
-        ui->cancelPrintButton->setEnabled(false);
-        ui->printSpeedSlider->setEnabled(false);
-        ui->printSpeedSpinBox->setEnabled(false);
-
         setPrintActionsEnabled(false);
-
-        m_statusOverlayFrame->resize(ui->printerStatusContents->size());
-        m_statusOverlayFrame->raise();
-        m_statusOverlayFrame->setVisible(true);
         break;
-    case QKlipperPrinter::Cancelled:
-        status = QString("Cancelled");
-        m_printerOfflineScreen->lower();
-        m_printerOfflineScreen->setHidden(true);
 
-        ui->cancelPrintButton->setEnabled(false);
-        ui->printSpeedSlider->setEnabled(false);
-        ui->printSpeedSpinBox->setEnabled(false);
+    case QKlipperPrinter::Cancelled:
+
+        if(ui->stackedWidget->currentWidget() == m_printingPage)
+            ui->stackedWidget->setCurrentIndex(0);
+
+        status = QString("Cancelled");
 
         setPrintActionsEnabled(true);
-
-        m_statusOverlayFrame->lower();
-        m_statusOverlayFrame->setVisible(false);
         break;
+
     case QKlipperPrinter::Printing:
         status = QString("Printing");
-        m_printerOfflineScreen->lower();
-        m_printerOfflineScreen->setHidden(true);
 
-        color = QColor::fromString(Settings::get("theme/icon-warning-color").toString());
+        if(ui->stackedWidget->currentWidget() != m_printingPage)
+            ui->stackedWidget->setCurrentWidget(m_printingPage);
 
-        pixmap = Settings::getThemeIcon(QString("printer"), color).pixmap(28,28);
-        ui->statusIconLabel->setPixmap(pixmap);
-
-        ui->cancelPrintButton->setEnabled(true);
-        ui->printSpeedSlider->setEnabled(true);
-        ui->printSpeedSpinBox->setEnabled(true);
-
-        setPrintActionsEnabled(false);
-        m_statusOverlayFrame->lower();
-        m_statusOverlayFrame->setVisible(false);
         break;
+
     case QKlipperPrinter::Paused:
         status = QString("Paused");
-        m_printerOfflineScreen->lower();
-        m_printerOfflineScreen->setHidden(true);
 
-        color = QColor::fromString(Settings::get("theme/icon-warning-color").toString());
+        if(ui->stackedWidget->currentWidget() != m_printingPage)
+            ui->stackedWidget->setCurrentWidget(m_printingPage);
 
-        pixmap = Settings::getThemeIcon(QString("printer"), color).pixmap(28,28);
-        ui->statusIconLabel->setPixmap(pixmap);
-
-        ui->cancelPrintButton->setEnabled(true);
-        ui->printSpeedSlider->setEnabled(true);
-        ui->printSpeedSpinBox->setEnabled(true);
-
-        setPrintActionsEnabled(true);
-        m_statusOverlayFrame->lower();
-        m_statusOverlayFrame->setVisible(false);
         break;
+
     case QKlipperPrinter::Offline:
-        status = QString("Offline");
-        m_printerOfflineScreen->raise();
-        m_printerOfflineScreen->setHidden(false);
 
-        color = QColor::fromString(Settings::get("theme/icon-disabled-color").toString());
-
-        pixmap = Settings::getThemeIcon(QString("printer"), color).pixmap(28,28);
-        ui->statusIconLabel->setPixmap(pixmap);
-
-        ui->cancelPrintButton->setEnabled(false);
-        ui->printSpeedSlider->setEnabled(false);
-        ui->printSpeedSpinBox->setEnabled(false);
+        if(ui->stackedWidget->currentWidget() == m_printingPage)
+            ui->stackedWidget->setCurrentIndex(0);
 
         setPrintActionsEnabled(false);
-
-        m_statusOverlayFrame->resize(ui->printerStatusContents->size());
-        m_statusOverlayFrame->raise();
-        m_statusOverlayFrame->setVisible(true);
         break;
+
     default:
-        status = QString("Unknown");
-        m_printerOfflineScreen->raise();
-        m_printerOfflineScreen->setHidden(false);
 
-        color = QColor::fromString(Settings::get("theme/icon-disabled-color").toString());
-
-        pixmap = Settings::getThemeIcon(QString("printer"), color).pixmap(28,28);
-        ui->statusIconLabel->setPixmap(pixmap);
-
-        ui->cancelPrintButton->setEnabled(false);
-        ui->printSpeedSlider->setEnabled(false);
-        ui->printSpeedSpinBox->setEnabled(false);
-
-        setPrintActionsEnabled(false);
-
-        m_statusOverlayFrame->resize(ui->printerStatusContents->size());
-        m_statusOverlayFrame->raise();
-        m_statusOverlayFrame->setVisible(true);
+        if(ui->stackedWidget->currentWidget() == m_printingPage)
+            ui->stackedWidget->setCurrentIndex(0);
         break;
     }
 
@@ -751,14 +720,14 @@ void PrinterPage::onSystemStateChanged()
         case QKlipperSystem::Idle:
             if(m_instance->isConnected())
             {
-                m_statusOverlayFrame->lower();
-                m_statusOverlayFrame->setVisible(false);
+                m_printerOfflineScreen->lower();
+                m_printerOfflineScreen->setVisible(false);
             }
             break;
         case QKlipperSystem::Updating:
-            m_statusOverlayFrame->raise();
             m_printerOfflineScreen->setText("Klipper Is Updating..");
-            m_statusOverlayFrame->setVisible(true);
+            m_printerOfflineScreen->setVisible(true);
+            m_printerOfflineScreen->raise();
             break;
     }
 }
@@ -812,7 +781,6 @@ void PrinterPage::on_goBackButton_clicked()
     ui->stackedWidget->setCurrentIndex(0);
 }
 
-
 void PrinterPage::on_gcodeButton_clicked()
 {
     QScreen *screen = QGuiApplication::primaryScreen();
@@ -821,5 +789,33 @@ void PrinterPage::on_gcodeButton_clicked()
     GCodeMacroDialog *dialog = new GCodeMacroDialog(m_instance->server(), this);
     dialog->resize(screenGeometry.width() * 0.75, screenGeometry.height() * 0.75);
     dialog->exec();
+}
+
+void PrinterPage::on_restartButton_clicked()
+{
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(m_printer->parent());
+
+    if(instance)
+        instance->console()->restartFirmware();
+}
+
+void PrinterPage::on_restartKlipperButton_clicked()
+{
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(m_printer->parent());
+
+    if(instance)
+        instance->console()->restartKlipper();
+}
+
+
+void PrinterPage::on_toolButton_triggered(QAction *arg1)
+{
+    //ui->stackedWidget->setCurrentWidget(m_printingPage);
+}
+
+
+void PrinterPage::on_toolButton_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(m_printingPage);
 }
 

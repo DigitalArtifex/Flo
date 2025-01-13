@@ -162,15 +162,21 @@ void FileBrowserItem::setupUi()
 
 void FileBrowserItem::printActionTriggered(bool checked)
 {
+    Q_UNUSED(checked)
+
     emit printRequested(this);
 }
 
 void FileBrowserItem::editActionTriggered(bool checked)
 {
+    Q_UNUSED(checked)
+
     emit editRequested(this);
 }
 
 void FileBrowserItem::deleteActionTriggered(bool checked)
 {
+    Q_UNUSED(checked)
+
     emit deleteRequested(this);
 }

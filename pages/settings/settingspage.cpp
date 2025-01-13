@@ -5,7 +5,7 @@
 #include "printerlistitem.h"
 
 SettingsPage::SettingsPage(QWidget *parent) :
-    QFrame(parent),
+    QOpenGLWidget(parent),
     ui(new Ui::SettingsPage)
 {
     ui->setupUi(this);
@@ -428,7 +428,7 @@ void SettingsPage::apply()
         msgBox.setInformativeText("Changes made to the settings require the application to restart.");
         msgBox.setStandardButtons(QMessageBox::Ok);
         msgBox.setDefaultButton(QMessageBox::Ok);
-        int ret = msgBox.exec();
+        msgBox.exec();
 
         QCoreApplication::exit(APPLICATION_RESTART_CODE);
     }
@@ -454,13 +454,13 @@ void SettingsPage::setStyleSheet(const QString &styleSheet)
     m_resetButton->setStyleSheet(styleSheet);
     m_themeActionButton->setStyleSheet(styleSheet);
 
-    QFrame::setStyleSheet(styleSheet);
+    QOpenGLWidget::setStyleSheet(styleSheet);
     style()->polish(this);
 }
 
 void SettingsPage::resizeEvent(QResizeEvent *event)
 {
-    QFrame::resizeEvent(event);
+    QOpenGLWidget::resizeEvent(event);
 
     //set expanded size for animations
     if(ui->footerFrame->isVisible() && (m_footerAnimation->state() == QParallelAnimationGroup::Stopped))
@@ -484,6 +484,6 @@ void SettingsPage::showEvent(QShowEvent *event)
         hideFooter();
     }
 
-    QFrame::showEvent(event);
+    QOpenGLWidget::showEvent(event);
 }
 

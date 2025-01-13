@@ -29,7 +29,6 @@ int main(int argc, char *argv[])
     }
 
     MainWindow w;
-    w.init();
     w.show();
 
     int retcode = a.exec();

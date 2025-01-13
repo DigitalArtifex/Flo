@@ -133,6 +133,15 @@ void PrinterTemperatureChart::onUpdateTimerTimeout()
         m_series[key]->append(msSinceEpoch, temperature);
     }
 
+    for(int i = 0; i < m_series[key]->count(); i++)
+    {
+        if(m_series[key]->at(i).y() > rangeStart.toMSecsSinceEpoch())
+        {
+            m_series[key]->remove(i);
+            --i;
+        }
+    }
+
     //Update chamber temps
     if(m_instance->printer()->hasChamber())
     {
@@ -157,6 +166,15 @@ void PrinterTemperatureChart::onUpdateTimerTimeout()
         }
     }
 
+    for(int i = 0; i < m_series[key]->count(); i++)
+    {
+        if(m_series[key]->at(i).y() > rangeStart.toMSecsSinceEpoch())
+        {
+            m_series[key]->remove(i);
+            --i;
+        }
+    }
+
     //Update extruder temps
     for(QKlipperExtruder *extruder : m_instance->printer()->toolhead()->extruderMap())
     {
@@ -178,6 +196,15 @@ void PrinterTemperatureChart::onUpdateTimerTimeout()
             m_series[key]->attachAxis(m_axisX);
 
             m_series[key]->append(msSinceEpoch, temperature);
+        }
+    }
+
+    for(int i = 0; i < m_series[key]->count(); i++)
+    {
+        if(m_series[key]->at(i).y() > rangeStart.toMSecsSinceEpoch())
+        {
+            m_series[key]->remove(i);
+            --i;
         }
     }
 }

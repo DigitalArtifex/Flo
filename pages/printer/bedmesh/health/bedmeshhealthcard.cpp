@@ -1,7 +1,7 @@
 #include "bedmeshhealthcard.h"
 
 BedMeshHealthCard::BedMeshHealthCard(BedMeshData *data, QWidget *parent)
-    : CardWidget(Widget, parent)
+    : CardWidget(CardType::Widget, parent)
 {
     m_meshData = data;
     setupUi();

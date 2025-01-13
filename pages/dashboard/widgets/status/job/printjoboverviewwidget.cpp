@@ -1,7 +1,7 @@
-#include "printjoblistwidget.h"
+#include "printjoboverviewwidget.h"
 #include "system/qklipperinstancepool.h"
 
-PrintJobListWidget::PrintJobListWidget(QWidget *parent) :
+PrintJobOverviewWidget::PrintJobOverviewWidget(QWidget *parent) :
     QAnimatedListWidget(parent)
 {
     if(parent)
@@ -13,22 +13,22 @@ PrintJobListWidget::PrintJobListWidget(QWidget *parent) :
     connect(QKlipperInstancePool::pool(), SIGNAL(printJobRemoved(QKlipperInstance*,QKlipperPrintJob*)), this, SLOT(onPrintJobRemoved(QKlipperInstance*,QKlipperPrintJob*)));
 }
 
-PrintJobListWidget::~PrintJobListWidget()
+PrintJobOverviewWidget::~PrintJobOverviewWidget()
 {
 }
 
-void PrintJobListWidget::setStyleSheet(QString styleSheet)
+void PrintJobOverviewWidget::setStyleSheet(QString styleSheet)
 {
     QWidget::setStyleSheet(styleSheet);
 }
 
-void PrintJobListWidget::addJob(QKlipperPrintJob *job)
+void PrintJobOverviewWidget::addJob(QKlipperPrintJob *job)
 {
     bool found = false;
 
     foreach(QAnimatedListItem *item, m_items)
     {
-        PrintJobListItem *jobItem = qobject_cast<PrintJobListItem*>(item);
+        PrintJobOverviewItem *jobItem = qobject_cast<PrintJobOverviewItem*>(item);
 
         if(jobItem && jobItem->printJob()->id() == job->id())
         {
@@ -39,24 +39,24 @@ void PrintJobListWidget::addJob(QKlipperPrintJob *job)
 
     if(!found)
     {
-        PrintJobListItem *item = new PrintJobListItem(this);
+        PrintJobOverviewItem *item = new PrintJobOverviewItem(this);
         item->setPrintJob(job);
         setAnimationSlide(item);
         item->setOpacityIn(1);
         item->setOpacityOut(0);
         item->setDuration(250);
 
-        connect(item, SIGNAL(removeRequest(PrintJobListItem*)), this, SLOT(itemRemoveRequestEvent(PrintJobListItem*)));
+        connect(item, SIGNAL(removeRequest(PrintJobOverviewItem*)), this, SLOT(itemRemoveRequestEvent(PrintJobOverviewItem*)));
 
         addItem(item);
     }
 }
 
-void PrintJobListWidget::removeJob(QKlipperPrintJob *job)
+void PrintJobOverviewWidget::removeJob(QKlipperPrintJob *job)
 {
     foreach(QAnimatedListItem *item, m_items)
     {
-        PrintJobListItem *jobItem = qobject_cast<PrintJobListItem*>(item);
+        PrintJobOverviewItem *jobItem = qobject_cast<PrintJobOverviewItem*>(item);
 
         if(jobItem && jobItem->printJob()->id() == job->id())
         {
@@ -66,19 +66,19 @@ void PrintJobListWidget::removeJob(QKlipperPrintJob *job)
     }
 }
 
-void PrintJobListWidget::onPrintJobAdded(QKlipperInstance *instance, QKlipperPrintJob *job)
+void PrintJobOverviewWidget::onPrintJobAdded(QKlipperInstance *instance, QKlipperPrintJob *job)
 {
     Q_UNUSED(instance);
     addJob(job);
 }
 
-void PrintJobListWidget::onPrintJobRemoved(QKlipperInstance *instance, QKlipperPrintJob *job)
+void PrintJobOverviewWidget::onPrintJobRemoved(QKlipperInstance *instance, QKlipperPrintJob *job)
 {
     Q_UNUSED(instance);
     addJob(job);
 }
 
-void PrintJobListWidget::itemRemoveRequestEvent(PrintJobListItem *item)
+void PrintJobOverviewWidget::itemRemoveRequestEvent(PrintJobOverviewItem *item)
 {
     removeItem(item);
 }

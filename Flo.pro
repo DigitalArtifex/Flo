@@ -29,19 +29,11 @@ SOURCES += \
     QKlipper/QKlipperServer/qklipperjobqueue.cpp \
     QKlipper/QKlipperServer/qklipperprintjob.cpp \
     QKlipper/QKlipperServer/qklipperserver.cpp \
-    QKlipper/QKlipperServer/qklipperuser.cpp \
     QKlipper/QKlipperSystem/qklippercanbus.cpp \
-    QKlipper/QKlipperSystem/qklippercanbusdevice.cpp \
-    QKlipper/QKlipperSystem/qklippercpuinfo.cpp \
-    QKlipper/QKlipperSystem/qklipperdistributioninfo.cpp \
     QKlipper/QKlipperSystem/qklipperledstrip.cpp \
     QKlipper/QKlipperSystem/qklipperlibcameradevice.cpp \
     QKlipper/QKlipperSystem/qklippermemorystats.cpp \
-    QKlipper/QKlipperSystem/qklippermoonrakerstatsentry.cpp \
-    QKlipper/QKlipperSystem/qklippernetworkinterface.cpp \
-    QKlipper/QKlipperSystem/qklippernetworkstatsentry.cpp \
     QKlipper/QKlipperSystem/qklipperpowerdevice.cpp \
-    QKlipper/QKlipperSystem/qklippersdinfo.cpp \
     QKlipper/QKlipperSystem/qklippersensor.cpp \
     QKlipper/QKlipperSystem/qklippersensordata.cpp \
     QKlipper/QKlipperSystem/qklipperserialperipheral.cpp \
@@ -63,8 +55,8 @@ SOURCES += \
     pages/dashboard/widgets/status/energy/energyconsumptionwidget.cpp \
     pages/dashboard/widgets/status/issue/issuelistitem.cpp \
     pages/dashboard/widgets/status/issue/issuelistwidget.cpp \
-    pages/dashboard/widgets/status/job/printjoblistitem.cpp \
-    pages/dashboard/widgets/status/job/printjoblistwidget.cpp \
+    pages/dashboard/widgets/status/job/printjoboverviewitem.cpp \
+    pages/dashboard/widgets/status/job/printjoboverviewwidget.cpp \
     pages/dashboard/widgets/status/statuswidget.cpp \
     pages/dashboard/widgets/system/systemwidget.cpp \
     pages/loading/loadingpage.cpp \
@@ -74,9 +66,9 @@ SOURCES += \
     pages/printer/bedmesh/bedmeshdata.cpp \
     pages/printer/bedmesh/bedmeshwidget.cpp \
     pages/printer/bedmesh/health/bedmeshhealthcard.cpp \
-    pages/printer/bedmesh/probed/bedmeshframe.cpp \
-    pages/printer/bedmesh/probed/empty/bedmeshemptyframe.cpp \
-    pages/printer/bedmesh/probed/item/bedmeshitemframe.cpp \
+    pages/printer/bedmesh/probed/empty/probedmeshemptyframe.cpp \
+    pages/printer/bedmesh/probed/item/probedmeshitemframe.cpp \
+    pages/printer/bedmesh/probed/probedmeshframe.cpp \
     pages/printer/filebrowser/editor/fileeditor.cpp \
     pages/printer/filebrowser/filebrowser.cpp \
     pages/printer/filebrowser/filebrowseritem.cpp \
@@ -84,6 +76,8 @@ SOURCES += \
     pages/printer/filebrowser/newfolder/newfolderdialog.cpp \
     pages/printer/filebrowser/overlay/filebrowseroverlay.cpp \
     pages/printer/filebrowser/preview/filepreviewwindow.cpp \
+    pages/printer/job/printjobitem.cpp \
+    pages/printer/job/printjobwidget.cpp \
     pages/printer/ledstrips/ledstripcard.cpp \
     pages/printer/ledstrips/ledstripview.cpp \
     pages/printer/macros/gcodemacrodialog.cpp \
@@ -149,7 +143,6 @@ SOURCES += \
     ui/QWebcamWidget/qwebcamsource.cpp \
     ui/QWebcamWidget/qwebcamwidget.cpp \
     ui/Switch/switch.cpp \
-    ui/circularprogressbar.cpp \
     ui/common/cardwidget/cardwidget.cpp \
     ui/common/dialog/dialog.cpp \
     ui/layouts/qflowlayout.cpp \
@@ -160,6 +153,7 @@ SOURCES += \
     ui/messagedialog.cpp \
     ui/piddialog.cpp \
     ui/qanimatedwidget.cpp \
+    ui/qgaugewidget.cpp \
     ui/qwidgetanimation.cpp \
     ui/widgetanimation.cpp \
     validators/QHexColorValidator/qhexcolorvalidator.cpp \
@@ -243,8 +237,8 @@ HEADERS += \
     pages/dashboard/widgets/status/energy/energyconsumptionwidget.h \
     pages/dashboard/widgets/status/issue/issuelistitem.h \
     pages/dashboard/widgets/status/issue/issuelistwidget.h \
-    pages/dashboard/widgets/status/job/printjoblistitem.h \
-    pages/dashboard/widgets/status/job/printjoblistwidget.h \
+    pages/dashboard/widgets/status/job/printjoboverviewitem.h \
+    pages/dashboard/widgets/status/job/printjoboverviewwidget.h \
     pages/dashboard/widgets/status/statuswidget.h \
     pages/dashboard/widgets/system/systemwidget.h \
     pages/loading/loadingpage.h \
@@ -254,9 +248,9 @@ HEADERS += \
     pages/printer/bedmesh/bedmeshdata.h \
     pages/printer/bedmesh/bedmeshwidget.h \
     pages/printer/bedmesh/health/bedmeshhealthcard.h \
-    pages/printer/bedmesh/probed/bedmeshframe.h \
-    pages/printer/bedmesh/probed/empty/bedmeshemptyframe.h \
-    pages/printer/bedmesh/probed/item/bedmeshitemframe.h \
+    pages/printer/bedmesh/probed/empty/probedmeshemptyframe.h \
+    pages/printer/bedmesh/probed/item/probedmeshitemframe.h \
+    pages/printer/bedmesh/probed/probedmeshframe.h \
     pages/printer/filebrowser/editor/fileeditor.h \
     pages/printer/filebrowser/filebrowser.h \
     pages/printer/filebrowser/filebrowseritem.h \
@@ -264,6 +258,8 @@ HEADERS += \
     pages/printer/filebrowser/newfolder/newfolderdialog.h \
     pages/printer/filebrowser/overlay/filebrowseroverlay.h \
     pages/printer/filebrowser/preview/filepreviewwindow.h \
+    pages/printer/job/printjobitem.h \
+    pages/printer/job/printjobwidget.h \
     pages/printer/ledstrips/ledstripcard.h \
     pages/printer/ledstrips/ledstripview.h \
     pages/printer/macros/gcodemacrodialog.h \
@@ -330,7 +326,6 @@ HEADERS += \
     ui/QWebcamWidget/qwebcamwidget.h \
     ui/Switch/style.h \
     ui/Switch/switch.h \
-    ui/circularprogressbar.h \
     ui/common/cardwidget/cardwidget.h \
     ui/common/dialog/dialog.h \
     ui/layouts/qflowlayout.h \
@@ -341,6 +336,7 @@ HEADERS += \
     ui/messagedialog.h \
     ui/piddialog.h \
     ui/qanimatedwidget.h \
+    ui/qgaugewidget.h \
     ui/qwidgetanimation.h \
     ui/widgetanimation.h \
     validators/QHexColorValidator/qhexcolorvalidator.h \
@@ -353,8 +349,8 @@ FORMS += \
     pages/dashboard/widgets/printer/printerwidget.ui \
     pages/dashboard/widgets/system/systemwidget.ui \
     pages/loading/loadingpage.ui \
-    pages/printer/bedmesh/probed/empty/bedmeshemptyframe.ui \
-    pages/printer/bedmesh/probed/item/bedmeshitemframe.ui \
+    pages/printer/bedmesh/probed/empty/probedmeshemptyframe.ui \
+    pages/printer/bedmesh/probed/item/probedmeshitemframe.ui \
     pages/printer/filebrowser/editor/fileeditor.ui \
     pages/printer/offline/printerofflinescreen.ui \
     pages/printer/printerpage.ui \
@@ -397,6 +393,8 @@ linux {
         DEFINES += LOCAL_PRINTER_CPU_TEMP_SYSCALL
     }
 }
+
+QMAKE_CXXFLAGS += -Wno-deprecated-copy
 
 DEFINES += QUAZIP_STATIC
 DEFINES += APPLICATION_RESTART_CODE=-1000

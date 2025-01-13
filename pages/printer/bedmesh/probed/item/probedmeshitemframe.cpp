@@ -1,9 +1,9 @@
-#include "bedmeshitemframe.h"
-#include "ui_bedmeshitemframe.h"
+#include "probedmeshitemframe.h"
+#include "ui_probedmeshitemframe.h"
 
-BedMeshItemFrame::BedMeshItemFrame(QWidget *parent)
+ProbedMeshItemFrame::ProbedMeshItemFrame(QWidget *parent)
     : QFrame(parent)
-    , ui(new Ui::BedMeshItemFrame)
+    , ui(new Ui::ProbedMeshItemFrame)
 {
     ui->setupUi(this);
 
@@ -11,17 +11,17 @@ BedMeshItemFrame::BedMeshItemFrame(QWidget *parent)
     setFixedSize(75, 75);
 }
 
-BedMeshItemFrame::~BedMeshItemFrame()
+ProbedMeshItemFrame::~ProbedMeshItemFrame()
 {
     delete ui;
 }
 
-qreal BedMeshItemFrame::value() const
+qreal ProbedMeshItemFrame::value() const
 {
     return m_value;
 }
 
-void BedMeshItemFrame::setValue(qreal value)
+void ProbedMeshItemFrame::setValue(qreal value)
 {
     m_value = value;
 

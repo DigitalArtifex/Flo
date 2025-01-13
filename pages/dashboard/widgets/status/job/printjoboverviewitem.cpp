@@ -1,14 +1,14 @@
-#include "printjoblistitem.h"
+#include "printjoboverviewitem.h"
 #include "../../../../../system/settings.h"
 #include <system/qklipperinstancepool.h>
 
-PrintJobListItem::PrintJobListItem(QWidget *parent) :
+PrintJobOverviewItem::PrintJobOverviewItem(QWidget *parent) :
     QAnimatedListItem(parent)
 {
     setupUi();
 }
 
-PrintJobListItem::~PrintJobListItem()
+PrintJobOverviewItem::~PrintJobOverviewItem()
 {
     m_iconLabel->deleteLater();
     m_iconContainer->deleteLater();
@@ -22,7 +22,7 @@ PrintJobListItem::~PrintJobListItem()
         m_closeButton->deleteLater();
 }
 
-void PrintJobListItem::setupUi()
+void PrintJobOverviewItem::setupUi()
 {
     QGridLayout *layout = new QGridLayout();
 
@@ -70,12 +70,12 @@ void PrintJobListItem::setupUi()
     setLayout(layout);
 }
 
-QKlipperPrintJob *PrintJobListItem::printJob()
+QKlipperPrintJob *PrintJobOverviewItem::printJob()
 {
     return m_job;
 }
 
-void PrintJobListItem::setPrintJob(QKlipperPrintJob *job)
+void PrintJobOverviewItem::setPrintJob(QKlipperPrintJob *job)
 {
     m_job = job;
     m_jobNameLabel->setText(job->filename());
@@ -132,12 +132,12 @@ void PrintJobListItem::setPrintJob(QKlipperPrintJob *job)
     connect(m_job, SIGNAL(totalLayersChanged()), this, SLOT(onPrintJobTotalLayersChanged()));
 }
 
-void PrintJobListItem::setStyleSheet(const QString &styleSheet)
+void PrintJobOverviewItem::setStyleSheet(const QString &styleSheet)
 {
     QFrame::setStyleSheet(styleSheet);
 }
 
-void PrintJobListItem::onPrintJobStateChanged()
+void PrintJobOverviewItem::onPrintJobStateChanged()
 {
     QPixmap pixmap;
 
@@ -190,7 +190,7 @@ void PrintJobListItem::onPrintJobStateChanged()
     }
 }
 
-void PrintJobListItem::onPrintJobCurrentLayerChanged()
+void PrintJobOverviewItem::onPrintJobCurrentLayerChanged()
 {
     m_timeRemainingLabel->setText(QString("Current Layer: ") + QString::number(m_job->currentLayer()));
 
@@ -200,7 +200,7 @@ void PrintJobListItem::onPrintJobCurrentLayerChanged()
     m_progressBar->setValue((int)progress);
 }
 
-void PrintJobListItem::onPrintJobTotalLayersChanged()
+void PrintJobOverviewItem::onPrintJobTotalLayersChanged()
 {
     m_timeRunningLabel->setText(QString("Total Layers: ") + QString::number(m_job->totalLayers()));
 
@@ -210,7 +210,7 @@ void PrintJobListItem::onPrintJobTotalLayersChanged()
     m_progressBar->setValue((int)progress);
 }
 
-void PrintJobListItem::onInstanceNameChanged()
+void PrintJobOverviewItem::onInstanceNameChanged()
 {
     QKlipperJobQueue *jobQueue = qobject_cast<QKlipperJobQueue*>(m_job->parent());
 
@@ -228,12 +228,12 @@ void PrintJobListItem::onInstanceNameChanged()
     }
 }
 
-void PrintJobListItem::closeButtonClickEvent()
+void PrintJobOverviewItem::closeButtonClickEvent()
 {
     emit removeRequest(this);
 }
 
-void PrintJobListItem::autoRemoveTimerTimeoutEvent()
+void PrintJobOverviewItem::autoRemoveTimerTimeoutEvent()
 {
     if(m_autoRemoveTimer)
     {

@@ -3,7 +3,7 @@
 #include "system/settings.h"
 
 PrinterServiceWidget::PrinterServiceWidget(QKlipperSystem *system, QKlipperService *service, QWidget *parent)
-    : CardWidget{CardWidget::SubWidget, parent}
+    : CardWidget{CardType::SubWidget, parent}
 {
     m_system = system;
     m_service = service;

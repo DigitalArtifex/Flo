@@ -9,6 +9,44 @@
 
 #include "settings.h"
 
+//generate operators for c++11
+#ifndef Q_DECLARE_ENUM_FLAGS
+#define Q_DECLARE_ENUM_FLAGS(TYPE)                                                          \
+                                                                                            \
+inline constexpr TYPE operator|(TYPE a, TYPE b)                                             \
+{                                                                                           \
+    return static_cast<TYPE>(static_cast<unsigned int>(a) | static_cast<unsigned int>(b));     \
+}                                                                                           \
+                                                                                            \
+inline constexpr TYPE operator&(TYPE a, TYPE b)                                             \
+{                                                                                           \
+    return static_cast<TYPE>(static_cast<unsigned int>(a) & static_cast<unsigned int>(b));     \
+}                                                                                           \
+                                                                                            \
+inline constexpr TYPE operator^(TYPE a, TYPE b)                                             \
+{                                                                                           \
+    return static_cast<TYPE>(static_cast<unsigned int>(a) ^ static_cast<unsigned int>(b));     \
+}                                                                                           \
+                                                                                            \
+inline constexpr TYPE operator~(TYPE a)                                                     \
+{                                                                                           \
+    return static_cast<TYPE>(~static_cast<unsigned int>(a));                                \
+}                                                                                           \
+inline constexpr TYPE operator|=(TYPE &a, TYPE b)                                           \
+{                                                                                           \
+    return a = static_cast<TYPE>(static_cast<unsigned int>(a) | static_cast<unsigned int>(b)); \
+}                                                                                           \
+                                                                                            \
+inline constexpr TYPE operator&=(TYPE &a, TYPE b)                                           \
+{                                                                                           \
+    return a = static_cast<TYPE>(static_cast<unsigned int>(a) & static_cast<unsigned int>(b)); \
+}                                                                                           \
+                                                                                            \
+inline constexpr TYPE operator^=(TYPE &a, TYPE b)                                           \
+{                                                                                           \
+    return a = static_cast<TYPE>(static_cast<unsigned int>(a) ^ static_cast<unsigned int>(b)); \
+}
+#endif
 
 class Flo : public QObject
 {

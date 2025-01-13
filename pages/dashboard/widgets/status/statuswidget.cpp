@@ -18,8 +18,8 @@ StatusWidget::StatusWidget(QWidget *parent) :
 
 StatusWidget::~StatusWidget()
 {
-    if(m_printJobList)
-        m_printJobList->deleteLater();
+    // if(m_printJobList)
+    //     m_printJobList->deleteLater();
 
     if(m_issueList)
         m_issueList->deleteLater();
@@ -35,12 +35,12 @@ void StatusWidget::setUiClasses()
 
 void StatusWidget::loadPrintJobs()
 {
-    QList<QKlipperPrintJob*> jobs = QKlipperInstancePool::printJobs();
+    // QList<QKlipperPrintJob*> jobs = QKlipperInstancePool::printJobs();
 
-    foreach(QKlipperPrintJob *job, jobs)
-    {
-        m_printJobList->addJob(job);
-    }
+    // foreach(QKlipperPrintJob *job, jobs)
+    // {
+    //     m_printJobList->addJob(job);
+    // }
 
     connect(QKlipperInstancePool::pool(), SIGNAL(printJobAdded(QKlipperInstance*,QKlipperPrintJob*)), this, SLOT(onPrintJobAdded(QKlipperInstance*,QKlipperPrintJob*)));
     connect(QKlipperInstancePool::pool(), SIGNAL(printJobRemoved(QKlipperInstance*,QKlipperPrintJob*)), this, SLOT(onPrintJobRemoved(QKlipperInstance*,QKlipperPrintJob*)));
@@ -53,24 +53,28 @@ void StatusWidget::setStyleSheet(QString styleSheet)
     setTabIcon(1, Settings::getThemeIcon(QString("voltage")));
     setTabIcon(0, Settings::getThemeIcon(QString("list")));
 
-    m_printJobList->setStyleSheet(styleSheet);
+    // m_printJobList->setStyleSheet(styleSheet);
 }
 
 void StatusWidget::onPrintJobAdded(QKlipperInstance *instance, QKlipperPrintJob *job)
 {
-    m_printJobList->addJob(job);
+    Q_UNUSED(instance)
+
+    // m_printJobList->addJob(job);
 }
 
 void StatusWidget::onPrintJobRemoved(QKlipperInstance *instance, QKlipperPrintJob *job)
 {
-    m_printJobList->removeJob(job);
+    Q_UNUSED(instance)
+
+    // m_printJobList->removeJob(job);
 }
 
 void StatusWidget::setupJobPage()
 {
-    m_printJobList = new PrintJobListWidget(this);
+    // m_printJobList = new PrintJobOverviewWidget(this);
 
-    addTab(m_printJobList, Settings::getThemeIcon(QString("list")), QString("Jobs"));
+    // addTab(m_printJobList, Settings::getThemeIcon(QString("list")), QString("Jobs"));
 
     // connect(PrinterPool::instance(), SIGNAL(printJobStarted(PrintJob*)), this, SLOT(on_printerPool_jobStarted(PrintJob*)));
     // connect(PrinterPool::instance(), SIGNAL(printJobFinished(PrintJob*)), this, SLOT(on_printerPool_jobFinished(PrintJob*)));

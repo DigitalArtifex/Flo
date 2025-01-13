@@ -6,7 +6,7 @@
 #include <QMovie>
 
 #include <QKlipper/qklipper.h>
-#include "../../../../ui/circularprogressbar.h"
+#include "../../../../ui/qgaugewidget.h"
 #include "../../../../ui/widgetanimation.h"
 
 namespace Ui {
@@ -48,9 +48,9 @@ private:
 
     QKlipperInstance *m_instance = nullptr;
 
-    CircularProgressBar *m_systemCpuLoadProgressBar;
-    CircularProgressBar *m_systemMemoryLoadProgressBar;
-    CircularProgressBar *m_systemTemperatureProgressBar;
+    QGaugeWidget *m_systemCpuLoadProgressBar;
+    QGaugeWidget *m_systemMemoryLoadProgressBar;
+    QGaugeWidget *m_systemTemperatureProgressBar;
 
     QMovie *m_loadingGif = nullptr;
     QLabel *m_loadingLabel = nullptr;

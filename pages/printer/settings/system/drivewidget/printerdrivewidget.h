@@ -6,7 +6,7 @@
 #include <QGroupBox>
 
 #include "ui/common/cardwidget/cardwidget.h"
-#include "ui/circularprogressbar.h"
+#include "ui/qgaugewidget.h"
 
 #include <QKlipper/qklipper.h>
 
@@ -43,7 +43,7 @@ private:
 
     QGroupBox *m_sdGroupBox = nullptr;
 
-    CircularProgressBar *m_mcuAverageProgressBar = nullptr;
+    QGaugeWidget *m_mcuAverageProgressBar = nullptr;
 
     QLabel *m_frequencyLabel = nullptr;
     QLabel *m_hardwareLabel = nullptr;

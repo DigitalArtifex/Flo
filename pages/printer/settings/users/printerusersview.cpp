@@ -3,7 +3,7 @@
 #include "system/settings.h"
 
 PrinterUsersView::PrinterUsersView(QKlipperInstance *instance, QWidget *parent)
-    : CardWidget{CardWidget::Widget, parent}
+    : CardWidget{CardType::Widget, parent}
 {
     setTitle("User Management");
     setIcon(Settings::getThemeIcon("users"));
@@ -79,6 +79,8 @@ void PrinterUsersView::userListChangedEvent()
 
 void PrinterUsersView::addUserButtonClickedEvent(bool checked)
 {
+    Q_UNUSED(checked)
+
     PrinterUserEditor *editor = new PrinterUserEditor(this);
 
     int ret = editor->exec();

@@ -200,5 +200,7 @@ void ThemeSettingsPage::on_variableTableWidget_cellDoubleClicked(int row, int co
 
 void ThemeSettingsPage::on_iconSetSelector_currentTextChanged(const QString &arg1)
 {
+    Q_UNUSED(arg1)
+
 }
 

@@ -138,10 +138,10 @@ void EnergyConsumptionChart::updateTimerTimeoutEvent()
         qreal power = printer->printer()->watts();
         wattsTotal += power;
 
-        m_series[printer->id()]->append(timestamp.toMSecsSinceEpoch(), qCeil(power));
+        m_series[printer->id()]->append(x, qCeil(power));
     }
 
-    m_series["total"]->append(timestamp.toMSecsSinceEpoch(), wattsTotal);
+    m_series["total"]->append(x, wattsTotal);
 }
 
 void EnergyConsumptionChart::setStyleSheet(QString &styleSheet)

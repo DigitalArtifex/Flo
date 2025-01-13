@@ -6,7 +6,7 @@
 #include <QPushButton>
 #include <QPropertyAnimation>
 
-#include "../../../../ui/circularprogressbar.h"
+#include "../../../../ui/qgaugewidget.h"
 #include <QKlipper/qklipper.h>
 #include "../../bedmesh/health/bedmeshhealthcard.h"
 
@@ -42,12 +42,15 @@ public:
     void setupIcons();
     void setStyleSheet(const QString &styleSheet);
 
+    QIconButton *bedMeshViewerButton();
+
 public slots:
 
 protected slots:
     void onPrintbedCurrentTempChanged();
     void onPrintbedTargetTempChanged();
     void onPrintbedPowerChanged();
+    void onToolheadHomedChanged();
     void showThrobber();
     void hideThrobber();
     virtual void resizeEvent(QResizeEvent *event) override;
@@ -71,12 +74,12 @@ private slots:
 private:
     Ui::PrinterBedWidget *ui;
 
-    CircularProgressBar *m_bedTemperatureBar = nullptr;
-    CircularProgressBar *m_bedPowerProgressBar = nullptr;
-    CircularProgressBar *m_bedHealthProgressBar = nullptr;
+    QGaugeWidget *m_bedTemperatureBar = nullptr;
+    QGaugeWidget *m_bedPowerProgressBar = nullptr;
+    QGaugeWidget *m_bedHealthProgressBar = nullptr;
     QKlipperPrintBed *m_printerBed = nullptr;
 
-    BedMeshFrame *m_bedMeshFrame = nullptr;
+    ProbedMeshFrame *m_bedMeshFrame = nullptr;
 
     QSpacerItem *m_adjustmentScrewSpacer = nullptr;
 

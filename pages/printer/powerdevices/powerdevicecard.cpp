@@ -1,7 +1,7 @@
 #include "powerdevicecard.h"
 
 PowerDeviceCard::PowerDeviceCard(QKlipperPowerDevice *powerDevice, QWidget *parent) :
-    CardWidget(CardWidget::SubWidget, parent)
+    CardWidget(CardType::SubWidget, parent)
 {
     setupUi();
     setPowerDevice(powerDevice);

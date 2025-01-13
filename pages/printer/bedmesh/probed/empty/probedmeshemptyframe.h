@@ -1,20 +1,20 @@
-#ifndef BEDMESHEMPTYFRAME_H
-#define BEDMESHEMPTYFRAME_H
+#ifndef PROBEDMESHEMPTYFRAME_H
+#define PROBEDMESHEMPTYFRAME_H
 
 #include <QFrame>
 #include <QKlipper/qklipper.h>
 
 namespace Ui {
-class BedMeshEmptyFrame;
+class ProbedMeshEmptyFrame;
 }
 
-class BedMeshEmptyFrame : public QFrame
+class ProbedMeshEmptyFrame : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit BedMeshEmptyFrame(QKlipperPrintBed *bed, QWidget *parent = nullptr);
-    ~BedMeshEmptyFrame();
+    explicit ProbedMeshEmptyFrame(QKlipperPrintBed *bed, QWidget *parent = nullptr);
+    ~ProbedMeshEmptyFrame();
 
     void setupIcons();
 
@@ -30,8 +30,8 @@ private slots:
     void on_calibrateButton_clicked();
 
 private:
-    Ui::BedMeshEmptyFrame *ui;
+    Ui::ProbedMeshEmptyFrame *ui;
     QKlipperPrintBed *m_printerBed = nullptr;
 };
 
-#endif // BEDMESHEMPTYFRAME_H
+#endif // PROBEDMESHEMPTYFRAME_H

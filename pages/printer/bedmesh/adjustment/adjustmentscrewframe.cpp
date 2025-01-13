@@ -3,7 +3,7 @@
 #include "system/settings.h"
 
 AdjustmentScrewFrame::AdjustmentScrewFrame(QKlipperPrintBed *bed, QWidget *parent)
-    : CardWidget(CardWidget::Widget, parent)
+    : CardWidget(CardType::Widget, parent)
 {
     m_printerBed = bed;
 
@@ -133,8 +133,6 @@ void AdjustmentScrewFrame::setStyleSheet(const QString &styleSheet)
 
     if(m_emptyAdjustmentScrewFrame)
         m_emptyAdjustmentScrewFrame->setStyleSheet(styleSheet);
-
-    QGridLayout *layout = (QGridLayout*)m_dataFrame->layout();
 
     QList<AdjustmentScrewItemFrame*> frames = m_dataFrame->findChildren<AdjustmentScrewItemFrame*>();
 

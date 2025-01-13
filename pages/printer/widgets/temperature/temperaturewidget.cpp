@@ -1,7 +1,7 @@
 #include "temperaturewidget.h"
 
 PrinterTemperatureWidget::PrinterTemperatureWidget(QKlipperInstance *instance, QWidget *parent)
-    : CardWidget{CardWidget::Widget, parent}
+    : CardWidget{CardType::Widget, parent}
 {
     m_instance = instance;
 

@@ -140,6 +140,15 @@ void BedTemperatureChart::onUpdateTimerTimeout()
         m_series[key]->append(msSinceEpoch, temperature);
     }
 
+    for(int i = 0; i < m_series[key]->count(); i++)
+    {
+        if(m_series[key]->at(i).y() > rangeStart.toMSecsSinceEpoch())
+        {
+            m_series[key]->remove(i);
+            --i;
+        }
+    }
+
     // //Update chamber temps
     // if(m_instance->printer()->hasChamber())
     // {

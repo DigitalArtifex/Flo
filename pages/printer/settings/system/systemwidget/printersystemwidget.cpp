@@ -2,7 +2,7 @@
 #include "system/settings.h"
 
 PrinterSystemWidget::PrinterSystemWidget(QKlipperInstance *instance, QWidget *parent)
-    : CardWidget{CardWidget::SubWidget, parent}
+    : CardWidget{CardType::SubWidget, parent}
 {
     setupUi();
 
@@ -88,7 +88,7 @@ void PrinterSystemWidget::setupUi()
     m_cpuLayout->addLayout(m_cpuClusterLayout);
 
     //CPU Usage Progress bar
-    m_cpuProgress = new CircularProgressBar(m_cpuGroupBox, CircularProgressBar::Percent);
+    m_cpuProgress = new QGaugeWidget(m_cpuGroupBox, QGaugeWidget::Percent);
     m_cpuProgress->setFixedSize(100,100);
     m_cpuProgress->setFontSize(10);
     m_cpuClusterLayout->addWidget(m_cpuProgress);
@@ -115,7 +115,7 @@ void PrinterSystemWidget::setupUi()
     //m_temperatureGroupBox->setTitle(QString("CPU Temperature"));
 
     //Temperature Progress bar
-    m_temperatureProgress = new CircularProgressBar(m_temperatureGroupBox, CircularProgressBar::Temperature);
+    m_temperatureProgress = new QGaugeWidget(m_temperatureGroupBox, QGaugeWidget::Temperature);
     m_temperatureProgress->setFixedSize(100,100);
     m_temperatureProgress->setFontSize(10);
     m_cpuClusterLayout->addWidget(m_temperatureProgress);
@@ -140,7 +140,7 @@ void PrinterSystemWidget::setupUi()
     m_memoryGroupBox->setFixedWidth(125);
 
     //memory Usage Progress bar
-    m_memoryProgress = new CircularProgressBar(m_memoryGroupBox, CircularProgressBar::Percent);
+    m_memoryProgress = new QGaugeWidget(m_memoryGroupBox, QGaugeWidget::Percent);
     m_memoryProgress->setFixedSize(100,100);
     m_memoryProgress->setFontSize(10);
     m_memoryLayout->addWidget(m_memoryProgress);
@@ -175,7 +175,7 @@ void PrinterSystemWidget::setupUi()
     m_sdGroupBox->setFixedWidth(125);
 
     //SD Usage Progress bar
-    m_sdProgress = new CircularProgressBar(m_sdGroupBox, CircularProgressBar::Percent);
+    m_sdProgress = new QGaugeWidget(m_sdGroupBox, QGaugeWidget::Percent);
     m_sdProgress->setFixedSize(100,100);
     m_sdProgress->setFontSize(10);
     m_sdLayout->addWidget(m_sdProgress);

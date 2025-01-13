@@ -8,15 +8,17 @@ ExtruderWidget::ExtruderWidget(QKlipperExtruder *extruder, QWidget *parent) :
     ui(new Ui::ExtruderWidget)
 {
     ui->setupUi(this);
-    m_temperatureProgressBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
+    m_temperatureProgressBar = new QGaugeWidget(this, QGaugeWidget::Temperature);
     m_temperatureProgressBar->setFixedSize(150,150);
     m_temperatureProgressBar->setIconSize(QSize(36,36));
     ui->progressBarLayout->addWidget(m_temperatureProgressBar);
 
-    m_powerProgressBar = new CircularProgressBar(this, CircularProgressBar::Percent);
+    m_powerProgressBar = new QGaugeWidget(this, QGaugeWidget::Percent);
+    m_powerProgressBar->setFontSize(9);
     ui->partsFanLayout->addWidget(m_powerProgressBar);
 
-    m_extruderFanProgressBar = new CircularProgressBar(this, CircularProgressBar::Percent);
+    m_extruderFanProgressBar = new QGaugeWidget(this, QGaugeWidget::Percent);
+    m_extruderFanProgressBar->setFontSize(9);
     ui->extruderFanLayout->addWidget(m_extruderFanProgressBar);
 
     m_temperatureWidget = new ExtruderTemperatureWidget(extruder, ui->graphWidget);
@@ -235,10 +237,10 @@ void ExtruderWidget::on_extrusionFactorSpinBox_valueChanged(double value)
 {
     if(!m_updating)
     {
-        ui->resetButton->setEnabled(true);
-        ui->applyButton->setEnabled(true);
+        ui->resetButton->setEnabled((value == m_extruder->extrusionFactor()));
+        ui->applyButton->setEnabled((value == m_extruder->extrusionFactor()));
 
-        m_extrusionFactorEdited = true;
+        m_extrusionFactorEdited = (value == m_extruder->extrusionFactor());
 
         updateSettingsButtons();
     }
@@ -248,10 +250,10 @@ void ExtruderWidget::on_targetTempSpinBox_valueChanged(double arg1)
 {
     if(!m_updating)
     {
-        ui->resetButton->setEnabled(true);
-        ui->applyButton->setEnabled(true);
+        ui->resetButton->setEnabled((arg1 == m_extruder->targetTemp()));
+        ui->applyButton->setEnabled((arg1 == m_extruder->targetTemp()));
 
-        m_targetTempEdited = true;
+        m_targetTempEdited = (arg1 == m_extruder->targetTemp());
 
         updateSettingsButtons();
     }
@@ -262,10 +264,10 @@ void ExtruderWidget::on_pressureAdvanceSpinBox_valueChanged(double arg1)
 {
     if(!m_updating)
     {
-        ui->resetButton->setEnabled(true);
-        ui->applyButton->setEnabled(true);
+        ui->resetButton->setEnabled((arg1 == m_extruder->pressureAdvance()));
+        ui->applyButton->setEnabled((arg1 == m_extruder->pressureAdvance()));
 
-        m_pressureAdvanceEdited = true;
+        m_pressureAdvanceEdited = (arg1 == m_extruder->pressureAdvance());
     }
 }
 
@@ -274,10 +276,10 @@ void ExtruderWidget::on_smoothTimeSpinBox_valueChanged(double arg1)
 {
     if(!m_updating)
     {
-        ui->resetButton->setEnabled(true);
-        ui->applyButton->setEnabled(true);
+        ui->resetButton->setEnabled((arg1 == m_extruder->smoothTime()));
+        ui->applyButton->setEnabled((arg1 == m_extruder->smoothTime()));
 
-        m_smoothTimeEdited = true;
+        m_smoothTimeEdited = (arg1 == m_extruder->smoothTime());
     }
 }
 
@@ -429,7 +431,7 @@ void ExtruderWidget::updateUiValues()
 
     m_extruderFanProgressBar->setValue((m_extruder->fan()->speed() * 100));
 
-        m_powerProgressBar->setValue((m_extruder->power() * 100));
+    m_powerProgressBar->setValue((m_extruder->power() * 100));
 
     //make sure it has not been or is currently being edited
     if(!ui->extrusionFactorSpinBox->hasFocus() && !m_extrusionFactorEdited)
@@ -442,6 +444,8 @@ void ExtruderWidget::updateUiValues()
     //ui->dashboardExtruderTargetTempLabel->setText(QString::number(m_extruder->targetTemp()) + QString("°"));
     m_temperatureProgressBar->setMaximum(m_extruder->maxTemp());
     m_temperatureProgressBar->setValue(m_extruder->currentTemp());
+
+    onExtruderCanExtrudeChanged();
 
     //unset updating flag to resume change events
     m_updating = false;
@@ -508,7 +512,17 @@ void ExtruderWidget::onPidButtonClicked()
 
 void ExtruderWidget::onPreheatButtonClicked()
 {
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->geometry();
 
+    PidDialog *pidDialog = new PidDialog(this);
+
+    pidDialog->setMinimumWidth(screenGeometry.width() * 0.33);
+
+    if(pidDialog->exec() == Dialog::Accepted && m_extruder && pidDialog->target() > 0)
+        m_extruder->setTargetTemp(pidDialog->target());
+
+    delete pidDialog;
 }
 
 //need to move this to the toolhead since you cant edit the extruder offset via command

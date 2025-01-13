@@ -9,9 +9,9 @@ SystemWidget::SystemWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_systemCpuLoadProgressBar = new CircularProgressBar(this);
-    m_systemMemoryLoadProgressBar = new CircularProgressBar(this);
-    m_systemTemperatureProgressBar = new CircularProgressBar(this, CircularProgressBar::Temperature);
+    m_systemCpuLoadProgressBar = new QGaugeWidget(this);
+    m_systemMemoryLoadProgressBar = new QGaugeWidget(this);
+    m_systemTemperatureProgressBar = new QGaugeWidget(this, QGaugeWidget::Temperature);
 
     ui->systemMemoryLoadLayout->addWidget(m_systemMemoryLoadProgressBar);
     ui->systemCpuLoadLayout->addWidget(m_systemCpuLoadProgressBar);
@@ -66,11 +66,15 @@ void SystemWidget::setStyleSheet(QString styleSheet)
 
 void SystemWidget::on_printer_klipperDisconnected(QKlipperInstance *printer)
 {
+    Q_UNUSED(printer)
+
     showLoadingScreen();
 }
 
 void SystemWidget::on_printer_klipperConnected(QKlipperInstance *printer)
 {
+    Q_UNUSED(printer)
+
     hideLoadingScreen();
 }
 

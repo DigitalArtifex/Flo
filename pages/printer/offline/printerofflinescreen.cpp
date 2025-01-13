@@ -93,6 +93,17 @@ void PrinterOfflineScreen::printerConnectingEvent()
         if(!isVisible())
             show();
     }
+    else if(m_instance->console()->connectionState() == QKlipperConsole::Restarting)
+    {
+        m_connectButton->setVisible(true);
+        m_connectButton->setEnabled(true);
+
+        ui->progressBar->setVisible(false);
+        ui->label->setText(QString("\'%1\' Is Restarting").arg(m_instance->name()));
+
+        if(!isVisible())
+            show();
+    }
 }
 
 void PrinterOfflineScreen::printerConnectingProgressChanged()

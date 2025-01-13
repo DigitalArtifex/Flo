@@ -2,7 +2,7 @@
 #include "system/settings.h"
 
 PrinterDriveWidget::PrinterDriveWidget(QKlipperPrinter *system, QWidget *parent)
-    : CardWidget{CardWidget::SubWidget, parent}
+    : CardWidget{CardType::SubWidget, parent}
 {
     m_system = system;
     m_mcu = m_system->mcu();
@@ -45,7 +45,7 @@ void PrinterDriveWidget::setupUi()
 
     m_progressLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
 
-    m_mcuAverageProgressBar = new CircularProgressBar(m_progressWidget);
+    m_mcuAverageProgressBar = new QGaugeWidget(m_progressWidget);
     m_mcuAverageProgressBar->setFontSize(10);
     m_mcuAverageProgressBar->setFixedSize(100,100);
     m_progressLayout->addWidget(m_mcuAverageProgressBar);

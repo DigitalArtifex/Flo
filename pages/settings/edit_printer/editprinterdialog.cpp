@@ -288,6 +288,8 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
 
 void EditPrinterDialog::on_printerInstanceLocationEdit_textChanged(QString text)
 {
+    Q_UNUSED(text)
+
 }
 
 

@@ -3,7 +3,7 @@
 #include "system/settings.h"
 
 PrinterUserCard::PrinterUserCard(QKlipperUser user, QWidget *parent)
-    : CardWidget{CardWidget::SubWidget, parent}
+    : CardWidget{CardType::SubWidget, parent}
 {
     setIcon(Settings::getThemeIcon("user"));
     m_user = user;
@@ -59,11 +59,14 @@ void PrinterUserCard::setupUi()
 
 void PrinterUserCard::editButtonClickEvent(bool checked)
 {
+    Q_UNUSED(checked)
 
 }
 
 void PrinterUserCard::removeButtonClickEvent(bool checked)
 {
+    Q_UNUSED(checked)
+
     emit userDeleteRequest(m_user);
 }
 

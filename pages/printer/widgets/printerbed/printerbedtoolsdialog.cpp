@@ -38,14 +38,7 @@ void PrinterBedToolsDialog::onCalibrateScrewsButtonClicked()
 
 void PrinterBedToolsDialog::onMeshViewerButtonClicked()
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->geometry();
-    BedMeshWidget *bedMeshWidget = new BedMeshWidget(m_printerBed, this);
 
-    bedMeshWidget->setFixedSize(screenGeometry.width() * 0.75, screenGeometry.height() * 0.75);
-    bedMeshWidget->exec();
-
-    bedMeshWidget->deleteLater();
 }
 
 void PrinterBedToolsDialog::setupUi()

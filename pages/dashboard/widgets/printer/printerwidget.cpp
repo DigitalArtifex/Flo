@@ -84,11 +84,13 @@ void PrinterWidget::setStyleSheet(QString styleSheet)
 
 void PrinterWidget::on_printer_klipperDisconnected(QKlipperInstance *printer)
 {
+    Q_UNUSED(printer)
     showLoadingScreen();
 }
 
 void PrinterWidget::on_printer_klipperConnected(QKlipperInstance *printer)
 {
+    Q_UNUSED(printer)
     hideLoadingScreen();
     ui->quickActionButton->setChecked(false);
 }

@@ -2,7 +2,7 @@
 #include "system/settings.h"
 
 SensorCard::SensorCard(QKlipperSensor *sensor, QWidget *parent)
-    : CardWidget{Widget, parent}
+    : CardWidget{CardType::Widget, parent}
 {
     m_sensor = sensor;
     setupUi();
