@@ -15,6 +15,8 @@ QMoonrakerDirectoryValidator::QMoonrakerDirectoryValidator(QObject *parent)
  */
 QValidator::State QMoonrakerDirectoryValidator::validate(QString &text, int &pos) const
 {
+    Q_UNUSED(pos)
+
     QDir instanceDirectory(text);
 
     if(instanceDirectory.exists())
