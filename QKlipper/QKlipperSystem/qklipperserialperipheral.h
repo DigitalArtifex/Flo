@@ -25,45 +25,78 @@ class QKlipperConsole;
 /*!
  * \brief Filled by machine.peripherals.serial
  */
-class QKlipperSerialPeripheral : public QVariant
+class QKlipperSerialPeripheral
 {
     friend QKlipperSystem;
     friend QKlipperConsole;
 public:
-    QKlipperSerialPeripheral();
+    QKlipperSerialPeripheral() = default;
+    ~QKlipperSerialPeripheral() = default;
 
-    QKlipperSerialPeripheral(const QKlipperSerialPeripheral &value);
-    QKlipperSerialPeripheral &operator=(const QKlipperSerialPeripheral &value);
-    bool operator==(const QKlipperSerialPeripheral &value);
-    bool operator!=(const QKlipperSerialPeripheral &value);
+    QKlipperSerialPeripheral(const QKlipperSerialPeripheral &value)
+    {
+        m_type = value.m_type;
+        m_path = value.m_path;
+        m_name = value.m_name;
+        m_driver = value.m_driver;
+        m_hardwarePath = value.m_hardwarePath;
+        m_pathById = value.m_pathById;
+        m_usbLocation = value.m_usbLocation;
+    }
+    QKlipperSerialPeripheral &operator=(const QKlipperSerialPeripheral &value)
+    {
+        m_type = value.m_type;
+        m_path = value.m_path;
+        m_name = value.m_name;
+        m_driver = value.m_driver;
+        m_hardwarePath = value.m_hardwarePath;
+        m_pathById = value.m_pathById;
+        m_usbLocation = value.m_usbLocation;
 
-    QString type() const;
+        return *this;
+    }
+    bool operator==(const QKlipperSerialPeripheral &value) const
+    {
+        if(m_type != value.m_type) return false;
+        if(m_path != value.m_path) return false;
+        if(m_name != value.m_name) return false;
+        if(m_driver != value.m_driver) return false;
+        if(m_hardwarePath != value.m_hardwarePath) return false;
+        if(m_pathById != value.m_pathById) return false;
+        if(m_usbLocation != value.m_usbLocation) return false;
 
-    QString path() const;
+        return true;
+    }
+    bool operator!=(const QKlipperSerialPeripheral &value) const { return !(*this == value); }
 
-    QString name() const;
+    QString type() const { return m_type; }
 
-    QString driver() const;
+    QString path() const { return m_path; }
 
-    QString hardwarePath() const;
+    QString name() const { return m_name; }
 
-    QString pathById() const;
+    QString driver() const { return m_driver; }
 
-    QString usbLocation() const;
+    QString hardwarePath() const { return m_hardwarePath; }
 
-    void setType(const QString &type);
+    QString pathById() const { return m_pathById; }
 
-    void setPath(const QString &path);
+    QString usbLocation() const { return m_usbLocation; }
 
-    void setName(const QString &name);
+protected:
+    void setType(const QString &type) { m_type = type; }
 
-    void setDriver(const QString &driver);
+    void setPath(const QString &path) { m_path = path; }
 
-    void setHardwarePath(const QString &hardwarePath);
+    void setName(const QString &name) { m_name = name; }
 
-    void setPathById(const QString &pathById);
+    void setDriver(const QString &driver) { m_driver = driver; }
 
-    void setUsbLocation(const QString &usbLocation);
+    void setHardwarePath(const QString &hardwarePath) { m_hardwarePath = hardwarePath; }
+
+    void setPathById(const QString &pathById) { m_pathById = pathById; }
+
+    void setUsbLocation(const QString &usbLocation) { m_usbLocation = usbLocation; }
 
 private:
     QString m_type;
@@ -75,4 +108,5 @@ private:
     QString m_usbLocation;
 };
 
+Q_DECLARE_METATYPE(QKlipperSerialPeripheral)
 #endif // QKLIPPERSERIALPERIPHERAL_H

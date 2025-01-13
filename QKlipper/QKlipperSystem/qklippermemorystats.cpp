@@ -4,39 +4,7 @@ QKlipperMemoryStats::QKlipperMemoryStats(QObject *parent)
     : QObject{parent}
 {}
 
-QKlipperMemoryStats::QKlipperMemoryStats(const QKlipperMemoryStats &value)
-{
-    m_total = value.m_total;
-    m_used = value.m_used;
-    m_average = value.m_average;
-}
-
-QKlipperMemoryStats::QKlipperMemoryStats(QKlipperMemoryStats &&value)
-{
-    m_total = value.m_total;
-    m_used = value.m_used;
-    m_average = value.m_average;
-}
-
-QKlipperMemoryStats &QKlipperMemoryStats::operator=(const QKlipperMemoryStats &value)
-{
-    m_total = value.m_total;
-    m_used = value.m_used;
-    m_average = value.m_average;
-
-    return *this;
-}
-
-QKlipperMemoryStats &QKlipperMemoryStats::operator=(QKlipperMemoryStats &&value)
-{
-    m_total = value.m_total;
-    m_used = value.m_used;
-    m_average = value.m_average;
-
-    return *this;
-}
-
-bool QKlipperMemoryStats::operator==(const QKlipperMemoryStats &value)
+bool QKlipperMemoryStats::operator==(const QKlipperMemoryStats &value) const
 {
     if(m_total != value.m_total) return false;
     if(m_used != value.m_used) return false;
@@ -45,26 +13,7 @@ bool QKlipperMemoryStats::operator==(const QKlipperMemoryStats &value)
     return true;
 }
 
-bool QKlipperMemoryStats::operator==(QKlipperMemoryStats &&value)
-{
-    if(m_total != value.m_total) return false;
-    if(m_used != value.m_used) return false;
-    if(m_average != value.m_average) return false;
-
-    return true;
-}
-
-bool QKlipperMemoryStats::operator!=(const QKlipperMemoryStats &value)
-{
-    if(m_total == value.m_total &&
-        m_used == value.m_used &&
-        m_average == value.m_average)
-        return false;
-
-    return true;
-}
-
-bool QKlipperMemoryStats::operator!=(QKlipperMemoryStats &&value)
+bool QKlipperMemoryStats::operator!=(const QKlipperMemoryStats &value) const
 {
     if(m_total == value.m_total &&
         m_used == value.m_used &&

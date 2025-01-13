@@ -22,6 +22,7 @@
 #include <QObject>
 #include <QMap>
 #include <QMultiMap>
+#include <QTimer>
 
 #include "qklippercanbus.h"
 #include "qklippercanbusdevice.h"
@@ -130,6 +131,8 @@ class QKlipperSystem : public QObject
         Q_INVOKABLE bool stopService(QString serviceName);
         Q_INVOKABLE bool startService(QString serviceName);
         Q_INVOKABLE bool restartService(QString serviceName);
+        Q_INVOKABLE void shutdown();
+        Q_INVOKABLE void restart();
 
         void setPowerDevices(const QKlipperPowerDeviceList &powerDevices);
         void setPowerDevice(QKlipperPowerDevice *powerDevice);
@@ -266,6 +269,10 @@ class QKlipperSystem : public QObject
         void sensorsChanged();
 
         void servicesChanged();
+
+        void machineShutdown();
+
+        void machineRestart();
 
     private:
         qint64                                    m_driveCapacity = 0;

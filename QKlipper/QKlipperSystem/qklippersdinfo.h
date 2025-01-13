@@ -25,82 +25,110 @@ class QKlipperConsole;
 /*!
  * \brief Filled by machine.system_info
  */
-class QKlipperSdInfo : public QObject
+class QKlipperSdInfo
 {
-    Q_OBJECT
-
     friend QKlipperSystem;
     friend QKlipperConsole;
 public:
-    explicit QKlipperSdInfo(QObject *parent = nullptr);
+    QKlipperSdInfo() = default;
+    ~QKlipperSdInfo() = default;
 
-    QKlipperSdInfo(const QKlipperSdInfo &value);
-    QKlipperSdInfo(QKlipperSdInfo &&value);
-    QKlipperSdInfo &operator=(const QKlipperSdInfo &value);
-    QKlipperSdInfo &operator=(QKlipperSdInfo &&value);
-    bool operator==(const QKlipperSdInfo &value);
-    bool operator==(QKlipperSdInfo &&value);
-    bool operator!=(const QKlipperSdInfo &value);
-    bool operator!=(QKlipperSdInfo &&value);
+    QKlipperSdInfo(const QKlipperSdInfo &value)
+    {
+        m_availableBytes = value.m_availableBytes;
+        m_totalBytes = value.m_totalBytes;
+        m_usedBytes = value.m_usedBytes;
+        m_capacityString = value.m_capacityString;
+        m_manufacturer = value.m_manufacturer;
+        m_manufacturerDate = value.m_manufacturerDate;
+        m_manufacturerId = value.m_manufacturerId;
+        m_oemId = value.m_oemId;
+        m_productName = value.m_productName;
+        m_serialNumber = value.m_serialNumber;
+        m_productRevision = value.m_productRevision;
+    }
 
-    qint64 totalBytes() const;
+    QKlipperSdInfo &operator=(const QKlipperSdInfo &value)
+    {
+        m_availableBytes = value.m_availableBytes;
+        m_totalBytes = value.m_totalBytes;
+        m_usedBytes = value.m_usedBytes;
+        m_capacityString = value.m_capacityString;
+        m_manufacturer = value.m_manufacturer;
+        m_manufacturerDate = value.m_manufacturerDate;
+        m_manufacturerId = value.m_manufacturerId;
+        m_oemId = value.m_oemId;
+        m_productName = value.m_productName;
+        m_serialNumber = value.m_serialNumber;
+        m_productRevision = value.m_productRevision;
 
-    qint64 usedBytes() const;
+        return *this;
+    }
 
-    qint64 availableBytes() const;
+    bool operator==(const QKlipperSdInfo &value)
+    {
+        if(m_availableBytes != value.m_availableBytes) return false;
+        if(m_totalBytes != value.m_totalBytes) return false;
+        if(m_usedBytes != value.m_usedBytes) return false;
+        if(m_capacityString != value.m_capacityString) return false;
+        if(m_manufacturer != value.m_manufacturer) return false;
+        if(m_manufacturerDate != value.m_manufacturerDate) return false;
+        if(m_manufacturerId != value.m_manufacturerId) return false;
+        if(m_oemId != value.m_oemId) return false;
+        if(m_productName != value.m_productName) return false;
+        if(m_serialNumber != value.m_serialNumber) return false;
+        if(m_productRevision != value.m_productRevision) return false;
 
-    QString manufacturerId() const;
+        return false;
+    }
 
-    QString manufacturer() const;
+    bool operator!=(const QKlipperSdInfo &value) { return !(*this == value); }
 
-    QString oemId() const;
+    qint64 totalBytes() const { return m_totalBytes; }
 
-    QString productName() const;
+    qint64 usedBytes() const { return m_usedBytes; }
 
-    QString productRevision() const;
+    qint64 availableBytes() const { return m_availableBytes; }
 
-    QString serialNumber() const;
+    QString manufacturerId() const { return m_manufacturerId; }
 
-    QString manufacturerDate() const;
+    QString manufacturer() const { return m_manufacturer; }
 
-    QString capacityString() const;
+    QString oemId() const { return m_oemId; }
 
-public slots:
+    QString productName() const { return m_productName; }
 
-    void setTotalBytes(qint64 totalBytes);
+    QString productRevision() const { return m_productRevision; }
 
-    void setUsedBytes(qint64 usedBytes);
+    QString serialNumber() const { return m_serialNumber; }
 
-    void setAvailableBytes(qint64 availableBytes);
+    QString manufacturerDate() const { return m_manufacturerDate; }
 
-    void setManufacturerId(const QString &manufacturerId);
+    QString capacityString() const { return m_capacityString; }
 
-    void setManufacturer(const QString &manufacturer);
+protected:
 
-    void setOemId(const QString &oemId);
+    void setTotalBytes(qint64 totalBytes) { m_totalBytes = totalBytes; }
 
-    void setProductName(const QString &productName);
+    void setUsedBytes(qint64 usedBytes) { m_usedBytes = usedBytes; }
 
-    void setProductRevision(const QString &productRevision);
+    void setAvailableBytes(qint64 availableBytes) { m_availableBytes = availableBytes; }
 
-    void setSerialNumber(const QString &serialNumber);
+    void setManufacturerId(const QString &manufacturerId) { m_manufacturerId = manufacturerId; }
 
-    void setManufacturerDate(const QString &manufacturerDate);
+    void setManufacturer(const QString &manufacturer) { m_manufacturer = manufacturer; }
 
-    void setCapacityString(const QString &capacityString);
+    void setOemId(const QString &oemId) { m_oemId = oemId; }
 
-signals:
-    void totalBytesChanged();
-    void usedBytesChanged();
-    void availableBytesChanged();
-    void manufacturerIdChanged();
-    void manufacturerChanged();
-    void oemIdChanged();
-    void productNameChanged();
-    void productRevisionChanged();
-    void serialNumberChanged();
-    void manufacturerDateChanged();
-    void capacityStringChanged();
+    void setProductName(const QString &productName) { m_productName = productName; }
+
+    void setProductRevision(const QString &productRevision) { m_productRevision = productRevision; }
+
+    void setSerialNumber(const QString &serialNumber) { m_serialNumber = serialNumber; }
+
+    void setManufacturerDate(const QString &manufacturerDate) { m_manufacturerDate = manufacturerDate; }
+
+    void setCapacityString(const QString &capacityString) { m_capacityString = capacityString; }
 
 private:
     qint64 m_totalBytes = 0;
@@ -115,18 +143,8 @@ private:
     QString m_serialNumber;
     QString m_manufacturerDate;
     QString m_capacityString;
-
-    Q_PROPERTY(qint64 totalBytes READ totalBytes WRITE setTotalBytes NOTIFY totalBytesChanged FINAL)
-    Q_PROPERTY(qint64 usedBytes READ usedBytes WRITE setUsedBytes NOTIFY usedBytesChanged FINAL)
-    Q_PROPERTY(qint64 availableBytes READ availableBytes WRITE setAvailableBytes NOTIFY availableBytesChanged FINAL)
-    Q_PROPERTY(QString manufacturerId READ manufacturerId WRITE setManufacturerId NOTIFY manufacturerIdChanged FINAL)
-    Q_PROPERTY(QString manufacturer READ manufacturer WRITE setManufacturer NOTIFY manufacturerChanged FINAL)
-    Q_PROPERTY(QString oemId READ oemId WRITE setOemId NOTIFY oemIdChanged FINAL)
-    Q_PROPERTY(QString productName READ productName WRITE setProductName NOTIFY productNameChanged FINAL)
-    Q_PROPERTY(QString productRevision READ productRevision WRITE setProductRevision NOTIFY productRevisionChanged FINAL)
-    Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber NOTIFY serialNumberChanged FINAL)
-    Q_PROPERTY(QString manufacturerDate READ manufacturerDate WRITE setManufacturerDate NOTIFY manufacturerDateChanged FINAL)
-    Q_PROPERTY(QString capacityString READ capacityString WRITE setCapacityString NOTIFY capacityStringChanged FINAL)
 };
+
+Q_DECLARE_METATYPE(QKlipperSdInfo)
 
 #endif // QKLIPPERSDINFO_H

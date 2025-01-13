@@ -28,57 +28,62 @@ class QKlipperConsole;
 /*!
  * \brief Filled by machine.system_info
  */
-class QKlipperCanBusDevice : public QObject
+class QKlipperCanBusDevice
 {
-    Q_OBJECT
 
     friend QKlipperSystem;
     friend QKlipperConsole;
 public:
-    explicit QKlipperCanBusDevice(QObject *parent = nullptr);
+    QKlipperCanBusDevice() = default;
+    ~QKlipperCanBusDevice() = default;
 
-    QKlipperCanBusDevice(const QKlipperCanBusDevice &value);
-    QKlipperCanBusDevice(QKlipperCanBusDevice &&value);
-    QKlipperCanBusDevice &operator=(const QKlipperCanBusDevice &value);
-    QKlipperCanBusDevice &operator=(QKlipperCanBusDevice &&value);
-    bool operator==(const QKlipperCanBusDevice &value);
-    bool operator==(QKlipperCanBusDevice &&value);
-    bool operator!=(const QKlipperCanBusDevice &value);
-    bool operator!=(QKlipperCanBusDevice &&value);
+    QKlipperCanBusDevice(const QKlipperCanBusDevice &value)
+    {
+        m_bitrate = value.m_bitrate;
+        m_driver = value.m_driver;
+        m_queueLength = value.m_queueLength;
+    }
 
-    qint16 queueLength() const;
+    QKlipperCanBusDevice &operator=(const QKlipperCanBusDevice &value)
+    {
+        m_bitrate = value.m_bitrate;
+        m_driver = value.m_driver;
+        m_queueLength = value.m_queueLength;
 
-    qint32 bitrate() const;
+        return *this;
+    }
 
-    QString driver() const;
+    bool operator==(const QKlipperCanBusDevice &value) const
+    {
+        if(m_bitrate != value.m_bitrate) return false;
+        if(m_driver != value.m_driver) return false;
+        if(m_queueLength != value.m_queueLength) return false;
 
-public slots:
-    void setQueueLength(qint16 queueLength);
+        return true;
+    }
 
-    void setBitrate(qint32 bitrate);
+    bool operator!=(const QKlipperCanBusDevice &value) const { return !(*this == value); }
 
-    void setDriver(const QString &driver);
+    qint16 queueLength() const { return m_queueLength; }
 
-private slots:
+    qint32 bitrate() const { return m_bitrate; }
 
-signals:
+    QString driver() const { return m_driver; }
 
-    void queueLengthChanged();
+protected:
+    void setQueueLength(qint16 queueLength) { m_queueLength = queueLength; }
 
-    void bitrateChanged();
+    void setBitrate(qint32 bitrate) { m_bitrate = bitrate; }
 
-    void driverChanged();
+    void setDriver(const QString &driver) { m_driver = driver; }
 
 private:
     qint16 m_queueLength = 0;
     qint32 m_bitrate = 0;
 
     QString m_driver;
-
-    Q_PROPERTY(qint16 queueLength READ queueLength WRITE setQueueLength NOTIFY queueLengthChanged FINAL)
-    Q_PROPERTY(qint32 bitrate READ bitrate WRITE setBitrate NOTIFY bitrateChanged FINAL)
-    Q_PROPERTY(QString driver READ driver WRITE setDriver NOTIFY driverChanged FINAL)
 };
 
+Q_DECLARE_METATYPE(QKlipperCanBusDevice)
 typedef QMap<QString, QKlipperCanBusDevice> QKlipperCanBusDeviceMap;
 #endif // QKLIPPERCANBUSDEVICE_H

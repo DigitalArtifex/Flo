@@ -82,6 +82,7 @@ public:
         KlipperConnected =     0b00010000, /*!!< Connection to klipper verified */
         Initialized =          0b00100000, /*!!< Connection startup sequence finished */
         Syncronized =          0b00111100, /*!!< Connection to websocket, moonraker and klipper established and startup sequence completed */
+        Restarting =           0b01000000, /*!!< Connection to websocket, moonraker and klipper established and startup sequence completed */
         Error =                0b10000000  /*!!< Error detected with the connection */
     };
 
@@ -670,6 +671,19 @@ public slots:
     QByteArray serverFileDownload(QKlipperFile *file, QKlipperError *error = nullptr);
 
     /*!
+     * Requests the raw data of the specified file
+     *
+     * This is a blocking method
+     *
+     * \param file QKlipperFile object of the file to download
+     *
+     * \param error Optional reference to the QKlipperError object
+     *
+     * \returns QByteArray of the file contents
+     */
+    QByteArray serverFileDownload(QString file, QKlipperError *error = nullptr);
+
+    /*!
      * Uploads the specified data to the server
      *
      * This is a blocking method
@@ -944,6 +958,8 @@ private slots:
     void stopConnectionTimer();
     void onRpcConnectionTimeout();
 
+    void processError(QKlipperError *error);
+
 private:
 
     //these methods return not found if they have not been setup in moonraker.cfg
@@ -984,5 +1000,40 @@ private:
     Q_PROPERTY(qreal startupSequenceProgress READ startupSequenceProgress WRITE setStartupSequenceProgress RESET resetStartupSequenceProgress NOTIFY startupSequenceProgressChanged FINAL)
     Q_PROPERTY(QString startupSequenceText READ startupSequenceText WRITE setStartupSequenceText RESET resetStartupSequenceText NOTIFY startupSequenceTextChanged FINAL)
 };
+
+inline constexpr QKlipperConsole::ConnectionState operator|(QKlipperConsole::ConnectionState a, QKlipperConsole::ConnectionState b)
+{
+    return static_cast<QKlipperConsole::ConnectionState>(static_cast<unsigned int>(a) | static_cast<unsigned int>(b));
+}
+
+inline constexpr QKlipperConsole::ConnectionState operator&(QKlipperConsole::ConnectionState a, QKlipperConsole::ConnectionState b)
+{
+    return static_cast<QKlipperConsole::ConnectionState>(static_cast<unsigned int>(a) & static_cast<unsigned int>(b));
+}
+
+inline constexpr QKlipperConsole::ConnectionState operator^(QKlipperConsole::ConnectionState a, QKlipperConsole::ConnectionState b)
+{
+    return static_cast<QKlipperConsole::ConnectionState>(static_cast<unsigned int>(a) ^ static_cast<unsigned int>(b));
+}
+
+inline constexpr QKlipperConsole::ConnectionState operator~(QKlipperConsole::ConnectionState a)
+{
+    return static_cast<QKlipperConsole::ConnectionState>(~static_cast<unsigned int>(a));
+}
+
+inline constexpr QKlipperConsole::ConnectionState operator|=(QKlipperConsole::ConnectionState &a, QKlipperConsole::ConnectionState b)
+{
+    return a = static_cast<QKlipperConsole::ConnectionState>(static_cast<unsigned int>(a) | static_cast<unsigned int>(b));
+}
+
+inline constexpr QKlipperConsole::ConnectionState operator&=(QKlipperConsole::ConnectionState &a, QKlipperConsole::ConnectionState b)
+{
+    return a = static_cast<QKlipperConsole::ConnectionState>(static_cast<unsigned int>(a) & static_cast<unsigned int>(b));
+}
+
+inline constexpr QKlipperConsole::ConnectionState operator^=(QKlipperConsole::ConnectionState &a, QKlipperConsole::ConnectionState b)
+{
+    return a = static_cast<QKlipperConsole::ConnectionState>(static_cast<unsigned int>(a) ^ static_cast<unsigned int>(b));
+}
 
 #endif // QKLIPPERCONSOLE_H

@@ -154,12 +154,6 @@ public slots:
 
 private slots:
 
-    void setToolhead(QKlipperToolHead *toolhead);
-
-    void setBed(QKlipperPrintBed *bed);
-
-    void setChamber(QKlipperChamber *chamber);
-
     void setPowerProfile(const QMap<QString, qreal> &powerProfile);
 
     void setName(const QString &name);
@@ -202,8 +196,6 @@ private slots:
 
     void setPrintJob(QKlipperPrintJob *printJob);
 
-    void setGCodeStore(QKlipperGCodeStore *gCodeStore);
-
     void setMcu(QKlipperMCU *mcu);
 
     void setCurrentFile(QKlipperFile *currentFile);
@@ -224,13 +216,9 @@ private slots:
 
     void setEndstopStatus(const QKlipperEndstopStatus &endstopStatus);
 
+    void fakePrintTimeout();
+
 signals:
-
-    void toolheadChanged();
-
-    void bedChanged();
-
-    void chamberChanged();
 
     void powerProfileChanged();
 
@@ -270,8 +258,6 @@ signals:
 
     void statusChanged();
 
-    void consoleChanged();
-
     void printJobChanged();
 
     void gCodeStoreChanged();
@@ -295,6 +281,7 @@ signals:
     void hasChamberChanged();
 
 private:
+    QTimer *m_fakePrintTimer = nullptr;
     QKlipperToolHead                                *m_toolhead = nullptr;
     QKlipperPrintBed                                *m_bed = nullptr;
     QKlipperChamber                                 *m_chamber = nullptr;
@@ -345,20 +332,6 @@ private:
 
     QKlipperSafeZHome                                m_safeZHome;
     bool                                             m_hasChamber = false;
-
-    Q_PROPERTY(QKlipperSafeZHome safeZHome READ safeZHome WRITE setSafeZHome NOTIFY safeZHomeChanged FINAL)
-    Q_PROPERTY(QMap<QString, QKlipperFan *> fans READ fans WRITE setFans NOTIFY fansChanged FINAL)
-    Q_PROPERTY(QKlipperProbeData probeData READ probeData WRITE setProbeData NOTIFY probeDataChanged FINAL)
-    Q_PROPERTY(QMap<QString, QKlipperStepperMotor *> stepperMotors READ stepperMotors WRITE setStepperMotors NOTIFY stepperMotorsChanged FINAL)
-    Q_PROPERTY(QKlipperEndstopStatus endstopStatus READ endstopStatus WRITE setEndstopStatus NOTIFY endstopStatusChanged FINAL)
-    Q_PROPERTY(QKlipperGCodeMove gcodeMove READ gcodeMove WRITE setGcodeMove NOTIFY gcodeMoveChanged FINAL)
-    Q_PROPERTY(QKlipperGCodeStore *gCodeStore READ gCodeStore WRITE setGCodeStore NOTIFY gCodeStoreChanged FINAL)
-    Q_PROPERTY(QKlipperPrintJob *printJob READ printJob WRITE setPrintJob NOTIFY printJobChanged FINAL)
-    Q_PROPERTY(Status status READ status WRITE setStatus NOTIFY statusChanged FINAL)
-    Q_PROPERTY(QDateTime printEnding READ printEnding WRITE setPrintEnding NOTIFY printEndingChanged FINAL)
-    Q_PROPERTY(QDateTime printStarted READ printStarted WRITE setPrintStarted NOTIFY printStartedChanged FINAL)
-    Q_PROPERTY(QKlipperFile *currentFile READ currentFile WRITE setCurrentFile NOTIFY currentFileChanged FINAL)
-    Q_PROPERTY(bool hasChamber READ hasChamber WRITE setHasChamber NOTIFY hasChamberChanged FINAL)
 };
 
 #endif // QKLIPPERPRINTER_H

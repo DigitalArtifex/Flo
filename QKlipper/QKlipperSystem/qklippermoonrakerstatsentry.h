@@ -25,27 +25,56 @@ class QKlipperConsole;
 /*!
  * \brief Filled by machine.proc_stats
  */
-class QKlipperMoonrakerStatsEntry : public QVariant
+class QKlipperMoonrakerStatsEntry
 {
     friend QKlipperSystem;
     friend QKlipperConsole;
 public:
-    explicit QKlipperMoonrakerStatsEntry();
+    QKlipperMoonrakerStatsEntry() = default;
+    ~QKlipperMoonrakerStatsEntry() = default;
 
-    QKlipperMoonrakerStatsEntry(const QKlipperMoonrakerStatsEntry &value);
-    QKlipperMoonrakerStatsEntry &operator=(const QKlipperMoonrakerStatsEntry &value);
-    bool operator==(const QKlipperMoonrakerStatsEntry &value);
-    bool operator!=(const QKlipperMoonrakerStatsEntry &value);
+    QKlipperMoonrakerStatsEntry(const QKlipperMoonrakerStatsEntry &value)
+    {
+        m_time = value.m_time;
+        m_cpuUsage = value.m_cpuUsage;
+        m_memory = value.m_memory;
+    }
+    QKlipperMoonrakerStatsEntry &operator=(const QKlipperMoonrakerStatsEntry &value)
+    {
+        m_time = value.m_time;
+        m_cpuUsage = value.m_cpuUsage;
+        m_memory = value.m_memory;
 
-    qreal time() const;
-    qreal cpuUsage() const;
-    qreal memory() const;
-    QString memoryUnits() const;
+        return *this;
+    }
+    bool operator==(const QKlipperMoonrakerStatsEntry &value) const
+    {
+        if(m_time != value.m_time) return false;
+        if(m_cpuUsage != value.m_cpuUsage) return false;
+        if(m_memory != value.m_memory) return false;
 
-    void setTime(qreal time);
-    void setCpuUsage(qreal cpuUsage);
-    void setMemory(qreal memory);
-    void setMemoryUnits(const QString &memoryUnits);
+        return true;
+    }
+    bool operator!=(const QKlipperMoonrakerStatsEntry &value) const
+    {
+        if(m_time == value.m_time &&
+            m_cpuUsage == value.m_cpuUsage &&
+            m_memory == value.m_memory)
+            return false;
+
+        return true;
+    }
+
+    qreal time() const { return m_time; }
+    qreal cpuUsage() const { return m_cpuUsage; }
+    qreal memory() const { return m_memory; }
+    QString memoryUnits() const { return m_memoryUnits; }
+
+protected:
+    void setTime(qreal time) { m_time = time; }
+    void setCpuUsage(qreal cpuUsage) { m_cpuUsage = cpuUsage; }
+    void setMemory(qreal memory) { m_memory = memory; }
+    void setMemoryUnits(const QString &memoryUnits) { m_memoryUnits = memoryUnits; }
 
 private:
     qreal m_time = 0;

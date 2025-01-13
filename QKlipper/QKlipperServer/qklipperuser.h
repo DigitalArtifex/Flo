@@ -32,7 +32,12 @@ class QKlipperUser
 public:
     QKlipperUser() = default;
     ~QKlipperUser() = default;
-    QKlipperUser(const QKlipperUser &user);
+    QKlipperUser(const QKlipperUser &user)
+    {
+        m_username = user.m_username;
+        m_createdOn = user.m_createdOn;
+        m_source = user.m_source;
+    }
 
     bool operator==(const QKlipperUser &user) const
     {

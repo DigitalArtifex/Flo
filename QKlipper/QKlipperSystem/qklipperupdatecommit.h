@@ -22,7 +22,7 @@
 #include <QVariant>
 class QKlipperConsole;
 
-class QKlipperUpdateCommit : public QVariant
+class QKlipperUpdateCommit
 {
         friend QKlipperConsole;
     public:

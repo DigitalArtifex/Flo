@@ -10,26 +10,36 @@ QKlipperPrinter::QKlipperPrinter(QObject *parent)
     m_printJob = new QKlipperPrintJob(this);
     m_gCodeStore = new QKlipperGCodeStore(this);
     m_bed = new QKlipperPrintBed(this);
+
+    // m_fakePrintTimer = new QTimer(this);
+    // m_fakePrintTimer->setInterval(30000);
+    // m_fakePrintTimer->start();
+
+    // connect(m_fakePrintTimer, SIGNAL(timeout()), this, SLOT(fakePrintTimeout()));
 }
 
 QKlipperPrinter::~QKlipperPrinter()
 {
     if(m_mcu)
-        m_mcu->deleteLater();
+        delete m_mcu;
+
     if(m_chamber)
-        m_chamber->deleteLater();
+        delete m_chamber;
+
     if(m_toolhead)
-        m_toolhead->deleteLater();
+        delete m_toolhead;
+
     if(m_printJob)
-        m_printJob->deleteLater();
+        delete m_printJob;
+
     if(m_gCodeStore)
-        m_gCodeStore->deleteLater();
+        delete m_gCodeStore;
 
-    for(QKlipperFan *fan : m_fans)
-        fan->deleteLater();
+    for(auto iterator = m_fans.begin(); iterator != m_fans.end();)
+        iterator = m_fans.erase(iterator);
 
-    for(QKlipperStepperMotor *motor : m_stepperMotors)
-        motor->deleteLater();
+    for(auto iterator = m_stepperMotors.begin(); iterator != m_stepperMotors.end();)
+        iterator = m_stepperMotors.erase(iterator);
 }
 
 QKlipperToolHead *QKlipperPrinter::toolhead() const
@@ -37,41 +47,14 @@ QKlipperToolHead *QKlipperPrinter::toolhead() const
     return m_toolhead;
 }
 
-void QKlipperPrinter::setToolhead(QKlipperToolHead *toolhead)
-{
-    if (m_toolhead == toolhead)
-        return;
-
-    m_toolhead = toolhead;
-    emit toolheadChanged();
-}
-
 QKlipperPrintBed *QKlipperPrinter::bed() const
 {
     return m_bed;
 }
 
-void QKlipperPrinter::setBed(QKlipperPrintBed *bed)
-{
-    if (m_bed == bed)
-        return;
-
-    m_bed = bed;
-    emit bedChanged();
-}
-
 QKlipperChamber *QKlipperPrinter::chamber() const
 {
     return m_chamber;
-}
-
-void QKlipperPrinter::setChamber(QKlipperChamber *chamber)
-{
-    if (m_chamber == chamber)
-        return;
-
-    m_chamber = chamber;
-    emit chamberChanged();
 }
 
 QMap<QString, qreal> QKlipperPrinter::powerProfile() const
@@ -344,7 +327,6 @@ void QKlipperPrinter::setConsole(QKlipperConsole *console)
     }
 
     m_console = console;
-    emit consoleChanged();
 }
 
 QKlipperPrintJob *QKlipperPrinter::printJob() const
@@ -364,15 +346,6 @@ void QKlipperPrinter::setPrintJob(QKlipperPrintJob *printJob)
 QKlipperGCodeStore *QKlipperPrinter::gCodeStore() const
 {
     return m_gCodeStore;
-}
-
-void QKlipperPrinter::setGCodeStore(QKlipperGCodeStore *gCodeStore)
-{
-    if (m_gCodeStore == gCodeStore)
-        return;
-
-    m_gCodeStore = gCodeStore;
-    emit gCodeStoreChanged();
 }
 
 QKlipperMCU *QKlipperPrinter::mcu() const
@@ -594,7 +567,7 @@ void QKlipperPrinter::start(QKlipperFile *file)
     m_console->printerPrintStart(file, &error);
 
     if(error.type() != QKlipperError::NoError)
-        qDebug() << "Error cancelling print." << error.type() << error.errorString();
+        qDebug() << "Error starting print." << error.type() << error.errorString();
 }
 
 qreal QKlipperPrinter::watts()
@@ -609,6 +582,11 @@ void QKlipperPrinter::setEndstopStatus(const QKlipperEndstopStatus &endstopStatu
 
     m_endstopStatus = endstopStatus;
     emit endstopStatusChanged();
+}
+
+void QKlipperPrinter::fakePrintTimeout()
+{
+    setStatus(Printing);
 }
 
 bool QKlipperPrinter::hasChamber() const

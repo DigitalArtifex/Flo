@@ -34,14 +34,8 @@ class QKlipperThrottleState : public QObject
 public:
     explicit QKlipperThrottleState(QObject *parent = nullptr);
 
-    QKlipperThrottleState(const QKlipperThrottleState &value);
-    QKlipperThrottleState(QKlipperThrottleState &&value);
-    QKlipperThrottleState &operator=(const QKlipperThrottleState &value);
-    QKlipperThrottleState &operator=(QKlipperThrottleState &&value);
     bool operator==(const QKlipperThrottleState &value);
-    bool operator==(QKlipperThrottleState &&value);
     bool operator!=(const QKlipperThrottleState &value);
-    bool operator!=(QKlipperThrottleState &&value);
 
     qint32 bits() const;
 

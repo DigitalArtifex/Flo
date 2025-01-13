@@ -27,128 +27,133 @@ class QKlipperConsole;
 /*!
  * \brief Filled by machine.system_info
  */
-class QKlipperCpuInfo : public QObject
+class QKlipperCpuInfo
 {
-    Q_OBJECT
+        friend QKlipperSystem;
+        friend QKlipperConsole;
+    public:
+        QKlipperCpuInfo() = default;
+        ~QKlipperCpuInfo() = default;
 
-    friend QKlipperSystem;
-    friend QKlipperConsole;
-public:
-    explicit QKlipperCpuInfo(QObject *parent = nullptr);
+        QKlipperCpuInfo(const QKlipperCpuInfo &value)
+        {
+            m_bitCount = value.m_bitCount;
+            m_cpuCount = value.m_cpuCount;
+            m_coreUsage = value.m_coreUsage;
+            m_usage = value.m_usage;
+            m_description = value.m_description;
+            m_hardwareDescription = value.m_hardwareDescription;
+            m_memoryUnits = value.m_memoryUnits;
+            m_totalMemory = value.m_totalMemory;
+            m_model = value.m_model;
+            m_processor = value.m_processor;
+            m_temp = value.m_temp;
+            m_serialNumber = value.m_serialNumber;
+        }
 
-    QKlipperCpuInfo(const QKlipperCpuInfo &value);
-    QKlipperCpuInfo(QKlipperCpuInfo &&value);
-    QKlipperCpuInfo &operator=(const QKlipperCpuInfo &value);
-    QKlipperCpuInfo &operator=(QKlipperCpuInfo &&value);
-    bool operator==(const QKlipperCpuInfo &value);
-    bool operator==(QKlipperCpuInfo &&value);
-    bool operator!=(const QKlipperCpuInfo &value);
-    bool operator!=(QKlipperCpuInfo &&value);
+        QKlipperCpuInfo &operator=(const QKlipperCpuInfo &value)
+        {
+            m_bitCount = value.m_bitCount;
+            m_cpuCount = value.m_cpuCount;
+            m_coreUsage = value.m_coreUsage;
+            m_usage = value.m_usage;
+            m_description = value.m_description;
+            m_hardwareDescription = value.m_hardwareDescription;
+            m_memoryUnits = value.m_memoryUnits;
+            m_totalMemory = value.m_totalMemory;
+            m_model = value.m_model;
+            m_processor = value.m_processor;
+            m_temp = value.m_temp;
+            m_serialNumber = value.m_serialNumber;
 
-    qint32 cpuCount() const;
+            return *this;
+        }
 
-    qint32 bitCount() const;
+        bool operator==(const QKlipperCpuInfo &value)
+        {
+            if(m_bitCount != value.m_bitCount) return false;
+            if(m_cpuCount != value.m_cpuCount) return false;
+            if(m_coreUsage != value.m_coreUsage) return false;
+            if(m_usage != value.m_usage) return false;
+            if(m_description != value.m_description) return false;
+            if(m_hardwareDescription != value.m_hardwareDescription) return false;
+            if(m_memoryUnits != value.m_memoryUnits) return false;
+            if(m_totalMemory != value.m_totalMemory) return false;
+            if(m_model != value.m_model) return false;
+            if(m_processor != value.m_processor) return false;
+            if(m_temp != value.m_temp) return false;
+            if(m_serialNumber != value.m_serialNumber) return false;
 
-    qint64 totalMemory() const;
+            return true;
+        }
 
-    qreal temp() const;
+        bool operator!=(const QKlipperCpuInfo &value) { return !(*this == value); }
 
-    qreal usage() const;
+        qint32 cpuCount() const { return m_cpuCount; }
 
-    QString processor() const;
+        qint32 bitCount() const { return m_bitCount; }
 
-    QString description() const;
+        qint64 totalMemory() const { return m_totalMemory; }
 
-    QString serialNumber() const;
+        qreal temp() const { return m_temp; }
 
-    QString hardwareDescription() const;
+        qreal usage() const { return m_usage; }
 
-    QString model() const;
+        QString processor() const { return m_processor; }
 
-    QString memoryUnits() const;
+        QString description() const { return m_description; }
 
-    QList<qreal> coreUsage() const;
+        QString serialNumber() const { return m_serialNumber; }
 
-private slots:
-    void setCpuCount(qint32 cpuCount);
-    void resetCpuCount();
+        QString hardwareDescription() const { return m_hardwareDescription; }
 
-    void setBitCount(qint32 bitCount);
-    void resetBitCount();
+        QString model() const { return m_model; }
 
-    void setTotalMemory(qint64 totalMemory);
-    void resetTotalMemory();
+        QString memoryUnits() const { return m_memoryUnits; }
 
-    void setTemp(qreal temp);
-    void resetTemp();
+        QList<qreal> coreUsage() const { return m_coreUsage; }
 
-    void setUsage(qreal usage);
-    void resetUsage();
+    protected:
+        void setCpuCount(qint32 cpuCount) { m_cpuCount = cpuCount; }
 
-    void setProcessor(const QString &processor);
-    void resetProcessor();
+        void setBitCount(qint32 bitCount) { m_bitCount = bitCount; }
 
-    void setDescription(const QString &description);
-    void resetDescription();
+        void setTotalMemory(qint64 totalMemory) { m_totalMemory = totalMemory; }
 
-    void setSerialNumber(const QString &serialNumber);
-    void resetSerialNumber();
+        void setTemp(qreal temp) { m_temp = temp; }
 
-    void setHardwareDescription(const QString &hardwareDescription);
-    void resetHardwareDescription();
+        void setUsage(qreal usage) { m_usage = usage; }
 
-    void setModel(const QString &model);
-    void resetModel();
+        void setProcessor(const QString &processor) { m_processor = processor; }
 
-    void setMemoryUnits(const QString &memoryUnits);
-    void resetMemoryUnits();
+        void setDescription(const QString &description) { m_description = description; }
 
-    void setCoreUsage(const QList<qreal> &coreUsage);
-    void resetCoreUsage();
+        void setSerialNumber(const QString &serialNumber) { m_serialNumber = serialNumber; }
 
-signals:
-    void cpuCountChanged();
-    void bitCountChanged();
-    void totalMemoryChanged();
-    void tempChanged();
-    void usageChanged();
-    void processorChanged();
-    void descriptionChanged();
-    void serialNumberChanged();
-    void hardwareDescriptionChanged();
-    void modelChanged();
-    void memoryUnitsChanged();
-    void coreUsageChanged();
+        void setHardwareDescription(const QString &hardwareDescription) { m_hardwareDescription = hardwareDescription; }
 
-private:
-    qint32 m_cpuCount = 0;
-    qint32 m_bitCount = 0;
-    qint64 m_totalMemory = 0;
+        void setModel(const QString &model) { m_model = model; }
 
-    qreal m_temp = 0;
-    qreal m_usage = 0;
+        void setMemoryUnits(const QString &memoryUnits) { m_memoryUnits = memoryUnits; }
 
-    QString m_processor;
-    QString m_description;
-    QString m_serialNumber;
-    QString m_hardwareDescription;
-    QString m_model;
-    QString m_memoryUnits;
+        void setCoreUsage(const QList<qreal> &coreUsage) { m_coreUsage = coreUsage; }
 
-    QList<qreal> m_coreUsage;
+    private:
+        qint32 m_cpuCount = 0;
+        qint32 m_bitCount = 0;
+        qint64 m_totalMemory = 0;
 
-    Q_PROPERTY(qint32 cpuCount READ cpuCount WRITE setCpuCount RESET resetCpuCount NOTIFY cpuCountChanged FINAL)
-    Q_PROPERTY(qint32 bitCount READ bitCount WRITE setBitCount RESET resetBitCount NOTIFY bitCountChanged FINAL)
-    Q_PROPERTY(qint64 totalMemory READ totalMemory WRITE setTotalMemory RESET resetTotalMemory NOTIFY totalMemoryChanged FINAL)
-    Q_PROPERTY(qreal temp READ temp WRITE setTemp RESET resetTemp NOTIFY tempChanged FINAL)
-    Q_PROPERTY(qreal usage READ usage WRITE setUsage RESET resetUsage NOTIFY usageChanged FINAL)
-    Q_PROPERTY(QString processor READ processor WRITE setProcessor RESET resetProcessor NOTIFY processorChanged FINAL)
-    Q_PROPERTY(QString description READ description WRITE setDescription RESET resetDescription NOTIFY descriptionChanged FINAL)
-    Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber RESET resetSerialNumber NOTIFY serialNumberChanged FINAL)
-    Q_PROPERTY(QString hardwareDescription READ hardwareDescription WRITE setHardwareDescription RESET resetHardwareDescription NOTIFY hardwareDescriptionChanged FINAL)
-    Q_PROPERTY(QString model READ model WRITE setModel RESET resetModel NOTIFY modelChanged FINAL)
-    Q_PROPERTY(QString memoryUnits READ memoryUnits WRITE setMemoryUnits RESET resetMemoryUnits NOTIFY memoryUnitsChanged FINAL)
-    Q_PROPERTY(QList<qreal> coreUsage READ coreUsage WRITE setCoreUsage RESET resetCoreUsage NOTIFY coreUsageChanged FINAL)
+        qreal m_temp = 0;
+        qreal m_usage = 0;
+
+        QString m_processor;
+        QString m_description;
+        QString m_serialNumber;
+        QString m_hardwareDescription;
+        QString m_model;
+        QString m_memoryUnits;
+
+        QList<qreal> m_coreUsage;
 };
 
 #endif // QKLIPPERCPUINFO_H

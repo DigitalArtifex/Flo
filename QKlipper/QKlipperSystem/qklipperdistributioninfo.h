@@ -27,75 +27,97 @@ class QKlipperConsole;
 /*!
  * \brief Filled by machine.system_info
  */
-class QKlipperDistributionInfo : public QObject
+class QKlipperDistributionInfo
 {
-    Q_OBJECT
-
     friend QKlipperSystem;
     friend QKlipperConsole;
 public:
-    explicit QKlipperDistributionInfo(QObject *parent = nullptr);
+    QKlipperDistributionInfo() = default;
+    ~QKlipperDistributionInfo() = default;
 
-    QKlipperDistributionInfo(const QKlipperDistributionInfo &value);
-    QKlipperDistributionInfo(QKlipperDistributionInfo &&value);
-    QKlipperDistributionInfo &operator=(const QKlipperDistributionInfo &value);
-    QKlipperDistributionInfo &operator=(QKlipperDistributionInfo &&value);
-    bool operator==(const QKlipperDistributionInfo &value);
-    bool operator==(QKlipperDistributionInfo &&value);
-    bool operator!=(const QKlipperDistributionInfo &value);
-    bool operator!=(QKlipperDistributionInfo &&value);
-    QString name() const;
+    QKlipperDistributionInfo(const QKlipperDistributionInfo &value)
+    {
+        m_name = value.m_name;
+        m_id = value.m_id;
+        m_version = value.m_version;
+        m_versionMajor = value.m_versionMajor;
+        m_versionMinor = value.m_versionMinor;
+        m_versionBuildNumber = value.m_versionBuildNumber;
+        m_style = value.m_style;
+        m_codename = value.m_codename;
+    }
+    QKlipperDistributionInfo &operator=(const QKlipperDistributionInfo &value)
+    {
+        m_name = value.m_name;
+        m_id = value.m_id;
+        m_version = value.m_version;
+        m_versionMajor = value.m_versionMajor;
+        m_versionMinor = value.m_versionMinor;
+        m_versionBuildNumber = value.m_versionBuildNumber;
+        m_style = value.m_style;
+        m_codename = value.m_codename;
 
-    QString id() const;
+        return *this;
+    }
+    bool operator==(const QKlipperDistributionInfo &value)
+    {
+        if(m_name != value.m_name) return false;
+        if(m_id != value.m_id) return false;
+        if(m_version != value.m_version) return false;
+        if(m_versionMajor != value.m_versionMajor) return false;
+        if(m_versionMinor != value.m_versionMinor) return false;
+        if(m_versionBuildNumber != value.m_versionBuildNumber) return false;
+        if(m_style != value.m_style) return false;
+        if(m_codename != value.m_codename) return false;
 
-    QString version() const;
+        return true;
+    }
+    bool operator!=(const QKlipperDistributionInfo &value)
+    {
+        if(m_name == value.m_name &&
+            m_id == value.m_id &&
+            m_version == value.m_version &&
+            m_versionMajor == value.m_versionMajor &&
+            m_versionMinor == value.m_versionMinor &&
+            m_versionBuildNumber == value.m_versionBuildNumber &&
+            m_style == value.m_style &&
+            m_codename == value.m_codename)
+            return false;
 
-    QString versionMajor() const;
+        return true;
+    }
+    QString name() const { return m_name; }
 
-    QString versionMinor() const;
+    QString id() const { return m_id; }
 
-    QString versionBuildNumber() const;
+    QString version() const { return m_version; }
 
-    QString style() const;
+    QString versionMajor() const { return m_versionMajor; }
 
-    QString codename() const;
+    QString versionMinor() const { return m_versionMinor; }
 
-public slots:
-    void setName(const QString &name);
+    QString versionBuildNumber() const { return m_versionBuildNumber; }
 
-    void setId(const QString &id);
+    QString style() const { return m_style; }
 
-    void setVersion(const QString &version);
+    QString codename() const { return m_codename; }
 
-    void setVersionMajor(const QString &versionMajor);
+protected:
+    void setName(const QString &name) { m_name = name; }
 
-    void setVersionMinor(const QString &versionMinor);
+    void setId(const QString &id) { m_id = id; }
 
-    void setVersionBuildNumber(const QString &versionBuildNumber);
+    void setVersion(const QString &version) { m_version = version; }
 
-    void setStyle(const QString &style);
+    void setVersionMajor(const QString &versionMajor) { m_versionMajor = versionMajor; }
 
-    void setCodename(const QString &codename);
+    void setVersionMinor(const QString &versionMinor) { m_versionMinor = versionMinor; }
 
-private slots:
+    void setVersionBuildNumber(const QString &versionBuildNumber) { m_versionBuildNumber = versionBuildNumber; }
 
-signals:
+    void setStyle(const QString &style) { m_style = style; }
 
-    void nameChanged();
-
-    void idChanged();
-
-    void versionChanged();
-
-    void versionMajorChanged();
-
-    void versionMinorChanged();
-
-    void versionBuildNumberChanged();
-
-    void styleChanged();
-
-    void codenameChanged();
+    void setCodename(const QString &codename) { m_codename = codename; }
 
 private:
     QString m_name;
@@ -106,15 +128,6 @@ private:
     QString m_versionBuildNumber;
     QString m_style;
     QString m_codename;
-
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged FINAL)
-    Q_PROPERTY(QString id READ id WRITE setId NOTIFY idChanged FINAL)
-    Q_PROPERTY(QString version READ version WRITE setVersion NOTIFY versionChanged FINAL)
-    Q_PROPERTY(QString versionMajor READ versionMajor WRITE setVersionMajor NOTIFY versionMajorChanged FINAL)
-    Q_PROPERTY(QString versionMinor READ versionMinor WRITE setVersionMinor NOTIFY versionMinorChanged FINAL)
-    Q_PROPERTY(QString versionBuildNumber READ versionBuildNumber WRITE setVersionBuildNumber NOTIFY versionBuildNumberChanged FINAL)
-    Q_PROPERTY(QString style READ style WRITE setStyle NOTIFY styleChanged FINAL)
-    Q_PROPERTY(QString codename READ codename WRITE setCodename NOTIFY codenameChanged FINAL)
 };
 
 #endif // QKLIPPERDISTRIBUTIONINFO_H

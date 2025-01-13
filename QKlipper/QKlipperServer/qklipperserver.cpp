@@ -40,11 +40,6 @@ void QKlipperServer::setMoonrakerLocation(const QString &moonrakerLocation)
     emit moonrakerLocationChanged();
 }
 
-void QKlipperServer::resetMoonrakerLocation()
-{
-    setMoonrakerLocation({}); // TODO: Adapt to use your actual default value
-}
-
 QString QKlipperServer::klipperLocation() const
 {
     return m_klipperLocation;
@@ -56,11 +51,6 @@ void QKlipperServer::setKlipperLocation(const QString &klipperLocation)
         return;
     m_klipperLocation = klipperLocation;
     emit klipperLocationChanged();
-}
-
-void QKlipperServer::resetKlipperLocation()
-{
-    setKlipperLocation({}); // TODO: Adapt to use your actual default value
 }
 
 QString QKlipperServer::gcodesLocation() const
@@ -81,11 +71,6 @@ void QKlipperServer::setGcodesLocation(const QString &gcodesLocation)
     emit gcodesLocationChanged();
 }
 
-void QKlipperServer::resetGcodesLocation()
-{
-    setGcodesLocation({}); // TODO: Adapt to use your actual default value
-}
-
 QString QKlipperServer::configLocation() const
 {
     return m_configLocation;
@@ -102,11 +87,6 @@ void QKlipperServer::setConfigLocation(const QString &configLocation)
         m_configLocation += "/";
 
     emit configLocationChanged();
-}
-
-void QKlipperServer::resetConfigLocation()
-{
-    setConfigLocation({}); // TODO: Adapt to use your actual default value
 }
 
 QString QKlipperServer::instanceLocation() const
@@ -127,11 +107,6 @@ void QKlipperServer::setInstanceLocation(const QString &instanceLocation)
     emit instanceLocationChanged();
 }
 
-void QKlipperServer::resetInstanceLocation()
-{
-    setInstanceLocation({}); // TODO: Adapt to use your actual default value
-}
-
 QString QKlipperServer::apiKey() const
 {
     return m_apiKey;
@@ -144,11 +119,6 @@ void QKlipperServer::setApiKey(const QString &apiKey)
 
     m_apiKey = apiKey;
     emit apiKeyChanged();
-}
-
-void QKlipperServer::resetApiKey()
-{
-    setApiKey({}); // TODO: Adapt to use your actual default value
 }
 
 QString QKlipperServer::address() const
@@ -202,36 +172,6 @@ void QKlipperServer::setAddress(const QString &address)
     emit addressChanged();
 }
 
-void QKlipperServer::resetAddress()
-{
-    setAddress({}); // TODO: Adapt to use your actual default value
-}
-
-void QKlipperServer::setGcodeStore(QKlipperGCodeStore *gcodeStore)
-{
-    if (m_gcodeStore == gcodeStore)
-        return;
-
-    if(m_gcodeStore)
-        m_gcodeStore->deleteLater();
-
-    m_gcodeStore = gcodeStore;
-    emit gcodeStoreChanged();
-}
-
-void QKlipperServer::setGcodeStoreValue(const QKlipperGCodeStoreValue &value)
-{
-    if(m_gcodeStore->values().contains(value))
-        return;
-
-    m_gcodeStore->setValue(value);
-}
-
-void QKlipperServer::resetGcodeStore()
-{
-    setGcodeStore(new QKlipperGCodeStore());
-}
-
 QKlipperServer::ConnectionType QKlipperServer::connectionType() const
 {
     return m_connectionType;
@@ -244,11 +184,6 @@ void QKlipperServer::setConnectionType(ConnectionType connectionType)
 
     m_connectionType = connectionType;
     emit connectionTypeChanged();
-}
-
-void QKlipperServer::resetConnectionType()
-{
-    setConnectionType(None);
 }
 
 QList<QKlipperUser> QKlipperServer::userList() const
@@ -471,15 +406,6 @@ void QKlipperServer::setAnnouncements(const QKlipperAnnouncementList &announceme
 QKlipperJobQueue *QKlipperServer::jobQueue() const
 {
     return m_jobQueue;
-}
-
-void QKlipperServer::setJobQueue(QKlipperJobQueue *jobQueue)
-{
-    if (m_jobQueue == jobQueue)
-        return;
-
-    m_jobQueue = jobQueue;
-    emit jobQueueChanged();
 }
 
 QMap<QString, QKlipperFile *> QKlipperServer::fileSystem() const

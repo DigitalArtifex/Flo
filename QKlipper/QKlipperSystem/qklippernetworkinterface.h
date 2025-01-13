@@ -28,47 +28,51 @@ class QKlipperConsole;
 /*!
  * \brief Filled by machine.system_info
  */
-class QKlipperNetworkInterface : public QObject
+class QKlipperNetworkInterface
 {
-    Q_OBJECT
-
     friend QKlipperSystem;
     friend QKlipperConsole;
 public:
 
-    explicit QKlipperNetworkInterface(QObject *parent = nullptr);
+    QKlipperNetworkInterface() = default;
+    ~QKlipperNetworkInterface() = default;
 
-    QKlipperNetworkInterface(const QKlipperNetworkInterface &value);
-    QKlipperNetworkInterface(QKlipperNetworkInterface &&value);
-    QKlipperNetworkInterface &operator=(const QKlipperNetworkInterface &value);
-    QKlipperNetworkInterface &operator=(QKlipperNetworkInterface &&value);
-    bool operator==(const QKlipperNetworkInterface &value);
-    bool operator==(QKlipperNetworkInterface &&value);
-    bool operator!=(const QKlipperNetworkInterface &value);
-    bool operator!=(QKlipperNetworkInterface &&value);
+    QKlipperNetworkInterface(const QKlipperNetworkInterface &value)
+    {
+        m_ipAddresses = value.m_ipAddresses;
+        m_macAddress = value.m_macAddress;
+    }
+    QKlipperNetworkInterface &operator=(const QKlipperNetworkInterface &value)
+    {
+        m_ipAddresses = value.m_ipAddresses;
+        m_macAddress = value.m_macAddress;
 
-    QString macAddress() const;
+        return *this;
+    }
+    bool operator==(const QKlipperNetworkInterface &value)
+    {
+        if(m_ipAddresses != value.m_ipAddresses) return false;
 
-    QList<QKlipperNetworkAddress> ipAddresses() const;
+        if(m_macAddress != value.m_macAddress) return false;
 
-public slots:
-    void setMacAddress(const QString &macAddress);
+        return true;
+    }
 
-    void setIpAddresses(const QList<QKlipperNetworkAddress> &ipAddresses);
+    bool operator!=(const QKlipperNetworkInterface &value) { return !(*this == value); }
 
-private slots:
+    QString macAddress() const { return m_macAddress; }
 
-signals:
+    QList<QKlipperNetworkAddress> ipAddresses() const { return m_ipAddresses; }
 
-    void macAddressChanged();
+protected:
+    void setMacAddress(const QString &macAddress) { m_macAddress = macAddress; }
 
-    void ipAddressesChanged();
+    void setIpAddresses(const QList<QKlipperNetworkAddress> &ipAddresses) { m_ipAddresses = ipAddresses; }
 
 private:
     QString m_macAddress;
     QList<QKlipperNetworkAddress> m_ipAddresses;
-    Q_PROPERTY(QString macAddress READ macAddress WRITE setMacAddress NOTIFY macAddressChanged FINAL)
-    Q_PROPERTY(QList<QKlipperNetworkAddress> ipAddresses READ ipAddresses WRITE setIpAddresses NOTIFY ipAddressesChanged FINAL)
 };
 
+Q_DECLARE_METATYPE(QKlipperNetworkInterface)
 #endif // QKLIPPERNETWORKINTERFACE_H

@@ -1,5 +1,6 @@
 #include "qklipperconsole.h"
 #include "qeventloop.h"
+#include "qthread.h"
 
 QKlipperConsole::QKlipperConsole(QObject *parent)
     : QObject{parent}
@@ -10,18 +11,14 @@ QKlipperConsole::QKlipperConsole(QObject *parent)
 
 QKlipperConsole::~QKlipperConsole()
 {
-    QList<qint32> messageKeys = m_messageMap.keys();
-
-    foreach(qint32 key, messageKeys)
-    {
-        QKlipperMessage *message = m_messageMap[key];
-        m_messageMap.remove(key);
-        message->deleteLater();
-    }
+    for(auto iterator = m_messageMap.begin(); iterator != m_messageMap.end();)
+        iterator = m_messageMap.erase(iterator);
 
     if(m_rpcUpdateSocket)
     {
-        m_rpcUpdateSocket->deleteLater();
+        m_rpcUpdateSocket->close();
+
+        delete m_rpcUpdateSocket;
     }
 
     m_startupSequence.clear();
@@ -35,8 +32,7 @@ bool QKlipperConsole::connect()
 
     setupNetworkAccessManager();
 
-    addConnectionState(Connecting);
-    addConnectionState(Startup);
+    addConnectionState(Connecting | Startup);
 
     m_printer->setStatus(QKlipperPrinter::Connecting);
 
@@ -180,17 +176,17 @@ void QKlipperConsole::disconnect()
             socket->close();
         }
 
-        m_rpcUpdateSocket->deleteLater();
+        delete m_rpcUpdateSocket;
         m_rpcUpdateSocket = nullptr;
     }
 
     if(m_networkManager)
     {
-        m_networkManager->deleteLater();
+        delete m_networkManager;
         m_networkManager = nullptr;
     }
 
-    removeConnectionState(Syncronized);
+    setConnectionState(Idle);
 }
 
 void QKlipperConsole::machineShutdown(QKlipperError *error)
@@ -204,7 +200,7 @@ void QKlipperConsole::machineShutdown(QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
     }
 }
 
@@ -219,7 +215,7 @@ void QKlipperConsole::machineReboot(QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
     }
 }
 
@@ -243,7 +239,7 @@ bool QKlipperConsole::machineServiceRestart(QString service, QKlipperError *erro
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -263,7 +259,7 @@ bool QKlipperConsole::machineServiceStop(QString service, QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -283,7 +279,7 @@ bool QKlipperConsole::machineServiceStart(QString service, QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -366,7 +362,7 @@ bool QKlipperConsole::machineUpdateFull(QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -385,7 +381,7 @@ bool QKlipperConsole::machineUpdateMoonraker(QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -404,7 +400,7 @@ bool QKlipperConsole::machineUpdateKlipper(QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -424,7 +420,7 @@ bool QKlipperConsole::machineUpdateClient(QString client, QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -443,7 +439,7 @@ bool QKlipperConsole::machineUpdateSystem(QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -464,7 +460,7 @@ bool QKlipperConsole::machineUpdateRecover(QString name, bool hardRecover, QKlip
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -484,7 +480,7 @@ bool QKlipperConsole::machineUpdateRollback(QString name, QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -587,7 +583,7 @@ bool QKlipperConsole::printerEmergencyStop(QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -614,7 +610,7 @@ bool QKlipperConsole::printerPrintStart(QString file, QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -639,7 +635,7 @@ bool QKlipperConsole::printerPrintPause(QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -658,7 +654,7 @@ bool QKlipperConsole::printerPrintResume(QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -677,7 +673,7 @@ bool QKlipperConsole::printerPrintCancel(QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not cancel print");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -699,7 +695,7 @@ bool QKlipperConsole::printerGcodeScript(QString gcode, QKlipperError *error, QK
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not send gcode script");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -713,15 +709,34 @@ bool QKlipperConsole::restartKlipper(QKlipperError *error)
     message->setMethod("printer.restart");
     message->setProtocol(QKlipperMessage::HttpPostProtocol);
 
+    bool errorCleanup = false;
+
+    if(!error)
+    {
+        errorCleanup = true;
+        error = new QKlipperError();
+    }
+
     sendWebSocketMessage(message, error);
 
-    if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
+    if(error->type() != QKlipperError::NoError || message->response().toString() != "ok")
     {
         error->setErrorTitle("Could not restart klipper");
-        emit errorOccured(*error);
+        processError(error);
+
+        if(errorCleanup)
+            delete error;
 
         return false;
     }
+
+    if(errorCleanup)
+        delete error;
+
+    disconnect();
+    setConnectionState(Restarting);
+    resetStartupSequence();
+    startConnectionTimer();
 
     return true;
 }
@@ -734,13 +749,34 @@ bool QKlipperConsole::restartFirmware(QKlipperError *error)
 
     sendWebSocketMessage(message, error);
 
-    if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
+    bool errorCleanup = false;
+
+    if(!error)
     {
-        error->setErrorTitle("Could not restart firmware");
-        emit errorOccured(*error);
+        errorCleanup = true;
+        error = new QKlipperError();
+    }
+
+    sendWebSocketMessage(message, error);
+
+    if(error->type() != QKlipperError::NoError || message->response().toString() != "ok")
+    {
+        error->setErrorTitle("Could not restart Firmware");
+        processError(error);
+
+        if(errorCleanup)
+            delete error;
 
         return false;
     }
+
+    if(errorCleanup)
+        delete error;
+
+    setConnectionState(Restarting);
+    disconnect();
+    resetStartupSequence();
+    // connect();
 
     return true;
 }
@@ -756,7 +792,7 @@ bool QKlipperConsole::serverRestart(QKlipperError *error)
     if(error && (error->type() != QKlipperError::NoError || message->response().toString() != "ok"))
     {
         error->setErrorTitle("Could not restart server");
-        emit errorOccured(*error);
+        processError(error);
 
         return false;
     }
@@ -955,7 +991,95 @@ QByteArray QKlipperConsole::serverFileDownload(QKlipperFile *file, QKlipperError
             error->setOrigin("Server Files Download");
             error->setErrorTitle("Error Sending Websocket Command");
 
-            emit errorOccured(*error);
+            processError(error);
+        }
+        else
+        {
+            if(error)
+            {
+                error->setErrorString("");
+                error->setOrigin("");
+                error->setType(QKlipperError::NoError);
+            }
+
+            fileData = reply->readAll();
+        }
+
+        reply->deleteLater();
+    }
+
+    return fileData;
+}
+
+QByteArray QKlipperConsole::serverFileDownload(QString file, QKlipperError *error)
+{
+
+    QByteArray fileData;
+
+    if(m_server->connectionType() == QKlipperServer::Local)
+    {
+        // QString rootLocation;
+
+        // if(file->fileType() == QKlipperFile::GCode)
+        //     rootLocation = m_server->gcodesLocation();
+        // else if(file->fileType() == QKlipperFile::Config)
+        //     rootLocation = m_server->configLocation();
+
+        // if(file->path().length() > 0)
+        //     rootLocation += file->path();
+
+        // rootLocation = rootLocation + file->filename();
+
+        QFile localFile(file);
+
+
+        if(localFile.open(QFile::ReadOnly))
+        {
+            fileData = localFile.readAll();
+            localFile.close();
+        }
+        else if(error)
+        {
+            error->setErrorString(localFile.errorString());
+            error->setOrigin("Console - Server.Files.Download");
+            error->setType(QKlipperError::File);
+        }
+    }
+
+    else if(m_server->connectionType() == QKlipperServer::Remote)
+    {
+        QEventLoop loop;
+
+        QString address = QString("%1/server/files/%2").arg(m_server->address(), file);
+        QNetworkRequest request(address);
+        QNetworkReply *reply = m_networkManager->get(request);
+
+        QObject::connect
+        (
+            reply,
+            &QNetworkReply::finished,
+            this,
+            [&loop]()
+            {
+                loop.quit();
+            }
+        );
+
+        loop.exec();
+
+        if (reply->error())
+        {
+            qDebug() << "Error: " + reply->errorString() << reply->url() ;
+
+            if(!error)
+                error = new QKlipperError();
+
+            error->setErrorString(reply->errorString());
+            error->setType(QKlipperError::Socket);
+            error->setOrigin("Server Files Download");
+            error->setErrorTitle("Error Sending Websocket Command");
+
+            processError(error);
         }
         else
         {
@@ -1084,7 +1208,7 @@ bool QKlipperConsole::serverFileUpload(QString root, QString directory, QString 
             error->setOrigin("Server Files Upload");
             error->setErrorTitle("Error Sending Websocket Command");
 
-            emit errorOccured(*error);
+            processError(error);
 
             return false;
         }
@@ -1813,7 +1937,7 @@ bool QKlipperConsole::hasConnectionState(ConnectionState state)
 
 void QKlipperConsole::addConnectionState(ConnectionState state)
 {
-    setConnectionState((ConnectionState)(m_connectionState | state));
+    setConnectionState(m_connectionState | state);
 
     if(hasConnectionState((ConnectionState)(KlipperConnected | MoonrakerConnected)) && !hasConnectionState(Startup) && !hasConnectionState(Syncronized))
     {
@@ -1831,7 +1955,7 @@ void QKlipperConsole::removeConnectionState(ConnectionState state)
     if((state & KlipperConnected) == KlipperConnected || (state & MoonrakerConnected) == MoonrakerConnected)
     {
         if(hasConnectionState(Syncronized))
-            m_connectionState = (ConnectionState)(m_connectionState & ~Syncronized);
+            m_connectionState = m_connectionState & ~Syncronized;
     }
 
     setConnectionState((ConnectionState)(m_connectionState & ~state));
@@ -1855,12 +1979,18 @@ void QKlipperConsole::setConnectionState(ConnectionState connectionState)
     m_connectionState = connectionState;
     emit connectionStateChanged();
 
+    if(m_connectionState == Idle || m_connectionState == Restarting)
+    {
+        m_printer->setStatus(QKlipperPrinter::Offline);
+        resetConnectionState();
+    }
+
     qDebug() << "Connection State: " << m_connectionState;
 }
 
 void QKlipperConsole::resetConnectionState()
 {
-    setConnectionState({}); // TODO: Adapt to use your actual default value
+    setConnectionState(Idle);
 }
 
 void QKlipperConsole::resetStartupSequence()
@@ -1889,7 +2019,7 @@ void QKlipperConsole::resetStartupSequence()
     m_startupSequence.enqueue((StartupFunction)&QKlipperConsole::printerSubscribe);
 
     m_startupSequenceCount = m_startupSequence.count();
-    addConnectionState(Startup);
+    setStartupSequenceProgress(0);
 }
 
 QString QKlipperConsole::startupSequenceText() const
@@ -2022,6 +2152,17 @@ void QKlipperConsole::onRpcConnectionTimeout()
     connect();
 }
 
+void QKlipperConsole::processError(QKlipperError *error)
+{
+    if(hasConnectionState(Startup))
+    {
+        disconnect();
+        resetStartupSequence();
+    }
+
+    emit errorOccured(*error);
+}
+
 QKlipperServer *QKlipperConsole::server() const
 {
     return m_server;
@@ -2075,7 +2216,7 @@ void QKlipperConsole::setStartupSequenceProgress(qreal startupSequenceProgress)
 
 void QKlipperConsole::resetStartupSequenceProgress()
 {
-    setStartupSequenceProgress(0); // TODO: Adapt to use your actual default value
+    setStartupSequenceProgress(0);
 }
 
 void QKlipperConsole::sendRpcMessage(QKlipperMessage *message)
@@ -2273,10 +2414,13 @@ bool QKlipperConsole::sendWebSocketMessage(QKlipperMessage *message, QKlipperErr
             emitError = false;
 
         if(emitError)
-            emit errorOccured(*error);
+            processError(error);
 
         return false;
     }
+
+    if(error)
+        error->setType(QKlipperError::NoError);
 
     message->setResponse(reply->readAll());
 
@@ -2302,7 +2446,12 @@ void QKlipperConsole::parseNotification(QKlipperMessage *message)
     }
     else if(message->method() == QString("notify_klippy_ready"))
     {
-        addConnectionState(KlipperConnected);
+        if(m_connectionState == Restarting)
+        {
+            setConnectionState(Syncronized);
+        }
+        else
+            addConnectionState(KlipperConnected);
     }
     else if(message->method() == QString("notify_klippy_shutdown"))
     {

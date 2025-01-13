@@ -1,6 +1,5 @@
 #include "qklippersystem.h"
-#include <QKlipper/QKlipperConsole/qklipperconsole.h>
-#include <QKlipper/qklippererror.h>
+#include <QKlipper/qklipper.h>
 
 QKlipperSystem::QKlipperSystem(QObject *parent)
     : QObject{parent}
@@ -49,7 +48,8 @@ void QKlipperSystem::setDriveCapacity(qint64 driveCapacity)
 
 bool QKlipperSystem::stopService(QString serviceName)
 {
-    QKlipperConsole *console = qobject_cast<QKlipperConsole*>(parent());
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(parent());
+    QKlipperConsole *console = instance ? instance->console() : nullptr;
 
     if(console && console->isConnected())
     {
@@ -65,7 +65,8 @@ bool QKlipperSystem::stopService(QString serviceName)
 
 bool QKlipperSystem::startService(QString serviceName)
 {
-    QKlipperConsole *console = qobject_cast<QKlipperConsole*>(parent());
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(parent());
+    QKlipperConsole *console = instance ? instance->console() : nullptr;
 
     if(console && console->isConnected())
     {
@@ -81,7 +82,8 @@ bool QKlipperSystem::startService(QString serviceName)
 
 bool QKlipperSystem::restartService(QString serviceName)
 {
-    QKlipperConsole *console = qobject_cast<QKlipperConsole*>(parent());
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(parent());
+    QKlipperConsole *console = instance ? instance->console() : nullptr;
 
     if(console && console->isConnected())
     {
@@ -95,6 +97,38 @@ bool QKlipperSystem::restartService(QString serviceName)
     return false;
 }
 
+void QKlipperSystem::shutdown()
+{
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(parent());
+    QKlipperConsole *console = instance ? instance->console() : nullptr;
+
+    if(console)
+    {
+        QKlipperError error;
+        console->machineShutdown(&error);
+
+        if(error.type() != QKlipperError::NoError) return;
+
+        emit machineShutdown();
+    }
+}
+
+void QKlipperSystem::restart()
+{
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(parent());
+    QKlipperConsole *console = instance ? instance->console() : nullptr;
+
+    if(console)
+    {
+        QKlipperError error;
+        console->machineReboot(&error);
+
+        if(error.type() != QKlipperError::NoError) return;
+
+        emit machineRestart();
+    }
+}
+
 QKlipperSystem::State QKlipperSystem::state() const
 {
     return m_state;
@@ -104,6 +138,7 @@ void QKlipperSystem::setState(State state)
 {
     if (m_state == state)
         return;
+
     m_state = state;
     emit stateChanged();
 }
@@ -626,6 +661,8 @@ void QKlipperSystem::setServices(const QMap<QString, QKlipperService *> &service
     m_services = services;
     emit servicesChanged();
 }
+
+
 
 QKlipperLedStripList QKlipperSystem::ledStrips() const
 {

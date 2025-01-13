@@ -4,34 +4,6 @@ QKlipperThrottleState::QKlipperThrottleState(QObject *parent)
     : QObject{parent}
 {}
 
-QKlipperThrottleState::QKlipperThrottleState(const QKlipperThrottleState &value)
-{
-    m_bits = value.m_bits;
-    m_flags = value.m_flags;
-}
-
-QKlipperThrottleState::QKlipperThrottleState(QKlipperThrottleState &&value)
-{
-    m_bits = value.m_bits;
-    m_flags = value.m_flags;
-}
-
-QKlipperThrottleState &QKlipperThrottleState::operator=(const QKlipperThrottleState &value)
-{
-    m_bits = value.m_bits;
-    m_flags = value.m_flags;
-
-    return *this;
-}
-
-QKlipperThrottleState &QKlipperThrottleState::operator=(QKlipperThrottleState &&value)
-{
-    m_bits = value.m_bits;
-    m_flags = value.m_flags;
-
-    return *this;
-}
-
 bool QKlipperThrottleState::operator==(const QKlipperThrottleState &value)
 {
     if(m_bits != value.m_bits) return false;
@@ -40,23 +12,7 @@ bool QKlipperThrottleState::operator==(const QKlipperThrottleState &value)
     return true;
 }
 
-bool QKlipperThrottleState::operator==(QKlipperThrottleState &&value)
-{
-    if(m_bits != value.m_bits) return false;
-    if(m_flags != value.m_flags) return false;
-
-    return true;
-}
-
 bool QKlipperThrottleState::operator!=(const QKlipperThrottleState &value)
-{
-    if(m_bits == value.m_bits && m_flags == value.m_flags)
-        return false;
-
-    return true;
-}
-
-bool QKlipperThrottleState::operator!=(QKlipperThrottleState &&value)
 {
     if(m_bits == value.m_bits && m_flags == value.m_flags)
         return false;

@@ -21,38 +21,55 @@
 
 #include <QVariant>
 
-class QKlipperCanBusInterface : public QVariant
+class QKlipperConsole;
+class QKlipperCanBusInterface
 {
-public:
-    QString uuid;
-    QString application;
+        friend QKlipperConsole;
+    public:
+        QKlipperCanBusInterface() = default;
+        ~QKlipperCanBusInterface() = default;
 
-    QKlipperCanBusInterface() : QVariant()
-    {
+        QKlipperCanBusInterface(const QKlipperCanBusInterface &interface)
+        {
+            m_uuid = interface.m_uuid;
+            m_application = interface.m_application;
+        }
 
-    }
+        QKlipperCanBusInterface &operator=(const QKlipperCanBusInterface &interface)
+        {
+            m_uuid = interface.m_uuid;
+            m_application = interface.m_application;
 
-    QKlipperCanBusInterface(const QKlipperCanBusInterface &interface) : QVariant()
-    {
-        uuid = interface.uuid;
-        application = interface.application;
-    }
+            return *this;
+        }
 
-    bool operator==(const QKlipperCanBusInterface &interface)
-    {
-        if(uuid != interface.uuid) return false;
-        if(application != interface.application) return false;
+        bool operator==(const QKlipperCanBusInterface &interface) const
+        {
+            if(m_uuid != interface.m_uuid) return false;
+            if(m_application != interface.m_application) return false;
 
-        return true;
-    }
+            return true;
+        }
 
-    bool operator!=(const QKlipperCanBusInterface &interface)
-    {
-        if(uuid == interface.uuid) return false;
-        if(application == interface.application) return false;
+        bool operator!=(const QKlipperCanBusInterface &interface) const
+        {
+            if(m_uuid == interface.m_uuid) return false;
+            if(m_application == interface.m_application) return false;
 
-        return true;
-    }
+            return true;
+        }
+
+        QString uuid() const { return m_uuid; }
+
+        QString application() const { return m_application; }
+
+    protected:
+        void setApplication(const QString &application) { m_application = application; }
+        void setUuid(const QString &uuid) { m_uuid = uuid; }
+
+    private:
+        QString m_uuid;
+        QString m_application;
 };
 
 Q_DECLARE_METATYPE(QKlipperCanBusInterface)

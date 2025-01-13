@@ -21,20 +21,44 @@
 
 #include <QObject>
 
-struct QKlipperNetworkAddress
+class QKlipperNetworkAddress
 {
-    QString family;
-    QString address;
+    public:
+        QString family;
+        QString address;
 
-    bool isLinkLocal = false;
+        bool isLinkLocal = false;
 
-    bool operator==(const QKlipperNetworkAddress &address) const
-    {
-        if(this->family != address.family) return false;
-        if(this->address != address.address) return false;
-        if(this->isLinkLocal != address.isLinkLocal) return false;
+        QKlipperNetworkAddress() = default;
+        ~QKlipperNetworkAddress() = default;
 
-        return true;
-    }
+        QKlipperNetworkAddress(const QKlipperNetworkAddress &value)
+        {
+            family = value.family;
+            address = value.address;
+            isLinkLocal = value.isLinkLocal;
+        }
+
+        QKlipperNetworkAddress &operator=(const QKlipperNetworkAddress &value)
+        {
+            family = value.family;
+            address = value.address;
+            isLinkLocal = value.isLinkLocal;
+
+            return *this;
+        }
+
+        bool operator==(const QKlipperNetworkAddress &address) const
+        {
+            if(this->family != address.family) return false;
+            if(this->address != address.address) return false;
+            if(this->isLinkLocal != address.isLinkLocal) return false;
+
+            return true;
+        }
+
+        bool operator!=(const QKlipperNetworkAddress &address) const { return !(*this == address); }
 };
+
+Q_DECLARE_METATYPE(QKlipperNetworkAddress)
 #endif // QKLIPPERNETWORKADDRESS_H

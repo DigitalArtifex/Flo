@@ -35,14 +35,8 @@ class QKlipperMemoryStats : public QObject
 public:
     explicit QKlipperMemoryStats(QObject *parent = nullptr);
 
-    QKlipperMemoryStats(const QKlipperMemoryStats &value);
-    QKlipperMemoryStats(QKlipperMemoryStats &&value);
-    QKlipperMemoryStats &operator=(const QKlipperMemoryStats &value);
-    QKlipperMemoryStats &operator=(QKlipperMemoryStats &&value);
-    bool operator==(const QKlipperMemoryStats &value);
-    bool operator==(QKlipperMemoryStats &&value);
-    bool operator!=(const QKlipperMemoryStats &value);
-    bool operator!=(QKlipperMemoryStats &&value);
+    bool operator==(const QKlipperMemoryStats &value) const;
+    bool operator!=(const QKlipperMemoryStats &value) const;
 
     qreal total() const;
     qreal used() const;

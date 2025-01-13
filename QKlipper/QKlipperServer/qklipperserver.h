@@ -103,32 +103,20 @@ public:
 public slots:
 
     void setMoonrakerLocation(const QString &moonrakerLocation);
-    void resetMoonrakerLocation();
 
     void setKlipperLocation(const QString &klipperLocation);
-    void resetKlipperLocation();
 
     void setGcodesLocation(const QString &gcodesLocation);
-    void resetGcodesLocation();
 
     void setConfigLocation(const QString &configLocation);
-    void resetConfigLocation();
 
     void setInstanceLocation(const QString &instanceLocation);
-    void resetInstanceLocation();
 
     void setApiKey(const QString &apiKey);
-    void resetApiKey();
 
     void setAddress(const QString &address);
-    void resetAddress();
-
-    void setGcodeStore(QKlipperGCodeStore *gcodeStore);
-    void setGcodeStoreValue(const QKlipperGCodeStoreValue &value);
-    void resetGcodeStore();
 
     void setConnectionType(ConnectionType connectionType);
-    void resetConnectionType();
 
     void setUserList(const QList<QKlipperUser> &userList);
     void addUser(const QKlipperUser &user);
@@ -159,8 +147,6 @@ public slots:
 
     void setAnnouncements(const QKlipperAnnouncementList &announcements);
 
-    void setJobQueue(QKlipperJobQueue *jobQueue);
-
     void setFileSystem(const QMap<QString, QKlipperFile *> &fileSystem);
     void setFileList(const QString &directory, QKlipperFileList files);
 
@@ -183,8 +169,6 @@ signals:
     void apiKeyChanged();
 
     void addressChanged();
-
-    void gcodeStoreChanged();
 
     void connectionTypeChanged();
 
@@ -209,8 +193,6 @@ signals:
     void failedComponentsChanged();
 
     void announcementsChanged();
-
-    void jobQueueChanged();
 
     void fileSystemChanged();
 
@@ -256,31 +238,6 @@ private:
     QMap<QString, QKlipperFile*>                      m_fileSystem;
 
     qint16                                            m_port = 0;
-
-    Q_PROPERTY(QString moonrakerLocation READ moonrakerLocation WRITE setMoonrakerLocation RESET resetMoonrakerLocation NOTIFY moonrakerLocationChanged FINAL)
-    Q_PROPERTY(QString klipperLocation READ klipperLocation WRITE setKlipperLocation RESET resetKlipperLocation NOTIFY klipperLocationChanged FINAL)
-    Q_PROPERTY(QString gcodesLocation READ gcodesLocation WRITE setGcodesLocation RESET resetGcodesLocation NOTIFY gcodesLocationChanged FINAL)
-    Q_PROPERTY(QString configLocation READ configLocation WRITE setConfigLocation RESET resetConfigLocation NOTIFY configLocationChanged FINAL)
-    Q_PROPERTY(QString instanceLocation READ instanceLocation WRITE setInstanceLocation RESET resetInstanceLocation NOTIFY instanceLocationChanged FINAL)
-    Q_PROPERTY(QString apiKey READ apiKey WRITE setApiKey RESET resetApiKey NOTIFY apiKeyChanged FINAL)
-    Q_PROPERTY(QString address READ address WRITE setAddress RESET resetAddress NOTIFY addressChanged FINAL)
-    Q_PROPERTY(QKlipperGCodeStore *gcodeStore READ gcodeStore WRITE setGcodeStore RESET resetGcodeStore NOTIFY gcodeStoreChanged FINAL)
-    Q_PROPERTY(ConnectionType connectionType READ connectionType WRITE setConnectionType RESET resetConnectionType NOTIFY connectionTypeChanged FINAL)
-    Q_PROPERTY(QList<QKlipperUser> userList READ userList WRITE setUserList NOTIFY userListChanged FINAL)
-    Q_PROPERTY(QKlipperAccessDetails accessDetails READ accessDetails WRITE setAccessDetails NOTIFY accessDetailsChanged FINAL)
-    Q_PROPERTY(QString websocketId READ websocketId WRITE setWebsocketId NOTIFY websocketIdChanged FINAL)
-    Q_PROPERTY(QString connectionId READ connectionId WRITE setConnectionId NOTIFY connectionIdChanged FINAL)
-    Q_PROPERTY(QStringList availableObjects READ availableObjects WRITE setAvailableObjects NOTIFY availableObjectsChanged FINAL)
-    Q_PROPERTY(QStringList gcodeMacroObjects READ gcodeMacroObjects WRITE setGcodeMacroObjects NOTIFY gcodeMacroObjectsChanged FINAL)
-    Q_PROPERTY(QKlipperGCodeMacroList gcodeMacros READ gcodeMacros WRITE setGcodeMacros NOTIFY gcodeMacrosChanged FINAL)
-    Q_PROPERTY(QStringList warnings READ warnings WRITE setWarnings NOTIFY warningsChanged FINAL)
-    Q_PROPERTY(QStringList components READ components WRITE setComponents NOTIFY componentsChanged FINAL)
-    Q_PROPERTY(QStringList failedComponents READ failedComponents WRITE setFailedComponents NOTIFY failedComponentsChanged FINAL)
-    Q_PROPERTY(QKlipperAnnouncementList announcements READ announcements WRITE setAnnouncements NOTIFY announcementsChanged FINAL)
-    Q_PROPERTY(QKlipperJobQueue *jobQueue READ jobQueue WRITE setJobQueue NOTIFY jobQueueChanged FINAL)
-    Q_PROPERTY(QMap<QString, QKlipperFile *> fileSystem READ fileSystem WRITE setFileSystem NOTIFY fileSystemChanged FINAL)
-    Q_PROPERTY(QKlipperClientIdentifier clientIdentifier READ clientIdentifier WRITE setClientIdentifier NOTIFY clientIdentifierChanged FINAL)
-    Q_PROPERTY(qint16 port READ port WRITE setPort NOTIFY portChanged FINAL)
 };
 
 #endif // QKLIPPERSERVER_H

@@ -45,14 +45,8 @@ public:
      */
     explicit QKlipperMCU(QObject *parent = nullptr);
 
-    QKlipperMCU(const QKlipperMCU &value);
-    QKlipperMCU(QKlipperMCU &&value);
-    QKlipperMCU &operator=(const QKlipperMCU &value);
-    QKlipperMCU &operator=(QKlipperMCU &&value);
-    bool operator==(const QKlipperMCU &value);
-    bool operator==(QKlipperMCU &&value);
+    bool operator==(const QKlipperMCU &value)const ;
     bool operator!=(const QKlipperMCU &value);
-    bool operator!=(QKlipperMCU &&value);
 
     /*!
      * Baud rate of the MCU's serial device

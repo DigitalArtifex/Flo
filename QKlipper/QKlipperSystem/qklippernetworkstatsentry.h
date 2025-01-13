@@ -32,21 +32,43 @@ class QKlipperNetworkStatsEntry
 public:
     QKlipperNetworkStatsEntry() = default;
     ~QKlipperNetworkStatsEntry() = default;
-    QKlipperNetworkStatsEntry(const QKlipperNetworkStatsEntry &value);
 
-    bool operator==(const QKlipperNetworkStatsEntry &value) const;
-    bool operator!=(const QKlipperNetworkStatsEntry &value) const;
-    QKlipperNetworkStatsEntry &operator=(const QKlipperNetworkStatsEntry &value);
+    QKlipperNetworkStatsEntry(const QKlipperNetworkStatsEntry &value)
+    {
+        m_rxBytes = value.m_rxBytes;
+        m_txBytes = value.m_txBytes;
+        m_bandwidth = value.m_bandwidth;
+    }
 
-    qreal rxBytes() const;
-    qreal txBytes() const;
-    qreal bandwidth() const;
+    QKlipperNetworkStatsEntry &operator=(const QKlipperNetworkStatsEntry &value)
+    {
+        m_rxBytes = value.m_rxBytes;
+        m_txBytes = value.m_txBytes;
+        m_bandwidth = value.m_bandwidth;
 
-    void setRxBytes(qreal rxBytes);
-    void setTxBytes(qreal txBytes);
-    void setBandwidth(qreal bandwidth);
+        return (*this);
+    }
 
-private:
+    bool operator==(const QKlipperNetworkStatsEntry &value) const
+    {
+        if(m_bandwidth != value.m_bandwidth) return false;
+        if(m_rxBytes != value.m_rxBytes) return false;
+        if(m_txBytes != value.m_txBytes) return false;
+
+        return true;
+    }
+
+    bool operator!=(const QKlipperNetworkStatsEntry &value) const { return !(*this == value); }
+
+    qreal rxBytes() const { return m_rxBytes; }
+    qreal txBytes() const { return m_txBytes; }
+    qreal bandwidth() const { return m_bandwidth; }
+
+protected:
+
+    void setRxBytes(qreal rxBytes) { m_rxBytes = rxBytes; }
+    void setTxBytes(qreal txBytes) { m_txBytes = txBytes; }
+    void setBandwidth(qreal bandwidth) { m_bandwidth = bandwidth; }
 
 private:
     qreal m_rxBytes = 0;
