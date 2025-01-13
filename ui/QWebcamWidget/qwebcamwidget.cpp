@@ -2,16 +2,17 @@
 
 #include "system/settings.h"
 
-QWebcamWidget::QWebcamWidget(QString source, int timeout, QWidget *parent) : QWidget(parent)
+QWebcamWidget::QWebcamWidget(QString source, int timeout, QWidget *parent) : QOpenGLWidget(parent)
 {
     setupUi();
 
     m_timeout = timeout;
 
-    m_webcamThread = new QThread(this);
-    m_webcamSource = new QWebcamSource(m_timeout, m_webcamThread);
+    // m_webcamThread = new QThread(this);
+    // m_webcamThread->setPriority(QThread::LowPriority);
+    m_webcamSource = new QWebcamSource(m_timeout, this);
     m_webcamSource->setSource(source);
-    m_webcamSource->moveToThread(m_webcamThread);
+    //m_webcamSource->moveToThread(m_webcamThread);
 
     connect(m_webcamSource, SIGNAL(frameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
     connect(m_webcamSource, SIGNAL(stateChanged()), this, SLOT(webcamSourceStateChanged()));
@@ -20,19 +21,20 @@ QWebcamWidget::QWebcamWidget(QString source, int timeout, QWidget *parent) : QWi
 
 QWebcamWidget::~QWebcamWidget()
 {
+    if(m_webcamSource)
+    {
+        //m_webcamSource->moveToThread(QThread::currentThread());
+        m_webcamSource->stop();
+        delete m_webcamSource;
+    }
+
     if(m_webcamThread)
     {
-        if(m_webcamSource)
-        {
-            m_webcamSource->moveToThread(QThread::currentThread());
-            m_webcamSource->stop();
-            m_webcamSource->deleteLater();
-        }
 
-        if(m_webcamThread->isRunning())
-            m_webcamThread->exit();
+        // if(m_webcamThread->isRunning())
+        //     m_webcamThread->exit();
 
-        m_webcamThread->deleteLater();
+        // m_webcamThread->deleteLater();
     }
 
     if(m_videoLabel)
@@ -108,7 +110,7 @@ void QWebcamWidget::stop()
 
 void QWebcamWidget::resizeEvent(QResizeEvent *event)
 {
-    QWidget::resizeEvent(event);
+    QOpenGLWidget::resizeEvent(event);
 
     if(m_overlayWidget)
         m_overlayWidget->resize(event->size());
@@ -117,16 +119,34 @@ void QWebcamWidget::resizeEvent(QResizeEvent *event)
 void QWebcamWidget::hideEvent(QHideEvent *event)
 {
     pause();
-    QWidget::hideEvent(event);
+    QOpenGLWidget::hideEvent(event);
 }
 
 void QWebcamWidget::showEvent(QShowEvent *event)
 {
-    QWidget::showEvent(event);
+    QOpenGLWidget::showEvent(event);
     play();
 }
 
 void QWebcamWidget::paintEvent(QPaintEvent *event)
+{
+    // if(!m_lastFrame.isNull())
+    // {
+    //     QPainter painter;
+
+    //     painter.begin(this);
+    //     painter.setRenderHint(QPainter::LosslessImageRendering);
+    //     painter.setRenderHint(QPainter::Antialiasing);
+    //     //painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    //     painter.drawPixmap(rect(), m_lastFrame, m_lastFrame.rect());
+    //     painter.end();
+    // }
+
+    QOpenGLWidget::paintEvent(event);
+}
+
+void QWebcamWidget::paintGL()
 {
     if(!m_lastFrame.isNull())
     {
@@ -135,12 +155,11 @@ void QWebcamWidget::paintEvent(QPaintEvent *event)
         painter.begin(this);
         painter.setRenderHint(QPainter::LosslessImageRendering);
         painter.setRenderHint(QPainter::Antialiasing);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
         painter.drawPixmap(rect(), m_lastFrame, m_lastFrame.rect());
         painter.end();
     }
-
-    QWidget::paintEvent(event);
 }
 
 void QWebcamWidget::on_playbackRateChanged(qreal rate)
@@ -161,6 +180,7 @@ void QWebcamWidget::videoFrameChangeEvent(QVideoFrame frame)
         setupIcons();
 
         emit frameChanged();
+
         update();
     }
 }
@@ -290,7 +310,7 @@ void QWebcamWidget::changeEvent(QEvent *event)
         setupIcons();
     }
 
-    QWidget::changeEvent(event);
+    QOpenGLWidget::changeEvent(event);
 }
 
 QString QWebcamWidget::info() const

@@ -86,4 +86,34 @@ class QWebcamSource : public QObject
         Q_PROPERTY(quint64 connectionRetries READ connectionRetries WRITE setConnectionRetries NOTIFY connectionRetriesChanged FINAL)
 };
 
+inline constexpr QWebcamSource::State operator|(QWebcamSource::State a, QWebcamSource::State b)
+{
+    return static_cast<QWebcamSource::State>(static_cast<unsigned int>(a) | static_cast<unsigned int>(b));
+}
+
+inline constexpr QWebcamSource::State operator&(QWebcamSource::State a, QWebcamSource::State b)
+{
+    return static_cast<QWebcamSource::State>(static_cast<unsigned int>(a) & static_cast<unsigned int>(b));
+}
+
+inline constexpr QWebcamSource::State operator^(QWebcamSource::State a, QWebcamSource::State b)
+{
+    return static_cast<QWebcamSource::State>(static_cast<unsigned int>(a) ^ static_cast<unsigned int>(b));
+}
+
+inline constexpr QWebcamSource::State operator|=(QWebcamSource::State &a, QWebcamSource::State b)
+{
+    return a = static_cast<QWebcamSource::State>(static_cast<unsigned int>(a) | static_cast<unsigned int>(b));
+}
+
+inline constexpr QWebcamSource::State operator&=(QWebcamSource::State &a, QWebcamSource::State b)
+{
+    return a = static_cast<QWebcamSource::State>(static_cast<unsigned int>(a) & static_cast<unsigned int>(b));
+}
+
+inline constexpr QWebcamSource::State operator^=(QWebcamSource::State &a, QWebcamSource::State b)
+{
+    return a = static_cast<QWebcamSource::State>(static_cast<unsigned int>(a) ^ static_cast<unsigned int>(b));
+}
+
 #endif // QWEBCAMSOURCE_H
