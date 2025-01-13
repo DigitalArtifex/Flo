@@ -64,6 +64,7 @@ public:
 
     static QString getTheme(QString key);
     static QIcon getThemeIcon(QString key, QColor color = QColor());
+    static QString getThemeIconLocation(QString key);
     static QStringList getThemeList();
     static QStringList getIconSetList();
     void setTheme(QString key);
@@ -129,6 +130,7 @@ private:
     static QMap<QString,QIcon> m_iconMap;
     static QMap<QString,QString> m_iconSetMap;
     static QMap<QString, QString> m_iconNames;
+    static QMap<QString, QString> m_iconLocationMap;
     static QString m_currentThemeName;
     static QString m_currentIconSetName;
 

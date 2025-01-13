@@ -7,6 +7,7 @@
 QMap<QString,QVariant> Settings::themeSettings;
 QMap<QString,QString> Settings::themeMap;
 QMap<QString,QString> Settings::m_iconSetMap;
+QMap<QString,QString> Settings::m_iconLocationMap;
 QMap<QString,QIcon> Settings::m_iconMap;
 QList<QKlipperInstance*> Settings::m_instances;
 Settings *Settings::m_instance = nullptr;
@@ -127,9 +128,8 @@ void Settings::loadIcons()
             QIcon loadedIcon;
             m_iconNames[themeIcon["name"].toString()] = themeIcon["icon"].toString();
 
-            if(themeVariables.contains("icon-color"))
+            if(themeVariables.contains("icon-color") && !themeIcon["icon"].toString().endsWith(".gif", Qt::CaseInsensitive))
             {
-
                 QImage image(iconSetLocation + themeIcon["icon"].toString());
 
                 QImage alpha(image.width(), image.height(), QImage::Format_Alpha8);
@@ -216,6 +216,7 @@ void Settings::loadIcons()
                 loadedIcon = QIcon(iconSetLocation + themeIcon["icon"].toString());
 
             m_iconMap[themeIcon["name"].toString()] = loadedIcon;
+            m_iconLocationMap[themeIcon["name"].toString()] = iconSetLocation + themeIcon["icon"].toString();
         }
     }
 }
@@ -501,6 +502,16 @@ QIcon Settings::getThemeIcon(QString key, QColor color)
     }
     else
         return m_iconMap[key];
+}
+
+QString Settings::getThemeIconLocation(QString key)
+{
+    QString location;
+
+    if(m_iconLocationMap.contains(key))
+        location = m_iconLocationMap[key];
+
+    return location;
 }
 
 QStringList Settings::getThemeList()
