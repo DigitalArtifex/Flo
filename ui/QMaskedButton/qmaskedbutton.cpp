@@ -92,6 +92,8 @@ void QMaskedButton::mouseDoubleClickEvent(QMouseEvent *event)
 {
     if(isEnabled())
         emit doubleClicked(this);
+
+    QWidget::mouseDoubleClickEvent(event);
 }
 
 void QMaskedButton::mousePressEvent(QMouseEvent *event)
