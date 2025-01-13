@@ -35,7 +35,7 @@ CardWidget::CardWidget(CardType type, QWidget *parent)
 
     setLayout(m_layout);
 
-    if(m_cardType == Widget)
+    if(m_cardType == CardType::Widget)
     {
         setProperty("class", "Widget");
         m_titleBarWidget->setProperty("class", "WidgetTitleBar");
@@ -57,7 +57,11 @@ CardWidget::~CardWidget()
 
 void CardWidget::setCentralWidget(QWidget *widget)
 {
-    m_contentLayout->addWidget(widget);
+    if(m_centralWidget)
+        m_contentLayout->removeWidget(m_centralWidget);
+
+    m_centralWidget = widget;
+    m_contentLayout->addWidget(m_centralWidget);
 }
 
 void CardWidget::setupFooter()
@@ -99,6 +103,11 @@ CardWidget::CardFlags CardWidget::cardFlags() const
     return m_cardFlags;
 }
 
+QWidget *CardWidget::centralWidget() const
+{
+    return m_centralWidget;
+}
+
 void CardWidget::setCardFlags(CardFlags cardFlags)
 {
     if (m_cardFlags == cardFlags)
@@ -136,7 +145,7 @@ void CardWidget::setCardType(CardType newCardType)
 
     m_cardType = newCardType;
 
-    if(m_cardType == Widget)
+    if(m_cardType == CardType::Widget)
     {
         setProperty("class", "Widget");
         m_titleBarWidget->setProperty("class", "WidgetTitleBar");

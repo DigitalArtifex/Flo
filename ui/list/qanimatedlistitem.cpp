@@ -148,12 +148,12 @@ void QAnimatedListItem::mouseDoubleClickEvent(QMouseEvent *event)
 {
     setSelected(true);
     emit doubleClicked(this);
+
+    QWidget::mouseDoubleClickEvent(event);
 }
 
 void QAnimatedListItem::mousePressEvent(QMouseEvent *event)
 {
-    QWidget::mousePressEvent(event);
-
     if(event->button() == Qt::LeftButton)
     {
         m_clickTimer = new QTimer(this);
@@ -176,6 +176,8 @@ void QAnimatedListItem::mousePressEvent(QMouseEvent *event)
             m_contextMenu->popup(event->globalPosition().toPoint());
         }
     }
+
+    QWidget::mousePressEvent(event);
 }
 
 void QAnimatedListItem::mouseReleaseEvent(QMouseEvent *event)

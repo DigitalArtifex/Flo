@@ -9,6 +9,7 @@
 #include <QSpacerItem>
 #include <QMovie>
 #include <QStyle>
+#include <QOpenGLWindow>
 
 class Dialog : public QDialog
 {

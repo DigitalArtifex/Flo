@@ -46,7 +46,7 @@ void QAnimatedListWidget::addItem(QAnimatedListItem *item)
         m_emptyListItem = nullptr;
     }
 
-    if(m_selectionMode == SingleSelect | m_selectionMode == MultiSelect)
+    if((m_selectionMode == SingleSelect) | (m_selectionMode == MultiSelect))
     {
         item->setSelected(false, false);
         item->setSelectable(true);
@@ -306,6 +306,8 @@ void QAnimatedListWidget::itemDoubleClickedEvent(QAnimatedListItem *item)
 
 void QAnimatedListWidget::onVerticalScrollbarRangeChange(int min, int max)
 {
+    Q_UNUSED(min)
+
     int x = m_scrollAreaContents->contentsMargins().top();
     x += m_scrollAreaContents->contentsMargins().bottom();
 

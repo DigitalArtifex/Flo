@@ -8,7 +8,7 @@ Dialog::Dialog(QWidget *parent, Qt::WindowFlags flags)
         setWindowFlag(Qt::FramelessWindowHint);
 
     setWindowFlag(Qt::Popup);
-    setWindowModality(Qt::WindowModal);
+    //setWindowModality(Qt::WindowModal);
 
     setProperty("class", QString("Dialog"));
 }
@@ -16,10 +16,10 @@ Dialog::Dialog(QWidget *parent, Qt::WindowFlags flags)
 Dialog::~Dialog()
 {
     if(m_loadingFrameLayout)
-        m_loadingFrameLayout->deleteLater();
+        delete m_loadingFrameLayout;
 
     if(m_loadingFrame)
-        m_loadingFrame->deleteLater();
+        delete m_loadingFrame;
 }
 
 void Dialog::showLoadingScreen()
