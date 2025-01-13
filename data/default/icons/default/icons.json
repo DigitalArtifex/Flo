@@ -10,8 +10,12 @@
             "name": "empty"
         },
         {
-            "icon": "icons8-print-file-64.png",
+            "icon": "icons8-file-64.png",
             "name": "print"
+        },
+        {
+            "icon": "icons8-print.gif",
+            "name": "printing"
         },
         {
             "icon": "icons8-edit-64.png",
@@ -86,11 +90,15 @@
             "name": "extruder"
         },
         {
+            "icon": "extruder-tools-64.png",
+            "name": "extruder-tools"
+        },
+        {
             "icon": "extruder-settings-icon-64.png",
             "name": "extruder-settings"
         },
         {
-            "icon": "icons8-temperature-alt-64.png",
+            "icon": "icons8-temperature.svg",
             "name": "temperature"
         },
         {
@@ -118,6 +126,10 @@
             "name": "printer"
         },
         {
+            "icon": "icons8-3d-printer-no-connection-64.png",
+            "name": "printer-no-connection"
+        },
+        {
             "icon": "icons8-3d-printer-add-64.png",
             "name": "printer-add"
         },
@@ -135,7 +147,7 @@
         },
         {
             "icon": "calibrate-screws-64.png",
-            "name": "calibrate-screws"
+            "name": "adjustment-screws-calibrate"
         },
         {
             "icon": "mesh-calibrate-64.png",
@@ -148,6 +160,18 @@
         {
             "icon": "mesh-info-64.png",
             "name": "mesh-info"
+        },
+        {
+            "icon": "mesh-tools.png",
+            "name": "mesh-tools"
+        },
+        {
+            "icon": "mesh-error-64.png",
+            "name": "mesh-error"
+        },
+        {
+            "icon": "mesh-acceptable-64.png",
+            "name": "mesh-acceptable"
         },
         {
             "icon": "icons8-grid-50.png",
@@ -294,7 +318,7 @@
             "name": "chart"
         },
         {
-            "icon": "icons8-cancel-64.png",
+            "icon": "icons8-cancel.svg",
             "name": "cancel"
         },
         {
@@ -312,6 +336,10 @@
         {
             "icon": "icons8-stop-64.png",
             "name": "stop"
+        },
+        {
+            "icon": "icons8-play-64.png",
+            "name": "start"
         },
         {
             "icon": "icons8-pause-64.png",
@@ -338,16 +366,80 @@
             "name": "zoffset"
         },
         {
-            "name": "thumbs-up",
-            "icon": "icons8-thumbs-up-100.png"
-        },
-        {
-            "name": "thumbs-down",
-            "icon": "icons8-thumbs-down-100.png"
-        },
-        {
             "name": "input-shaper",
             "icon": "icons8-impossible-shapes-64.png"
-        }
+        },
+        {
+            "name": "fan",
+            "icon": "icons8-fan-64.png"
+        },
+        {
+            "name": "fan-on",
+            "icon": "icons8-fan-64-alt.png"
+        },
+        {
+            "name": "pressure-advance",
+            "icon": "icons8-pressure-50.png"
+        },
+		{
+			"name": "smooth-time",
+			"icon": "icons8-time-64.png"
+		},
+		{
+			"name": "sine",
+			"icon": "icons8-sine-64.png"
+		},
+		{
+			"name": "axis",
+			"icon": "icons8-axis-64.png"
+		},
+		{
+			"name": "folder",
+			"icon": "icons8-folder-80.png"
+		},
+		{
+			"name": "file-firmware",
+			"icon": "icons8-firmware-file.png"
+		},
+		{
+			"name": "file-archive",
+			"icon": "icons8-archive-64.png"
+		},
+		{
+			"name": "file",
+			"icon": "icons8-code-file-64.png"
+		},
+		{
+			"name": "hard-drive",
+			"icon": "icons8-hdd-64.png"
+		},
+		{
+			"name": "user-card",
+			"icon": "icons8-user-card-100.png"
+		},
+		{
+			"name": "user",
+			"icon": "icons8-user-64.png"
+		},
+		{
+			"name": "klipper",
+			"icon": "klipper.png"
+		},
+		{
+			"name": "mainsail",
+			"icon": "mainsail.svg"
+		},
+		{
+			"name": "crowsnest",
+			"icon": "icons8-pirate-50.png"
+		},
+		{
+			"name": "cpu",
+			"icon": "icons8-cpu.svg"
+		},
+		{
+			"name": "memory",
+			"icon": "icons8-memory-slot.svg"
+		}
     ]
 }
