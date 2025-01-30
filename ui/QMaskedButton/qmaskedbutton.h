@@ -10,72 +10,116 @@
 #include <QPushButton>
 #include <QImage>
 #include <QPainter>
+#include <QBitmap>
 #include <QPropertyAnimation>
+#include <QParallelAnimationGroup>
 
-#include "../qwidgetanimation.h"
+//#include "dalib_global.h"
 
 class QMaskedButton : public QWidget
 {
-    Q_OBJECT
+        Q_OBJECT
+    public:
+        explicit QMaskedButton(QWidget *parent = nullptr);
+        ~QMaskedButton();
 
-    Q_PROPERTY(qreal opacity READ widgetOpacity WRITE setOpacity)
-    Q_PROPERTY(qreal hover_opacity READ hoverOpacity WRITE setHoverOpacity)
-    Q_PROPERTY(qreal click_opacity READ clickOpacity WRITE setClickOpacity)
-public:
-    explicit QMaskedButton(QWidget *parent = nullptr);
-    ~QMaskedButton();
+        QPixmap pixmap() const
+        {
+            return m_pixmap;
+        }
 
-    void setPixmap(const QPixmap &pixmap);
-    void setHoverPixmap(const QPixmap &pixmap);
-    void setClickPixmap(const QPixmap &pixmap);
+        QPixmap hoverPixmap() const
+        {
+            return m_hoverPixmap;
+        }
 
-    qreal widgetOpacity() const;
-    void setOpacity(qreal opacity);
+        QPixmap clickPixmap() const
+        {
+            return m_clickPixmap;
+        }
 
-    qreal hoverOpacity() const;
-    void setHoverOpacity(qreal hover_opacity);
+    public slots:
 
-    qreal clickOpacity() const;
-    void setClickOpacity(qreal click_opacity);
+        void setPixmap(const QPixmap &pixmap);
 
-protected:
-    virtual void enterEvent(QEnterEvent *event);
-    virtual void leaveEvent(QEvent *event);
-    virtual void mouseDoubleClickEvent(QMouseEvent *event);
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
-    virtual void paintEvent(QPaintEvent *event);
+        void setHoverPixmap(const QPixmap &hoverPixmap);
 
-protected slots:
-    void on_clickTimer_timeout();
+        void setClickPixmap(const QPixmap &clickPixmap);
 
-signals:
-    void clicked(QMaskedButton *button);
-    void longPressed(QMaskedButton *button);
-    void doubleClicked(QMaskedButton *button);
+    protected:
+        virtual void enterEvent(QEnterEvent *event);
+        virtual void leaveEvent(QEvent *event);
+        virtual void mouseDoubleClickEvent(QMouseEvent *event);
+        virtual void mousePressEvent(QMouseEvent *event);
+        virtual void mouseReleaseEvent(QMouseEvent *event);
+        virtual void paintEvent(QPaintEvent *event);
 
-private:
-    bool m_pressed = false;
-    bool m_longPressed = false;
-    bool m_hover = false;
-    bool m_updating = false;
+        qreal hoverOpacity() const
+        {
+            return m_hoverOpacity;
+        }
 
-    QTimer *m_clickTimer = nullptr;
+        qreal clickOpacity() const
+        {
+            return m_clickOpacity;
+        }
 
-    QPixmap m_pixmap;
-    QPixmap m_hoverPixmap;
-    QPixmap m_clickPixmap;
+        qreal opacity() const
+        {
+            return m_opacity;
+        }
 
-    QBitmap m_mask;
-    QBitmap m_hoverMask;
-    QBitmap m_clickMask;
+    protected slots:
+        void onClickTimerTimeout();
 
-    qreal m_hover_opacity = 0.0;
-    qreal m_click_opacity = 0.0;
-    qreal m_opacity = 1.0;
+        void setHoverOpacity(qreal hoverOpacity);
+        void setClickOpacity(qreal clickOpacity);
+        void setOpacity(qreal opacity);
 
-    QPropertyAnimation *m_hover_animation = nullptr;
-    QPropertyAnimation *m_click_animation = nullptr;
+    signals:
+        void clicked(QMaskedButton *button);
+        void longClicked(QMaskedButton *button);
+        void doubleClicked(QMaskedButton *button);
+
+        void clicked();
+        void longClicked();
+        void doubleClicked();
+
+        void pixmapChanged();
+        void hoverPixmapChanged();
+        void clickPixmapChanged();
+
+    private:
+        bool m_pressed = false;
+        bool m_longPressed = false;
+        bool m_hover = false;
+        bool m_updating = false;
+
+        QTimer *m_clickTimer = nullptr;
+
+        QPixmap m_pixmap;
+        QPixmap m_hoverPixmap;
+        QPixmap m_clickPixmap;
+
+        QBitmap m_mask;
+        QBitmap m_hoverMask;
+        QBitmap m_clickMask;
+
+        qreal m_hoverOpacity = 0.0;
+        qreal m_clickOpacity = 0.0;
+        qreal m_opacity = 1.0;
+
+        QPropertyAnimation *m_hoverAnimation = nullptr;
+        QPropertyAnimation *m_clickAnimation = nullptr;
+        QPropertyAnimation *m_pixmapAnimation = nullptr;
+        QParallelAnimationGroup *m_animationGroup = nullptr;
+
+        Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap NOTIFY pixmapChanged FINAL)
+        Q_PROPERTY(QPixmap hoverPixmap READ hoverPixmap WRITE setHoverPixmap NOTIFY hoverPixmapChanged FINAL)
+        Q_PROPERTY(QPixmap clickPixmap READ clickPixmap WRITE setClickPixmap NOTIFY clickPixmapChanged FINAL)
+        Q_PROPERTY(qreal hoverOpacity READ hoverOpacity WRITE setHoverOpacity)
+        Q_PROPERTY(qreal clickOpacity READ clickOpacity WRITE setClickOpacity)
+        Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
 };
 
 #endif // QMASKEDBUTTON_H
