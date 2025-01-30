@@ -4088,6 +4088,9 @@ void QKlipperConsole::printerSubscribeParser(QKlipperMessage *message)
 
                 if(printerObject.contains("square_corner_velocity"))
                     m_printer->setSquareCornerVelocity(printerObject["square_corner_velocity"].toDouble());
+
+                if(printerObject.contains("minimum_cruise_ratio"))
+                    m_printer->setMinimumCruiseRatio(printerObject["minimum_cruise_ratio"].toDouble());
             }
 
             //Parse MCU settings

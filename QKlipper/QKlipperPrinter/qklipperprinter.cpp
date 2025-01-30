@@ -589,9 +589,23 @@ void QKlipperPrinter::fakePrintTimeout()
     setStatus(Printing);
 }
 
+void QKlipperPrinter::setMinimumCruiseRatio(qreal minimumCruiseRatio)
+{
+    if (qFuzzyCompare(m_minimumCruiseRatio, minimumCruiseRatio))
+        return;
+
+    m_minimumCruiseRatio = minimumCruiseRatio;
+    emit minimumCruiseRatioChanged();
+}
+
 bool QKlipperPrinter::hasChamber() const
 {
     return m_hasChamber;
+}
+
+qreal QKlipperPrinter::minimumCruiseRatio() const
+{
+    return m_minimumCruiseRatio;
 }
 
 void QKlipperPrinter::setHasChamber(bool hasChamber)
