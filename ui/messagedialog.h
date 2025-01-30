@@ -14,6 +14,7 @@ class MessageDialog : public Dialog
     Q_OBJECT
 public:
     explicit MessageDialog(QWidget *parent = nullptr);
+    ~MessageDialog();
 
     QIcon icon() const;
 
@@ -22,16 +23,19 @@ public:
 public slots:
     void setIcon(const QIcon &icon);
     void setText(const QString &text);
+    void setRejectEnabled(bool enabled);
 
 signals:
 
 protected slots:
     void setupUi();
     void acceptButtonClicked();
+    void rejectButtonClicked();
 
 private:
     QVBoxLayout *m_centralLayout = nullptr;
     QHBoxLayout *m_informationLayout = nullptr;
+    QHBoxLayout *m_buttonLayout = nullptr;
 
     QIcon m_icon;
     QString m_text;
@@ -40,6 +44,7 @@ private:
     QLabel *m_iconLabel = nullptr;
 
     QIconButton *m_acceptButton = nullptr;
+    QIconButton *m_rejectButton = nullptr;
 };
 
 #endif // MESSAGEDIALOG_H
