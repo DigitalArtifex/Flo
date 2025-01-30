@@ -12,7 +12,6 @@
 #include <QParallelAnimationGroup>
 #include <QMovie>
 
-
 class QGaugeWidget : public QWidget {
         Q_OBJECT
 
