@@ -624,7 +624,7 @@ void PrinterPage::onPrinterStatusChanged()
             status = split.last();
         }
 
-        setPrintActionsEnabled(false);
+        // setPrintActionsEnabled(false);
         break;
 
     case QKlipperPrinter::Cancelled:
@@ -668,6 +668,7 @@ void PrinterPage::onPrinterStatusChanged()
         break;
     }
 
+    ui->toolheadControlFrame->setEnabled(true);
     ui->restartButton->setEnabled(true);
 }
 
@@ -819,3 +820,28 @@ void PrinterPage::on_toolButton_clicked()
     ui->stackedWidget->setCurrentWidget(m_printingPage);
 }
 
+void PrinterPage::on_inputShaperButton_clicked()
+{
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(m_printer->parent());
+
+    if(instance)
+    {
+        m_inputShaperWizard = new InputShaperWizard(instance, this);
+        m_inputShaperWizard->exec();
+
+        delete m_inputShaperWizard;
+    }
+}
+
+void PrinterPage::on_zOffsetWizardButton_clicked()
+{
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(m_printer->parent());
+
+    if(instance)
+    {
+        m_zOffsetWizard = new ZOffsetWizard(instance, this);
+        m_zOffsetWizard->exec();
+
+        delete m_zOffsetWizard;
+    }
+}

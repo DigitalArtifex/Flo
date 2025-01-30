@@ -47,6 +47,8 @@ SOURCES += \
     QSourceHighlite/qsourcehighliter.cpp \
     QSourceHighlite/qsourcehighliterthemes.cpp \
     QVariableSytleSheet/qvariablestylesheet.cpp \
+    dialogs/InputShaper/inputshaperwizard.cpp \
+    dialogs/ZOffsetWizard/zoffsetwizard.cpp \
     main.cpp \
     mainwindow.cpp \
     pages/dashboard/dashboardpage.cpp \
@@ -230,6 +232,8 @@ HEADERS += \
     QSourceHighlite/qsourcehighliter.h \
     QSourceHighlite/qsourcehighliterthemes.h \
     QVariableSytleSheet/qvariablestylesheet.h \
+    dialogs/InputShaper/inputshaperwizard.h \
+    dialogs/ZOffsetWizard/zoffsetwizard.h \
     mainwindow.h \
     pages/dashboard/dashboardpage.h \
     pages/dashboard/widgets/printer/printerwidget.h \
@@ -344,6 +348,8 @@ HEADERS += \
     validators/QMoonrakerDirectoryValidator/qmoonrakerdirectoryvalidator.h
 
 FORMS += \
+    dialogs/InputShaper/inputshaperwizard.ui \
+    dialogs/ZOffsetWizard/zoffsetwizard.ui \
     mainwindow.ui \
     pages/dashboard/dashboardpage.ui \
     pages/dashboard/widgets/printer/printerwidget.ui \
@@ -398,4 +404,5 @@ QMAKE_CXXFLAGS += -Wno-deprecated-copy
 
 DEFINES += QUAZIP_STATIC
 DEFINES += APPLICATION_RESTART_CODE=-1000
+LIBS += -L$$[QT_HOST_LIBS] -lQt6DAWidgets
 LIBS += -L"3rdparty/QuaZip/lib/" -lquazip1-qt6

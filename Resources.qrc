@@ -36,5 +36,7 @@
         <file>images/ui/toolhead/home_hover.png</file>
         <file>images/ui/filebrowser/no_gcode_thumbnail.png</file>
         <file>data/default.zip</file>
+        <file>images/wizards/InputShaper/ringing-mark.jpg</file>
+        <file>images/wizards/InputShaper/ringing-measure.jpg</file>
     </qresource>
 </RCC>

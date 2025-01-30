@@ -36,6 +36,9 @@
 
 #include "printing/printingpage.h"
 
+#include "dialogs/InputShaper/inputshaperwizard.h"
+#include "dialogs/ZOffsetWizard/zoffsetwizard.h"
+
 namespace Ui {
 class PrinterPage;
 }
@@ -128,7 +131,14 @@ private slots:
 
     void on_toolButton_clicked();
 
+    void on_inputShaperButton_clicked();
+
+    void on_zOffsetWizardButton_clicked();
+
 private:
+    InputShaperWizard *m_inputShaperWizard = nullptr;
+    ZOffsetWizard *m_zOffsetWizard = nullptr;
+
     PrintingPage *m_printingPage = nullptr;
     PowerDeviceView *m_powerDeviceView = nullptr;
     SensorView *m_sensorDeviceView = nullptr;
