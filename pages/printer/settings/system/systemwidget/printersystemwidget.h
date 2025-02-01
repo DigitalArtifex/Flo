@@ -9,7 +9,7 @@
 #include "ui/common/cardwidget/cardwidget.h"
 #include <QKlipper/qklipper.h>
 
-#include "ui/qgaugewidget.h"
+#include <QtDAWidgets/qgaugewidget.h>
 
 class PrinterSystemWidget : public CardWidget
 {

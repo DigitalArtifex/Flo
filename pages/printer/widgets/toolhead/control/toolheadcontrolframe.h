@@ -8,7 +8,7 @@
 
 #include <QBitmap>
 
-#include "../../../../../ui/QMaskedButton/qmaskedbutton.h"
+#include <QtDAWidgets/qmaskedbutton.h>
 #include <QKlipper/qklipper.h>
 
 class ToolHeadControlFrame : public QFrame

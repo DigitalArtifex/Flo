@@ -6,7 +6,7 @@
 #include <QPushButton>
 #include <QPropertyAnimation>
 
-#include "../../../../ui/qgaugewidget.h"
+#include <QtDAWidgets/qgaugewidget.h>
 #include <QKlipper/qklipper.h>
 #include "../../bedmesh/health/bedmeshhealthcard.h"
 
@@ -15,7 +15,7 @@
 #include <pages/printer/bedmesh/bedmeshwidget.h>
 
 #include <ui/QIconButton/qiconbutton.h>
-#include <ui/QThrobber/qthrobber.h>
+#include <QtDAWidgets/qthrobberwidget.h>
 
 #include <dialogs/PidDialog/piddialog.h>
 
@@ -94,7 +94,7 @@ private:
     BedTemperatureWidget *m_bedTempChart = nullptr;
 
     QFrame *m_throbberFrame = nullptr;
-    QThrobber *m_throbber = nullptr;
+    QThrobberWidget *m_throbber = nullptr;
 };
 
 #endif // PRINTERBEDWIDGET_H

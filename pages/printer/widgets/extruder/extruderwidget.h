@@ -6,14 +6,14 @@
 #include <QStyle>
 #include <QScreen>
 #include <QGraphicsEffect>
-#include "../../../../ui/qgaugewidget.h"
+#include <QtDAWidgets/qgaugewidget.h>
 #include <QKlipper/qklipper.h>
 
 #include "extruderinfodialog.h"
 #include "extrudermaterialsdialog.h"
 
 #include "extrudertemperaturewidget.h"
-#include <ui/QThrobber/qthrobber.h>
+#include <QtDAWidgets/qthrobberwidget.h>
 #include <dialogs/PidDialog/piddialog.h>
 #include <dialogs/PositionDialog/positiondialog.h>
 
@@ -97,7 +97,7 @@ private:
     QIconButton *m_settingsButton = nullptr;
 
     QFrame *m_throbberFrame = nullptr;
-    QThrobber *m_throbber = nullptr;
+    QThrobberWidget *m_throbber = nullptr;
 };
 
 #endif // EXTRUDERWIDGET_H

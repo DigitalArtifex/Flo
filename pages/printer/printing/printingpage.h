@@ -7,7 +7,7 @@
 #include <QGridLayout>
 #include <QSlider>
 
-#include <ui/qgaugewidget.h>
+#include <QtDAWidgets/qgaugewidget.h>
 #include <ui/qanimatedwidget.h>
 #include <ui/common/cardwidget/cardwidget.h>
 #include <pages/printer/widgets/printerwebcam/printerwebcamwidget.h>

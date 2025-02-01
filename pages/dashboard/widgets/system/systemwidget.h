@@ -6,8 +6,8 @@
 #include <QMovie>
 
 #include <QKlipper/qklipper.h>
-#include "../../../../ui/qgaugewidget.h"
-#include "../../../../ui/widgetanimation.h"
+#include <QtDAWidgets/qgaugewidget.h>
+#include "ui/widgetanimation.h"
 
 namespace Ui {
 class SystemWidget;

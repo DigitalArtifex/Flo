@@ -18,7 +18,7 @@
 #include <QtGraphs/QAreaSeries>
 
 #include <QKlipper/qklipper.h>
-#include <ui/QThrobber/qthrobber.h>
+#include <QtDAWidgets/qthrobberwidget.h>
 #include "bedmeshdata.h"
 
 #include "health/bedmeshhealthcard.h"

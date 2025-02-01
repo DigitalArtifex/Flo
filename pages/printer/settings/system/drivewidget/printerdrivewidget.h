@@ -6,7 +6,7 @@
 #include <QGroupBox>
 
 #include "ui/common/cardwidget/cardwidget.h"
-#include "ui/qgaugewidget.h"
+#include <QtDAWidgets/qgaugewidget.h>
 
 #include <QKlipper/qklipper.h>
 

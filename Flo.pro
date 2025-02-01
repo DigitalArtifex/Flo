@@ -106,8 +106,6 @@ SOURCES += \
     dialogs/PositionDialog/positiondialog.cpp \
     dialogs/ProgressDialog/progressdialog.cpp \
     ui/QIconButton/qiconbutton.cpp \
-    ui/QMaskedButton/qmaskedbutton.cpp \
-    ui/QThrobber/qthrobber.cpp \
     ui/QWebcamWidget/qwebcamsource.cpp \
     ui/QWebcamWidget/qwebcamwidget.cpp \
     ui/Switch/switch.cpp \
@@ -121,7 +119,6 @@ SOURCES += \
     dialogs/MessageDialog/messagedialog.cpp \
     dialogs/PidDialog/piddialog.cpp \
     ui/qanimatedwidget.cpp \
-    ui/qgaugewidget.cpp \
     ui/qwidgetanimation.cpp \
     ui/widgetanimation.cpp \
     validators/QHexColorValidator/qhexcolorvalidator.cpp \
@@ -225,8 +222,6 @@ HEADERS += \
     dialogs/PositionDialog/positiondialog.h \
     dialogs/ProgressDialog/progressdialog.h \
     ui/QIconButton/qiconbutton.h \
-    ui/QMaskedButton/qmaskedbutton.h \
-    ui/QThrobber/qthrobber.h \
     ui/QWebcamWidget/qwebcamsource.h \
     ui/QWebcamWidget/qwebcamwidget.h \
     ui/Switch/style.h \
@@ -241,7 +236,6 @@ HEADERS += \
     dialogs/MessageDialog/messagedialog.h \
     dialogs/PidDialog/piddialog.h \
     ui/qanimatedwidget.h \
-    ui/qgaugewidget.h \
     ui/qwidgetanimation.h \
     ui/widgetanimation.h \
     validators/QHexColorValidator/qhexcolorvalidator.h \

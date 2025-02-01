@@ -556,7 +556,7 @@ void ExtruderWidget::showThrobber()
         m_throbberFrame->setVisible(true);
         m_throbberFrame->raise();
 
-        m_throbber = new QThrobber(m_throbberFrame);
+        m_throbber = new QThrobberWidget(m_throbberFrame);
         m_throbber->setFixedSize(150, 150);
         m_throbber->setThrobberWidth(4);
         m_throbber->setText("Calibrating");
