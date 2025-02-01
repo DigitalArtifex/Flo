@@ -1,15 +1,7 @@
-04/04/2024
--- Added changelog file
--- Reorganized the project
--- Recreated the dashboard page
--- Added some animated widgets classes
--- Added support for multiple printers
----- Removed terminal and file browser from menu (Moving to Printer Page)
----- Redesigned printer page
----- Procedurally adding menu buttons for each printer
-
-04/09/24
---Finished File Browser UI
+02/01/25
+-- Reorganized project structure
+-- Added Input Shaper Wizard
+-- Added Z Offset Wizard
 
 04/14/24
 -- Updated File Browser
@@ -19,3 +11,16 @@
 ------ Added syntax support for GCode
 ------ Added syntax support for INI
 ------ Extended syntax support for JSON
+
+04/09/24
+--Finished File Browser UI
+
+04/04/2024
+-- Added changelog file
+-- Reorganized the project
+-- Recreated the dashboard page
+-- Added some animated widgets classes
+-- Added support for multiple printers
+---- Removed terminal and file browser from menu (Moving to Printer Page)
+---- Redesigned printer page
+---- Procedurally adding menu buttons for each printer

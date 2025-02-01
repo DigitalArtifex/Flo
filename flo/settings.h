@@ -31,7 +31,7 @@
 
 #include "QKlipper/qklipper.h"
 
-#include "QVariableSytleSheet/qvariablestylesheet.h"
+#include "3rdparty/QVariableStyleSheet/qvariablestylesheet.h"
 #include "validators/QMoonrakerDirectoryValidator/qmoonrakerdirectoryvalidator.h"
 
 class Settings : public QObject

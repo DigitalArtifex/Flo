@@ -13,7 +13,7 @@
 #include "theme/themesettingspage.h"
 #include "system/systemsettingspage.h"
 
-#include "QSourceHighlite/qsourcehighliter.h"
+#include "3rdparty/QSourceHighlite/qsourcehighliter.h"
 
 using namespace QSourceHighlite;
 

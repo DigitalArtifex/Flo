@@ -10,7 +10,7 @@
 
 #include "printerterminalwidget.h"
 #include <QKlipper/qklipper.h>
-#include "../../../QSourceHighlite/qsourcehighliter.h"
+#include "3rdparty/QSourceHighlite/qsourcehighliter.h"
 
 #include "ui/common/dialog/dialog.h"
 

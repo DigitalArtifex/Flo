@@ -9,10 +9,10 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    QSourceHighlite/languagedata.cpp \
-    QSourceHighlite/qsourcehighliter.cpp \
-    QSourceHighlite/qsourcehighliterthemes.cpp \
-    QVariableSytleSheet/qvariablestylesheet.cpp \
+    3rdparty/QSourceHighlite/languagedata.cpp \
+    3rdparty/QSourceHighlite/qsourcehighliter.cpp \
+    3rdparty/QSourceHighlite/qsourcehighliterthemes.cpp \
+    3rdparty/QVariableStyleSheet/qvariablestylesheet.cpp \
     dialogs/InputShaper/inputshaperwizard.cpp \
     dialogs/ZOffsetWizard/zoffsetwizard.cpp \
     main.cpp \
@@ -126,10 +126,10 @@ SOURCES += \
     validators/QMoonrakerDirectoryValidator/qmoonrakerdirectoryvalidator.cpp
 
 HEADERS += \
-    QSourceHighlite/languagedata.h \
-    QSourceHighlite/qsourcehighliter.h \
-    QSourceHighlite/qsourcehighliterthemes.h \
-    QVariableSytleSheet/qvariablestylesheet.h \
+    3rdparty/QSourceHighlite/languagedata.h \
+    3rdparty/QSourceHighlite/qsourcehighliter.h \
+    3rdparty/QSourceHighlite/qsourcehighliterthemes.h \
+    3rdparty/QVariableStyleSheet/qvariablestylesheet.h \
     dialogs/InputShaper/inputshaperwizard.h \
     dialogs/ZOffsetWizard/zoffsetwizard.h \
     mainwindow.h \
@@ -275,8 +275,8 @@ SUBDIRS += \
     QSourceHighlite/QSourceHighlite.pro
 
 DISTFILES += \
-    QSourceHighlite/LICENSE \
-    QSourceHighlite/QSourceHighlite.pri \
+    3rdparty/QSourceHighlite/LICENSE \
+    3rdparty/QSourceHighlite/QSourceHighlite.pri \
     README.md \
     pages/printer/bedmesh/BedMeshViewer.qml
 

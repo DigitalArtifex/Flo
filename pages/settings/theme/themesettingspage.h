@@ -5,7 +5,7 @@
 #include <flo/settings.h>
 #include "ui/QIconButton/qiconbutton.h"
 
-#include "QSourceHighlite/qsourcehighliter.h"
+#include "3rdparty/QSourceHighlite/qsourcehighliter.h"
 
 namespace Ui {
 class ThemeSettingsPage;

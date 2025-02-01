@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "QSourceHighlite/qsourcehighliter.h"
+#include "3rdparty/QSourceHighlite/qsourcehighliter.h"
 #include <QKlipper/qklipper.h>
 
 #include "ui/QIconButton/qiconbutton.h"
