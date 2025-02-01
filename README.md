@@ -9,9 +9,10 @@ It is best described as a software replacement for Klipper and Sonic pads that a
 
 - Qt 6.8
 - QuaZip https://github.com/stachenov/quazip/
+- DAWidgets https://github.com/DigitalArtifex/DAWidgets
+- QKlipper https://github.com/DigitalArtifex/QKlipper
+- OpenGL
 - gstreamer
-- moonraker
-- klipper
 
 # Setup
 ## gstreamer1-0 (Ubuntu 24.04)
@@ -37,6 +38,16 @@ cmake --build build --config Release
 sudo cmake --install build
 sudo cp /usr/local/lib/libquazip* /usr/lib
 ```
+
+## DAWidgets
+Follow the build/installation instructions located at https://github.com/DigitalArtifex/DAWidgets
+
+This is a widgets library that can also be used in your version of QtCreator.
+
+## QKlipper
+Follow the build/installation instructions located at https://github.com/DigitalArtifex/QKlipper
+
+This is the library needed to communicate with Moonraker/Klipper
 
 ## Building/Running FLO
 
