@@ -80,7 +80,7 @@ void ZOffsetWizard::onHomingFinished()
     QKlipperError error;
     QString command = QString("PROBE_CALIBRATE");
 
-    m_instance->console()->printerGcodeScript("SAVE_CONFIG", &error);
+    m_instance->console()->printerGcodeScript(command, &error);
 
     if(error.type() != QKlipperError::NoError)
     {
@@ -105,7 +105,29 @@ bool ZOffsetWizard::moveToolhead(qreal amount)
     QKlipperError error;
     QString command = QString("TESTZ=%1").arg(QString::number(amount));
 
-    m_instance->console()->printerGcodeScript("SAVE_CONFIG", &error);
+    m_instance->console()->printerGcodeScript(command, &error);
+
+    if(error.type() != QKlipperError::NoError)
+        return false;
+
+    return true;
+}
+
+bool ZOffsetWizard::acceptOffset()
+{
+    QKlipperError error;
+    m_instance->console()->printerGcodeScript("ACCEPT", &error);
+
+    if(error.type() != QKlipperError::NoError)
+        return false;
+
+    return true;
+}
+
+bool ZOffsetWizard::rejectOffset()
+{
+    QKlipperError error;
+    m_instance->console()->printerGcodeScript("ABORT", &error);
 
     if(error.type() != QKlipperError::NoError)
         return false;
@@ -188,12 +210,22 @@ void ZOffsetWizard::on_ZOffsetWizard_finished(int result)
         switch(QDialog::DialogCode(ret))
         {
         case QDialog::Rejected:
+            rejectOffset();
             break;
         case QDialog::Accepted:
+            if(!acceptOffset())
+                showErrorMessage("Could not send command to accept probe calibration");
 
+            if(!saveOffset())
+                showErrorMessage("Could not send command to save probe calibration");
             break;
         }
 
         delete dialog;
+    }
+    else
+    {
+        if(!rejectOffset())
+            showErrorMessage("Could not send command to abort probe calibration");
     }
 }

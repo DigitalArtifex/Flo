@@ -25,6 +25,8 @@ private slots:
     void onHomingStarted();
     void onHomingFinished();
     bool moveToolhead(qreal amount);
+    bool acceptOffset();
+    bool rejectOffset();
     bool saveOffset();
 
     void on_up0025Button_clicked();
