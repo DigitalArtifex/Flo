@@ -11,8 +11,9 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
     m_toolheadControlFrame = new ToolHeadControlFrame(instance->printer()->toolhead(), ui->controlContents);
     ui->controlContents->layout()->addWidget(m_toolheadControlFrame);
 
-    m_chamberTemperatureBar = new QGaugeWidget(this);
-    m_chamberTemperatureBar->setFixedSize(150,150);
+    ui->chamberTemperatureGauge->setFixedSize(150,150);
+    m_chamberTemperatureWidget = new PrinterTemperatureWidget(instance, ui->chamberTemperatureFrame);
+    ui->chamberTemperatureFrame->layout()->addWidget(m_chamberTemperatureWidget);
 
     m_printProgressBar = new QGaugeWidget(this);
     ui->printProgressLayout->addWidget(m_printProgressBar);
@@ -20,7 +21,6 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
     m_printerFanWidget = new PrinterFanWidget(instance->printer(), ui->fanFrame);
     ui->fanFrameLayout->addWidget(m_printerFanWidget);
 
-    ui->chamberTempLayout->addWidget(m_chamberTemperatureBar);
     ui->chamberWidget->setHidden(false);
 
     m_temperatureWidget = new PrinterTemperatureWidget(m_instance, ui->temperatureWidget);
@@ -100,7 +100,7 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
 
 PrinterPage::~PrinterPage()
 {
-    m_chamberTemperatureBar->deleteLater();
+    ui->chamberTemperatureGauge->deleteLater();
     m_fileBrowser->deleteLater();
 
     m_terminal->deleteLater();
@@ -165,7 +165,7 @@ void PrinterPage::setupIcons()
         Settings::getThemeIcon(QString("sensors"))
         );
 
-    m_chamberTemperatureBar->setIcon(
+    ui->chamberTemperatureGauge->setIcon(
         Settings::getThemeIcon(QString("temperature"))
         );
 
@@ -252,6 +252,9 @@ void PrinterPage::setupUiClasses()
 
     ui->webcamTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar"));
     ui->webcamTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
+
+    ui->chamberTemperatureSettingsFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget"));
+    //ui->chamberTemperatureFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget"));
 }
 
 bool PrinterPage::animating() const
@@ -808,12 +811,10 @@ void PrinterPage::on_restartKlipperButton_clicked()
         instance->console()->restartKlipper();
 }
 
-
 void PrinterPage::on_toolButton_triggered(QAction *arg1)
 {
     //ui->stackedWidget->setCurrentWidget(m_printingPage);
 }
-
 
 void PrinterPage::on_toolButton_clicked()
 {

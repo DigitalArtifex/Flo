@@ -39,6 +39,8 @@
 #include "dialogs/InputShaper/inputshaperwizard.h"
 #include "dialogs/ZOffsetWizard/zoffsetwizard.h"
 
+#include "widgets/temperature/temperaturewidget.h"
+
 namespace Ui {
 class PrinterPage;
 }
@@ -138,6 +140,8 @@ private slots:
 private:
     InputShaperWizard *m_inputShaperWizard = nullptr;
     ZOffsetWizard *m_zOffsetWizard = nullptr;
+
+    PrinterTemperatureWidget *m_chamberTemperatureWidget = nullptr;
 
     PrintingPage *m_printingPage = nullptr;
     PowerDeviceView *m_powerDeviceView = nullptr;

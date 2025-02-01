@@ -10,6 +10,11 @@
     <height>957</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Sans Serif</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Frame</string>
   </property>
@@ -105,7 +110,7 @@
                     </sizepolicy>
                    </property>
                    <property name="currentIndex">
-                    <number>1</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="page">
                     <property name="geometry">
@@ -177,32 +182,6 @@
                         <property name="spacing">
                          <number>0</number>
                         </property>
-                        <item row="2" column="0">
-                         <widget class="QPushButton" name="pushButton">
-                          <property name="minimumSize">
-                           <size>
-                            <width>0</width>
-                            <height>34</height>
-                           </size>
-                          </property>
-                          <property name="text">
-                           <string>Reset</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="2" column="1">
-                         <widget class="QPushButton" name="pushButton_3">
-                          <property name="minimumSize">
-                           <size>
-                            <width>0</width>
-                            <height>34</height>
-                           </size>
-                          </property>
-                          <property name="text">
-                           <string>Apply</string>
-                          </property>
-                         </widget>
-                        </item>
                         <item row="0" column="0" colspan="2">
                          <widget class="QWidget" name="chamberContentWidget" native="true">
                           <property name="sizePolicy">
@@ -230,101 +209,225 @@
                            <property name="bottomMargin">
                             <number>6</number>
                            </property>
-                           <property name="spacing">
-                            <number>0</number>
+                           <property name="horizontalSpacing">
+                            <number>6</number>
+                           </property>
+                           <property name="verticalSpacing">
+                            <number>9</number>
                            </property>
                            <item row="0" column="0">
                             <widget class="QWidget" name="chamberStatusWidget" native="true">
                              <layout class="QGridLayout" name="gridLayout_7">
                               <property name="leftMargin">
-                               <number>6</number>
+                               <number>9</number>
                               </property>
                               <property name="topMargin">
-                               <number>6</number>
+                               <number>9</number>
                               </property>
                               <property name="rightMargin">
-                               <number>6</number>
+                               <number>9</number>
                               </property>
                               <property name="bottomMargin">
-                               <number>6</number>
+                               <number>9</number>
                               </property>
                               <property name="spacing">
-                               <number>0</number>
+                               <number>9</number>
                               </property>
-                              <item row="0" column="2">
-                               <spacer name="horizontalSpacer_6">
+                              <item row="2" column="0">
+                               <spacer name="verticalSpacer_4">
                                 <property name="orientation">
-                                 <enum>Qt::Orientation::Horizontal</enum>
+                                 <enum>Qt::Orientation::Vertical</enum>
                                 </property>
                                 <property name="sizeHint" stdset="0">
                                  <size>
-                                  <width>40</width>
-                                  <height>20</height>
+                                  <width>20</width>
+                                  <height>40</height>
                                  </size>
                                 </property>
                                </spacer>
                               </item>
-                              <item row="1" column="0" colspan="3">
-                               <layout class="QHBoxLayout" name="horizontalLayout_5">
+                              <item row="0" column="0" colspan="2">
+                               <layout class="QVBoxLayout" name="chamberTempLayout">
                                 <item>
-                                 <widget class="QLabel" name="chamberTemperatureIconLabel">
+                                 <widget class="QGaugeWidget" name="chamberTemperatureGauge">
                                   <property name="minimumSize">
                                    <size>
-                                    <width>34</width>
-                                    <height>34</height>
+                                    <width>150</width>
+                                    <height>150</height>
                                    </size>
                                   </property>
-                                  <property name="maximumSize">
-                                   <size>
-                                    <width>34</width>
-                                    <height>34</height>
-                                   </size>
+                                  <property name="toolTip">
+                                   <string>Gauge Cluster Widget</string>
                                   </property>
-                                  <property name="text">
-                                   <string/>
-                                  </property>
-                                 </widget>
-                                </item>
-                                <item>
-                                 <widget class="QLabel" name="label_8">
-                                  <property name="text">
-                                   <string>Target Temperature</string>
-                                  </property>
-                                 </widget>
-                                </item>
-                                <item>
-                                 <widget class="QDoubleSpinBox" name="chamberTemperatureSpinBox">
-                                  <property name="minimumSize">
-                                   <size>
-                                    <width>34</width>
-                                    <height>34</height>
-                                   </size>
-                                  </property>
-                                  <property name="maximumSize">
-                                   <size>
-                                    <width>16777215</width>
-                                    <height>34</height>
-                                   </size>
+                                  <property name="whatsThis">
+                                   <string>The gauge cluster widget provides a stylish way to display a percentage, temperature or raw value.</string>
                                   </property>
                                  </widget>
                                 </item>
                                </layout>
                               </item>
-                              <item row="0" column="0">
-                               <spacer name="horizontalSpacer_3">
-                                <property name="orientation">
-                                 <enum>Qt::Orientation::Horizontal</enum>
+                              <item row="1" column="0" colspan="4">
+                               <layout class="QHBoxLayout" name="horizontalLayout_5">
+                                <item>
+                                 <widget class="QFrame" name="chamberTemperatureSettingsFrame">
+                                  <property name="minimumSize">
+                                   <size>
+                                    <width>0</width>
+                                    <height>0</height>
+                                   </size>
+                                  </property>
+                                  <property name="maximumSize">
+                                   <size>
+                                    <width>16777215</width>
+                                    <height>16777215</height>
+                                   </size>
+                                  </property>
+                                  <property name="frameShape">
+                                   <enum>QFrame::Shape::StyledPanel</enum>
+                                  </property>
+                                  <property name="frameShadow">
+                                   <enum>QFrame::Shadow::Raised</enum>
+                                  </property>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_3">
+                                   <item>
+                                    <widget class="QLabel" name="chamberTemperatureIconLabel">
+                                     <property name="minimumSize">
+                                      <size>
+                                       <width>34</width>
+                                       <height>34</height>
+                                      </size>
+                                     </property>
+                                     <property name="maximumSize">
+                                      <size>
+                                       <width>34</width>
+                                       <height>34</height>
+                                      </size>
+                                     </property>
+                                     <property name="text">
+                                      <string/>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLabel" name="label_8">
+                                     <property name="text">
+                                      <string>Target Temperature</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QDoubleSpinBox" name="chamberTemperatureSpinBox">
+                                     <property name="minimumSize">
+                                      <size>
+                                       <width>34</width>
+                                       <height>34</height>
+                                      </size>
+                                     </property>
+                                     <property name="maximumSize">
+                                      <size>
+                                       <width>16777215</width>
+                                       <height>34</height>
+                                      </size>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                  </layout>
+                                 </widget>
+                                </item>
+                               </layout>
+                              </item>
+                              <item row="1" column="4">
+                               <layout class="QHBoxLayout" name="horizontalLayout_4">
+                                <property name="spacing">
+                                 <number>0</number>
                                 </property>
-                                <property name="sizeHint" stdset="0">
+                                <item>
+                                 <widget class="QPushButton" name="chamberSettingsResetButton">
+                                  <property name="minimumSize">
+                                   <size>
+                                    <width>150</width>
+                                    <height>50</height>
+                                   </size>
+                                  </property>
+                                  <property name="maximumSize">
+                                   <size>
+                                    <width>150</width>
+                                    <height>50</height>
+                                   </size>
+                                  </property>
+                                  <property name="text">
+                                   <string>Reset</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QPushButton" name="chamberSettingsApplyButton">
+                                  <property name="minimumSize">
+                                   <size>
+                                    <width>150</width>
+                                    <height>50</height>
+                                   </size>
+                                  </property>
+                                  <property name="maximumSize">
+                                   <size>
+                                    <width>150</width>
+                                    <height>50</height>
+                                   </size>
+                                  </property>
+                                  <property name="baseSize">
+                                   <size>
+                                    <width>150</width>
+                                    <height>50</height>
+                                   </size>
+                                  </property>
+                                  <property name="text">
+                                   <string>Apply</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                               </layout>
+                              </item>
+                              <item row="0" column="2">
+                               <widget class="QFrame" name="chamberTemperatureFrame">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
                                  <size>
-                                  <width>40</width>
-                                  <height>20</height>
+                                  <width>0</width>
+                                  <height>200</height>
                                  </size>
                                 </property>
-                               </spacer>
-                              </item>
-                              <item row="0" column="1">
-                               <layout class="QVBoxLayout" name="chamberTempLayout"/>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>16777215</width>
+                                  <height>200</height>
+                                 </size>
+                                </property>
+                                <property name="frameShape">
+                                 <enum>QFrame::Shape::StyledPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                 <enum>QFrame::Shadow::Raised</enum>
+                                </property>
+                                <layout class="QGridLayout" name="gridLayout_20">
+                                 <property name="leftMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="topMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="rightMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="bottomMargin">
+                                  <number>0</number>
+                                 </property>
+                                </layout>
+                               </widget>
                               </item>
                              </layout>
                             </widget>
@@ -342,8 +445,8 @@
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>1167</width>
-                      <height>774</height>
+                      <width>360</width>
+                      <height>311</height>
                      </rect>
                     </property>
                     <attribute name="label">
@@ -943,8 +1046,8 @@
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>1167</width>
-                      <height>774</height>
+                      <width>100</width>
+                      <height>30</height>
                      </rect>
                     </property>
                     <attribute name="label">
@@ -1291,6 +1394,7 @@
                         <widget class="QLabel" name="fileLabel">
                          <property name="font">
                           <font>
+                           <family>Sans Serif</family>
                            <pointsize>10</pointsize>
                           </font>
                          </property>
@@ -1643,6 +1747,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QGaugeWidget</class>
+   <extends>QWidget</extends>
+   <header>QtDAWidgets/qgaugewidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
