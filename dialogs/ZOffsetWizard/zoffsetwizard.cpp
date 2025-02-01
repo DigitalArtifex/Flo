@@ -202,7 +202,7 @@ void ZOffsetWizard::on_ZOffsetWizard_finished(int result)
     {
         MessageDialog *dialog = new MessageDialog(this);
         dialog->setRejectEnabled(true);
-        dialog->setIcon(Settings::getThemeIcon("error"));
+        dialog->setIcon(Settings::getThemeIcon("question"));
         dialog->setText("Would you like to save the result?");
 
         int ret = dialog->exec();

@@ -440,6 +440,10 @@
 		{
 			"name": "memory",
 			"icon": "icons8-memory-slot.svg"
+		},
+		{
+			"name": "question",
+			"icon": "icons8-question-64.png"
 		}
     ]
 }
