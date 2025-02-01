@@ -12,7 +12,7 @@
 #include "announcements/printerannouncementview.h"
 #include "services/printerservicesview.h"
 #include "users/printerusersview.h"
-#include "flo/printersystemview.h"
+#include "system/printersystemview.h"
 
 namespace Ui {
 class PrinterSettingsPage;

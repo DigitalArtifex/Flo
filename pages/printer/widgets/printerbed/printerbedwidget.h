@@ -17,7 +17,7 @@
 #include <ui/QIconButton/qiconbutton.h>
 #include <ui/QThrobber/qthrobber.h>
 
-#include <ui/piddialog.h>
+#include <dialogs/PidDialog/piddialog.h>
 
 #include "bedtemperaturewidget.h"
 

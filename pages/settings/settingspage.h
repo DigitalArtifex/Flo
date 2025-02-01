@@ -11,7 +11,7 @@
 
 #include "qpropertyanimation.h"
 #include "theme/themesettingspage.h"
-#include "flo/systemsettingspage.h"
+#include "system/systemsettingspage.h"
 
 #include "QSourceHighlite/qsourcehighliter.h"
 

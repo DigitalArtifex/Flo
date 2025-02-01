@@ -103,8 +103,8 @@ SOURCES += \
     flo/flo.cpp \
     flo/qklipperinstancepool.cpp \
     flo/settings.cpp \
-    ui/PositionDialog/positiondialog.cpp \
-    ui/ProgressDialog/progressdialog.cpp \
+    dialogs/PositionDialog/positiondialog.cpp \
+    dialogs/ProgressDialog/progressdialog.cpp \
     ui/QIconButton/qiconbutton.cpp \
     ui/QMaskedButton/qmaskedbutton.cpp \
     ui/QThrobber/qthrobber.cpp \
@@ -118,8 +118,8 @@ SOURCES += \
     ui/list/qanimatedlistitem.cpp \
     ui/list/qanimatedlistwidget.cpp \
     ui/menubutton.cpp \
-    ui/messagedialog.cpp \
-    ui/piddialog.cpp \
+    dialogs/MessageDialog/messagedialog.cpp \
+    dialogs/PidDialog/piddialog.cpp \
     ui/qanimatedwidget.cpp \
     ui/qgaugewidget.cpp \
     ui/qwidgetanimation.cpp \
@@ -222,8 +222,8 @@ HEADERS += \
     flo/flo.h \
     flo/qklipperinstancepool.h \
     flo/settings.h \
-    ui/PositionDialog/positiondialog.h \
-    ui/ProgressDialog/progressdialog.h \
+    dialogs/PositionDialog/positiondialog.h \
+    dialogs/ProgressDialog/progressdialog.h \
     ui/QIconButton/qiconbutton.h \
     ui/QMaskedButton/qmaskedbutton.h \
     ui/QThrobber/qthrobber.h \
@@ -238,8 +238,8 @@ HEADERS += \
     ui/list/qanimatedlistitem.h \
     ui/list/qanimatedlistwidget.h \
     ui/menubutton.h \
-    ui/messagedialog.h \
-    ui/piddialog.h \
+    dialogs/MessageDialog/messagedialog.h \
+    dialogs/PidDialog/piddialog.h \
     ui/qanimatedwidget.h \
     ui/qgaugewidget.h \
     ui/qwidgetanimation.h \

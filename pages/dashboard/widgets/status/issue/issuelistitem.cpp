@@ -1,6 +1,6 @@
 #include "issuelistitem.h"
 
-#include "../../../../../system/settings.h"
+#include "flo/settings.h"
 
 IssueListItem::IssueListItem(QString title, QString source, QString message, QWidget *parent)
 {

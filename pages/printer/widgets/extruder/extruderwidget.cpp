@@ -1,7 +1,7 @@
 #include "extruderwidget.h"
 #include "ui_extruderwidget.h"
 
-#include "../../../../system/settings.h"
+#include "flo/settings.h"
 
 ExtruderWidget::ExtruderWidget(QKlipperExtruder *extruder, QWidget *parent) :
     QFrame(parent),

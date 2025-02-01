@@ -1,5 +1,5 @@
 #include "filebrowseritem.h"
-#include "../../../system/settings.h"
+#include "flo/settings.h"
 
 FileBrowserItem::FileBrowserItem(QKlipperFile *file, QWidget *parent, DisplayMode mode) :
     QAnimatedListItem(parent)

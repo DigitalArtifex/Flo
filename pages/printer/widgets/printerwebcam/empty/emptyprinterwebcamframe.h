@@ -8,7 +8,7 @@
 #include <QLabel>
 #include <QSpacerItem>
 
-#include "../../../../../system/settings.h"
+#include "flo/settings.h"
 
 class EmptyPrinterWebcamFrame : public QFrame
 {

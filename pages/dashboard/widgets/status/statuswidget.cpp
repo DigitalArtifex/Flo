@@ -1,7 +1,7 @@
 #include "statuswidget.h"
 
-#include "../../../../system/settings.h"
-#include <system/qklipperinstancepool.h>
+#include "flo/settings.h"
+#include <flo/qklipperinstancepool.h>
 
 StatusWidget::StatusWidget(QWidget *parent) :
     QTabWidget(parent)

@@ -1,7 +1,7 @@
 #include "zoffsetwizard.h"
 #include "ui_zoffsetwizard.h"
 #include "flo/settings.h"
-#include "ui/messagedialog.h"
+#include "dialogs/MessageDialog/messagedialog.h"
 
 ZOffsetWizard::ZOffsetWizard(QKlipperInstance *instance, QWidget *parent)
     : QWizard(parent)

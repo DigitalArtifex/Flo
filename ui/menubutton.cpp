@@ -1,7 +1,7 @@
 #include "menubutton.h"
 #include "ui_menubutton.h"
 
-#include "../system/settings.h"
+#include "flo/settings.h"
 
 MenuButton::MenuButton(int id, QWidget *parent) :
     QFrame(parent),

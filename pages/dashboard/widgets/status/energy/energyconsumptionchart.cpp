@@ -1,5 +1,5 @@
 #include "energyconsumptionchart.h"
-#include "../../../../../system/settings.h"
+#include "flo/settings.h"
 
 EnergyConsumptionChart::EnergyConsumptionChart(QWidget *parent)
     : QWidget{parent}

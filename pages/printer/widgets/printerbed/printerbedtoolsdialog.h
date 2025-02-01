@@ -8,7 +8,7 @@
 #include <QScreen>
 
 #include <ui/common/dialog/dialog.h>
-#include <ui/ProgressDialog/progressdialog.h>
+#include <dialogs/ProgressDialog/progressdialog.h>
 #include <ui/QIconButton/qiconbutton.h>
 
 #include <QKlipper/qklipper.h>

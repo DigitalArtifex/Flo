@@ -2,7 +2,7 @@
 
 #include "flo/settings.h"
 #include "filebrowseritem.h"
-#include "ui/messagedialog.h"
+#include "dialogs/MessageDialog/messagedialog.h"
 
 FileBrowser::FileBrowser(QKlipperInstance *printer, QString root, QWidget *parent, Mode mode) :
     Dialog(parent)

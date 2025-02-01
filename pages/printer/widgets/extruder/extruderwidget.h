@@ -14,8 +14,8 @@
 
 #include "extrudertemperaturewidget.h"
 #include <ui/QThrobber/qthrobber.h>
-#include <ui/piddialog.h>
-#include <ui/PositionDialog/positiondialog.h>
+#include <dialogs/PidDialog/piddialog.h>
+#include <dialogs/PositionDialog/positiondialog.h>
 
 namespace Ui {
 class ExtruderWidget;

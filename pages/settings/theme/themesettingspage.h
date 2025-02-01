@@ -2,7 +2,7 @@
 #define THEMESETTINGSPAGE_H
 
 #include <QWidget>
-#include <system/settings.h>
+#include <flo/settings.h>
 #include "ui/QIconButton/qiconbutton.h"
 
 #include "QSourceHighlite/qsourcehighliter.h"

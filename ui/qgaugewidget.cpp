@@ -1,6 +1,6 @@
 #include "qgaugewidget.h"
 
-#include "../system/settings.h"
+#include "flo/settings.h"
 
 QGaugeWidget::QGaugeWidget(QWidget *parent, Mode mode) : QWidget(parent)
 {

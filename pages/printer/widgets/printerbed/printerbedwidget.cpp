@@ -1,7 +1,7 @@
 #include "printerbedwidget.h"
 #include "ui_printerbedwidget.h"
 
-#include "../../../../system/settings.h"
+#include "flo/settings.h"
 
 PrinterBedWidget::PrinterBedWidget(QKlipperPrintBed *printerBed, QWidget *parent)
     : QFrame(parent)

@@ -1,6 +1,6 @@
 #include "printerlistwidget.h"
 #include "ui_printerlistwidget.h"
-#include <system/qklipperinstancepool.h>
+#include <flo/qklipperinstancepool.h>
 
 PrinterListWidget::PrinterListWidget(QWidget *parent) :
     QFrame(parent),

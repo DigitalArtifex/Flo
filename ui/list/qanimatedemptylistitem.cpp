@@ -1,6 +1,6 @@
 #include "qanimatedemptylistitem.h"
 
-#include "../../system/settings.h"
+#include "flo/settings.h"
 
 QAnimatedEmptyListItem::QAnimatedEmptyListItem(QWidget *parent) : QAnimatedWidget(parent)
 {

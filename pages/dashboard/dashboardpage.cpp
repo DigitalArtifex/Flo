@@ -1,7 +1,7 @@
 #include "dashboardpage.h"
 #include "ui_dashboardpage.h"
-#include "../../system/settings.h"
-#include "../../system/qklipperinstancepool.h"
+#include "flo/settings.h"
+#include "flo/qklipperinstancepool.h"
 
 DashboardPage::DashboardPage(QWidget *parent) :
     QFrame(parent),

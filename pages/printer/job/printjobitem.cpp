@@ -1,6 +1,6 @@
 #include "printjobitem.h"
 #include "flo/settings.h"
-#include <system/qklipperinstancepool.h>
+#include <flo/qklipperinstancepool.h>
 
 PrintJobItem::PrintJobItem(QWidget *parent) :
     QAnimatedListItem(parent)

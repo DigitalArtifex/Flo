@@ -2,7 +2,7 @@
 #include "flo/qklipperinstancepool.h"
 #include "ui_editprinterdialog.h"
 
-#include <system/settings.h>
+#include <flo/settings.h>
 
 #include "../../../validators/QHexColorValidator/qhexcolorvalidator.h"
 

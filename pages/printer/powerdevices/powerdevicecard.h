@@ -9,7 +9,7 @@
 #include <QKlipper/qklipper.h>
 #include <ui/common/cardwidget/cardwidget.h>
 #include <ui/QIconButton/qiconbutton.h>
-#include <system/settings.h>
+#include <flo/settings.h>
 
 class PowerDeviceCard : public CardWidget
 {

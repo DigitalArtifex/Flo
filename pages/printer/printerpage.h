@@ -30,7 +30,7 @@
 #include "ledstrips/ledstripview.h"
 #include "sensors/sensorview.h"
 
-#include "ui/messagedialog.h"
+#include "dialogs/MessageDialog/messagedialog.h"
 
 #include "widgets/printerfan/printerfanwidget.h"
 

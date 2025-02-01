@@ -6,7 +6,7 @@
 #include <QtDAWidgets/DAWidgets>
 #include <QListWidgetItem>
 
-#include "ui/messagedialog.h"
+#include "dialogs/MessageDialog/messagedialog.h"
 
 namespace Ui
 {

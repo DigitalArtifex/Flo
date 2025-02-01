@@ -6,8 +6,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-#include "common/dialog/dialog.h"
-#include "QIconButton/qiconbutton.h"
+#include "ui/common/dialog/dialog.h"
+#include "ui/QIconButton/qiconbutton.h"
 
 class MessageDialog : public Dialog
 {

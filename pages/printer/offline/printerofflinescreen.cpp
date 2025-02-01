@@ -1,7 +1,7 @@
 #include "printerofflinescreen.h"
 #include "ui_printerofflinescreen.h"
 
-#include "../../../system/settings.h"
+#include "flo/settings.h"
 
 PrinterOfflineScreen::PrinterOfflineScreen(QKlipperInstance *printer, QWidget *parent)
     : QFrame(parent)

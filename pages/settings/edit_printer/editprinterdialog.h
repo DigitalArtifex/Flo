@@ -8,7 +8,7 @@
 #include <QColorDialog>
 
 #include <QKlipper/qklipper.h>
-#include <system/settings.h>
+#include <flo/settings.h>
 
 #include "qmoonrakervalidator.h"
 #include "ui/QIconButton/qiconbutton.h"

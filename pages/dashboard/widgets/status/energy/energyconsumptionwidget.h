@@ -8,7 +8,7 @@
 #include "energyconsumptionchart.h"
 
 #include <QKlipper/qklipper.h>
-#include <system/qklipperinstancepool.h>
+#include <flo/qklipperinstancepool.h>
 
 class EnergyConsumptionWidget : public QWidget
 {

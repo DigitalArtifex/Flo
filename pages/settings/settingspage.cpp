@@ -1,7 +1,7 @@
 #include "settingspage.h"
 #include "flo/qklipperinstancepool.h"
 #include "ui_settingspage.h"
-#include "../../system/settings.h"
+#include "flo/settings.h"
 #include "printerlistitem.h"
 
 SettingsPage::SettingsPage(QWidget *parent) :

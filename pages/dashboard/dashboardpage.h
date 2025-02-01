@@ -4,7 +4,7 @@
 #include <QFrame>
 
 #include <QKlipper/qklipper.h>
-#include <system/qklipperinstancepool.h>
+#include <flo/qklipperinstancepool.h>
 
 #include "widgets/printer/printerwidget.h"
 #include "widgets/system/systemwidget.h"
