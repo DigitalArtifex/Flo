@@ -9,40 +9,6 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    QKlipper/QKlipperConsole/qklippercommand.cpp \
-    QKlipper/QKlipperConsole/qklipperconsole.cpp \
-    QKlipper/QKlipperFile/qklipperfile.cpp \
-    QKlipper/QKlipperInstance/qklipperinstance.cpp \
-    QKlipper/QKlipperMessage/qklippermessage.cpp \
-    QKlipper/QKlipperPrinter/qklipperadjustmentscrew.cpp \
-    QKlipper/QKlipperPrinter/qklipperchamber.cpp \
-    QKlipper/QKlipperPrinter/qklipperextruder.cpp \
-    QKlipper/QKlipperPrinter/qklipperfan.cpp \
-    QKlipper/QKlipperPrinter/qklippergcodemove.cpp \
-    QKlipper/QKlipperPrinter/qklippermcu.cpp \
-    QKlipper/QKlipperPrinter/qklipperprintbed.cpp \
-    QKlipper/QKlipperPrinter/qklipperprintbedmesh.cpp \
-    QKlipper/QKlipperPrinter/qklipperprinter.cpp \
-    QKlipper/QKlipperPrinter/qklippersteppermotor.cpp \
-    QKlipper/QKlipperPrinter/qklippertoolhead.cpp \
-    QKlipper/QKlipperServer/qklippergcodestore.cpp \
-    QKlipper/QKlipperServer/qklipperjobqueue.cpp \
-    QKlipper/QKlipperServer/qklipperprintjob.cpp \
-    QKlipper/QKlipperServer/qklipperserver.cpp \
-    QKlipper/QKlipperSystem/qklippercanbus.cpp \
-    QKlipper/QKlipperSystem/qklipperledstrip.cpp \
-    QKlipper/QKlipperSystem/qklipperlibcameradevice.cpp \
-    QKlipper/QKlipperSystem/qklippermemorystats.cpp \
-    QKlipper/QKlipperSystem/qklipperpowerdevice.cpp \
-    QKlipper/QKlipperSystem/qklippersensor.cpp \
-    QKlipper/QKlipperSystem/qklippersensordata.cpp \
-    QKlipper/QKlipperSystem/qklipperserialperipheral.cpp \
-    QKlipper/QKlipperSystem/qklipperservice.cpp \
-    QKlipper/QKlipperSystem/qklippersystem.cpp \
-    QKlipper/QKlipperSystem/qklipperthrottlestate.cpp \
-    QKlipper/QKlipperSystem/qklipperupdatemanager.cpp \
-    QKlipper/QKlipperSystem/qklippervirtualizationstate.cpp \
-    QKlipper/QKlipperSystem/qklippervirtualsdcard.cpp \
     QSourceHighlite/languagedata.cpp \
     QSourceHighlite/qsourcehighliter.cpp \
     QSourceHighlite/qsourcehighliterthemes.cpp \
@@ -163,71 +129,6 @@ SOURCES += \
     validators/QMoonrakerDirectoryValidator/qmoonrakerdirectoryvalidator.cpp
 
 HEADERS += \
-    QKlipper/QKlipperConsole/qklippercommand.h \
-    QKlipper/QKlipperConsole/qklipperconsole.h \
-    QKlipper/QKlipperFile/qklipperfile.h \
-    QKlipper/QKlipperFile/qklippermetadata.h \
-    QKlipper/QKlipperFile/qklipperthumbnail.h \
-    QKlipper/QKlipperInstance/qklipperinstance.h \
-    QKlipper/QKlipperMessage/qklippermessage.h \
-    QKlipper/QKlipperPrinter/qklipperadjustmentscrew.h \
-    QKlipper/QKlipperPrinter/qklipperchamber.h \
-    QKlipper/QKlipperPrinter/qklipperendstopstatus.h \
-    QKlipper/QKlipperPrinter/qklipperextruder.h \
-    QKlipper/QKlipperPrinter/qklipperfan.h \
-    QKlipper/QKlipperPrinter/qklippergcodemove.h \
-    QKlipper/QKlipperPrinter/qklippermcu.h \
-    QKlipper/QKlipperPrinter/qklipperposition.h \
-    QKlipper/QKlipperPrinter/qklipperprintbed.h \
-    QKlipper/QKlipperPrinter/qklipperprintbedmesh.h \
-    QKlipper/QKlipperPrinter/qklipperprinter.h \
-    QKlipper/QKlipperPrinter/qklipperprobedata.h \
-    QKlipper/QKlipperPrinter/qklippersafezhome.h \
-    QKlipper/QKlipperPrinter/qklippersteppermotor.h \
-    QKlipper/QKlipperPrinter/qklippertemperaturestore.h \
-    QKlipper/QKlipperPrinter/qklippertoolhead.h \
-    QKlipper/QKlipperServer/qklipperaccessdetails.h \
-    QKlipper/QKlipperServer/qklipperannouncement.h \
-    QKlipper/QKlipperServer/qklipperclientidentifier.h \
-    QKlipper/QKlipperServer/qklippergcodemacro.h \
-    QKlipper/QKlipperServer/qklippergcodestore.h \
-    QKlipper/QKlipperServer/qklippergcodestorevalue.h \
-    QKlipper/QKlipperServer/qklipperjobqueue.h \
-    QKlipper/QKlipperServer/qklipperprintjob.h \
-    QKlipper/QKlipperServer/qklipperserver.h \
-    QKlipper/QKlipperServer/qklipperuser.h \
-    QKlipper/QKlipperSystem/qklippercanbus.h \
-    QKlipper/QKlipperSystem/qklippercanbusdevice.h \
-    QKlipper/QKlipperSystem/qklippercanbusinterface.h \
-    QKlipper/QKlipperSystem/qklippercpuinfo.h \
-    QKlipper/QKlipperSystem/qklipperdistributioninfo.h \
-    QKlipper/QKlipperSystem/qklipperledstrip.h \
-    QKlipper/QKlipperSystem/qklipperlibcameradevice.h \
-    QKlipper/QKlipperSystem/qklipperlibcameramode.h \
-    QKlipper/QKlipperSystem/qklippermemorystats.h \
-    QKlipper/QKlipperSystem/qklippermoonrakerstatsentry.h \
-    QKlipper/QKlipperSystem/qklippernetworkaddress.h \
-    QKlipper/QKlipperSystem/qklippernetworkinterface.h \
-    QKlipper/QKlipperSystem/qklippernetworkstatsentry.h \
-    QKlipper/QKlipperSystem/qklipperpowerdevice.h \
-    QKlipper/QKlipperSystem/qklippersdinfo.h \
-    QKlipper/QKlipperSystem/qklippersensor.h \
-    QKlipper/QKlipperSystem/qklippersensordata.h \
-    QKlipper/QKlipperSystem/qklipperserialperipheral.h \
-    QKlipper/QKlipperSystem/qklipperservice.h \
-    QKlipper/QKlipperSystem/qklippersystem.h \
-    QKlipper/QKlipperSystem/qklipperthrottlestate.h \
-    QKlipper/QKlipperSystem/qklipperupdatecommit.h \
-    QKlipper/QKlipperSystem/qklipperupdatemanager.h \
-    QKlipper/QKlipperSystem/qklipperupdatepackage.h \
-    QKlipper/QKlipperSystem/qklipperusbperipheral.h \
-    QKlipper/QKlipperSystem/qklipperv412device.h \
-    QKlipper/QKlipperSystem/qklipperv412mode.h \
-    QKlipper/QKlipperSystem/qklippervirtualizationstate.h \
-    QKlipper/QKlipperSystem/qklippervirtualsdcard.h \
-    QKlipper/QKlipperSystem/qklipperwebcam.h \
-    QKlipper/qklipper.h \
-    QKlipper/qklippererror.h \
     QSourceHighlite/languagedata.h \
     QSourceHighlite/qsourcehighliter.h \
     QSourceHighlite/qsourcehighliterthemes.h \
@@ -404,5 +305,5 @@ QMAKE_CXXFLAGS += -Wno-deprecated-copy
 
 DEFINES += QUAZIP_STATIC
 DEFINES += APPLICATION_RESTART_CODE=-1000
-LIBS += -L$$[QT_HOST_LIBS] -lQt6DAWidgets
+LIBS += -L$$[QT_HOST_LIBS] -lQt6DAWidgets -lQt6Klipper
 LIBS += -L"3rdparty/QuaZip/lib/" -lquazip1-qt6
