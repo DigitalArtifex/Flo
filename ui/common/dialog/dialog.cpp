@@ -1,5 +1,5 @@
 #include "dialog.h"
-#include "system/settings.h"
+#include "flo/settings.h"
 
 Dialog::Dialog(QWidget *parent, Qt::WindowFlags flags)
     : QDialog(parent, flags)

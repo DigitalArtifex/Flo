@@ -1,6 +1,6 @@
 #include "printerupdateview.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterUpdateView::PrinterUpdateView(QKlipperSystem *system, QWidget *parent)
     : QFrame{parent}

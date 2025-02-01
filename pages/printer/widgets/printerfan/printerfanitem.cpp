@@ -1,5 +1,5 @@
 #include "printerfanitem.h"
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterFanItem::PrinterFanItem(QKlipperFan *fan, QWidget *parent)
     : QWidget{parent}

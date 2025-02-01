@@ -1,6 +1,6 @@
 #include "probedmeshframe.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 ProbedMeshFrame::ProbedMeshFrame(QKlipperPrintBed *bed, QWidget *parent)
     : CardWidget(CardType::Widget, parent)

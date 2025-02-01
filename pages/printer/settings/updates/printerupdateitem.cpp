@@ -1,6 +1,6 @@
 #include "printerupdateitem.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterUpdateItem::PrinterUpdateItem(QString name, QKlipperUpdatePackage state, QWidget *parent)
     : QAnimatedListItem{parent}

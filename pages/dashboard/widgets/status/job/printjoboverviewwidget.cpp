@@ -1,5 +1,5 @@
 #include "printjoboverviewwidget.h"
-#include "system/qklipperinstancepool.h"
+#include "flo/qklipperinstancepool.h"
 
 PrintJobOverviewWidget::PrintJobOverviewWidget(QWidget *parent) :
     QAnimatedListWidget(parent)

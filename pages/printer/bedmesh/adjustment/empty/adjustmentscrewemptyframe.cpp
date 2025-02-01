@@ -1,6 +1,6 @@
 #include "adjustmentscrewemptyframe.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 AdjustmentScrewEmptyFrame::AdjustmentScrewEmptyFrame(QKlipperPrintBed *bed, QWidget *parent)
     : QFrame(parent)

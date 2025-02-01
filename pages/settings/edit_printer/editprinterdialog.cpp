@@ -1,5 +1,5 @@
 #include "editprinterdialog.h"
-#include "system/qklipperinstancepool.h"
+#include "flo/qklipperinstancepool.h"
 #include "ui_editprinterdialog.h"
 
 #include <system/settings.h>

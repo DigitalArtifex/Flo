@@ -1,6 +1,6 @@
 #include "printernetworkchart.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterNetworkChart::PrinterNetworkChart(QKlipperSystem *system, QWidget *parent)
     : QWidget{parent}

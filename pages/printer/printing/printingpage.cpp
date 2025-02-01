@@ -1,6 +1,6 @@
 #include "printingpage.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrintingPage::PrintingPage(QKlipperPrinter *printer, QWidget *parent)
     : QFrame{parent}

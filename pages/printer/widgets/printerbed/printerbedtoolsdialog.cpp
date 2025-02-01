@@ -1,6 +1,6 @@
 #include "printerbedtoolsdialog.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterBedToolsDialog::PrinterBedToolsDialog(QKlipperPrintBed *bed, QWidget *parent)
     : Dialog{parent}

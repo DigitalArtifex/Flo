@@ -1,6 +1,6 @@
 #include "filepreviewwindow.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 FilePreviewWindow::FilePreviewWindow(QKlipperFile *file, QKlipperInstance *instance, QWidget *parent) :
     Dialog(parent)

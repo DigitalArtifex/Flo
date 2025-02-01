@@ -5,7 +5,7 @@
 #include <QWidget>
 
 #include <QKlipper/qklipper.h>
-#include "system/qklipperinstancepool.h"
+#include "flo/qklipperinstancepool.h"
 #include "../../../../../ui/list/qanimatedlistwidget.h"
 
 #include "issuelistitem.h"

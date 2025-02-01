@@ -1,5 +1,5 @@
 #include "extrudertemperaturechart.h"
-#include "system/settings.h"
+#include "flo/settings.h"
 
 ExtruderTemperatureChart::ExtruderTemperatureChart(QKlipperExtruder *instance, QWidget *parent)
     : QWidget{parent}

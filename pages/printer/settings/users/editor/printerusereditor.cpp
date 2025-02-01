@@ -1,6 +1,6 @@
 #include "printerusereditor.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterUserEditor::PrinterUserEditor(QWidget *parent)
     : Dialog{parent}

@@ -1,6 +1,6 @@
 #include "printerusercard.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterUserCard::PrinterUserCard(QKlipperUser user, QWidget *parent)
     : CardWidget{CardType::SubWidget, parent}

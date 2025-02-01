@@ -1,5 +1,5 @@
 #include "temperaturechart.h"
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterTemperatureChart::PrinterTemperatureChart(QKlipperInstance *instance, QWidget *parent)
     : QWidget{parent}

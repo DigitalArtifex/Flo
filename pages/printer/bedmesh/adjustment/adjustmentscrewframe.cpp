@@ -1,6 +1,6 @@
 #include "adjustmentscrewframe.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 AdjustmentScrewFrame::AdjustmentScrewFrame(QKlipperPrintBed *bed, QWidget *parent)
     : CardWidget(CardType::Widget, parent)

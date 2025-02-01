@@ -1,6 +1,6 @@
 #include "newfolderdialog.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 NewFolderDialog::NewFolderDialog(QWidget *parent)
     : Dialog{parent}

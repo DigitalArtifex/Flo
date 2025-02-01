@@ -1,5 +1,5 @@
 #include "sensorcard.h"
-#include "system/settings.h"
+#include "flo/settings.h"
 
 SensorCard::SensorCard(QKlipperSensor *sensor, QWidget *parent)
     : CardWidget{CardType::Widget, parent}

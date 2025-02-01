@@ -1,5 +1,5 @@
 #include "printerfanwidget.h"
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterFanWidget::PrinterFanWidget(QKlipperPrinter *printer, QWidget *parent)
     : CardWidget(CardType::Widget, parent)

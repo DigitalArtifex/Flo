@@ -1,5 +1,5 @@
 #include "systemsettingspage.h"
-#include "system/settings.h"
+#include "flo/settings.h"
 #include "ui_systemsettingspage.h"
 
 SystemSettingsPage::SystemSettingsPage(QWidget *parent)

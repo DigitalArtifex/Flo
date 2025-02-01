@@ -1,6 +1,6 @@
 #include "bedmeshwidget.h"
 #include "qabstractaxis.h"
-#include "system/settings.h"
+#include "flo/settings.h"
 
 BedMeshWidget::BedMeshWidget(QKlipperPrintBed *bed, QWidget *parent) : QOpenGLWidget(parent)
 {

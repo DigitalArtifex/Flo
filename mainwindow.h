@@ -30,7 +30,7 @@
 #include "QSourceHighlite/qsourcehighliter.h"
 
 #include <QKlipper/qklipper.h>
-#include "system/flo.h"
+#include "flo/flo.h"
 
 //UI elements
 #include "ui/menubutton.h"

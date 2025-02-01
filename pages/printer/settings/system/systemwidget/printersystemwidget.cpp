@@ -1,5 +1,5 @@
 #include "printersystemwidget.h"
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterSystemWidget::PrinterSystemWidget(QKlipperInstance *instance, QWidget *parent)
     : CardWidget{CardType::SubWidget, parent}

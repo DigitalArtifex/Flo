@@ -8,7 +8,7 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
 
-#include "system/flo.h"
+#include "flo/flo.h"
 #include "ui/QIconButton/qiconbutton.h"
 
 class CardWidget : public QFrame

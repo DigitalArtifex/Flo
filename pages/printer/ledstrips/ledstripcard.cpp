@@ -1,5 +1,5 @@
 #include "ledstripcard.h"
-#include "system/settings.h"
+#include "flo/settings.h"
 
 LedStripCard::LedStripCard(QKlipperLedStrip *strip, QWidget *parent)
     : CardWidget{CardType::SubWidget,parent}

@@ -1,6 +1,6 @@
 #include "printerannouncementitem.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterAnnouncementItem::PrinterAnnouncementItem(QKlipperAnnouncement announcement, QWidget *parent)
     : QAnimatedListItem{parent}

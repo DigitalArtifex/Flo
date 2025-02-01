@@ -1,6 +1,6 @@
 #include "adjustmentscrewitemframe.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 AdjustmentScrewItemFrame::AdjustmentScrewItemFrame(QWidget *parent)
     : QFrame(parent)

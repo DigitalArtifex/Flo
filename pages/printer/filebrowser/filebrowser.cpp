@@ -1,6 +1,6 @@
 #include "filebrowser.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 #include "filebrowseritem.h"
 #include "ui/messagedialog.h"
 

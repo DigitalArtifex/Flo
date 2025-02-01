@@ -1,9 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "system/qklipperinstancepool.h"
+#include "flo/qklipperinstancepool.h"
 
 //Pages
-#include "system/settings.h"
+#include "flo/settings.h"
 #include "pages/settings/settingspage.h"
 #include "pages/printer/printerpage.h"
 #include "pages/dashboard/dashboardpage.h"

@@ -1,6 +1,6 @@
 #include "printerusersview.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterUsersView::PrinterUsersView(QKlipperInstance *instance, QWidget *parent)
     : CardWidget{CardType::Widget, parent}

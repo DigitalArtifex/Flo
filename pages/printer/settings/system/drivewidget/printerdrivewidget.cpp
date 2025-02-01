@@ -1,5 +1,5 @@
 #include "printerdrivewidget.h"
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterDriveWidget::PrinterDriveWidget(QKlipperPrinter *system, QWidget *parent)
     : CardWidget{CardType::SubWidget, parent}

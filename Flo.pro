@@ -100,9 +100,9 @@ SOURCES += \
     pages/settings/settingspage.cpp \
     pages/settings/system/systemsettingspage.cpp \
     pages/settings/theme/themesettingspage.cpp \
-    system/flo.cpp \
-    system/qklipperinstancepool.cpp \
-    system/settings.cpp \
+    flo/flo.cpp \
+    flo/qklipperinstancepool.cpp \
+    flo/settings.cpp \
     ui/PositionDialog/positiondialog.cpp \
     ui/ProgressDialog/progressdialog.cpp \
     ui/QIconButton/qiconbutton.cpp \
@@ -219,9 +219,9 @@ HEADERS += \
     pages/settings/settingspage.h \
     pages/settings/system/systemsettingspage.h \
     pages/settings/theme/themesettingspage.h \
-    system/flo.h \
-    system/qklipperinstancepool.h \
-    system/settings.h \
+    flo/flo.h \
+    flo/qklipperinstancepool.h \
+    flo/settings.h \
     ui/PositionDialog/positiondialog.h \
     ui/ProgressDialog/progressdialog.h \
     ui/QIconButton/qiconbutton.h \

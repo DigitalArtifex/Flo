@@ -1,6 +1,6 @@
 #include "inputshaperwizard.h"
 #include "ui_inputshaperwizard.h"
-#include "system/settings.h"
+#include "flo/settings.h"
 
 InputShaperWizard::InputShaperWizard(QKlipperInstance *instance, QWidget *parent)
     : QWizard(parent)

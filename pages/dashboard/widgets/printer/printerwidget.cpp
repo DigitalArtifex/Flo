@@ -1,7 +1,7 @@
 #include "printerwidget.h"
 #include "ui_printerwidget.h"
 
-#include "system/settings.h"
+#include "flo/settings.h"
 
 PrinterWidget::PrinterWidget(QWidget *parent) :
     QFrame(parent),

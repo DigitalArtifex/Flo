@@ -1,5 +1,5 @@
 #include "settingspage.h"
-#include "system/qklipperinstancepool.h"
+#include "flo/qklipperinstancepool.h"
 #include "ui_settingspage.h"
 #include "../../system/settings.h"
 #include "printerlistitem.h"

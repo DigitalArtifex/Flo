@@ -2,7 +2,7 @@
 #include "qpainter.h"
 #include "qpainterpath.h"
 #include "qstandardpaths.h"
-#include "system/qklipperinstancepool.h"
+#include "flo/qklipperinstancepool.h"
 
 QMap<QString,QVariant> Settings::themeSettings;
 QMap<QString,QString> Settings::themeMap;
