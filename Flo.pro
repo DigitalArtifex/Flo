@@ -300,4 +300,4 @@ QMAKE_CXXFLAGS += -Wno-deprecated-copy
 DEFINES += QUAZIP_STATIC
 DEFINES += APPLICATION_RESTART_CODE=-1000
 LIBS += -L$$[QT_HOST_LIBS] -lQt6DAWidgets -lQt6Klipper
-LIBS += -L"3rdparty/QuaZip/lib/" -lquazip1-qt6
+LIBS += -lquazip1-qt6
