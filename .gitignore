@@ -2,3 +2,4 @@ build/
 FLO.qbs.user
 Flo.pro.user*
 _FLO.*
+CmakeLists.txt.user*
