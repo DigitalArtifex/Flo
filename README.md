@@ -105,3 +105,10 @@ cmake --build ./
 It is important to note that FLO uses QtMultimedia to process webcam streams. While QtMultimedia defaults to FFMPEG, there are several known issues
 that can occur while using this backend. If you have any issues (i.e. system lockups, scan lines etc) it may be necessary to specify the native backend
 for your system. For example, on Linux the native backend is `gstreamer` and therefore would set the `Media Backend` option in System Settings to `GStreamer`
+
+### First Run
+
+The first time Flo runs, it will install theme, icons and configuration files to the system's Application Configure Location. On Linux, this is typically ~/.config/DigitalArtifex
+and on Windows it is C:/Users/<USER>/AppData/Local/DigitalArtifex
+
+It will also scan local home directories for Klipper instances that match the `printer_data_#` pattern
