@@ -1,5 +1,8 @@
 /*
-* QNumberEdit - A simple QDoubleSpinBox replacement that doesnt focus suffix/prefix text
+* QNumberEdit
+*
+* A simple QDoubleSpinBox replacement that doesnt focus suffix/prefix text
+*
 * Copyright (C) 2025 DigitalArtifex
 *
 * This program is free software: you can redistribute it and/or modify

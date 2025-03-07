@@ -311,6 +311,7 @@ void Settings::save()
     QSettings settings;
 
     settings.setValue("first-run", false);
+    settings.remove("theme"); //remove theme group for saving
 
     //scan for removed printers
     QStringList savedInstances = settings.value("instance_id_list").toStringList();
@@ -650,10 +651,6 @@ bool Settings::contains(QString key)
 QVariableStyleSheet Settings::theme()
 {
     return m_theme;
-}
-
-void Settings::onInstanceOnline(QKlipperInstance *instance)
-{
 }
 
 Settings::Settings()
