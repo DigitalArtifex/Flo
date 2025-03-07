@@ -19,8 +19,6 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS
     QuickWidgets
     3DCore
     3DQuick
-    OpenGL
-    OpenGLWidgets
     Graphs
     Multimedia
     MultimediaWidgets
@@ -64,16 +62,10 @@ set(SOURCES
     pages/printer/filebrowser/filebrowserwidget.cpp
     pages/printer/filebrowser/newfolder/newfolderdialog.cpp
     pages/printer/filebrowser/preview/filepreviewwindow.cpp
-    pages/printer/ledstrips/ledstripcard.cpp
-    pages/printer/ledstrips/ledstripview.cpp
     pages/printer/macros/gcodemacrodialog.cpp
     pages/printer/offline/printerofflinescreen.cpp
-    pages/printer/powerdevices/powerdevicecard.cpp
-    pages/printer/powerdevices/powerdeviceview.cpp
     pages/printer/printerpage.cpp
     pages/printer/printing/printingpage.cpp
-    pages/printer/sensors/sensorcard.cpp
-    pages/printer/sensors/sensorview.cpp
     pages/printer/settings/announcements/printerannouncementitem.cpp
     pages/printer/settings/announcements/printerannouncementview.cpp
     pages/printer/settings/announcements/printerannouncementwidget.cpp
@@ -93,6 +85,12 @@ set(SOURCES
     pages/printer/terminal/printerterminal.cpp
     pages/printer/terminal/printerterminalitem.cpp
     pages/printer/terminal/printerterminalwidget.cpp
+    pages/printer/widgets/ledstrips/ledstripcard.cpp
+    pages/printer/widgets/ledstrips/ledstripview.cpp
+    pages/printer/widgets/powerdevices/powerdevicecard.cpp
+    pages/printer/widgets/powerdevices/powerdeviceview.cpp
+    pages/printer/widgets/sensors/sensorcard.cpp
+    pages/printer/widgets/sensors/sensorview.cpp
     pages/printer/widgets/extruder/extruderinfodialog.cpp
     pages/printer/widgets/extruder/extrudermaterialsdialog.cpp
     pages/printer/widgets/extruder/extruderwidget.cpp
@@ -146,6 +144,7 @@ set(SOURCES
     pages/printer/widgets/job/printjobwidget.cpp
     3rdparty/QtSheet/sheet.cpp
     pages/printer/updating/printerupdatingscreen.cpp
+    ui/QNumberEdit/qnumberedit.cpp
 )
 
 set(HEADERS
@@ -181,16 +180,10 @@ set(HEADERS
     pages/printer/filebrowser/filebrowserwidget.h
     pages/printer/filebrowser/newfolder/newfolderdialog.h
     pages/printer/filebrowser/preview/filepreviewwindow.h
-    pages/printer/ledstrips/ledstripcard.h
-    pages/printer/ledstrips/ledstripview.h
     pages/printer/macros/gcodemacrodialog.h
     pages/printer/offline/printerofflinescreen.h
-    pages/printer/powerdevices/powerdevicecard.h
-    pages/printer/powerdevices/powerdeviceview.h
     pages/printer/printerpage.h
     pages/printer/printing/printingpage.h
-    pages/printer/sensors/sensorcard.h
-    pages/printer/sensors/sensorview.h
     pages/printer/settings/announcements/printerannouncementitem.h
     pages/printer/settings/announcements/printerannouncementview.h
     pages/printer/settings/announcements/printerannouncementwidget.h
@@ -210,6 +203,12 @@ set(HEADERS
     pages/printer/terminal/printerterminal.h
     pages/printer/terminal/printerterminalitem.h
     pages/printer/terminal/printerterminalwidget.h
+    pages/printer/widgets/sensors/sensorcard.h
+    pages/printer/widgets/sensors/sensorview.h
+    pages/printer/widgets/powerdevices/powerdevicecard.h
+    pages/printer/widgets/powerdevices/powerdeviceview.h
+    pages/printer/widgets/ledstrips/ledstripcard.h
+    pages/printer/widgets/ledstrips/ledstripview.h
     pages/printer/widgets/extruder/extruderinfodialog.h
     pages/printer/widgets/extruder/extrudermaterialsdialog.h
     pages/printer/widgets/extruder/extruderwidget.h
@@ -264,6 +263,7 @@ set(HEADERS
     pages/printer/widgets/job/printjobitem.h
     pages/printer/widgets/job/printjobwidget.h
     pages/printer/updating/printerupdatingscreen.h
+    ui/QNumberEdit/qnumberedit.h
 )
 
 set(FORMS
@@ -292,6 +292,7 @@ set(FORMS
     pages/printer/widgets/chamber/printerchamberwidget.ui
     pages/printer/updating/printerupdatingscreen.ui
     pages/printer/widgets/toolhead/toolheadwidget.ui
+    ui/QNumberEdit/qnumberedit.ui
 )
 
 set(QML
@@ -309,7 +310,6 @@ qt_add_executable(Flo
     ${SOURCES}
     ${RESOURCES}
     ${QML}
-    ui/QNumberEdit/qnumberedit.cpp ui/QNumberEdit/qnumberedit.h ui/QNumberEdit/qnumberedit.ui
 )
 
 target_link_libraries(Flo
@@ -319,8 +319,6 @@ target_link_libraries(Flo
         Qt6::Widgets
         Qt6::Network
         Qt6::WebSockets
-        Qt6::OpenGL
-        Qt6::OpenGLWidgets
         Qt6::Quick
         Qt6::QuickWidgets
         Qt6::3DQuick
