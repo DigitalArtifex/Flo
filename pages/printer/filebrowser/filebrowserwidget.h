@@ -3,9 +3,10 @@
 
 #include <QObject>
 
-#include "../../../ui/list/qanimatedlistwidget.h"
 #include <QKlipper/qklipper.h>
+#include "../../../ui/list/qanimatedlistwidget.h"
 #include "filebrowseritem.h"
+#include <qwizard.h>
 
 class FileBrowserWidget : public QAnimatedListWidget
 {
@@ -29,6 +30,8 @@ signals:
     void itemDeleteRequested(FileBrowserItem *item);
     void itemEditRequested(FileBrowserItem *item);
     void itemPrintRequested(FileBrowserItem *item);
+    void dialogRequested(QDialog *);
+    void wizardRequested(QWizard *);
 
 protected slots:
     void itemDeleteRequestedEvent(FileBrowserItem *item);

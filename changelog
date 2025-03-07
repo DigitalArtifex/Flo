@@ -1,3 +1,19 @@
+Known Issues
+-- Update monitor is not reliable for remote machines, but the updates issued do complete.
+-- Updating Crowsnest causes rendering issues due to the webcam control
+
+03/04/25
+-- Added QNumberEdit control to prevent prefix and suffix being selectable like it is in QDoubleSpinBox
+
+02/14/25
+-- Added 3rd party SlidingStackWidget for page container
+-- Reworked QAnimatedListWidget and QAnimatedListItem
+
+02/11/25
+-- Reorganized project elements
+-- Switched to CMake build system
+-- Removed QtCharts and replaced them with QtGraphs
+
 02/01/25
 -- Reorganized project structure
 -- Added Input Shaper Wizard

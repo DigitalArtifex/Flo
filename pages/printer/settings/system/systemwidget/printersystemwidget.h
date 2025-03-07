@@ -6,7 +6,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include "ui/common/cardwidget/cardwidget.h"
+#include "common/CardWidget/cardwidget.h"
 #include <QKlipper/qklipper.h>
 
 #include <QtDAWidgets/qgaugewidget.h>

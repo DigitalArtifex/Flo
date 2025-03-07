@@ -7,8 +7,8 @@
 #include <QLabel>
 
 #include <QKlipper/qklipper.h>
-#include "ui/common/cardwidget/cardwidget.h"
-#include "printernetworkchart.h"
+#include "common/CardWidget/cardwidget.h"
+#include "ui/LineGraphWidget/linegraphwidget.h"
 
 class PrinterNetworkWidget : public CardWidget
 {
@@ -20,15 +20,18 @@ public:
 
 signals:
 
+protected slots:
+    void systemNetworkUpdate();
+
 protected:
     void setupUi();
 
 private:
+    LineGraphWidget *m_temperatureGraph = nullptr;
+
     QKlipperSystem *m_system = nullptr;
     QVBoxLayout *m_centralLayout = nullptr;
     QWidget *m_centralWidget = nullptr;
-
-    PrinterNetworkChart *m_networkChart = nullptr;
 };
 
 #endif // PRINTERNETWORKWIDGET_H

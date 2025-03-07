@@ -8,13 +8,17 @@
 #include <QPushButton>
 #include <QGridLayout>
 
-#include "printerterminalwidget.h"
 #include <QKlipper/qklipper.h>
 #include "3rdparty/QSourceHighlite/qsourcehighliter.h"
+#include "common/Page/page.h"
+#include "printerterminalwidget.h"
+#include <qquickview.h>
+#include <qquickwidget.h>
 
-#include "ui/common/dialog/dialog.h"
+#include "common/dialog/dialog.h"
+#include "ui/QIconButton/qiconbutton.h"
 
-class PrinterTerminal : public Dialog
+class PrinterTerminal : public Page
 {
     Q_OBJECT
 public:
@@ -37,14 +41,23 @@ protected:
 
 private:
     QGridLayout *m_layout = nullptr;
+    PrinterTerminalWidget *m_terminal = nullptr;
+
+    QFrame *m_commandFrame = nullptr;
+    QHBoxLayout *m_commandLayout = nullptr;
     QTextEdit *m_commandEdit = nullptr;
     QPushButton *m_commandSendButton = nullptr;
-    PrinterTerminalWidget *m_terminal = nullptr;
 
     QKlipperInstance *m_instance = nullptr;
     QRegularExpression m_gcodeExpression;
 
     QSourceHighlite::QSourceHighliter *m_highlighter = nullptr;
+    QWidget *m_viewerWidget = nullptr;
+    QQuickView *m_viewer = nullptr;
+
+    QGridLayout *m_actionBarLayout = nullptr;
+    QWidget *m_actionBar = nullptr;
+    QIconButton *m_closeButton = nullptr;
 };
 
 #endif // PRINTERTERMINAL_H

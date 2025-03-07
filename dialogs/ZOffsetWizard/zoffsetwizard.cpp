@@ -47,8 +47,12 @@ void ZOffsetWizard::on_ZOffsetWizard_currentIdChanged(int id)
             done(Rejected);
         }
 
-        else if(!hasVisitedPage(id))
+        else if(!m_homingStarted && !m_homingFinished)
+        {
+            qDebug() << "Printer Ready. Homing Toolhead";
+
             goToHome();
+        }
     }
 }
 
@@ -91,6 +95,7 @@ void ZOffsetWizard::onHomingFinished()
         return;
     }
 
+    m_wizardStarted = true;
     next();
 }
 
@@ -223,9 +228,8 @@ void ZOffsetWizard::on_ZOffsetWizard_finished(int result)
 
         delete dialog;
     }
-    else
+    else if(m_wizardStarted && !rejectOffset())
     {
-        if(!rejectOffset())
-            showErrorMessage("Could not send command to abort probe calibration");
+        showErrorMessage("Could not send command to abort probe calibration");
     }
 }

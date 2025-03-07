@@ -8,7 +8,7 @@
 #include <QTableWidgetItem>
 #include <QResizeEvent>
 
-#include <ui/common/dialog/dialog.h>
+#include <common/dialog/dialog.h>
 #include <QKlipper/qklipper.h>
 
 class GCodeMacroDialog : public Dialog

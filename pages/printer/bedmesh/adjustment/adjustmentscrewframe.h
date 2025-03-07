@@ -8,8 +8,7 @@
 #include "empty/adjustmentscrewemptyframe.h"
 #include "item/adjustmentscrewitemframe.h"
 
-#include <ui/qanimatedwidget.h>
-#include <ui/common/cardwidget/cardwidget.h>
+#include <common/CardWidget/cardwidget.h>
 #include <QKlipper/qklipper.h>
 
 class AdjustmentScrewFrame : public CardWidget
@@ -49,8 +48,6 @@ private:
 
     QFrame *m_loadingFrame = nullptr;
     QHBoxLayout *m_loadingFrameLayout = nullptr;
-
-    QWidgetAnimation *m_loadingAnimation = nullptr;
 
     AdjustmentScrewEmptyFrame *m_emptyAdjustmentScrewFrame = nullptr;
 

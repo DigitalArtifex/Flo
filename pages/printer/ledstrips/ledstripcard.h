@@ -5,7 +5,7 @@
 #include <QQmlEngine>
 #include <QWidget>
 #include <QKlipper/qklipper.h>
-#include "ui/common/cardwidget/cardwidget.h"
+#include "common/CardWidget/cardwidget.h"
 #include "ui/Switch/switch.h"
 #include "ui/QIconButton/qiconbutton.h"
 

@@ -63,13 +63,16 @@ public:
     static void set(QString key, QVariant value);
 
     static QString getTheme(QString key);
+    static QVariableStyleSheet getThemeSheet(QString key);
     static QIcon getThemeIcon(QString key, QColor color = QColor());
     static QString getThemeIconLocation(QString key);
     static QStringList getThemeList();
     static QStringList getIconSetList();
-    void setTheme(QString key);
+    static void setTheme(QString key);
     static QStringList themeList();
     static bool saveTheme(const QString &name, const QVariableStyleSheet &sheet);
+    static bool deleteTheme(const QString &name);
+    static bool renameTheme(const QString &name, const QString &newName);
 
     static QKlipperInstance *defaultPrinter();
     static void addPrinter(QKlipperInstance* printer);

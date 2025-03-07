@@ -28,51 +28,52 @@ void PrinterDriveWidget::setupUi()
 {
     setTitle("MCU");
     setIcon(Settings::getThemeIcon("mcu"));
-    setFixedSize(220, 320);
+    setFixedSize(256, 320);
 
     m_centralWidget = new QWidget(this);
     m_centralLayout = new QHBoxLayout(m_centralWidget);
 
     m_sdGroupBox = new QGroupBox(this);
-    m_sdGroupBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_sdGroupBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     m_sdGroupBox->setTitle(QString("Status"));
 
     m_sdLayout = new QVBoxLayout(m_sdGroupBox);
     m_sdGroupBox->setLayout(m_sdLayout);
 
     m_progressWidget = new QWidget(this);
+    m_progressWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     m_progressLayout = new QHBoxLayout(m_progressWidget);
 
-    m_progressLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+    //m_progressLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Ignored));
 
     m_mcuAverageProgressBar = new QGaugeWidget(m_progressWidget);
     m_mcuAverageProgressBar->setFontSize(10);
     m_mcuAverageProgressBar->setFixedSize(100,100);
     m_progressLayout->addWidget(m_mcuAverageProgressBar);
 
-    m_progressLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+    //m_progressLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Ignored));
 
     m_sdLayout->addWidget(m_progressWidget);
     m_sdLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
 
     //Capacity label
     m_wakeTimeLabel = new QLabel(m_sdGroupBox);
-    m_wakeTimeLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_wakeTimeLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     m_sdLayout->addWidget(m_wakeTimeLabel);
 
     //Available label
     m_firmwareLabel = new QLabel(m_sdGroupBox);
-    m_firmwareLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_firmwareLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     m_sdLayout->addWidget(m_firmwareLabel);
 
     //Available label
     m_hardwareLabel = new QLabel(m_sdGroupBox);
-    m_hardwareLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_hardwareLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     m_sdLayout->addWidget(m_hardwareLabel);
 
     //Used label
     m_frequencyLabel = new QLabel(m_sdGroupBox);
-    m_frequencyLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_frequencyLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     m_sdLayout->addWidget(m_frequencyLabel);
 
     m_sdLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));

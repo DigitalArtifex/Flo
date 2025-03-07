@@ -10,8 +10,14 @@ ProbedMeshEmptyFrame::ProbedMeshEmptyFrame(QKlipperPrintBed *bed, QWidget *paren
     ui->setupUi(this);
 
     m_printerBed = bed;
-    connect(m_printerBed->printer()->toolhead(), SIGNAL(isHomingChanged()), this, SLOT(onToolheadHomingChanged()));
-    connect(m_printerBed->printer()->toolhead(), SIGNAL(isHomedChanged()), this, SLOT(onToolheadHomingChanged()));
+
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printerBed->parent());
+
+    if(printer)
+    {
+        connect(printer->toolhead(), SIGNAL(isHomingChanged()), this, SLOT(onToolheadHomingChanged()));
+        connect(printer->toolhead(), SIGNAL(isHomedChanged()), this, SLOT(onToolheadHomingChanged()));
+    }
 
     setupIcons();
 }
@@ -35,7 +41,9 @@ void ProbedMeshEmptyFrame::setStyleSheet(const QString &styleSheet)
 
 void ProbedMeshEmptyFrame::onToolheadHomingChanged()
 {
-    if(m_printerBed->printer()->toolhead()->isHoming())
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printerBed->parent());
+
+    if(printer && printer->toolhead()->isHoming())
         ui->label->setText("Homing Toolhead");
     else
         ui->label->setText("No Data Found");
@@ -43,7 +51,10 @@ void ProbedMeshEmptyFrame::onToolheadHomingChanged()
 
 void ProbedMeshEmptyFrame::on_homeButton_clicked()
 {
-    m_printerBed->printer()->toolhead()->home();
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printerBed->parent());
+
+    if(printer)
+        printer->toolhead()->home();
 }
 
 void ProbedMeshEmptyFrame::on_calibrateButton_clicked()

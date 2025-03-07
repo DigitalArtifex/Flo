@@ -9,8 +9,6 @@
 
 #include <QKlipper/qklipper.h>
 
-#include "ui/widgetanimation.h"
-#include "ui/qanimatedwidget.h"
 #include "ui/QIconButton/qiconbutton.h"
 
 namespace Ui {
@@ -54,6 +52,7 @@ private slots:
     void onPrinterStatusChanged();
     void onInstanceNameChanged();
     void onPrinterPrintEndingChanged();
+    void onPrinterStatusMessageChanged();
 
 private:
     void showLoadingScreen();
@@ -64,8 +63,6 @@ private:
     QKlipperInstance *m_instance = nullptr;
     QMovie *m_loadingGif = nullptr;
     QLabel *m_loadingLabel = nullptr;
-
-    WidgetAnimation *m_loadingAnimation = nullptr;
 
     QIconButton *m_pausePrintButton = nullptr;
     QIconButton *m_cancelPrintButton = nullptr;

@@ -29,27 +29,6 @@ ThemeSettingsPage::~ThemeSettingsPage()
 
 void ThemeSettingsPage::reset()
 {
-    for(int i = ui->variableTableWidget->rowCount(); i >= 0; --i)
-        ui->variableTableWidget->removeRow(i);
-
-    ui->codeBlockLineEdit->setText(Settings::get("theme/highlight-block").toString());
-    ui->codeBuiltInLineEdit->setText(Settings::get("theme/highlight-builtin").toString());
-    ui->codeCommentLineEdit->setText(Settings::get("theme/highlight-comment").toString());
-    ui->codeKeywordLineEdit->setText(Settings::get("theme/highlight-keyword").toString());
-    ui->codeOtherLineEdit->setText(Settings::get("theme/highlight-other").toString());
-    ui->codeStringLineEdit->setText(Settings::get("theme/highlight-string").toString());
-    ui->codeTypeLineEdit->setText(Settings::get("theme/highlight-type").toString());
-    ui->codeNumberLineEdit->setText(Settings::get("theme/highlight-numerical").toString());
-
-    ui->graphBackgroundEndEdit->setText(Settings::get("theme/graph-background-end").toString());
-    ui->graphBackgroundStartEdit->setText(Settings::get("theme/graph-background-start").toString());
-    ui->plotBackgroundStartEdit->setText(Settings::get("theme/graph-plot-background-start").toString());
-    ui->plotBackgroundEndEdit->setText(Settings::get("theme/graph-plot-background-end").toString());
-    ui->plotForegroundEdit->setText(Settings::get("theme/graph-plot-foreground").toString());
-
-    bool graphAnimations = Settings::get("theme/graph-animations-enabled").toBool();
-    ui->enableGraphAnimations->setChecked(graphAnimations);
-
     ui->themeComboBox->clear();
 
     int index = 0;
@@ -63,23 +42,14 @@ void ThemeSettingsPage::reset()
         ui->themeComboBox->addItem(displayName, theme);
 
         if(theme == Settings::currentThemeName())
+        {
             indexFound = true;
-
-        if(!indexFound)
-            index++;
+            index = ui->themeComboBox->count() - 1;
+        }
     }
 
     if(indexFound)
         ui->themeComboBox->setCurrentIndex(index);
-
-    QVariableStyleSheet sheet = Settings::theme();
-    QStringList variableKeys = sheet.variables().keys();
-    ui->qssEdit->setText(sheet.rawStyleSheetBody());
-
-    for(QString &key : variableKeys)
-    {
-        addThemeVariable(key, sheet.variables()[key]);
-    }
 
     ui->iconSetSelector->clear();
 
@@ -94,10 +64,10 @@ void ThemeSettingsPage::reset()
         ui->iconSetSelector->addItem(displayName, iconSet);
 
         if(iconSet == Settings::currentIconSetName())
+        {
             indexFound = true;
-
-        if(!indexFound)
-            index++;
+            index = ui->iconSetSelector->count() - 1;
+        }
     }
 
     if(indexFound)
@@ -106,7 +76,7 @@ void ThemeSettingsPage::reset()
 
 void ThemeSettingsPage::apply()
 {
-    QVariableStyleSheet sheet = Settings::theme();
+    QVariableStyleSheet sheet;
 
     sheet.setValue("highlight-block", ui->codeBlockLineEdit->text());
     sheet.setValue("highlight-builtin", ui->codeBuiltInLineEdit->text());
@@ -134,15 +104,17 @@ void ThemeSettingsPage::apply()
 
     sheet.setRawStyleSheetBody(ui->qssEdit->toPlainText());
 
-    Settings::saveTheme(ui->themeComboBox->currentData().toString(), sheet);
-
     if(ui->iconSetSelector->currentData() != Settings::currentIconSetName())
         Settings::setIconSet(ui->iconSetSelector->currentData().toString());
+
+    Settings::saveTheme(ui->themeComboBox->currentData().toString(), sheet);
+    Settings::setTheme(ui->themeComboBox->currentData().toString());
 }
 
 void ThemeSettingsPage::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
+
     int width = ui->variableTableWidget->viewport()->frameSize().width();
     width -= ui->variableTableWidget->columnWidth(1);
     width -= 50;
@@ -201,6 +173,137 @@ void ThemeSettingsPage::on_variableTableWidget_cellDoubleClicked(int row, int co
 void ThemeSettingsPage::on_iconSetSelector_currentTextChanged(const QString &arg1)
 {
     Q_UNUSED(arg1)
-
 }
 
+void ThemeSettingsPage::on_deleteThemeButton_clicked()
+{
+    if(Settings::deleteTheme(ui->themeComboBox->currentData().toString()))
+    {
+        int index = ui->themeComboBox->currentIndex();
+        ui->themeComboBox->setCurrentIndex(0);
+        ui->themeComboBox->removeItem(index);
+    }
+}
+
+void ThemeSettingsPage::resetThemeData()
+{
+    qDebug() << "Theme" << ui->themeComboBox->currentData().toString();
+
+    QVariableStyleSheet sheet = Settings::getThemeSheet(ui->themeComboBox->currentData().toString());
+
+    for(int i = ui->variableTableWidget->rowCount(); i >= 0; --i)
+        ui->variableTableWidget->removeRow(i);
+
+    ui->codeBlockLineEdit->setText(sheet.variables()["highlight-block"]);
+    ui->codeBuiltInLineEdit->setText(sheet.variables()["highlight-builtin"]);
+    ui->codeCommentLineEdit->setText(sheet.variables()["highlight-comment"]);
+    ui->codeKeywordLineEdit->setText(sheet.variables()["highlight-keyword"]);
+    ui->codeOtherLineEdit->setText(sheet.variables()["highlight-other"]);
+    ui->codeStringLineEdit->setText(sheet.variables()["highlight-string"]);
+    ui->codeTypeLineEdit->setText(sheet.variables()["highlight-type"]);
+    ui->codeNumberLineEdit->setText(sheet.variables()["highlight-numerical"]);
+
+    ui->graphBackgroundEndEdit->setText(sheet.variables()["graph-background-end"]);
+    ui->graphBackgroundStartEdit->setText(sheet.variables()["graph-background-start"]);
+    ui->plotBackgroundStartEdit->setText(sheet.variables()["graph-plot-background-start"]);
+    ui->plotBackgroundEndEdit->setText(sheet.variables()["graph-plot-background-end"]);
+    ui->plotForegroundEdit->setText(sheet.variables()["graph-plot-foreground"]);
+
+    QStringList variableKeys = sheet.variables().keys();
+    ui->qssEdit->setText(sheet.rawStyleSheetBody());
+
+    for(QString &key : variableKeys)
+        addThemeVariable(key, sheet.variables()[key]);
+
+    ui->qssEdit->setText(sheet.stylesheet());
+}
+
+void ThemeSettingsPage::on_themeComboBox_currentIndexChanged(int index)
+{
+    Q_UNUSED(index)
+
+    if(ui->themeComboBox->currentData().isValid())
+        resetThemeData();
+
+    if(ui->themeComboBox->currentData().toString() != "default")
+    {
+        ui->deleteThemeButton->setEnabled(true);
+        //ui->themeComboBox->setEditable(true);
+    }
+    else
+    {
+        ui->deleteThemeButton->setEnabled(false);
+        //ui->themeComboBox->setEditable(false);
+    }
+}
+
+void ThemeSettingsPage::on_copyThemeButton_clicked()
+{
+    QVariableStyleSheet sheet;
+
+    sheet.setValue("highlight-block", ui->codeBlockLineEdit->text());
+    sheet.setValue("highlight-builtin", ui->codeBuiltInLineEdit->text());
+    sheet.setValue("highlight-comment", ui->codeCommentLineEdit->text());
+    sheet.setValue("highlight-keyword", ui->codeKeywordLineEdit->text());
+    sheet.setValue("highlight-other", ui->codeOtherLineEdit->text());
+    sheet.setValue("highlight-string", ui->codeStringLineEdit->text());
+    sheet.setValue("highlight-type", ui->codeTypeLineEdit->text());
+    sheet.setValue("highlight-numerical", ui->codeNumberLineEdit->text());
+
+    sheet.setValue("graph-background-end", ui->graphBackgroundEndEdit->text());
+    sheet.setValue("graph-background-start", ui->graphBackgroundStartEdit->text());
+    sheet.setValue("graph-plot-background-start", ui->plotBackgroundStartEdit->text());
+    sheet.setValue("graph-plot-background-end", ui->plotBackgroundEndEdit->text());
+    sheet.setValue("graph-plot-foreground", ui->plotForegroundEdit->text());
+    sheet.setValue("graph-animations-enabled", QVariant(ui->enableGraphAnimations->isChecked()).toString());
+
+    for(int i = 0; i < ui->variableTableWidget->rowCount(); i++)
+    {
+        QTableWidgetItem *nameItem = ui->variableTableWidget->item(i, 0);
+        QTableWidgetItem *valueItem = ui->variableTableWidget->item(i, 1);
+
+        sheet.setValue(nameItem->text(), valueItem->text());
+    }
+
+    sheet.setRawStyleSheetBody(ui->qssEdit->toPlainText());
+
+    QString name = ui->themeComboBox->currentText();
+
+    QRegularExpression copyExpression("_copy\\d{0,}$");
+    QRegularExpressionMatch copyMatch = copyExpression.match(name);
+
+    if(copyMatch.hasMatch())
+    {
+        QString match = copyMatch.captured();
+        match.remove("_copy");
+        name.remove(copyExpression);
+
+        bool okay = false;
+        int number = match.toInt(&okay);
+
+        if(!okay)
+            number = 1;
+        else
+            number++;
+
+        name.append(QString("_copy%1").arg(number));
+    }
+    else
+        name.append("_copy");
+
+    Settings::saveTheme(name.toLower(), sheet);
+    ui->themeComboBox->addItem(name, name.toLower());
+    ui->themeComboBox->setCurrentIndex(ui->themeComboBox->count() - 1);
+}
+
+void ThemeSettingsPage::setIcons()
+{
+    ui->copyThemeButton->setIcon(Settings::getThemeIcon("copy"));
+    ui->deleteThemeButton->setIcon(Settings::getThemeIcon("delete"));
+}
+
+void ThemeSettingsPage::changeEvent(QEvent *event)
+{
+    if(event->type() == QEvent::StyleChange)
+        setIcons();
+}

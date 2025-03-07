@@ -5,7 +5,7 @@
 #include <QProgressBar>
 #include <QGroupBox>
 
-#include "ui/common/cardwidget/cardwidget.h"
+#include "common/CardWidget/cardwidget.h"
 #include <QtDAWidgets/qgaugewidget.h>
 
 #include <QKlipper/qklipper.h>

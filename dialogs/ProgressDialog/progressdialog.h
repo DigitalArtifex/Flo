@@ -9,7 +9,7 @@
 #include <QTextEdit>
 #include <QProgressBar>
 
-#include <ui/common/dialog/dialog.h>
+#include <common/dialog/dialog.h>
 #include <ui/QIconButton/qiconbutton.h>
 
 class ProgressDialog : public Dialog

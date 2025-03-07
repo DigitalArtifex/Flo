@@ -29,9 +29,6 @@ void PrinterAnnouncementWidget::setAnnouncements(const QKlipperAnnouncementList 
         PrinterAnnouncementItem *item = new PrinterAnnouncementItem(announcement, this);
         connect(item, SIGNAL(dismissRequested(PrinterAnnouncementItem*)), this, SLOT(itemDismissRequestedEvent(PrinterAnnouncementItem*)));
 
-        setAnimationSlide(item);
-        item->setDuration(150);
-
         addItem(item);
     }
 }

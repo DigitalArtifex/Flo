@@ -3,26 +3,21 @@
 PrinterTerminalWidget::PrinterTerminalWidget(QWidget *parent)
     : QAnimatedListWidget(parent)
 {
-    m_scrollAreaContents->layout()->setContentsMargins(0,0,0,0);
-    m_scrollAreaContents->layout()->setSpacing(0);
-    m_scrollAreaContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
+    setAutoScroll(true);
+    setSelectionMode(NoSelect);
+
+    scrollAreaContents()->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
 }
 
 void PrinterTerminalWidget::addMessage(QKlipperMessage *message)
 {
     if(message->origin() == QKlipperMessage::User)
     {
-        m_scrollAreaContents->layout()->setContentsMargins(0,0,0,0);
-
         PrinterTerminalItem *item = new PrinterTerminalItem(this);
         item->setMessage(message);
-        item->setOpacityIn(1);
-        item->setOpacityOut(0);
-        item->setDuration(500);
-        item->setBaseSize(viewport()->width(), 35);
+        item->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         m_itemMap[message->id()] = item;
-
         addItem(item);
     }
 }
@@ -30,24 +25,16 @@ void PrinterTerminalWidget::addMessage(QKlipperMessage *message)
 void PrinterTerminalWidget::addMessage(QString title, QString message)
 {
     PrinterTerminalItem *item = new PrinterTerminalItem(this);
+    item->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     item->setMessage(title, message);
-    item->setOpacityIn(1);
-    item->setOpacityOut(0);
-    item->setDuration(500);
-    item->setBaseSize(viewport()->width(), 35);
-
     addItem(item);
 }
 
 void PrinterTerminalWidget::addErrorMessage(QString title, QString message)
 {
     PrinterTerminalItem *item = new PrinterTerminalItem(this);
+    item->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     item->setErrorMessage(title, message);
-    item->setOpacityIn(1);
-    item->setOpacityOut(0);
-    item->setDuration(500);
-    item->setBaseSize(viewport()->width(), 35);
-
     addItem(item);
 }
 
@@ -75,7 +62,7 @@ void PrinterTerminalWidget::addGcodeResponse(QString &message)
 
         if(!found)
         {
-            addErrorMessage("", message);
+            addErrorMessage("Error", message);
         }
     }
     else
@@ -83,7 +70,7 @@ void PrinterTerminalWidget::addGcodeResponse(QString &message)
         if(message.startsWith("!! "))
         {
             message.remove(s_gcodeErrorResponseCleanup);
-            addErrorMessage("", message);
+            addErrorMessage("Error", message);
         }
         else
         {

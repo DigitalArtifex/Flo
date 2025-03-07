@@ -2,16 +2,19 @@
 #include "ui_printersettingspage.h"
 
 PrinterSettingsPage::PrinterSettingsPage(QKlipperInstance *instance, QWidget *parent)
-    : QFrame(parent)
+    : Page(parent)
     , ui(new Ui::PrinterSettingsPage)
 {
     ui->setupUi(this);
 
     m_instance = instance;
 
-    m_configBrowser = new FileBrowser(instance, QString("config"), this, FileBrowser::Widget);
+    m_configBrowser = new FileBrowser(instance, QString("config"), this, FileBrowser::WidgetMode);
     m_configBrowser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->filesFrame->layout()->addWidget(m_configBrowser);
+
+    connect(m_configBrowser, SIGNAL(dialogRequested(QDialog*)), this, SLOT(onDialogRequested(QDialog*)));
+    connect(m_configBrowser, SIGNAL(wizardRequested(QWizard*)), this, SLOT(onWizardRequested(QWizard*)));
 
     m_updateView = new PrinterUpdateView(m_instance->system(), this);
     ui->updatesFrame->layout()->addWidget(m_updateView);
@@ -25,13 +28,23 @@ PrinterSettingsPage::PrinterSettingsPage(QKlipperInstance *instance, QWidget *pa
     m_usersView = new PrinterUsersView(m_instance, this);
     ui->usersFrame->layout()->addWidget(m_usersView);
 
+    connect(m_usersView, SIGNAL(dialogRequested(QDialog*)), this, SLOT(onDialogRequested(QDialog*)));
+    connect(m_usersView, SIGNAL(wizardRequested(QWizard*)), this, SLOT(onWizardRequested(QWizard*)));
+
     m_systemView = new PrinterSystemView(m_instance, this);
     ui->statusWidget->layout()->addWidget(m_systemView);
 
-    ui->scrollArea->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
-    ui->scrollAreaWidgetContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
+    m_closeButton = new QIconButton(ui->buttonBoxWidget);
+    m_closeButton->setIcon(Settings::getThemeIcon(QString("multiply")));
+    m_closeButton->setFixedSize(50,50);
+    m_closeButton->setTextMargins(QMargins(34,0,0,0));
+    m_closeButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    ui->buttonBoxWidget->layout()->addWidget(m_closeButton);
 
-    style()->polish(this);
+    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(close()));
+
+    ui->buttonBoxWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageActionBar"));
+    ui->scrollAreaWidgetContents->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PageContents"));
 }
 
 PrinterSettingsPage::~PrinterSettingsPage()
@@ -39,19 +52,34 @@ PrinterSettingsPage::~PrinterSettingsPage()
     delete ui;
 }
 
-void PrinterSettingsPage::setStyleSheet(const QString &styleSheet)
+void PrinterSettingsPage::onDialogRequested(QDialog *dialog)
 {
-    if(m_announcementView)
-        m_announcementView->setStyleSheet(styleSheet);
+    emit dialogRequested(dialog);
+}
 
-    if(m_systemView)
-        m_systemView->setStyleSheet(styleSheet);
+void PrinterSettingsPage::onWizardRequested(QWizard *wizard)
+{
+    emit wizardRequested(wizard);
+}
 
-    if(m_usersView)
-        m_usersView->setStyleSheet(styleSheet);
+void PrinterSettingsPage::setIcons()
+{
+    ui->restartFirmwareButton->setIcon(Settings::getThemeIcon("firmware"));
+    ui->restartButton->setIcon(Settings::getThemeIcon("restart"));
+}
 
-    if(m_servicesView)
-        m_servicesView->setStyleSheet(styleSheet);
+void PrinterSettingsPage::changeEvent(QEvent *event)
+{
+    if(event->type() == QEvent::StyleChange)
+        setIcons();
+}
 
-    QFrame::setStyleSheet(styleSheet);
+void PrinterSettingsPage::on_restartButton_clicked()
+{
+    m_instance->system()->restart();
+}
+
+void PrinterSettingsPage::on_restartFirmwareButton_clicked()
+{
+    m_instance->console()->restartFirmware();
 }

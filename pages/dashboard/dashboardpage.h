@@ -5,6 +5,7 @@
 
 #include <QKlipper/qklipper.h>
 #include <flo/qklipperinstancepool.h>
+#include <qquickview.h>
 
 #include "widgets/printer/printerwidget.h"
 #include "widgets/system/systemwidget.h"
@@ -45,6 +46,9 @@ private:
     QFlowLayout *m_layout = nullptr;
     QTimer *m_initTimer = nullptr;
     QHBoxLayout *m_topLayout = nullptr;
+
+    QQuickView *m_viewer = nullptr;
+    QWidget *m_viewerWidget = nullptr;
 };
 
 #endif // DASHBOARDPAGE_H

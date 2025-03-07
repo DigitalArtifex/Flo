@@ -12,29 +12,33 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QDialog>
+#include <QtQuickWidgets/QQuickWidget>
+#include <QQmlContext>
 
 #include <QKlipper/qklipper.h>
+#include "common/Page/page.h"
 #include "filebrowserwidget.h"
+#include <qquickview.h>
 
 #include "editor/fileeditor.h"
-#include "overlay/filebrowseroverlay.h"
 #include "preview/filepreviewwindow.h"
 #include "newfolder/newfolderdialog.h"
 
 #include "ui/QIconButton/qiconbutton.h"
-#include "ui/common/dialog/dialog.h"
+#include "common/dialog/dialog.h"
+#include "dialogs/MessageDialog/messagedialog.h"
 
-class FileBrowser : public Dialog
+class FileBrowser : public Page
 {
     Q_OBJECT
 public:
     enum Mode
     {
-        Page,
-        Widget
+        PageMode,
+        WidgetMode
     };
 
-    FileBrowser(QKlipperInstance *printer, QString root, QWidget *parent = nullptr, Mode mode = Page);
+    FileBrowser(QKlipperInstance *printer, QString root, QWidget *parent = nullptr, Mode mode = PageMode);
     ~FileBrowser();
 
     QKlipperInstance *printer() const;
@@ -42,25 +46,26 @@ public:
 
     virtual void setupUi();
     virtual void setupConnections();
-    virtual void setStyleSheet(const QString &styleSheet);
-    virtual void resizeEvent(QResizeEvent *event);
+    virtual void setIcons();
+    virtual void resizeEvent(QResizeEvent *event) override;
 
-    void showOverlay(QString title, QString icon);
-    void hideOverlay();
     void setActionsEnabled(bool enabled);
+
+signals:
+    void dialogRequested(QDialog *);
+    void wizardRequested(QWizard *);
+
+protected:
+    virtual void showEvent(QShowEvent *event) override;
+    virtual void changeEvent(QEvent *event) override;
 
 private slots:
     //Tool buttons
-    void uploadFileButtonClickEvent();
-    void newFolderButtonClickEvent();
-    void downloadFolderButtonClickEvent();
-    void refreshButtonClickEvent();
-    void upDirectoryButtonClickEvent();
-
-    //Pushbuttons
-    void printFileButtonClickEvent();
-    void editFileButtonClickEvent();
-    void deleteFileButtonClickEvent();
+    void onUploadFileButtonClicked();
+    void onNewFolderButtonClicked();
+    void onDownloadFolderButtonClicked();
+    void onRefreshButtonClicked();
+    void onUpDirectoryButtonClicked();
 
     //Printer
     void onInstanceConnected(QKlipperInstance *instance);
@@ -70,25 +75,27 @@ private slots:
     void onFileBrowserWidgetFileSelected(QAnimatedListItem *item);
     void onFileBrowserWidgetItemDoubleClicked(QAnimatedListItem *item);
 
-    //Overlay
-    void overlayAnimatedOutEvent();
-    void overlayAnimatedInEvent();
-
-    //New Folder Dialog
-    void newFolderDialogAcceptEvent(QString value);
-    void newFolderDialogRejectEvent();
-
     //Item context menu
-    void itemDeleteRequestedEvent(FileBrowserItem *item);
-    void itemEditRequestedEvent(FileBrowserItem *item);
-    void itemPrintRequestedEvent(FileBrowserItem *item);
+    void onItemDeleteRequested(FileBrowserItem *item);
+    void onItemDeleteRequestDialogFinished(int returnCode);
+
+    void onItemEditRequested(FileBrowserItem *item);
+    void onItemPrintRequested(FileBrowserItem *item);
+
+    void onFilePreviewDialogFinished(int returnCode);
+    void onNewFolderDialogFinished(int returnCode);
+    void onMessageDialogFinished(int returnCode);
 
 private:
     bool m_startup = true;
+    bool m_closeOnBack = false;
 
     QKlipperInstance *m_instance = nullptr;
     QString m_rootDirectory = QString("");
     QString m_currentDirectory = QString("");
+
+    QKlipperFile *m_currentFile = nullptr;
+    MessageDialog *m_messageBox = nullptr;
 
     //UI
     FileBrowserWidget *m_filebrowserWidget = nullptr;
@@ -98,6 +105,7 @@ private:
     QToolButton *m_newFolderButton = nullptr;
     QToolButton *m_downloadFolderButton = nullptr;
     QToolButton *m_upDirectoryButton = nullptr;
+    QIconButton *m_closeButton = nullptr;
 
     QIconButton *m_printFileButton = nullptr;
     QIconButton *m_editFileButton = nullptr;
@@ -115,11 +123,13 @@ private:
 
     FileEditor *m_editor = nullptr;
 
-    FileBrowserOverlay *m_overlay = nullptr;
     FilePreviewWindow  *m_filePreview = nullptr;
     NewFolderDialog    *m_newFolderDialog = nullptr;
 
-    Mode m_mode = Page;
+    Mode m_mode = PageMode;
+    QQuickView *m_viewer = nullptr;
+    QWidget *m_viewerWidget = nullptr;
+    QQuickWidget *m_quickWidget = nullptr;
 };
 
 #endif // FILEBROWSER_H

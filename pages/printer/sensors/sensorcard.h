@@ -5,16 +5,16 @@
 #include <QQmlEngine>
 #include <QWidget>
 
-#include <ui/common/cardwidget/cardwidget.h>
+#include <common/CardWidget/cardwidget.h>
 
 #include <QKlipper/qklipper.h>
 
-#include <QLineSeries>
-#include <QSplineSeries>
-#include <QChart>
-#include <QChartView>
-#include <QValueAxis>
-#include <QDateTimeAxis>
+// #include <QLineSeries>
+// #include <QSplineSeries>
+// #include <QChart>
+// #include <QChartView>
+// #include <QValueAxis>
+// #include <QDateTimeAxis>
 
 class SensorCard : public CardWidget
 {

@@ -7,7 +7,7 @@
 #include <QScrollArea>
 #include "ui/layouts/qflowlayout.h"
 #include "ledstripcard.h"
-#include "ui/common/cardwidget/cardwidget.h"
+#include "common/CardWidget/cardwidget.h"
 
 class LedStripView : public CardWidget
 {

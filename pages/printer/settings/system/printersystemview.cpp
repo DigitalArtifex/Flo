@@ -33,7 +33,7 @@ void PrinterSystemView::setupUi()
     m_layout->setContentsMargins(9,9,9,9);
 
     m_systemWidget = new PrinterSystemWidget(m_instance, this);
-    m_systemWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    m_systemWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     m_layout->addWidget(m_systemWidget);
 
     m_networkWidget = new PrinterNetworkWidget(m_instance->system(), this);
@@ -41,10 +41,10 @@ void PrinterSystemView::setupUi()
     m_layout->addWidget(m_networkWidget);
 
     m_driveWidget = new PrinterDriveWidget(m_instance->printer(), this);
-    m_driveWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    m_driveWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     m_layout->addWidget(m_driveWidget);
 
-    m_layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Preferred, QSizePolicy::Ignored));
+    //m_layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Preferred, QSizePolicy::Ignored));
 
     setLayout(m_layout);
 }

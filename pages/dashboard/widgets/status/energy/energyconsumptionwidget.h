@@ -5,8 +5,6 @@
 #include <QWidget>
 #include <QGridLayout>
 
-#include "energyconsumptionchart.h"
-
 #include <QKlipper/qklipper.h>
 #include <flo/qklipperinstancepool.h>
 
@@ -25,7 +23,7 @@ protected:
     void printerAddedEvent(QKlipperInstance *printer);
 
 private:
-    EnergyConsumptionChart *m_energyWidget = nullptr;
+    //EnergyConsumptionChart *m_energyWidget = nullptr;
 
     QGridLayout *m_layout = nullptr;
 };

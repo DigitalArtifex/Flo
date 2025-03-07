@@ -13,12 +13,13 @@
 #include "services/printerservicesview.h"
 #include "users/printerusersview.h"
 #include "system/printersystemview.h"
+#include "ui/QIconButton/qiconbutton.h"
 
 namespace Ui {
 class PrinterSettingsPage;
 }
 
-class PrinterSettingsPage : public QFrame
+class PrinterSettingsPage : public Page
 {
     Q_OBJECT
 
@@ -27,9 +28,18 @@ public:
     ~PrinterSettingsPage();
 
 public slots:
-    void setStyleSheet(const QString &styleSheet);
 
 protected slots:
+    void onDialogRequested(QDialog *dialog);
+    void onWizardRequested(QWizard *wizard);
+
+protected:
+    void setIcons();
+    virtual void changeEvent(QEvent *event) override;
+
+private slots:
+    void on_restartButton_clicked();
+    void on_restartFirmwareButton_clicked();
 
 private:
     Ui::PrinterSettingsPage *ui;
@@ -42,6 +52,8 @@ private:
     PrinterServicesView *m_servicesView = nullptr;
     PrinterUsersView *m_usersView = nullptr;
     PrinterSystemView *m_systemView = nullptr;
+
+    QIconButton *m_closeButton = nullptr;
 };
 
 #endif // PRINTERSETTINGSPAGE_H

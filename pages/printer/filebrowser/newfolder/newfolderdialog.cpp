@@ -38,6 +38,11 @@ NewFolderDialog::~NewFolderDialog()
         m_layout->deleteLater();
 }
 
+QString NewFolderDialog::value() const
+{
+    return m_lineEdit->text();
+}
+
 void NewFolderDialog::setupUi()
 {
     m_layout = new QGridLayout(this);
@@ -49,36 +54,27 @@ void NewFolderDialog::setupUi()
     m_layout->addWidget(m_textLabel, 0, 0, 1, 2);
 
     m_lineEdit = new QLineEdit(this);
-    m_lineEdit->setFixedSize(420, 35);
+    //m_lineEdit->setFixedSize(420, 35);
     m_layout->addWidget(m_lineEdit, 1, 0, 1, 2);
+
+    m_layout->addItem(new QSpacerItem(0,0, QSizePolicy::Expanding, QSizePolicy::Expanding), 2, 0);
 
     m_cancelButton = new QIconButton(this);
     m_cancelButton->setIcon(Settings::getThemeIcon("cancel"));
     m_cancelButton->setText(QString("Cancel"));
     m_cancelButton->setFixedHeight(50);
     m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_layout->addWidget(m_cancelButton, 2, 0, 1, 1);
+    m_layout->addWidget(m_cancelButton, 3, 0, 1, 1);
 
     m_acceptButton = new QIconButton(this);
     m_acceptButton->setIcon(Settings::getThemeIcon("accept"));
     m_acceptButton->setText(QString("Accept"));
     m_acceptButton->setFixedHeight(50);
     m_acceptButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_layout->addWidget(m_acceptButton, 2, 1, 1, 1);
+    m_layout->addWidget(m_acceptButton, 3, 1, 1, 1);
 
-    connect(m_acceptButton, SIGNAL(clicked()), this, SLOT(acceptButtonClickEvent()));
-    connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(cancelButtonClickEvent()));
+    connect(m_acceptButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
     style()->polish(this);
-}
-
-void NewFolderDialog::acceptButtonClickEvent()
-{
-    done(Accepted);
-    emit accepted(m_lineEdit->text());
-}
-
-void NewFolderDialog::cancelButtonClickEvent()
-{
-    done(Rejected);
 }

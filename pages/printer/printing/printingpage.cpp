@@ -3,7 +3,7 @@
 #include "flo/settings.h"
 
 PrintingPage::PrintingPage(QKlipperPrinter *printer, QWidget *parent)
-    : QFrame{parent}
+    : Page{parent}
 {
     m_printer = printer;
 
@@ -19,6 +19,8 @@ PrintingPage::PrintingPage(QKlipperPrinter *printer, QWidget *parent)
     connect(m_printer, SIGNAL(gcodeMoveChanged()), this, SLOT(onPrinterGCodeMoveChanged()));
     connect(m_printer->bed(), SIGNAL(targetTempChanged()), this, SLOT(onBedTargetTemperatureChanged()));
     connect(m_printer->toolhead(), SIGNAL(currentExtruderNameChanged()), this, SLOT(onToolheadCurrentExtruderChanged()));
+    connect(m_printer, SIGNAL(statusChanged()), this, SLOT(onPrinterStatusChanged()));
+    connect(m_printer, SIGNAL(printSpeedChanged()), this, SLOT(onPrinterPrintSpeedChanged()));
 }
 
 void PrintingPage::setupUI()
@@ -111,10 +113,14 @@ void PrintingPage::setupUI()
     m_printSpeedSlider->setValue(100);
     m_sliderBoxLayout->addWidget(m_printSpeedSlider);
 
+    connect(m_printSpeedSlider, SIGNAL(valueChanged(int)), this, SLOT(onPrintSpeedSliderValueChanged(int)));
+
     m_extrusionSpeedText = new QLabel(m_sliderBoxFrame);
     m_extrusionSpeedText->setProperty("class", QStringList { "PrintInfo" });
     m_extrusionSpeedText->setText("Extrusion Speed");
     m_sliderBoxLayout->addWidget(m_extrusionSpeedText);
+
+    connect(m_extrusionSpeedSlider, SIGNAL(valueChanged(int)), this, SLOT(onExtrusionFactorSliderValueChanged(int)));
 
     m_extrusionSpeedSlider = new QSlider(Qt::Orientation::Horizontal, m_sliderBoxFrame);
     m_extrusionSpeedSlider->setMinimum(0);
@@ -138,12 +144,15 @@ void PrintingPage::setupUI()
     m_cancelPrintButton->setIcon(Settings::getThemeIcon("cancel"));
     m_buttonBoxLayout->addWidget(m_cancelPrintButton);
 
+    connect(m_cancelPrintButton, SIGNAL(clicked()), this, SLOT(onCancelPrintButtonClicked()));
+
     m_pausePrintButton = new QIconButton(m_buttonBoxWidget);
     m_pausePrintButton->setFixedHeight(50);
     m_pausePrintButton->setText("Pause Print");
     m_pausePrintButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_pausePrintButton->setIcon(Settings::getThemeIcon("pause"));
     m_buttonBoxLayout->addWidget(m_pausePrintButton);
+    connect(m_pausePrintButton, SIGNAL(clicked()), this, SLOT(onPausePrintButtonClicked()));
 
     //build the status panel
     m_statusWidget = new QFrame(this);
@@ -222,7 +231,7 @@ void PrintingPage::changeEvent(QEvent *event)
     if(event->type() == QEvent::StyleChange)
         setupIcons();
 
-    QFrame::changeEvent(event);
+    Page::changeEvent(event);
 }
 
 void PrintingPage::resizeEvent(QResizeEvent *event)
@@ -232,8 +241,8 @@ void PrintingPage::resizeEvent(QResizeEvent *event)
 
     if(m_printJobWidget)
     {
-        m_printJobWidget->setMinimumHeight(256);
-        m_printJobWidget->setFixedHeight(thirdHeight);
+        // m_printJobWidget->setMinimumHeight(256);
+        // m_printJobWidget->setFixedHeight(thirdHeight);
     }
 
     if(m_statusWidget)
@@ -245,15 +254,6 @@ void PrintingPage::resizeEvent(QResizeEvent *event)
         quint32 webcamHeight = qFloor(webcamWidth * ratio);
 
         m_printerWebcam->setFixedSize(webcamWidth, webcamHeight);
-    }
-
-    if(m_infoPanelWidget)
-        m_infoPanelWidget->setFixedWidth(quarterWidth);
-
-    if(m_infoWidget)
-    {
-        m_printPreviewLabel->setPixmap(m_printPreviewPixmap.scaled((quarterWidth * 2), (quarterWidth * 2), Qt::KeepAspectRatio));
-        m_infoWidget->setMaximumWidth(quarterWidth * 2);
     }
 
     QFrame::resizeEvent(event);
@@ -322,7 +322,11 @@ void PrintingPage::onPrinterFileMetaDataChanged()
 void PrintingPage::onPrinterGCodeMoveChanged()
 {
     if(m_printSpeedSlider)
+    {
+        disconnect(m_printSpeedSlider, SIGNAL(valueChanged(int)), this, SLOT(onPrintSpeedSliderValueChanged(int)));
         m_printSpeedSlider->setValue(m_printer->gcodeMove().speedFactor * 100);
+        connect(m_printSpeedSlider, SIGNAL(valueChanged(int)), this, SLOT(onPrintSpeedSliderValueChanged(int)));
+    }
 }
 
 void PrintingPage::onPrintJobChanged()
@@ -340,6 +344,10 @@ void PrintingPage::onPrintJobChanged()
     }
 
     m_printJob = m_printer->printJob();
+    onPrintJobTotalLayerChanged();
+    onPrintJobCurrentLayerChanged();
+    onPrintJobFilamentUsedChanged();
+
     connect(m_printJob, SIGNAL(totalLayersChanged()), this, SLOT(onPrintJobTotalLayerChanged()));
     connect(m_printJob, SIGNAL(currentLayerChanged()), this, SLOT(onPrintJobCurrentLayerChanged()));
     connect(m_printJob, SIGNAL(filamentUsedChanged()), this, SLOT(onPrintJobFilamentUsedChanged()));
@@ -408,6 +416,69 @@ void PrintingPage::onToolheadCurrentExtruderChanged()
 
     connect(m_currentExtruder, SIGNAL(targetTempChanged()), this, SLOT(onExtruderTargetTemperatureChanged()));
     connect(m_currentExtruder, SIGNAL(extrusionFactorChanged()), this, SLOT(onExtruderExtrusionSpeedChanged()));
+}
+
+void PrintingPage::onPrinterStatusChanged()
+{
+    if(m_printer->status() == QKlipperPrinter::Printing)
+    {
+        m_pausePrintButton->setText("Pause");
+        m_pausePrintButton->setIcon(Settings::getThemeIcon("pause"));
+    }
+    else if(m_printer->status() == QKlipperPrinter::Paused)
+    {
+        m_pausePrintButton->setText("Resume");
+        m_pausePrintButton->setIcon(Settings::getThemeIcon("play"));
+    }
+}
+
+void PrintingPage::onPrinterPrintSpeedChanged()
+{
+    disconnect(m_printSpeedSlider, SIGNAL(valueChanged(int)), this, SLOT(onPrintSpeedSliderValueChanged(int)));
+    m_printSpeedSlider->setValue(m_printer->printSpeed() * 100);
+    connect(m_printSpeedSlider, SIGNAL(valueChanged(int)), this, SLOT(onPrintSpeedSliderValueChanged(int)));
+}
+
+void PrintingPage::onPausePrintButtonClicked()
+{
+    if(m_printer->status() == QKlipperPrinter::Printing)
+        m_printer->pause();
+    else if(m_printer->status() == QKlipperPrinter::Paused)
+        m_printer->resume();
+}
+
+void PrintingPage::onCancelPrintButtonClicked()
+{
+    if(m_printer->status() == QKlipperPrinter::Printing || m_printer->status() == QKlipperPrinter::Paused)
+        m_printer->cancel();
+
+    close();
+}
+
+void PrintingPage::onExtrusionFactorSliderValueChanged(int value)
+{
+    if(m_printer->status() != QKlipperPrinter::Printing)
+    {
+        qDebug() << "Could not edit extrusion factor. Printer not printing.";
+        onExtruderExtrusionSpeedChanged();
+        return;
+    }
+
+    m_printer->toolhead()->currentExtruder()->setExtrusionFactor(((qreal)value / 100));
+    qDebug() << "Set Extrusion Factor to" << (qreal)value / 100;
+}
+
+void PrintingPage::onPrintSpeedSliderValueChanged(int value)
+{
+    if(m_printer->status() != QKlipperPrinter::Printing)
+    {
+        qDebug() << "Could not edit print speed factor. Printer not printing.";
+        onPrinterPrintSpeedChanged();
+        return;
+    }
+
+    m_printer->setPrintSpeed(((qreal)value / 100));
+    qDebug() << "Set Print Speed Factor to" << (qreal)value / 100;
 }
 
 void PrintingPage::initValues()

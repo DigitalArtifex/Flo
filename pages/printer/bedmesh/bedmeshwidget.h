@@ -19,15 +19,16 @@
 
 #include <QKlipper/qklipper.h>
 #include <QtDAWidgets/qthrobberwidget.h>
+#include <QtQuickWidgets/qquickwidget.h>
 #include "bedmeshdata.h"
 
+#include "adjustment/adjustmentscrewframe.h"
+#include "common/CardWidget/cardwidget.h"
+#include "common/Page/page.h"
 #include "health/bedmeshhealthcard.h"
 #include "probed/probedmeshframe.h"
-#include "adjustment/adjustmentscrewframe.h"
-#include "ui/common/cardwidget/cardwidget.h"
-#include "ui/common/dialog/dialog.h"
 
-class BedMeshWidget : public QOpenGLWidget
+class BedMeshWidget : public Page
 {
         Q_OBJECT
     public:
@@ -50,11 +51,13 @@ class BedMeshWidget : public QOpenGLWidget
     private:
         QGridLayout *m_layout = nullptr;
         QGridLayout *m_centralLayout = nullptr;
+        QGridLayout *m_contentLayout = nullptr;
         QGridLayout *m_sidebarLayout = nullptr;
         QWidget *m_centralWidget = nullptr;
         QWidget *m_viewerWidget = nullptr;
         QWidget *m_sideBarWidget = nullptr;
         QQuickView *m_viewer = nullptr;
+        QQuickWidget *m_bedMeshWidget = nullptr;
         QKlipperPrintBed *m_printBed = nullptr;
         BedMeshData *m_data = nullptr;
 
@@ -69,6 +72,7 @@ class BedMeshWidget : public QOpenGLWidget
         QIconButton *m_homeButton = nullptr;
         QIconButton *m_calibrateMeshButton = nullptr;
         QIconButton *m_calibrateScrewsButton = nullptr;
+        QIconButton *m_closeButton = nullptr;
 };
 
 #endif // BEDMESHWIDGET_H

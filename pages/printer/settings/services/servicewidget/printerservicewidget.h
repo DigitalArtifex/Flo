@@ -7,7 +7,7 @@
 #include <QLabel>
 #include <QSpacerItem>
 
-#include "ui/common/cardwidget/cardwidget.h"
+#include "common/CardWidget/cardwidget.h"
 #include "ui/QIconButton/qiconbutton.h"
 
 #include <QKlipper/qklipper.h>

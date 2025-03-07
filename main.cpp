@@ -12,9 +12,25 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Flo");
 
     QSettings settings;
+    settings.beginGroup("ui");
 
-    if(settings.value("ui/virtual-keyboard").toBool())
+    if(settings.value("virtual-keyboard").toBool())
         qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
+
+    if(settings.contains("media-backend"))
+        qputenv("QT_MEDIA_BACKEND", settings.value("media-backend").toString().toStdString());
+
+    QFont applicationFont = QApplication::font();
+
+    if(settings.contains("font-string"))
+    {
+        if(applicationFont.fromString(settings.value("font-string").toString()))
+            QApplication::setFont(applicationFont);
+    }
+
+    settings.endGroup();
+
+    qDebug() << "Font: " << applicationFont.toString();
 
     QApplication a(argc, argv);
 

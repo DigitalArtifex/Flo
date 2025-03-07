@@ -8,7 +8,7 @@
 #include <QDoubleSpinBox>
 
 #include <ui/QIconButton/qiconbutton.h>
-#include <ui/common/dialog/dialog.h>
+#include <common/dialog/dialog.h>
 
 
 class PositionDialog : public Dialog

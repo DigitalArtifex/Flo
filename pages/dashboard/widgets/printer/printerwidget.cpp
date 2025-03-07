@@ -29,6 +29,7 @@ void PrinterWidget::setPrinter(QKlipperInstance *printer)
     //connect to signals
     connect(m_instance,SIGNAL(nameChanged()),this, SLOT(onInstanceNameChanged()));
     connect(m_instance->printer(),SIGNAL(statusChanged()),this, SLOT(onPrinterStatusChanged()));
+    connect(m_instance->printer(),SIGNAL(statusMessageChanged()),this, SLOT(onPrinterStatusMessageChanged()));
     connect(m_instance->printer(),SIGNAL(printEndingChanged()),this, SLOT(onPrinterPrintEndingChanged()));
 }
 
@@ -138,8 +139,6 @@ void PrinterWidget::showLoadingScreen()
         m_loadingGif->deleteLater();
     if(m_loadingLabel != nullptr)
         m_loadingLabel->deleteLater();
-    if(m_loadingAnimation != nullptr)
-        m_loadingAnimation->deleteLater();
 
     setGraphicsEffect(nullptr);
 
@@ -152,21 +151,14 @@ void PrinterWidget::showLoadingScreen()
     m_loadingLabel->raise();
     m_loadingLabel->setMovie(m_loadingGif);
 
-    m_loadingAnimation = new WidgetAnimation(m_loadingLabel, WidgetAnimation::Opacity);
-
     m_loadingLabel->setScaledContents(true);
     ui->loadingLabel->setMovie(m_loadingGif);
     m_loadingGif->start();
-    m_loadingAnimation->show();
+    on_loadingAnimation_finished();
 }
 
 void PrinterWidget::hideLoadingScreen()
 {
-    if(m_loadingGif != nullptr)
-    {
-        connect(m_loadingAnimation, SIGNAL(finished()), this, SLOT(on_loadingAnimation_finished()));
-        m_loadingAnimation->hide();
-    }
 }
 
 
@@ -191,12 +183,6 @@ void PrinterWidget::on_loadingAnimation_finished()
     {
         m_loadingLabel->deleteLater();
         m_loadingLabel = nullptr;
-    }
-
-    if(m_loadingAnimation)
-    {
-        m_loadingAnimation->deleteLater();
-        m_loadingAnimation = nullptr;
     }
 }
 
@@ -312,6 +298,11 @@ void PrinterWidget::onInstanceNameChanged()
 
 void PrinterWidget::onPrinterPrintEndingChanged()
 {
-    ui->etaLabel->setText(QString("ETA: ") + m_instance->printer()->printEnding().toString());
+    if(m_instance->printer()->status() == QKlipperPrinter::Printing)
+        ui->etaLabel->setText(QString("ETA: ") + m_instance->printer()->printEnding().toString());
 }
 
+void PrinterWidget::onPrinterStatusMessageChanged()
+{
+    ui->statusMessageEdit->setText(m_instance->printer()->statusMessage());
+}

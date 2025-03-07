@@ -7,7 +7,7 @@
 #include <QLabel>
 #include <ui/Switch/switch.h>
 #include <QKlipper/qklipper.h>
-#include <ui/common/cardwidget/cardwidget.h>
+#include <common/CardWidget/cardwidget.h>
 #include <ui/QIconButton/qiconbutton.h>
 #include <flo/settings.h>
 

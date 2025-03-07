@@ -58,9 +58,6 @@
           <string>Interface Settings</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="1">
-           <widget class="QFontComboBox" name="fontComboBox"/>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label">
             <property name="text">
@@ -68,7 +65,38 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="2">
+          <item row="1" column="1">
+           <widget class="QComboBox" name="multimediaComboBox">
+            <item>
+             <property name="text">
+              <string>FFMPEG (Default)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>GStreamer</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Multimedia Backend</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QCheckBox" name="virtualKeyboardCheckBox">
+            <property name="text">
+             <string>Enable Virtual Keyboard</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QFontComboBox" name="fontComboBox"/>
+          </item>
+          <item row="4" column="0" colspan="2">
            <widget class="QCheckBox" name="openGlCheckbox">
             <property name="enabled">
              <bool>false</bool>
@@ -78,10 +106,10 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="QCheckBox" name="virtualKeyboardCheckBox">
+          <item row="2" column="0" colspan="2">
+           <widget class="QCheckBox" name="kioskModeCheckBox">
             <property name="text">
-             <string>Enable Virtual Keyboard</string>
+             <string>Kiosk Mode</string>
             </property>
            </widget>
           </item>

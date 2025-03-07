@@ -36,7 +36,7 @@ void Settings::loadThemes()
     QDir presetDir(themeLocation);
 
     if(!themeMap.isEmpty())
-        themeMap.empty();
+        themeMap.clear();
 
     if(presetDir.exists())
     {
@@ -228,8 +228,10 @@ void Settings::load()
 
     if(settings.value("first-run", true).toBool())
     {
+        qDebug() << "Initiating first run";
         inflateSettingsDirectory();
         scanForKlipperInstances();
+        save();
     }
 
     m_currentIconSetName = settings.value("ui/icon-set").toString();
@@ -261,6 +263,13 @@ void Settings::load()
         //begin the group to load settings under this prefix
         settings.beginGroup(id);
 
+        QString name = settings.value("name").toString();
+        QString address = settings.value("address").toString();
+        QString location = settings.value("location").toString();
+        QString api = settings.value("api_key").toString();
+        QString color = settings.value("color").toString();
+        int port = settings.value("port").toInt();
+
         //set the instance settings
         instance->setId(id);
         instance->setName(settings.value("name").toString());
@@ -272,6 +281,14 @@ void Settings::load()
         instance->setAutoConnect(settings.value("auto_connect").toBool());
 
         //end group to move to power settings
+        settings.endGroup();
+
+        settings.beginGroup(id + "/power");
+        QStringList keys = settings.childKeys();
+
+        for(const QString &key : keys)
+            instance->printer()->addPowerProfileData(key, settings.value(key).toDouble());
+
         settings.endGroup();
 
         QString thumbnailLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + "thumbnails";
@@ -287,9 +304,6 @@ void Settings::load()
 
         QKlipperInstancePool::addInstance(instance);
     }
-
-    if(settings.value("first-run", true).toBool())
-        save();
 }
 
 void Settings::save()
@@ -345,15 +359,10 @@ void Settings::save()
         settings.setValue("color", instance->profileColor());
         settings.setValue("auto_connect", instance->autoConnect());
 
-        QList<QKlipperExtruder*> extruders = instance->printer()->toolhead()->extruderMap().values();
+        QStringList keys = instance->printer()->powerProfile().keys();
 
-        for(QKlipperExtruder *extruder : extruders)
-        {
-            QString key = QString("power/%1").arg(extruder->name());
-            settings.setValue(key, extruder->maxWatts());
-        }
-
-        settings.setValue("power/bed", instance->printer()->bed()->maxWatts());
+        for(const QString &key : keys)
+            settings.setValue(QString("power/") + key, instance->printer()->powerProfile().value(key));
 
         settings.endGroup();
     }
@@ -462,6 +471,22 @@ QString Settings::getTheme(QString key)
     return theme;
 }
 
+QVariableStyleSheet Settings::getThemeSheet(QString key)
+{
+    QFile themeFile(themeMap[key]);
+
+    //Missing or corrupt files are just skipped for now
+    if(!themeFile.open(QFile::ReadOnly))
+        return QString();
+
+    QString theme = themeFile.readAll();
+    themeFile.close();
+
+    QVariableStyleSheet sheet(theme);
+
+    return sheet;
+}
+
 QIcon Settings::getThemeIcon(QString key, QColor color)
 {
     if(!m_requestedIcons.contains(key))
@@ -530,7 +555,7 @@ void Settings::setTheme(QString key)
     set("theme_name", key);
     m_currentTheme = getTheme(key);
     m_currentThemeName = key;
-    emit currentThemeChanged();
+    emit m_instance->currentThemeChanged();
 }
 
 QStringList Settings::themeList()
@@ -555,8 +580,46 @@ bool Settings::saveTheme(const QString &name, const QVariableStyleSheet &sheet)
 
     themeFile.close();
 
-    m_instance->setTheme(name);
+    //m_instance->setTheme(name);
 
+    loadThemes();
+
+    return true;
+}
+
+bool Settings::deleteTheme(const QString &name)
+{
+    QString themeLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) +
+                            QDir::separator() + "themes" + QDir::separator();
+
+    QFile themeFile(themeLocation + name + ".css");
+
+    if(!themeFile.remove())
+    {
+        qDebug() << "Could not delete theme" << name << themeLocation + name + ".css";
+        return false;
+    }
+
+    themeMap.remove(name);
+    return true;
+}
+
+bool Settings::renameTheme(const QString &name, const QString &newName)
+{
+    QString themeLocation = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) +
+                            QDir::separator() + "themes" + QDir::separator();
+
+    QFile themeFile(themeLocation + name + ".css");
+
+    if(!themeFile.rename(newName))
+    {
+        qDebug() << "Could not rename theme" << name << themeLocation + name + ".css";
+        return false;
+    }
+
+    QString data = themeMap[name];
+    themeMap.remove(name);
+    themeMap.insert(newName, data);
     return true;
 }
 
@@ -591,28 +654,6 @@ QVariableStyleSheet Settings::theme()
 
 void Settings::onInstanceOnline(QKlipperInstance *instance)
 {
-    QSettings settings;
-
-    //set group to power settings
-    settings.beginGroup(instance->id() + "/power");
-
-    //set bed power
-    instance->printer()->bed()->setMaxWatts(settings.value("bed", 360).toDouble());
-
-    //set chamber power
-    instance->printer()->chamber()->setMaxWatts(settings.value("chamber", 360).toDouble());
-
-    //set the power of each extruder
-    if(instance->printer()->toolhead()->extruderMap().count())
-    {
-        instance->printer()->toolhead()->extruder("extruder")->setMaxWatts(settings.value("extruder", 24).toDouble());
-
-        for(int i = 1; i < instance->printer()->toolhead()->extruderMap().count(); i++)
-        {
-            QString extruderName = QString("extruder%1").arg(QString::number(i));
-            instance->printer()->toolhead()->extruder(extruderName)->setMaxWatts(settings.value(extruderName, 24).toDouble());
-        }
-    }
 }
 
 Settings::Settings()

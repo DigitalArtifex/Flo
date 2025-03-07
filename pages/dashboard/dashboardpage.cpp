@@ -23,6 +23,11 @@ DashboardPage::DashboardPage(QWidget *parent) :
     connect(QKlipperInstancePool::pool(), SIGNAL(instanceRemoved(QKlipperInstance*)), this, SLOT(onInstanceRemoved(QKlipperInstance*)));
 
     setStyleSheet(Settings::currentTheme());
+
+    m_viewer = new QQuickView();
+    m_viewerWidget = QWidget::createWindowContainer(m_viewer, this);
+    m_viewerWidget->setFixedSize(0,0);
+    m_layout->addWidget(m_viewerWidget);
 }
 
 DashboardPage::~DashboardPage()

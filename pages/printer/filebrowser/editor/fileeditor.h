@@ -7,7 +7,7 @@
 #include <QKlipper/qklipper.h>
 
 #include "ui/QIconButton/qiconbutton.h"
-#include "ui/common/dialog/dialog.h"
+#include "common/dialog/dialog.h"
 
 namespace Ui {
 class FileEditor;
@@ -27,7 +27,8 @@ public:
     enum ReturnCodes
     {
         SaveAndRestart = 2,
-        Save = 3
+        Save = 3,
+        Error = 4
     };
 
     explicit FileEditor(QKlipperInstance *instance, QWidget *parent = nullptr);

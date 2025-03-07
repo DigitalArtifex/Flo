@@ -4,10 +4,7 @@
 Dialog::Dialog(QWidget *parent, Qt::WindowFlags flags)
     : QDialog(parent, flags)
 {
-    if(Settings::get("theme/frameless-dialogs").toBool())
-        setWindowFlag(Qt::FramelessWindowHint);
-
-    setWindowFlag(Qt::Popup);
+    //setWindowFlag(Qt::Popup);
     //setWindowModality(Qt::WindowModal);
 
     setProperty("class", QString("Dialog"));

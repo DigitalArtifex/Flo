@@ -2,16 +2,19 @@
 #define SETTINGSPAGE_H
 
 #include <QFrame>
-#include <QParallelAnimationGroup>
 #include <QMessageBox>
 #include <QOpenGLWidget>
+#include <QParallelAnimationGroup>
+#include <qquickview.h>
 
+#include "3rdparty/QtSheet/sheet.h"
 #include "edit_printer/editprinterdialog.h"
 #include "printerlistwidget.h"
 
 #include "qpropertyanimation.h"
 #include "theme/themesettingspage.h"
 #include "system/systemsettingspage.h"
+#include "common/Page/page.h"
 
 #include "3rdparty/QSourceHighlite/qsourcehighliter.h"
 
@@ -21,7 +24,7 @@ namespace Ui {
 class SettingsPage;
 }
 
-class SettingsPage : public QOpenGLWidget
+class SettingsPage : public QWidget
 {
     Q_OBJECT
 
@@ -33,23 +36,26 @@ public:
 
     void reset();
     void apply();
+    bool requiresRestart();
 
 public slots:
-    virtual void setStyleSheet(const QString &styleSheet);
+    // virtual void setStyleSheet(const QString &styleSheet);
 
 signals:
     void printerAdded(QKlipperInstance *definition);
+    void dialogRequested(QDialog *);
+    void wizardRequested(QWizard *);
 
 protected slots:
-    virtual void resizeEvent(QResizeEvent *event);
-    virtual void showEvent(QShowEvent *event);
 
 private slots:
     void printerListWidgetItemSelectedEvent(PrinterListItem *item);
 
-    void editPrinterButtonClickEvent();
-    void addPrinterButtonClickEvent();
-    void removePrinterButtonClickEvent();
+    void onEditPrinterButtonClicked();
+    void onEditPrinterDialogFinished(int returnCode);
+    void onAddPrinterButtonClicked();
+    void onAddPrinterDialogFinished(int returnCode);
+    void onRemovePrinterButtonClicked();
 
     void printersActionButtonClickEvent();
     void themeActionButtonClickEvent();
@@ -59,26 +65,21 @@ private slots:
     void onCancelButtonClicked();
     void onApplyButtonClicked();
 
-    void hideFooter();
-    void showFooter();
-    void setupAnimations();
-    void onFooterAnimationFinished();
     void setupIcons();
+
+    void showPrinterButtons();
+    void showSettingsButtons();
+
+    void onDialogRequested(QDialog *dialog);
+    void onDialogFinished(int returnCode);
+    void onWizardRequested(QWizard *wizard);
+    void onWizardFinished(int returnCode);
+
+protected:
+    virtual void changeEvent(QEvent *event) override;
 
 private:
     Ui::SettingsPage *ui;
-
-    QPropertyAnimation *m_footerAnimation = nullptr;
-    bool                m_isFooterShown = true;
-    QRect               m_footerInGeometry;
-    QRect               m_footerOutGeometry;
-
-    QPropertyAnimation *m_pageAnimation = nullptr;
-
-    QParallelAnimationGroup *m_footerAnimationGroup = nullptr;
-
-    QPropertyAnimation *m_pageInAnimation = nullptr;
-    QPropertyAnimation *m_pageOutAnimation = nullptr;
 
     EditPrinterDialog *m_editPrinterDialog = nullptr;
     PrinterListWidget *m_printerListWidget = nullptr;
@@ -98,6 +99,13 @@ private:
     QIconButton *m_cancelButton = nullptr;
     QIconButton *m_resetButton = nullptr;
     QSpacerItem *m_footerSpacer = nullptr;
+
+    QQuickView *m_viewer = nullptr;
+    QWidget *m_viewerWidget = nullptr;
+
+    Sheet *m_dialogSheet = nullptr;
+    QDialog *m_requestedDialog = nullptr;
+    QWizard *m_requestedWizard = nullptr;
 };
 
 #endif // SETTINGSPAGE_H

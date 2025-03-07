@@ -12,6 +12,22 @@ void PidDialog::setupUi()
 {
     m_centralLayout = new QGridLayout(this);
     setLayout(m_centralLayout);
+    QString text = "<h1>PID Calibration</h1>\n\nPID (Proportional-Integral-Derivative) calibration for a heater is the process \
+of tuning the three control parameters to achieve optimal temperature regulation. \
+The proportional term (P) controls the heater output based on the current temperature \
+error, providing immediate correction but potentially leading to steady-state error. \
+The integral term (I) accumulates past errors to eliminate steady-state deviation, but \
+excessive tuning can cause overshoot and instability. The derivative term (D) anticipates \
+future errors by reacting to the rate of temperature change, helping to dampen oscillations \
+but making the system sensitive to noise. Proper calibration balances these three terms to \
+ensure fast response, minimal overshoot, and stable temperature control.";
+
+    m_pidText = new QLabel(this);
+    m_pidText->setWordWrap(true);
+    m_pidText->setText(text);
+
+    m_centralLayout->addWidget(m_pidText, 0, 0);
+    m_centralLayout->addItem(new QSpacerItem(40, 40, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 0);
 
     //setup distance group box
     m_targetGroupBox = new QGroupBox(this);
@@ -22,7 +38,8 @@ void PidDialog::setupUi()
     m_targetSpinBox->setMaximum(300);
     m_targetGroupBox->layout()->addWidget(m_targetSpinBox);
 
-    m_centralLayout->addWidget(m_targetGroupBox, 0, 0);
+    m_centralLayout->addWidget(m_targetGroupBox, 2, 0);
+    m_centralLayout->addItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding), 3, 0);
 
     connect(m_targetSpinBox, SIGNAL(valueChanged(double)), this, SLOT(setTarget(qreal)));
 
@@ -30,7 +47,7 @@ void PidDialog::setupUi()
     m_footerWidget = new QWidget(this);
     m_footerWidget->setLayout(new QHBoxLayout(m_footerWidget));
     m_footerWidget->layout()->setContentsMargins(0,0,0,0);
-    m_centralLayout->addWidget(m_footerWidget);
+    m_centralLayout->addWidget(m_footerWidget, 4, 0);
 
     m_rejectButton = new QIconButton(m_footerWidget);
     m_rejectButton->setText("Cancel");

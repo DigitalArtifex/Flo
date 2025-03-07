@@ -2,7 +2,7 @@
 #define ZOFFSETWIZARD_H
 
 #include <QWizard>
-#include <QKliiper/qklipper.h>
+#include <QKlipper/qklipper.h>
 
 namespace Ui {
 class ZOffsetWizard;

@@ -2,18 +2,16 @@
 #define PIDDIALOG_H
 
 #include <QObject>
-#include <QQmlEngine>
 #include <QWidget>
 #include <QGroupBox>
 #include <QDoubleSpinBox>
 
-#include <ui/common/dialog/dialog.h>
+#include <common/dialog/dialog.h>
 #include <ui/QIconButton/qiconbutton.h>
 
 class PidDialog : public Dialog
 {
         Q_OBJECT
-        QML_ELEMENT
     public:
         explicit PidDialog(QWidget *parent = nullptr);
 
@@ -44,6 +42,8 @@ class PidDialog : public Dialog
         QDoubleSpinBox *m_targetSpinBox = nullptr;
 
         qreal m_target = 0;
+
+        QLabel *m_pidText = nullptr;
 
         Q_PROPERTY(qreal target READ target WRITE setTarget NOTIFY targetChanged FINAL)
 };

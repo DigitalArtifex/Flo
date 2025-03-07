@@ -5,7 +5,7 @@
 #include <QVBoxLayout>
 #include <QLabel>
 
-#include "ui/common/cardwidget/cardwidget.h"
+#include "common/CardWidget/cardwidget.h"
 
 #include <QKlipper/qklipper.h>
 

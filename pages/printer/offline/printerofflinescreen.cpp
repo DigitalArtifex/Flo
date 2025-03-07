@@ -3,6 +3,8 @@
 
 #include "flo/settings.h"
 
+#include <QStringLiteral>
+
 PrinterOfflineScreen::PrinterOfflineScreen(QKlipperInstance *printer, QWidget *parent)
     : QFrame(parent)
     , ui(new Ui::PrinterOfflineScreen)
@@ -95,8 +97,8 @@ void PrinterOfflineScreen::printerConnectingEvent()
     }
     else if(m_instance->console()->connectionState() == QKlipperConsole::Restarting)
     {
-        m_connectButton->setVisible(true);
-        m_connectButton->setEnabled(true);
+        m_connectButton->setVisible(false);
+        m_connectButton->setEnabled(false);
 
         ui->progressBar->setVisible(false);
         ui->label->setText(QString("\'%1\' Is Restarting").arg(m_instance->name()));

@@ -32,10 +32,16 @@ void PrinterUserEditor::setupUi()
     m_centralLayout = new QVBoxLayout(this);
     setLayout(m_centralLayout);
 
+    m_titleLabel = new QLabel(this);
+    m_titleLabel->setText("<h1>New User</h1>");
+    m_centralLayout->addWidget(m_titleLabel);
+
+    m_centralLayout->addItem(new QSpacerItem(0, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
+
     m_iconLabel = new QLabel(this);
-    m_iconLabel->setFixedSize(100,100);
+    m_iconLabel->setFixedSize(150,150);
     m_iconLabel->setAlignment(Qt::AlignCenter);
-    m_iconLabel->setPixmap(Settings::getThemeIcon("user").pixmap(100,100));
+    m_iconLabel->setPixmap(Settings::getThemeIcon("user").pixmap(150,150));
     m_centralLayout->addWidget(m_iconLabel);
 
     m_userNameEdit = new QLineEdit(this);
@@ -66,7 +72,7 @@ void PrinterUserEditor::setupUi()
     m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_buttonLayout->addWidget(m_cancelButton);
 
-    m_buttonLayout->addSpacerItem(new QSpacerItem(0,0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+    //m_buttonLayout->addSpacerItem(new QSpacerItem(0,0, QSizePolicy::Expanding, QSizePolicy::Ignored));
 
     m_acceptButton = new QIconButton(this);
     m_acceptButton->setText("Accept");

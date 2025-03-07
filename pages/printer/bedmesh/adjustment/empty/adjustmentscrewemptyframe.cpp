@@ -22,9 +22,15 @@ AdjustmentScrewEmptyFrame::AdjustmentScrewEmptyFrame(QKlipperPrintBed *bed, QWid
     m_iconLabel->setPixmap(pixmap);
 
     m_printerBed = bed;
-    connect(m_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(onToolheadHoming()));
-    connect(m_printerBed->printer()->toolhead(), SIGNAL(homingFinished()), this, SLOT(onToolheadHomingFinished()));
-    connect(m_printerBed->printer()->toolhead(), SIGNAL(isHomedChanged()), this, SLOT(onToolheadHomingFinished()));
+
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printerBed->parent());
+
+    if(printer)
+    {
+        connect(printer->toolhead(), SIGNAL(homing()), this, SLOT(onToolheadHoming()));
+        connect(printer->toolhead(), SIGNAL(homingFinished()), this, SLOT(onToolheadHomingFinished()));
+        connect(printer->toolhead(), SIGNAL(isHomedChanged()), this, SLOT(onToolheadHomingFinished()));
+    }
 }
 
 AdjustmentScrewEmptyFrame::~AdjustmentScrewEmptyFrame()
@@ -64,6 +70,10 @@ void AdjustmentScrewEmptyFrame::onToolheadHomingFinished()
 void AdjustmentScrewEmptyFrame::on_homeButton_clicked()
 {
     emit calibrating();
-    m_printerBed->printer()->toolhead()->home();
+
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printerBed->parent());
+
+    if(printer)
+    printer->toolhead()->home();
 }
 

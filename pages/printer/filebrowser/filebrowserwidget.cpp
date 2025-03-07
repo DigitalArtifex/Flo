@@ -5,6 +5,7 @@ FileBrowserWidget::FileBrowserWidget(QWidget *parent, DisplayMode mode) :
     QAnimatedListWidget(parent)
 {
     m_displayMode = mode;
+    scrollAreaContents()->layout()->setContentsMargins(0,0,0,0);
 }
 
 FileBrowserWidget::~FileBrowserWidget()
@@ -24,7 +25,6 @@ void FileBrowserWidget::addFile(QKlipperFile *file)
     connect(item, SIGNAL(editRequested(FileBrowserItem*)), this, SLOT(itemEditRequestedEvent(FileBrowserItem*)));
     connect(item, SIGNAL(printRequested(FileBrowserItem*)), this, SLOT(itemPrintRequestedEvent(FileBrowserItem*)));
 
-    setAnimationSlide(item);
     addItem(item);
 }
 
@@ -42,9 +42,6 @@ void FileBrowserWidget::setFiles(const QKlipperFileList &files)
         connect(item, SIGNAL(deleteRequested(FileBrowserItem*)), this, SLOT(itemDeleteRequestedEvent(FileBrowserItem*)));
         connect(item, SIGNAL(editRequested(FileBrowserItem*)), this, SLOT(itemEditRequestedEvent(FileBrowserItem*)));
         connect(item, SIGNAL(printRequested(FileBrowserItem*)), this, SLOT(itemPrintRequestedEvent(FileBrowserItem*)));
-
-        setAnimationSlide(item);
-        item->setDuration(100 + (50 * i));
 
         addItem(item);
     }

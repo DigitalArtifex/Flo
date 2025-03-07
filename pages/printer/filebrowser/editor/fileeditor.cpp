@@ -104,8 +104,11 @@ void FileEditor::saveAndRestartButtonClicked()
 
     if(error.type() == QKlipperError::NoError)
     {
+        m_instance->system()->restart();
         done(SaveAndRestart);
     }
+    else
+        done(Error);
 }
 
 void FileEditor::saveAndCloseButtonClicked()
@@ -116,9 +119,9 @@ void FileEditor::saveAndCloseButtonClicked()
     m_instance->console()->serverFileUpload(m_file->root(), m_file->path(), m_file->filename(), fileContents, &error);
 
     if(error.type() == QKlipperError::NoError)
-    {
         done(Save);
-    }
+    else
+        done(Error);
 }
 
 void FileEditor::closeButtonClicked()

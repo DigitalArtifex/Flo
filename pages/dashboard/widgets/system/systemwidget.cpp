@@ -84,11 +84,9 @@ void SystemWidget::on_loadingAnimation_finished()
 
     m_loadingGif->deleteLater();
     m_loadingLabel->deleteLater();
-    m_loadingAnimation->deleteLater();
 
     m_loadingLabel = nullptr;
     m_loadingGif = nullptr;
-    m_loadingAnimation = nullptr;
 }
 
 void SystemWidget::onSystemMemoryStatsChanged()
@@ -182,8 +180,6 @@ void SystemWidget::showLoadingScreen()
         m_loadingGif->deleteLater();
     if(m_loadingLabel != nullptr)
         m_loadingLabel->deleteLater();
-    if(m_loadingAnimation != nullptr)
-        m_loadingAnimation->deleteLater();
 
     m_loadingGif = new QMovie(":/images/loading_widget.gif");
     m_loadingLabel = new QLabel(this);
@@ -194,17 +190,10 @@ void SystemWidget::showLoadingScreen()
     m_loadingLabel->show();
     m_loadingLabel->activateWindow();
     m_loadingLabel->raise();
-
-    m_loadingAnimation = new WidgetAnimation(m_loadingLabel, WidgetAnimation::Opacity);
     m_loadingGif->start();
-    m_loadingAnimation->show();
+    on_loadingAnimation_finished();
 }
 
 void SystemWidget::hideLoadingScreen()
 {
-    if(m_loadingGif != nullptr)
-    {
-        connect(m_loadingAnimation, SIGNAL(finished()), this, SLOT(on_loadingAnimation_finished()));
-        m_loadingAnimation->hide();
-    }
 }

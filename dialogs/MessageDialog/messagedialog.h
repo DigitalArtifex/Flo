@@ -6,7 +6,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-#include "ui/common/dialog/dialog.h"
+#include "common/dialog/dialog.h"
 #include "ui/QIconButton/qiconbutton.h"
 
 class MessageDialog : public Dialog
@@ -20,17 +20,19 @@ public:
 
     QString text() const;
 
+    QString informativeText() const;
+
 public slots:
     void setIcon(const QIcon &icon);
     void setText(const QString &text);
     void setRejectEnabled(bool enabled);
 
+    void setInformativeText(const QString &informativeText);
+
 signals:
 
 protected slots:
     void setupUi();
-    void acceptButtonClicked();
-    void rejectButtonClicked();
 
 private:
     QVBoxLayout *m_centralLayout = nullptr;
@@ -39,8 +41,10 @@ private:
 
     QIcon m_icon;
     QString m_text;
+    QString m_informativeText;
 
     QLabel *m_textLabel = nullptr;
+    QLabel *m_informativeTextLabel = nullptr;
     QLabel *m_iconLabel = nullptr;
 
     QIconButton *m_acceptButton = nullptr;

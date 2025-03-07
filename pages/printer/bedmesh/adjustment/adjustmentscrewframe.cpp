@@ -11,8 +11,14 @@ AdjustmentScrewFrame::AdjustmentScrewFrame(QKlipperPrintBed *bed, QWidget *paren
     connect(m_printerBed, SIGNAL(adjustmentScrewsCalibratingFinished()), this, SLOT(onPrinterBedCalibratingFinished()));
     connect(m_printerBed, SIGNAL(adjustmentScrewsChanged()), this, SLOT(onAdjustmentScrewsChanged()));
     connect(m_printerBed, SIGNAL(hasAdjustmentScrewResultChanged()), this, SLOT(onAdjustmentScrewsChanged()));
-    connect(m_printerBed->printer()->toolhead(), SIGNAL(homing()), this, SLOT(onToolheadHoming()));
-    connect(m_printerBed->printer()->toolhead(), SIGNAL(homingFinished()), this, SLOT(onToolheadHomed()));
+
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printerBed->parent());
+
+    if(printer)
+    {
+        connect(printer->toolhead(), SIGNAL(homing()), this, SLOT(onToolheadHoming()));
+        connect(printer->toolhead(), SIGNAL(homingFinished()), this, SLOT(onToolheadHomed()));
+    }
 
     m_emptyAdjustmentScrewFrame = new AdjustmentScrewEmptyFrame(m_printerBed, m_dataFrame);
     m_dataFrame = new QFrame(this);
@@ -68,12 +74,6 @@ void AdjustmentScrewFrame::showLoadingScreen()
         m_loadingLabel = nullptr;
     }
 
-    if(m_loadingAnimation)
-    {
-         m_loadingAnimation->deleteLater();
-        m_loadingAnimation = nullptr;
-    }
-
     if(m_loadingFrameLayout)
     {
          m_loadingFrameLayout->deleteLater();
@@ -104,27 +104,13 @@ void AdjustmentScrewFrame::showLoadingScreen()
     m_loadingLabel->setMovie(m_loadingGif);
     m_loadingFrameLayout->addWidget(m_loadingLabel);
 
-    m_loadingAnimation = new QWidgetAnimation(m_loadingFrame);
-    m_loadingAnimation->setDuration(100);
-    m_loadingAnimation->setStartOpacity(0);
-    m_loadingAnimation->setEndOpacity(1);
-
     m_loadingGif->start();
-    m_loadingAnimation->start();
-
+    on_loadingAnimation_finished();
     this->style()->polish(m_loadingFrame);
 }
 
 void AdjustmentScrewFrame::hideLoadingScreen()
 {
-    if(m_loadingGif)
-    {
-        connect(m_loadingAnimation, SIGNAL(finished()), this, SLOT(on_loadingAnimation_finished()));
-        m_loadingAnimation->setStartOpacity(1);
-        m_loadingAnimation->setEndOpacity(0);
-        m_loadingAnimation->setDuration(100);
-        m_loadingAnimation->start();
-    }
 }
 
 void AdjustmentScrewFrame::setStyleSheet(const QString &styleSheet)

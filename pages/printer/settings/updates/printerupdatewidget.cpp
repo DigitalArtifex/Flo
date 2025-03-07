@@ -30,9 +30,6 @@ void PrinterUpdateWidget::setUpdateState(QKlipperUpdateManager *newUpdateState)
         PrinterUpdateItem *item = new PrinterUpdateItem(key, state, this);
         connect(item, SIGNAL(updateRequested(PrinterUpdateItem*)), this, SLOT(itemUpdateRequestedEvent(PrinterUpdateItem*)));
 
-        setAnimationSlide(item);
-        item->setDuration(150);
-
         addItem(item);
     }
 }

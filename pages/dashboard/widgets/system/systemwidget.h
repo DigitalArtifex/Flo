@@ -7,7 +7,6 @@
 
 #include <QKlipper/qklipper.h>
 #include <QtDAWidgets/qgaugewidget.h>
-#include "ui/widgetanimation.h"
 
 namespace Ui {
 class SystemWidget;
@@ -54,8 +53,6 @@ private:
 
     QMovie *m_loadingGif = nullptr;
     QLabel *m_loadingLabel = nullptr;
-
-    WidgetAnimation *m_loadingAnimation = nullptr;
 };
 
 #endif // SYSTEMWIDGET_H

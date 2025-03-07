@@ -23,19 +23,20 @@
 
 #include <QParallelAnimationGroup>
 
-#include <QCamera>
-
 #include <QTcpSocket>
 
 #include "3rdparty/QSourceHighlite/qsourcehighliter.h"
+#include "3rdparty/SlidingStackedWidget/slidingstackedwidget.h"
 
 #include <QKlipper/qklipper.h>
 #include "flo/flo.h"
 
 //UI elements
-#include "ui/menubutton.h"
-#include "ui/widgetanimation.h"
-#include "ui/qanimatedwidget.h"
+#include "pages/dashboard/dashboardpage.h"
+#include "pages/printer/printerpage.h"
+#include "pages/settings/settingspage.h"
+#include "ui/MenuButton/menubutton.h"
+#include <common/QAnimatedWidget/qanimatedwidget.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -52,7 +53,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void changePage(QAnimatedWidget *page, QString title);
+    void changePage(QWidget *page, QString title);
 
 signals:
 
@@ -78,8 +79,6 @@ private slots:
     void on_shutdownAction_triggered(bool checked);
     void on_closeAction_triggered(bool checked);
     void on_powerButton_clicked();
-
-    void on_loadingAnimation_finished();
     void on_initAsync();
 
     void on_printerPoolPrinterAdded(QKlipperInstance* printer);
@@ -92,7 +91,6 @@ private:
     void setupUiClasses();
     void showPopup();
     void setMenuEnabled(bool enabled);
-    void setupPowerActions();
 
 private:
     Flo *m_flo = nullptr;
@@ -103,9 +101,9 @@ private:
     QAction *m_closeAction;
 
     //Pages
-    QList<QAnimatedWidget*> m_printerPages = QList<QAnimatedWidget*>();
-    QAnimatedWidget *m_settingsPage = nullptr;
-    QAnimatedWidget *m_dashboardPage = nullptr;
+    QList<PrinterPage*> m_printerPages;
+    SettingsPage *m_settingsPage = nullptr;
+    DashboardPage *m_dashboardPage = nullptr;
     QAnimatedWidget *m_loadingPage = nullptr;
 
     QSize m_pageSize = QSize();
@@ -125,8 +123,6 @@ private:
     QMovie *m_loadingGif = nullptr;
     QLabel *m_loadingLabel = nullptr;
 
-    WidgetAnimation *m_loadingAnimation = nullptr;
-
     //Timers
     QTimer *m_loadTimer = nullptr;
     QTimer *m_initTimer = nullptr;
@@ -137,14 +133,14 @@ private:
     QString m_currentTitle = "Loading";
     QString m_nextTitle = "";
 
-    QAnimatedWidget *m_currentPage = nullptr;
-    QAnimatedWidget *m_nextPage = nullptr;
-    QParallelAnimationGroup *m_pageAnimationGroup;
-
     //for faster ui rendering
     QGraphicsView *m_graphicsView = nullptr;
     QGraphicsScene *m_graphicsScene = nullptr;
+    SlidingStackedWidget *m_pageStackWidget = nullptr;
 
     QKlipperInstance *m_currentInstance = nullptr;
+
+    QQuickView *m_viewer = nullptr;
+    QWidget *m_viewerWidget = nullptr;
 };
 #endif // MAINWINDOW_H

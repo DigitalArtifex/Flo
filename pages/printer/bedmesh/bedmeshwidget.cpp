@@ -2,7 +2,7 @@
 #include "qabstractaxis.h"
 #include "flo/settings.h"
 
-BedMeshWidget::BedMeshWidget(QKlipperPrintBed *bed, QWidget *parent) : QOpenGLWidget(parent)
+BedMeshWidget::BedMeshWidget(QKlipperPrintBed *bed, QWidget *parent) : Page(parent)
 {
     m_printBed = bed;
     m_data = new BedMeshData(m_printBed, this);
@@ -79,18 +79,20 @@ void BedMeshWidget::setStyleSheet(QString styleSheet)
         m_healthCard->setStyleSheet(styleSheet);
 
     m_homeButton->setIcon(Settings::getThemeIcon(QString("home")));
+    Page::setStyleSheet(styleSheet);
 }
 
 void BedMeshWidget::setupUi()
 {
     m_layout = new QGridLayout(this);
     m_layout->setContentsMargins(0,0,0,0);
+    m_layout->setSpacing(0);
 
     m_centralWidget = new QWidget(this);
     m_centralLayout = new QGridLayout(m_centralWidget);
     m_centralWidget->setLayout(m_centralLayout);
-    m_centralWidget->setProperty("class", "Page");
-    m_layout->addWidget(m_centralWidget);
+    //m_centralWidget->setProperty("class", "Page");
+    m_layout->addWidget(m_centralWidget, 1, 0);
 
     this->setLayout(m_layout);
 }
@@ -161,8 +163,9 @@ void BedMeshWidget::setupSidebar()
 void BedMeshWidget::setupButtonBox()
 {
     m_buttonBoxWidget = new QWidget(m_centralWidget);
+    m_buttonBoxWidget->setProperty("class", QStringList { "PageActionBar" } + m_buttonBoxWidget->property("class").toStringList());
     m_buttonBoxLayout = new QHBoxLayout(m_buttonBoxWidget);
-    m_buttonBoxLayout->setContentsMargins(0,0,0,0);
+    m_buttonBoxLayout->setContentsMargins(4,4,4,4);
     m_buttonBoxWidget->setLayout(m_buttonBoxLayout);
 
     m_homeButton = new QIconButton(m_buttonBoxWidget);
@@ -191,14 +194,25 @@ void BedMeshWidget::setupButtonBox()
     m_calibrateScrewsButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_buttonBoxLayout->addWidget(m_calibrateScrewsButton);
 
+    m_closeButton = new QIconButton(m_buttonBoxWidget);
+    m_closeButton->setIcon(Settings::getThemeIcon(QString("multiply")));
+    m_closeButton->setFixedSize(50,50);
+    m_closeButton->setTextMargins(QMargins(34,0,0,0));
+    m_closeButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    m_buttonBoxLayout->addWidget(m_closeButton);
+
     connect(m_calibrateScrewsButton, SIGNAL(clicked()), this, SLOT(onCalibrateScrewsButtonClicked()));
 
-    m_centralLayout->addWidget(m_buttonBoxWidget, 1, 0, 1, 2);
+    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(close()));
+
+    m_layout->addWidget(m_buttonBoxWidget, 0, 0, 1, 1);
 }
 
 void BedMeshWidget::onHomeButtonClicked()
 {
-    if(m_printBed->printer()->status() == QKlipperPrinter::Ready)
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printBed->parent());
+
+    if(printer && printer->status() == QKlipperPrinter::Ready)
     {
         QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printBed->parent());
 
@@ -209,7 +223,9 @@ void BedMeshWidget::onHomeButtonClicked()
 
 void BedMeshWidget::onCalibrateMeshButtonClicked()
 {
-    if(m_printBed->printer()->status() == QKlipperPrinter::Ready)
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printBed->parent());
+
+    if(printer && printer->status() == QKlipperPrinter::Ready)
     {
         m_printBed->calibrateBedMesh();
     }
@@ -217,7 +233,9 @@ void BedMeshWidget::onCalibrateMeshButtonClicked()
 
 void BedMeshWidget::onCalibrateScrewsButtonClicked()
 {
-    if(m_printBed->printer()->status() == QKlipperPrinter::Ready)
+    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printBed->parent());
+
+    if(printer && printer->status() == QKlipperPrinter::Ready)
     {
         m_printBed->calibrateAdjustmentScrews();
     }

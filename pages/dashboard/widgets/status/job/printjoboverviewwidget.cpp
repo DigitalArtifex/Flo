@@ -41,11 +41,6 @@ void PrintJobOverviewWidget::addJob(QKlipperPrintJob *job)
     {
         PrintJobOverviewItem *item = new PrintJobOverviewItem(this);
         item->setPrintJob(job);
-        setAnimationSlide(item);
-        item->setOpacityIn(1);
-        item->setOpacityOut(0);
-        item->setDuration(250);
-
         connect(item, SIGNAL(removeRequest(PrintJobOverviewItem*)), this, SLOT(itemRemoveRequestEvent(PrintJobOverviewItem*)));
 
         addItem(item);

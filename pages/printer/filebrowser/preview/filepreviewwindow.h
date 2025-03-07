@@ -14,7 +14,7 @@
 #include <QKlipper/qklipper.h>
 #include "ui/QIconButton/qiconbutton.h"
 
-#include "ui/common/dialog/dialog.h"
+#include "common/dialog/dialog.h"
 
 class FilePreviewWindow : public Dialog
 {

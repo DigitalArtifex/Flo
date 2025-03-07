@@ -5,7 +5,7 @@
 #include "printerlistitem.h"
 
 SettingsPage::SettingsPage(QWidget *parent) :
-    QOpenGLWidget(parent),
+    QWidget(parent),
     ui(new Ui::SettingsPage)
 {
     ui->setupUi(this);
@@ -33,31 +33,28 @@ SettingsPage::SettingsPage(QWidget *parent) :
     ui->systemTab->layout()->addWidget(m_systemSettingsPage);
 
     m_addPrinterButton = new QIconButton(this);
-    m_addPrinterButton->setFixedSize(100,100);
-    m_addPrinterButton->setIconSize(QSize(50,50));
-    m_addPrinterButton->setIconAlignment(Qt::AlignCenter);
+    m_addPrinterButton->setFixedHeight(50);
+    m_addPrinterButton->setText("New Printer");
     m_addPrinterButton->setEnabled(true);
-    ui->buttonLayout->addWidget(m_addPrinterButton);
+    // ui->buttonLayout->addWidget(m_addPrinterButton);
 
-    connect(m_addPrinterButton, SIGNAL(clicked()), this, SLOT(addPrinterButtonClickEvent()));
+    connect(m_addPrinterButton, SIGNAL(clicked()), this, SLOT(onAddPrinterButtonClicked()));
 
     m_editPrinterButton = new QIconButton(this);
-    m_editPrinterButton->setFixedSize(100,100);
-    m_editPrinterButton->setIconSize(QSize(50,50));
-    m_editPrinterButton->setIconAlignment(Qt::AlignCenter);
+    m_editPrinterButton->setFixedHeight(50);
+    m_editPrinterButton->setText("Edit");
     m_editPrinterButton->setEnabled(false);
-    ui->buttonLayout->addWidget(m_editPrinterButton);
+    // ui->buttonLayout->addWidget(m_editPrinterButton);
 
-    connect(m_editPrinterButton, SIGNAL(clicked()), this, SLOT(editPrinterButtonClickEvent()));
+    connect(m_editPrinterButton, SIGNAL(clicked()), this, SLOT(onEditPrinterButtonClicked()));
 
     m_removePrinterButton = new QIconButton(this);
-    m_removePrinterButton->setFixedSize(100,100);
-    m_removePrinterButton->setIconSize(QSize(50,50));
-    m_removePrinterButton->setIconAlignment(Qt::AlignCenter);
+    m_removePrinterButton->setFixedSize(250, 50);
+    m_removePrinterButton->setText("Remove");
     m_removePrinterButton->setEnabled(false);
-    ui->buttonLayout->addWidget(m_removePrinterButton);
+    // ui->buttonLayout->addWidget(m_removePrinterButton);
 
-    connect(m_removePrinterButton, SIGNAL(clicked()), this, SLOT(removePrinterButtonClickEvent()));
+    connect(m_removePrinterButton, SIGNAL(clicked()), this, SLOT(onRemovePrinterButtonClicked()));
 
     m_printersActionButton = new QIconButton(this);
     m_printersActionButton->setFixedSize(250,50);
@@ -103,7 +100,7 @@ SettingsPage::SettingsPage(QWidget *parent) :
 
     //Setup footer buttons
     QGridLayout *layout = (QGridLayout*)ui->footerFrame->layout();
-    layout->setContentsMargins(QMargins(0,0,0,0));
+    layout->setContentsMargins(QMargins(9,9,9,0));
 
     m_resetButton = new QIconButton(ui->footerFrame);
     m_resetButton->setFixedSize(250, 50);
@@ -136,8 +133,16 @@ SettingsPage::SettingsPage(QWidget *parent) :
     ui->themeTab->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Page"));
     ui->footerFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Subwidget"));
 
-    setupAnimations();
     setStyleSheet(Settings::currentTheme());
+
+    m_viewer = new QQuickView();
+    m_viewerWidget = QWidget::createWindowContainer(m_viewer, this);
+    m_viewerWidget->setFixedSize(0,0);
+    layout->addWidget(m_viewerWidget);
+    m_viewer->show();
+    showPrinterButtons();
+
+    connect(this, SIGNAL(dialogRequested(QDialog*)), this, SLOT(onDialogRequested(QDialog*)));
 }
 
 SettingsPage::~SettingsPage()
@@ -169,7 +174,7 @@ void SettingsPage::printerListWidgetItemSelectedEvent(PrinterListItem *item)
     }
 }
 
-void SettingsPage::editPrinterButtonClickEvent()
+void SettingsPage::onEditPrinterButtonClicked()
 {
     if(!m_editPrinterDialog)
         m_editPrinterDialog = new EditPrinterDialog(this);
@@ -177,44 +182,52 @@ void SettingsPage::editPrinterButtonClickEvent()
     QKlipperInstance *printer = m_printerListWidget->selectedItem()->instance();
 
     m_editPrinterDialog->setPrinter(printer);
-    m_editPrinterDialog->exec();
-
-    m_editPrinterDialog->deleteLater();
-    m_editPrinterDialog = nullptr;
-
-    Settings::save();
+    emit dialogRequested(m_editPrinterDialog);
+    connect(m_editPrinterDialog, SIGNAL(finished(int)), this, SLOT(onEditPrinterDialogFinished(int)));
 }
 
-void SettingsPage::addPrinterButtonClickEvent()
+void SettingsPage::onEditPrinterDialogFinished(int returnCode)
+{
+    if(returnCode == QDialog::Accepted)
+    {
+        m_editPrinterDialog->printer()->printer()->setupPowerProfile();
+        Settings::save();
+    }
+
+    delete m_editPrinterDialog;
+    m_editPrinterDialog = nullptr;
+}
+
+void SettingsPage::onAddPrinterButtonClicked()
 {
     if(!m_editPrinterDialog)
-    {
         m_editPrinterDialog = new EditPrinterDialog(this);
-        connect(m_editPrinterDialog, SIGNAL(finished(int)), this, SLOT(on_addPrinterWizardFinished(int)));
-    }
 
-    QKlipperInstance *printer = new QKlipperInstance();
+    QKlipperInstance *printer = new QKlipperInstance;
 
     m_editPrinterDialog->setPrinter(printer, true);
-    int ret = m_editPrinterDialog->exec();
+    emit dialogRequested(m_editPrinterDialog);
+    connect(m_editPrinterDialog, SIGNAL(finished(int)), this, SLOT(onAddPrinterDialogFinished(int)));
+}
 
-    switch((QDialog::DialogCode)ret)
+void SettingsPage::onAddPrinterDialogFinished(int returnCode)
+{
+    if(returnCode == QDialog::Accepted)
     {
-
-    case QDialog::Rejected:
-        delete printer;
-        break;
-    case QDialog::Accepted:
-        QKlipperInstancePool::pool()->addInstance(printer);
+        QKlipperInstancePool::pool()->addInstance(m_editPrinterDialog->printer());
         Settings::save();
-        break;
+    }
+    else
+    {
+        QKlipperInstance *instance = m_editPrinterDialog->printer();
+        delete instance;
     }
 
-    m_editPrinterDialog->deleteLater();
+    delete m_editPrinterDialog;
     m_editPrinterDialog = nullptr;
 }
 
-void SettingsPage::removePrinterButtonClickEvent()
+void SettingsPage::onRemovePrinterButtonClicked()
 {
     if(m_printerListWidget->selectedItem())
     {
@@ -233,7 +246,7 @@ void SettingsPage::printersActionButtonClickEvent()
     m_themeActionButton->setChecked(false);
     m_systemActionButton->setChecked(false);
     ui->tabWidget->setCurrentIndex(0);
-    hideFooter();
+    showPrinterButtons();
 }
 
 void SettingsPage::themeActionButtonClickEvent()
@@ -241,7 +254,7 @@ void SettingsPage::themeActionButtonClickEvent()
     m_printersActionButton->setChecked(false);
     m_systemActionButton->setChecked(false);
     ui->tabWidget->setCurrentIndex(1);
-    showFooter();
+    showSettingsButtons();
 }
 
 void SettingsPage::systemActionButtonClickEvent()
@@ -249,7 +262,7 @@ void SettingsPage::systemActionButtonClickEvent()
     m_printersActionButton->setChecked(false);
     m_themeActionButton->setChecked(false);
     ui->tabWidget->setCurrentIndex(2);
-    showFooter();
+    showSettingsButtons();
 }
 
 void SettingsPage::onResetButtonClicked()
@@ -268,129 +281,6 @@ void SettingsPage::onApplyButtonClicked()
     Settings::save();
 }
 
-void SettingsPage::hideFooter()
-{
-    if(!m_isFooterShown)
-        return;
-
-    m_isFooterShown = false;
-
-    m_footerInGeometry = ui->footerFrame->geometry();
-    m_footerOutGeometry = m_footerInGeometry;
-    m_footerOutGeometry.setY(m_footerOutGeometry.y() + m_footerOutGeometry.height());
-    m_footerOutGeometry.setHeight(0);
-
-    if(Settings::isAnimationEnabled())
-    {
-        QRect currentRect = m_footerInGeometry;
-        QRect currentPageRect = ui->pageContents->geometry();
-
-        bool isRunning = (m_footerAnimationGroup->state() == QParallelAnimationGroup::Running);
-
-        if(isRunning)
-        {
-            m_footerAnimationGroup->pause();
-            currentRect = ui->footerFrame->geometry();
-        }
-
-        m_footerAnimation->setStartValue(currentRect);
-        m_footerAnimation->setEndValue(m_footerOutGeometry);
-        m_footerAnimation->setDuration(Settings::animationDuration());
-
-        m_pageAnimation->setStartValue(currentPageRect.size());
-        currentPageRect.setHeight(currentPageRect.height() + (m_footerInGeometry.height() + ui->mainLayout->layout()->spacing()));
-
-        m_pageAnimation->setEndValue(currentPageRect.size());
-
-        m_pageAnimation->setDuration(Settings::animationDuration());
-
-        if(isRunning)
-            m_footerAnimationGroup->resume();
-        else
-            m_footerAnimationGroup->start();
-
-        ui->pageLayout->removeWidget(ui->footerFrame);
-    }
-    else
-        onFooterAnimationFinished();
-}
-
-void SettingsPage::showFooter()
-{
-    if(m_isFooterShown)
-        return;
-
-    m_isFooterShown = true;
-
-    if(Settings::isAnimationEnabled())
-    {
-        QRect currentRect = m_footerOutGeometry;
-        QRect currentPageRect = ui->pageContents->geometry();
-
-        bool isRunning = (m_footerAnimationGroup->state() == QParallelAnimationGroup::Running);
-
-        if(isRunning)
-        {
-            m_footerAnimationGroup->pause();
-            currentRect = ui->footerFrame->geometry();
-        }
-
-        m_footerAnimation->setStartValue(currentRect);
-        m_footerAnimation->setEndValue(m_footerInGeometry);
-
-        m_footerAnimation->setDuration(Settings::animationDuration());
-
-        qDebug() << currentPageRect;
-        m_pageAnimation->setStartValue(currentPageRect.size());
-        currentPageRect.setHeight(currentPageRect.height() - (m_footerInGeometry.height() + ui->mainLayout->layout()->spacing()));
-
-        qDebug() << currentPageRect;
-        m_pageAnimation->setEndValue(currentPageRect.size());
-
-        m_pageAnimation->setDuration(Settings::animationDuration());
-
-        if(isRunning)
-            m_footerAnimationGroup->resume();
-        else
-            m_footerAnimationGroup->start();
-
-        ui->footerFrame->setVisible(true);
-    }
-    else
-    {
-        ui->pageLayout->addWidget(ui->footerFrame, 2, 0, 1, 1);
-        ui->footerFrame->setVisible(true);
-    }
-}
-
-void SettingsPage::setupAnimations()
-{
-    m_footerAnimation = new QPropertyAnimation(ui->footerFrame, "geometry", this);
-    m_footerAnimation->setDuration(Settings::animationDuration());
-    m_footerAnimation->setEasingCurve(QEasingCurve::Linear);
-
-    m_pageAnimation = new QPropertyAnimation(ui->pageContents, "size", this);
-    m_pageAnimation->setDuration(Settings::animationDuration());
-    m_pageAnimation->setEasingCurve(QEasingCurve::Linear);
-
-    m_footerAnimationGroup = new QParallelAnimationGroup(this);
-    m_footerAnimationGroup->addAnimation(m_footerAnimation);
-    //m_footerAnimationGroup->addAnimation(m_pageAnimation);
-
-    connect(m_footerAnimationGroup, SIGNAL(finished()), this, SLOT(onFooterAnimationFinished()));
-}
-
-void SettingsPage::onFooterAnimationFinished()
-{
-    if(!m_isFooterShown)
-    {
-        ui->footerFrame->setVisible(false);
-        //ui->pageLayout->removeWidget(ui->footerFrame);
-    }
-    else
-        ui->pageLayout->addWidget(ui->footerFrame);
-}
-
 void SettingsPage::setupIcons()
 {
     m_addPrinterButton->setIcon(Settings::getThemeIcon("printer-add"));
@@ -402,6 +292,101 @@ void SettingsPage::setupIcons()
     m_acceptButton->setIcon(Settings::getThemeIcon("accept"));
     m_resetButton->setIcon(Settings::getThemeIcon("refresh"));
     m_themeActionButton->setIcon(Settings::getThemeIcon("theme"));
+}
+
+void SettingsPage::showPrinterButtons()
+{
+    QGridLayout *layout = (QGridLayout*)ui->footerFrame->layout();
+
+    if(!layout)
+        return;
+
+    layout->removeWidget(m_cancelButton);
+    layout->removeWidget(m_resetButton);
+    layout->removeWidget(m_acceptButton);
+
+    m_cancelButton->setVisible(false);
+    m_resetButton->setVisible(false);
+    m_acceptButton->setVisible(false);
+
+    layout->addWidget(m_removePrinterButton, 0, 0);
+    layout->addWidget(m_editPrinterButton, 0, 1);
+    layout->addWidget(m_addPrinterButton, 0, 2);
+
+    m_removePrinterButton->setVisible(true);
+    m_editPrinterButton->setVisible(true);
+    m_addPrinterButton->setVisible(true);
+}
+
+void SettingsPage::showSettingsButtons()
+{
+    QGridLayout *layout = (QGridLayout*)ui->footerFrame->layout();
+
+    if(!layout)
+        return;
+
+    layout->removeWidget(m_removePrinterButton);
+    layout->removeWidget(m_editPrinterButton);
+    layout->removeWidget(m_addPrinterButton);
+
+    m_removePrinterButton->setVisible(false);
+    m_addPrinterButton->setVisible(false);
+    m_editPrinterButton->setVisible(false);
+
+    layout->addWidget(m_resetButton, 0, 0);
+    layout->addWidget(m_cancelButton, 0, 1);
+    layout->addWidget(m_acceptButton, 0, 2);
+
+    m_resetButton->setVisible(true);
+    m_cancelButton->setVisible(true);
+    m_acceptButton->setVisible(true);
+}
+
+void SettingsPage::onDialogRequested(QDialog *dialog)
+{
+    m_requestedDialog = dialog;
+
+    m_dialogSheet = new Sheet(m_requestedDialog, this);
+    m_dialogSheet->setWidth(width() / 2);
+    m_dialogSheet->showSheet(this);
+    connect(dialog, SIGNAL(finished(int)), this, SLOT(onDialogFinished(int)));
+}
+
+void SettingsPage::onDialogFinished(int returnCode)
+{
+    Q_UNUSED(returnCode)
+
+    m_dialogSheet->hideSheet(Settings::get("ui/animations_enabled").toBool());
+    disconnect(m_requestedDialog, SIGNAL(finished(int)), this, SLOT(onDialogFinished(int)));
+    m_requestedDialog = nullptr;
+}
+
+void SettingsPage::onWizardRequested(QWizard *wizard)
+{
+    // m_requestedWizardReturnIndex = ui->stackWidget->currentIndex();
+    // m_requestedWizard = wizard;
+    // connect(m_requestedWizard, SIGNAL(finished(int)), this, SLOT(onWizardFinished(int)));
+
+    // ui->stackWidget->addWidget(wizard);
+    // ui->stackWidget->slideInWgt(wizard);
+}
+
+void SettingsPage::onWizardFinished(int returnCode)
+{
+    Q_UNUSED(returnCode);
+
+    // ui->stackWidget->removeWidget(m_requestedWizard);
+    // ui->stackWidget->slideInIdx(m_requestedWizardReturnIndex);
+    // m_requestedWizardReturnIndex = 0;
+
+    // disconnect(m_requestedWizard, SIGNAL(finished(int)), this, SLOT(onWizardFinished(int)));
+    // m_requestedWizard = nullptr;
+}
+
+void SettingsPage::changeEvent(QEvent *event)
+{
+    if(event->type() == QEvent::StyleChange)
+        setupIcons();
 }
 
 void SettingsPage::reset()
@@ -421,7 +406,7 @@ void SettingsPage::apply()
     if(m_themeSettingsPage)
         m_themeSettingsPage->apply();
 
-    if(m_systemSettingsPage->requiresRestart())
+    if(requiresRestart())
     {
         QMessageBox msgBox;
         msgBox.setText("Restart Required");
@@ -434,56 +419,7 @@ void SettingsPage::apply()
     }
 }
 
-void SettingsPage::setStyleSheet(const QString &styleSheet)
+bool SettingsPage::requiresRestart()
 {
-    setupIcons();
-
-    if(m_themeSettingsPage)
-        m_themeSettingsPage->setStyleSheet(styleSheet);
-
-    if(m_systemSettingsPage)
-        m_systemSettingsPage->setStyleSheet(styleSheet);
-
-    m_addPrinterButton->setStyleSheet(styleSheet);
-    m_editPrinterButton->setStyleSheet(styleSheet);
-    m_removePrinterButton->setStyleSheet(styleSheet);
-    m_printersActionButton->setStyleSheet(styleSheet);
-    m_systemActionButton->setStyleSheet(styleSheet);
-    m_cancelButton->setStyleSheet(styleSheet);
-    m_acceptButton->setStyleSheet(styleSheet);
-    m_resetButton->setStyleSheet(styleSheet);
-    m_themeActionButton->setStyleSheet(styleSheet);
-
-    QOpenGLWidget::setStyleSheet(styleSheet);
-    style()->polish(this);
+    return (m_systemSettingsPage->requiresRestart());
 }
-
-void SettingsPage::resizeEvent(QResizeEvent *event)
-{
-    QOpenGLWidget::resizeEvent(event);
-
-    //set expanded size for animations
-    if(ui->footerFrame->isVisible() && (m_footerAnimation->state() == QParallelAnimationGroup::Stopped))
-    {
-        m_footerInGeometry = ui->footerFrame->geometry();
-        m_footerOutGeometry = QRect(m_footerInGeometry.x(),m_footerInGeometry.y(), m_footerInGeometry.width(), 0);
-    }
-}
-
-void SettingsPage::showEvent(QShowEvent *event)
-{
-    //set expanded size for animations
-    if(ui->footerFrame->isVisible() && (m_footerAnimation->state() == QParallelAnimationGroup::Stopped))
-    {
-        m_footerInGeometry = ui->footerFrame->geometry();
-        m_footerOutGeometry = QRect(m_footerInGeometry.x(), m_footerInGeometry.height(), m_footerInGeometry.width(), 0);
-    }
-
-    if(ui->tabWidget->currentIndex() == 0)
-    {
-        hideFooter();
-    }
-
-    QOpenGLWidget::showEvent(event);
-}
-

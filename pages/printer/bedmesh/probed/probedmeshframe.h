@@ -7,8 +7,7 @@
 #include <QMovie>
 
 #include <QKlipper/qklipper.h>
-#include "ui/qwidgetanimation.h"
-#include "ui/common/cardwidget/cardwidget.h"
+#include "common/CardWidget/cardwidget.h"
 
 #include "empty/probedmeshemptyframe.h"
 #include "item/probedmeshitemframe.h"

@@ -8,7 +8,7 @@ FileBrowserOverlay::FileBrowserOverlay(QWidget *parent) :
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "PopupOverlay"));
     setOpacityIn(0.8);
     setOpacityOut(0);
-    setDuration(100);
+    setDuration(300);
 
     setStyleSheet(Settings::currentTheme());
 }

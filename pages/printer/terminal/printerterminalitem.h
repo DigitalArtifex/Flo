@@ -37,6 +37,7 @@ private:
     QKlipperMessage *m_message = nullptr;
 
     //UI
+    QWidget *m_centralWidget = nullptr;
     QGridLayout *m_layout = nullptr;
 
     QLabel *m_messageTimestampLabel = nullptr;

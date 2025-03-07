@@ -22,7 +22,10 @@ void QIconButton::mousePressEvent(QMouseEvent *event)
         setProperty("clicked", true);
         m_pressed = true;
         style()->polish(this);
+        event->accept();
     }
+
+    //QFrame::mousePressEvent(event);
 }
 
 void QIconButton::mouseReleaseEvent(QMouseEvent *event)
@@ -31,6 +34,7 @@ void QIconButton::mouseReleaseEvent(QMouseEvent *event)
     {
         setProperty("clicked", false);
         m_pressed = false;
+        event->accept();
 
         if(!m_checkable)
         {
@@ -59,11 +63,13 @@ void QIconButton::mouseReleaseEvent(QMouseEvent *event)
             }
         }
     }
+
+    //QFrame::mouseReleaseEvent(event);
 }
 
 void QIconButton::paintEvent(QPaintEvent *event)
 {
-    QFrame::paintEvent(event);
+    //QFrame::paintEvent(event);
 
     QPixmap pixmap;
 
@@ -284,7 +290,7 @@ void QIconButton::setupUi()
     m_textLabel->setAlignment(Qt::AlignCenter);
     m_layout->addWidget(m_textLabel);
 
-    setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "Button"));
+    setProperty("class", QStringList { "Button" } + property("class").toStringList());
     m_textLabel->setProperty("class", QVariant::fromValue<QStringList>(QStringList() << "ButtonText"));
 
     QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect();

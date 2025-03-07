@@ -6,7 +6,7 @@
 #include <QLineEdit>
 #include <QSpacerItem>
 
-#include "ui/common/dialog/dialog.h"
+#include "common/dialog/dialog.h"
 #include "ui/QIconButton/qiconbutton.h"
 
 #include <QKlipper/qklipper.h>
@@ -35,6 +35,7 @@ private:
     QHBoxLayout *m_buttonLayout = nullptr;
 
     QLabel *m_iconLabel = nullptr;
+    QLabel *m_titleLabel = nullptr;
 
     QLineEdit *m_userNameEdit = nullptr;
     QLineEdit *m_userPasswordEdit = nullptr;

@@ -11,6 +11,7 @@ PrinterUsersView::PrinterUsersView(QKlipperInstance *instance, QWidget *parent)
     m_instnace = instance;
 
     setupUi();
+    setIcons();
 }
 
 PrinterUsersView::~PrinterUsersView()
@@ -19,13 +20,6 @@ PrinterUsersView::~PrinterUsersView()
     //     m_centralLayout->deleteLater();
     if(m_centralWidget)
         m_centralWidget->deleteLater();
-}
-
-void PrinterUsersView::setStyleSheet(const QString &styleSheet)
-{
-    setIcon(Settings::getThemeIcon("users"));
-
-    CardWidget::setStyleSheet(styleSheet);
 }
 
 void PrinterUsersView::setupUi()
@@ -60,7 +54,7 @@ void PrinterUsersView::userListChangedEvent()
     {
         m_centralLayout->removeWidget(card);
         m_userCards.remove(card->user().username());
-        card->deleteLater();
+        delete card;
     }
 
     foreach(QKlipperUser user, users)
@@ -81,22 +75,38 @@ void PrinterUsersView::addUserButtonClickedEvent(bool checked)
 {
     Q_UNUSED(checked)
 
-    PrinterUserEditor *editor = new PrinterUserEditor(this);
+    m_editor = new PrinterUserEditor(this);
+    dialogRequested(m_editor);
 
-    int ret = editor->exec();
-
-    if(ret == QDialog::Accepted)
-    {
-        QString username = editor->username();
-        QString password = editor->password();
-
-        m_instnace->console()->accessCreateUser(username, password);
-    }
-
-    editor->deleteLater();
+    connect(m_editor, SIGNAL(finished(int)), this, SLOT(onUserEditorFinished(int)));
 }
 
 void PrinterUsersView::on_userDeleteRequest(QKlipperUser user)
 {
     m_instnace->console()->accessDeleteUser(user.username());
+}
+
+void PrinterUsersView::onUserEditorFinished(int returnCode)
+{
+    if(returnCode == QDialog::Accepted)
+    {
+        QString username = m_editor->username();
+        QString password = m_editor->password();
+
+        m_instnace->console()->accessCreateUser(username, password);
+    }
+
+    delete m_editor;
+}
+
+void PrinterUsersView::setIcons()
+{
+    setIcon(Settings::getThemeIcon("users"));
+    m_addUserButton->setIcon(Settings::getThemeIcon("add"));
+}
+
+void PrinterUsersView::changeEvent(QEvent *event)
+{
+    if(event->type() == QEvent::StyleChange)
+        setIcons();
 }

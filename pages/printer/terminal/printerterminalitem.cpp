@@ -19,7 +19,8 @@ QKlipperMessage *PrinterTerminalItem::message() const
 
 void PrinterTerminalItem::setupUi()
 {
-    m_layout = new QGridLayout(this);
+    m_centralWidget = new QWidget(this);
+    m_layout = new QGridLayout(m_centralWidget);
     m_layout->setSpacing(9);
 
     m_messageTimestampLabel = new QLabel();
@@ -40,9 +41,10 @@ void PrinterTerminalItem::setupUi()
     m_layout->addWidget(m_responseMessageLabel,1,0,1,1);
     m_layout->addWidget(m_messageTimestampLabel,1,1,1,1);
 
-    setLayout(m_layout);
+    m_centralWidget->setLayout(m_layout);
+    setCentralWidget(m_centralWidget);
 
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    qDebug() << size();
 
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleMessage"));
     style()->polish(this);

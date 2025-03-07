@@ -4,7 +4,7 @@
 
 #include <flo/settings.h>
 
-#include "../../../validators/QHexColorValidator/qhexcolorvalidator.h"
+#include "validators/QHexColorValidator/qhexcolorvalidator.h"
 
 EditPrinterDialog::EditPrinterDialog(QWidget *parent)
     : QDialog(parent)
@@ -16,11 +16,11 @@ EditPrinterDialog::EditPrinterDialog(QWidget *parent)
     ui->colorEdit->setValidator(new QHexColorValidator());
     ui->printerInstanceLocationEdit->setValidator(new QMoonrakerValidator());
 
-    m_resetButton = new QIconButton(ui->buttonBox);
-    m_resetButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
-    m_resetButton->setIcon(Settings::getThemeIcon("refresh"));
-    m_resetButton->setIconAlignment(Qt::AlignCenter);
-    ui->buttonBoxLayout->addWidget(m_resetButton);
+    m_cancelButton = new QIconButton(ui->buttonBox);
+    m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_cancelButton->setIcon(Settings::getThemeIcon("cancel"));
+    m_cancelButton->setText("Cancel");
+    ui->buttonBoxLayout->addWidget(m_cancelButton);
 
     m_applyButton = new QIconButton(ui->buttonBox);
     m_applyButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -28,17 +28,12 @@ EditPrinterDialog::EditPrinterDialog(QWidget *parent)
     m_applyButton->setText("Apply");
     ui->buttonBoxLayout->addWidget(m_applyButton);
 
-    m_cancelButton = new QIconButton(ui->buttonBox);
-    m_cancelButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_cancelButton->setIcon(Settings::getThemeIcon("cancel"));
-    m_cancelButton->setText("Cancel");
-    ui->buttonBoxLayout->addWidget(m_cancelButton);
-
     connect(m_resetButton, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
     connect(m_applyButton, SIGNAL(clicked()), this, SLOT(onApplyButtonClicked()));
     connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
 
-    reset();
+    ui->chamberPowerSpinBox->setMaximum(1000);
+    ui->bedPowerSpinBox->setMaximum(1000);
 }
 
 EditPrinterDialog::~EditPrinterDialog()
@@ -64,7 +59,7 @@ void EditPrinterDialog::setPrinter(QKlipperInstance *printer, bool newPrinter)
 
 void EditPrinterDialog::reset()
 {
-    if(!m_instance)
+    if(m_newPrinter)
     {
         setWindowTitle("New Printer");
 
@@ -73,6 +68,14 @@ void EditPrinterDialog::reset()
         ui->bedPowerSpinBox->setValue(0);
         ui->chamberPowerSpinBox->setValue(0);
         ui->extruderCountSpinBox->setValue(1);
+
+        QRandomGenerator64 colorGen(QDateTime::currentSecsSinceEpoch() / 2);
+        int red = colorGen.bounded(0, 255);
+        int green = colorGen.bounded(0, 255);
+        int blue = colorGen.bounded(0, 255);
+
+        QColor randomColor(red,green,blue);
+        ui->colorEdit->setText(randomColor.name().toUpper());
 
         QList<QDoubleSpinBox*> edits = ui->profileTab->findChildren<QDoubleSpinBox*>();
 
@@ -88,7 +91,7 @@ void EditPrinterDialog::reset()
                     QKlipperExtruder *extruder = nullptr;
 
                     if(m_instance)
-                        m_instance->printer()->toolhead()->extruder(extruderName);
+                        extruder = m_instance->printer()->toolhead()->extruder(extruderName);
 
                     if(extruder)
                         edits[c]->setValue(0);
@@ -100,65 +103,95 @@ void EditPrinterDialog::reset()
     {
         setWindowTitle(m_instance->name());
 
-        if(!m_instance->isConnected())
+        QStringList keys = m_instance->printer()->powerProfile().keys();
+
+        QStringList extruderKeys = keys.filter(QRegularExpression("^extruder"));
+        ui->extruderCountSpinBox->setValue(extruderKeys.count());
+
+        //remove any previous heater labels/edits
+        QList<QLabel*> heaterLabels = ui->heatersTab->findChildren<QLabel*>();
+        QList<QDoubleSpinBox*> heaterSpinBoxes = ui->heatersTab->findChildren<QDoubleSpinBox*>();
+
+        while(heaterLabels.count() > 0)
         {
-            QSettings settings;
+            QLabel *heaterLabel = heaterLabels.takeAt(0);
+            ui->heatersTab->layout()->removeWidget(heaterLabel);
+            delete heaterLabel;
+        }
 
-            //set group to power settings
-            settings.beginGroup(m_instance->id() + "/power");
+        while(heaterSpinBoxes.count() > 0)
+        {
+            QDoubleSpinBox *heaterSpinBox = heaterSpinBoxes.takeAt(0);
+            ui->heatersTab->layout()->removeWidget(heaterSpinBox);
+            delete heaterSpinBox;
+        }
 
-            m_instance->printer()->bed()->setMaxWatts(settings.value("bed", 360).toDouble());
+        for(const QString &key : keys)
+        {
+            qreal value = m_instance->printer()->powerProfile().value(key);
 
-            if(m_instance->printer()->toolhead()->extruderMap().count())
+            if(key == QString("bed"))
             {
-                m_instance->printer()->toolhead()->extruder("extruder")->setMaxWatts(settings.value("extruder", 24).toDouble());
+                ui->heatedBedCheckbox->setChecked(m_instance->printer()->powerProfile().value(key) > 0);
+                ui->bedPowerSpinBox->setValue(m_instance->printer()->powerProfile().value(key));
+            }
+            else if(key == QString("chamber"))
+            {
+                ui->heatedChamberCheckBox->setChecked(m_instance->printer()->powerProfile().value(key) > 0);
+                ui->chamberPowerSpinBox->setValue(m_instance->printer()->powerProfile().value(key));
+            }
+            else if(key.startsWith("extruder"))
+            {
+                QList<QDoubleSpinBox*> edits = ui->profileTab->findChildren<QDoubleSpinBox*>();
 
-                for(int i = 1; i < m_instance->printer()->toolhead()->extruderMap().count(); i++)
+                bool found = false;
+
+                for(int c = 0; c < edits.count(); c++)
                 {
-                    QString extruderName = QString("extruder%1").arg(QString::number(i));
-                    m_instance->printer()->toolhead()->extruder(extruderName)->setMaxWatts(settings.value(extruderName, 24).toDouble());
+                    if(edits[c] != nullptr)
+                    {
+                        if (edits[c]->property("extruder").isValid())
+                        {
+                            int index = edits[c]->property("extruder").toInt();
+
+                            QString extruderName =QString("extruder") + ((index > 0) ? QString::number(index) : QString(""));
+
+                            if(key == extruderName)
+                            {
+                                edits[c]->setValue(m_instance->printer()->powerProfile().value(key));
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
                 }
+            }
+            else if(key.startsWith("heater_generic"))
+            {
+                QGridLayout *layout = (QGridLayout*)ui->heatersTab->layout();
+
+                QString name = key;
+                name.remove("heater_generic ");
+
+                QLabel *heaterLabel = new QLabel(ui->heatersTab);
+                heaterLabel->setText(name);
+
+                QDoubleSpinBox *heaterSpinBox = new QDoubleSpinBox(ui->heatersTab);
+                heaterSpinBox->setValue(m_instance->printer()->powerProfile().value(key));
+                heaterSpinBox->setProperty("heater", key);
             }
         }
 
         ui->printerNameEdit->setText(m_instance->name());
         ui->printerInstanceLocationEdit->setText(m_instance->instanceLocation());
-        ui->bedPowerSpinBox->setValue(m_instance->printer()->bed()->maxWatts());
-        ui->extruderCountSpinBox->setValue(m_instance->printer()->toolhead()->extruderMap().count());
         ui->addressLineEdit->setText(m_instance->address());
-        ui->chamberPowerSpinBox->setValue(m_instance->printer()->chamber()->maxWatts());
         ui->printerKeyEdit->setText(m_instance->apiKey());
-
-        ui->heatedChamberCheckBox->setChecked(m_instance->printer()->hasChamber());
-        ui->heatedChamberCheckBox->setChecked(m_instance->printer()->bed()->type() == QKlipperPrintBed::Heated);
         ui->colorEdit->setText(m_instance->profileColor());
-
-        QList<QDoubleSpinBox*> edits = ui->profileTab->findChildren<QDoubleSpinBox*>();
-
-        for(int c = 0; c < edits.count(); c++)
-        {
-            if(edits[c] != nullptr)
-            {
-                if (edits[c]->property("extruder").isValid())
-                {
-                    int index = edits[c]->property("extruder").toInt();
-
-                    QString extruderName =QString("extruder") + ((index > 0) ? QString::number(index) : QString(""));
-                    QKlipperExtruder *extruder = m_instance->printer()->toolhead()->extruder(extruderName);
-
-                    if(extruder)
-                        edits[c]->setValue(extruder->maxWatts());
-                }
-            }
-        }
     }
 }
 
 void EditPrinterDialog::clear()
 {
-    ui->extruderCountSpinBox->setValue(0);
-    ui->bedPowerSpinBox->setValue(0);
-    ui->chamberPowerSpinBox->setValue(0);
 }
 
 void EditPrinterDialog::apply()
@@ -166,7 +199,7 @@ void EditPrinterDialog::apply()
     if(!m_instance)
         return;
 
-    QList<QDoubleSpinBox*> edits = ui->profileTab->findChildren<QDoubleSpinBox*>();
+    QList<QDoubleSpinBox*> edits = ui->extruderTab->findChildren<QDoubleSpinBox*>();
 
     for(int c = 0; c < edits.count(); c++)
     {
@@ -175,19 +208,31 @@ void EditPrinterDialog::apply()
             if (edits[c]->property("extruder").isValid())
             {
                 int index = edits[c]->property("extruder").toInt();
-                qreal extruderPower = edits[c]->text().toFloat();
-
+                qreal extruderPower = edits[c]->value();
                 QString extruderName =QString("extruder") + ((index > 0) ? QString::number(index) : QString(""));
-                QKlipperExtruder *extruder = m_instance->printer()->toolhead()->extruder(extruderName);
 
-                if(!extruder)
-                {
-                    extruder = new QKlipperExtruder(m_instance->printer()->toolhead());
-                    m_instance->printer()->toolhead()->setExtruder(extruderName, extruder);
-                }
-
-                extruder->setMaxWatts(extruderPower);
+                m_instance->printer()->addPowerProfileData(extruderName, extruderPower);
             }
+            else if (edits[c]->property("heater").isValid())
+            {
+                QString name = edits[c]->property("heater").toString();
+                qreal power = edits[c]->value();
+
+                m_instance->printer()->addPowerProfileData(name, power);
+            }
+        }
+    }
+
+    QList<QDoubleSpinBox*> heaterSpinBoxes = ui->heatersTab->findChildren<QDoubleSpinBox*>();
+
+    for(int i = 0; i < heaterSpinBoxes.count(); i++)
+    {
+        if(heaterSpinBoxes[i]->property("heater").isValid())
+        {
+            QString heater = heaterSpinBoxes[i]->property("heater").toString();
+            qreal power = heaterSpinBoxes[i]->value();
+
+            m_instance->printer()->addPowerProfileData(heater, power);
         }
     }
 
@@ -205,14 +250,12 @@ void EditPrinterDialog::apply()
     m_instance->printer()->setHasChamber(ui->heatedChamberCheckBox->isChecked());
 
     if(ui->heatedChamberCheckBox->isChecked())
-        m_instance->printer()->chamber()->setMaxWatts(ui->chamberPowerSpinBox->value());
-    else
-        m_instance->printer()->chamber()->setMaxWatts(0);
+        m_instance->printer()->addPowerProfileData(ui->chamberHeaterNameEdit->text(), ui->chamberPowerSpinBox->value());
+
+    m_instance->printer()->addPowerProfileData("bed", ui->bedPowerSpinBox->value());
 
     m_instance->setAddress(ui->addressLineEdit->text());
     m_instance->setPort(ui->portSpinBox->value());
-
-    m_instance->printer()->bed()->setMaxWatts(ui->bedPowerSpinBox->value());
     m_instance->setApiKey(ui->printerKeyEdit->text());
 
     m_instance->setProfileColor(ui->colorEdit->text());
@@ -223,21 +266,19 @@ void EditPrinterDialog::apply()
 
 void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
 {
-    QGridLayout *layout = (QGridLayout*)ui->profileTab->layout();
-    layout->removeItem(ui->profileSpacer);
+    QGridLayout *layout = (QGridLayout*)ui->extruderTab->layout();
 
     if(arg1 > m_extruderCount)
     {
-
         for(int i = m_extruderCount; i < arg1; i++)
         {
             int row = layout->rowCount();
 
-            QLabel *m_extruderLabel = new QLabel(ui->profileTab);
+            QLabel *m_extruderLabel = new QLabel(ui->extruderTab);
             m_extruderLabel->setProperty("extruder", i);
             m_extruderLabel->setText(QString("Extruder ") + ((i > 0) ? QString::number(i) : QString("")));
 
-            QDoubleSpinBox *m_extruderWattEdit = new QDoubleSpinBox(ui->profileTab);
+            QDoubleSpinBox *m_extruderWattEdit = new QDoubleSpinBox(ui->extruderTab);
             m_extruderWattEdit->setProperty("extruder", i);
             m_extruderWattEdit->setAlignment(Qt::AlignRight);
 
@@ -245,14 +286,14 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
                 m_extruderWattEdit->setValue(m_instance->printer()->powerProfile()[(QString("extruder") + ((i > 0) ? QString::number(i) : QString("")))]);
 
             layout->addWidget(m_extruderLabel, row, 0, 1, 1);
-            layout->addWidget(m_extruderWattEdit, row, 1, 1, 3);
+            layout->addWidget(m_extruderWattEdit, row, 1, 1, 1);
         }
     }
     else
     {
         for(int i = m_extruderCount - 1; i >= arg1; i--)
         {
-            QList<QLabel*> labels = ui->profileTab->findChildren<QLabel*>();
+            QList<QLabel*> labels = ui->extruderTab->findChildren<QLabel*>();
 
             for(int c = 0; c < labels.count(); c++)
             {
@@ -261,12 +302,12 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
                     if (labels[c]->property("extruder") == i)
                     {
                         layout->removeWidget(labels[c]);
-                        labels[c]->deleteLater();
+                        delete labels[c];
                     }
                 }
             }
 
-            QList<QDoubleSpinBox*> edits = ui->profileTab->findChildren<QDoubleSpinBox*>();
+            QList<QDoubleSpinBox*> edits = ui->extruderTab->findChildren<QDoubleSpinBox*>();
 
             for(int c = 0; c < edits.count(); c++)
             {
@@ -275,14 +316,13 @@ void EditPrinterDialog::on_extruderCountSpinBox_valueChanged(int arg1)
                     if (edits[c]->property("extruder") == i)
                     {
                         layout->removeWidget(edits[c]);
-                        edits[c]->deleteLater();
+                        delete edits[c];
                     }
                 }
             }
         }
     }
 
-    layout->addItem(ui->profileSpacer, layout->rowCount(), 0, 1, layout->columnCount());
     m_extruderCount = arg1;
 }
 
@@ -318,6 +358,8 @@ void EditPrinterDialog::on_printerKeyEdit_textChanged(const QString &arg1)
 
 void EditPrinterDialog::on_colorEdit_textChanged(const QString &arg1)
 {
+    qDebug() << "Color" << arg1 << ui->colorEdit->hasAcceptableInput();
+
     if(ui->colorEdit->hasAcceptableInput())
         ui->colorDisplayLabel->setStyleSheet(QString("background-color: ") + arg1 + QString(";"));
 }
@@ -386,5 +428,11 @@ void EditPrinterDialog::on_heatedChamberCheckBox_toggled(bool checked)
 {
     ui->chamberPowerLabel->setEnabled(checked);
     ui->chamberPowerSpinBox->setEnabled(checked);
+    ui->chamberHeaterNameEdit->setEnabled(checked);
+    ui->chamberSensorNameEdit->setEnabled(checked);
 }
 
+void EditPrinterDialog::on_EditPrinterDialog_windowTitleChanged(const QString &title)
+{
+    ui->windowTitleLabel->setText(QString("<h2>%1</h2>").arg(title));
+}

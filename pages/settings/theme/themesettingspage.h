@@ -22,8 +22,6 @@ public:
     void reset();
     void apply();
 
-    void resizeEvent(QResizeEvent *event);
-
 private slots:
     void on_themeVariableResetButton_clicked();
     void on_themeVariableAddButton_clicked();
@@ -32,7 +30,19 @@ private slots:
 
     void on_iconSetSelector_currentTextChanged(const QString &arg1);
 
+    void on_deleteThemeButton_clicked();
+
+    void on_themeComboBox_currentIndexChanged(int index);
+
+    void on_copyThemeButton_clicked();
+
+protected:
+    void setIcons();
+    virtual void changeEvent(QEvent *event) override;
+    virtual void resizeEvent(QResizeEvent *event) override;
+
 private:
+    void resetThemeData();
     void addThemeVariable(const QString &name, const QString &value);
     Ui::ThemeSettingsPage *ui;
 

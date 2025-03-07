@@ -38,5 +38,9 @@
         <file>data/default.zip</file>
         <file>images/wizards/InputShaper/ringing-mark.jpg</file>
         <file>images/wizards/InputShaper/ringing-measure.jpg</file>
+        <file>ui/LineGraphWidget/LineGraphWidget.qml</file>
+        <file>3rdparty/qml/FadingEdgeListView.qml</file>
+        <file>3rdparty/qml/FrostedGlassEffect.qml</file>
+        <file>pages/printer/bedmesh/BedMeshViewer.qml</file>
     </qresource>
 </RCC>

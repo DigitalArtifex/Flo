@@ -1,19 +1,20 @@
 #ifndef PRINTINGPAGE_H
 #define PRINTINGPAGE_H
 
+#include <QGridLayout>
 #include <QObject>
 #include <QQmlEngine>
-#include <QWidget>
-#include <QGridLayout>
 #include <QSlider>
+#include <QWidget>
+#include "common/Page/page.h"
 
 #include <QtDAWidgets/qgaugewidget.h>
-#include <ui/qanimatedwidget.h>
-#include <ui/common/cardwidget/cardwidget.h>
+#include <common/QAnimatedWidget/qanimatedwidget.h>
+#include <common/CardWidget/cardwidget.h>
 #include <pages/printer/widgets/printerwebcam/printerwebcamwidget.h>
-#include <pages/printer/job/printjobwidget.h>
+#include <pages/printer/widgets/job/printjobwidget.h>
 
-class PrintingPage : public QFrame
+class PrintingPage : public Page
 {
         Q_OBJECT
         QML_ELEMENT
@@ -36,6 +37,14 @@ class PrintingPage : public QFrame
         void onExtruderExtrusionSpeedChanged();
         void onBedTargetTemperatureChanged();
         void onToolheadCurrentExtruderChanged();
+        void onPrinterStatusChanged();
+        void onPrinterPrintSpeedChanged();
+
+        void onPausePrintButtonClicked();
+        void onCancelPrintButtonClicked();
+
+        void onExtrusionFactorSliderValueChanged(int value);
+        void onPrintSpeedSliderValueChanged(int value);
 
     protected:
         void initValues();

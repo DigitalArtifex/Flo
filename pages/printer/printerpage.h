@@ -20,6 +20,7 @@
 #include "widgets/printerbed/printerbedwidget.h"
 #include "widgets/printerwebcam/printerwebcamwidget.h"
 #include "widgets/temperature/temperaturewidget.h"
+#include "widgets/toolhead/toolheadwidget.h"
 #include "../../ui/layouts/qflowlayout.h"
 
 #include "widgets/toolhead/control/toolheadcontrolframe.h"
@@ -41,11 +42,16 @@
 
 #include "widgets/temperature/temperaturewidget.h"
 
+#include "widgets/chamber/printerchamberwidget.h"
+#include "3rdparty/QtSheet/sheet.h"
+
+#include "updating/printerupdatingscreen.h"
+
 namespace Ui {
 class PrinterPage;
 }
 
-class PrinterPage : public QOpenGLWidget
+class PrinterPage : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(bool isAnimating READ animating WRITE setAnimating NOTIFY animatingChanged FINAL)
@@ -81,39 +87,21 @@ private slots:
 
     void on_homeToolheadButton_clicked();
 
-    void on_posIncrementSelect_currentTextChanged(const QString &arg1);
-
-    void on_xPosDecreaseButton_clicked();
-    void on_xPosIncreaseButton_clicked();
-    void on_yPosDecreaseButton_clicked();
-    void on_yPosIncreaseButton_clicked();
-    void on_zPosDecreaseButton_clicked();
-    void on_zPosIncreaseButton_clicked();
-
-    void on_xDestinationSpinBox_valueChanged(double arg1);
-
-    void on_yDestinationSpinBox_valueChanged(double arg1);
-
-    void on_zDestinationSpinBox_valueChanged(double arg1);
-
-    void on_positionResetButton_clicked();
-
-    void on_positionApplyButton_clicked();
-
-    void printerStartupEvent();
-    void printerDisconnectEvent();
+    void onInstanceDisconnected(QKlipperInstance* instance);
+    void createWebcamWidget();
+    void deleteWebcamWidget();
 
     void onPrinterStatusChanged();
     void onPrinterStatusMessageChanged();
     void onPrinterEndingTimeChanged();
     void onToolHeadExtrudersChanged();
-    void onToolheadPositionChanged();
-    void onToolHeadDestinationChanged();
     void onSystemStateChanged();
+    void onPrinterHasChamberChanged();
+    void onPrinterPowerDevicesChanged();
+    void onPrinterLedStripsChanged();
+    void onPrinterSensorListChanged();
 
     void onInstanceError(QKlipperInstance *instance, QKlipperError &error);
-
-    void on_stackedWidget_currentChanged(int arg1);
 
     void on_settingsButton_clicked();
 
@@ -129,41 +117,38 @@ private slots:
 
     void on_restartKlipperButton_clicked();
 
-    void on_toolButton_triggered(QAction *arg1);
-
     void on_toolButton_clicked();
-
-    void on_inputShaperButton_clicked();
-
-    void on_zOffsetWizardButton_clicked();
+    void onPageClosed(Page *page);
+    void onDialogRequested(QDialog *dialog);
+    void onDialogFinished(int returnCode);
+    void onWizardRequested(QWizard *wizard);
+    void onWizardFinished(int returnCode);
 
 private:
-    InputShaperWizard *m_inputShaperWizard = nullptr;
-    ZOffsetWizard *m_zOffsetWizard = nullptr;
+    //Used by dialogRequested
+    int m_requestedWizardReturnIndex = 0;
+    QDialog *m_requestedDialog = nullptr;
+    QWizard *m_requestedWizard = nullptr;
 
-    PrinterTemperatureWidget *m_chamberTemperatureWidget = nullptr;
-
-    PrintingPage *m_printingPage = nullptr;
     PowerDeviceView *m_powerDeviceView = nullptr;
     SensorView *m_sensorDeviceView = nullptr;
     LedStripView *m_ledDeviceView = nullptr;
     BedMeshWidget *m_bedMeshWidget = nullptr;
+    PrinterTerminal *m_terminal = nullptr;
+    PrinterChamberWidget *m_chamberWidget = nullptr;
+    ToolheadWidget *m_toolheadWidget = nullptr;
     QFrame *m_statusOverlayFrame = nullptr;
     QLabel *m_statusLabel = nullptr;
 
-    QGaugeWidget *m_chamberTemperatureBar = nullptr;
     QGaugeWidget *m_printProgressBar = nullptr;
 
     PrinterTemperatureWidget *m_temperatureWidget = nullptr;
 
+    PrintingPage *m_printingPage = nullptr;
     FileBrowser *m_fileBrowser = nullptr;
     FileBrowser *m_overviewBrowser = nullptr;
     PrinterOfflineScreen *m_printerOfflineScreen = nullptr;
-    PrinterTerminal *m_terminal = nullptr;
-
-    bool xPosEditing = false;
-    bool yPosEditing = false;
-    bool zPosEditing = false;
+    PrinterUpdatingScreen *m_updatingScreen = nullptr;
 
     QMap<int, ExtruderWidget*> m_extruderMap;
 
@@ -180,14 +165,12 @@ private:
 
     PrinterWebcamWidget *m_webcamWidget = nullptr;
 
-    ToolHeadControlFrame *m_toolheadControlFrame = nullptr;
-
     bool m_animating = false;
-
-    QRegularExpression m_number_expression = QRegularExpression("\\d+");
 
     PrinterSettingsPage *m_printerSettingsPage = nullptr;
     PrinterFanWidget *m_printerFanWidget = nullptr;
+
+    Sheet *m_dialogSheet = nullptr;
 };
 
 #endif // PRINTERPAGE_H

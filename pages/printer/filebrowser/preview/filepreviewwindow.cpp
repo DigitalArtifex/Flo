@@ -11,7 +11,7 @@ FilePreviewWindow::FilePreviewWindow(QKlipperFile *file, QKlipperInstance *insta
     connect(m_file, SIGNAL(metadataChanged()), this, SLOT(onFileMetaDataChanged()));
     setupUi();
 
-    showLoadingScreen();
+    //showLoadingScreen();
     m_instance->console()->serverFilesMetadata(file);
 }
 

@@ -10,11 +10,6 @@ IssueListWidget::IssueListWidget(QWidget *parent) :
 void IssueListWidget::addIssue(QString source, QKlipperError &error)
 {
     IssueListItem *item = new IssueListItem(error.errorTitle(), source, error.errorString(), this);
-    setAnimationSlide(item);
-    item->setOpacityIn(1);
-    item->setOpacityOut(0);
-    item->setDuration(150);
-
     connect(item, SIGNAL(removeRequest(IssueListItem*)), this, SLOT(itemRemoveRequestEvent(IssueListItem*)));
 
     addItem(item);

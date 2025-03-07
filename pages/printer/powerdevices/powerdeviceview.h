@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QScrollArea>
 #include <QKlipper/qklipper.h>
-#include "ui/common/cardwidget/cardwidget.h"
+#include "common/CardWidget/cardwidget.h"
 #include "powerdevicecard.h"
 #include "ui/layouts/qflowlayout.h"
 

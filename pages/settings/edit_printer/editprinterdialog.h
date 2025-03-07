@@ -53,6 +53,8 @@ private slots:
 
     void on_heatedChamberCheckBox_toggled(bool checked);
 
+    void on_EditPrinterDialog_windowTitleChanged(const QString &title);
+
 private:
     Ui::EditPrinterDialog *ui;
 
