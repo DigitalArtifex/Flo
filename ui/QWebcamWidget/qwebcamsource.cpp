@@ -12,7 +12,7 @@ QWebcamSource::~QWebcamSource()
 {
     if(m_signalTimer)
     {
-        m_signalTimer->stop();
+        stopSignalTimer();
         delete m_signalTimer;
     }
 
@@ -31,44 +31,38 @@ void QWebcamSource::play()
 {
     createSink();
 
-    if(m_player && !m_player->isPlaying() && !m_source.isEmpty())
+    if(m_player && m_state != Connecting)
     {
         m_player->setSource(m_source);
-
-        if(m_state != Connecting)
-        {
-            setFirstFrameReceived(false);
-            m_connectionRetryCount = 0;
-        }
-
-        startSignalTimer();
-
+        setFirstFrameReceived(false);
+        m_connectionRetryCount = 0;
         setState(Connecting);
+        startSignalTimer();
+        connect(m_webcamSink, SIGNAL(videoFrameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
+
         m_player->play();
     }
 }
 
 void QWebcamSource::pause()
 {
-    createSink();
-
-    if(m_player && m_player->isPlaying())
+    if(m_player)
     {
         m_player->pause();
-
+        stopSignalTimer();
         setState(Paused);
+        disconnect(m_webcamSink, SIGNAL(videoFrameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
     }
 }
 
 void QWebcamSource::stop()
 {
-    createSink();
-
-    if(m_player && m_player->isPlaying())
+    if(m_player)
     {
         m_player->stop();
-
+        stopSignalTimer();
         setState(NoConnection);
+        disconnect(m_webcamSink, SIGNAL(videoFrameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
     }
 }
 
@@ -76,13 +70,14 @@ void QWebcamSource::onSignalTimeout()
 {
     if(m_firstFrameReceived)
         m_firstFrameReceived = false;
+
     else if(m_state == Connecting)
     {
         if(++m_connectionRetryCount > m_connectionRetries)
         {
-            setState(Timeout);
             stop();
-            m_signalTimer->stop();
+            stopSignalTimer();
+            setState(Timeout);
 
             return;
         }
@@ -97,23 +92,22 @@ void QWebcamSource::createSink()
 {
     if(!m_player)
     {
-        m_player = new QMediaPlayer();
-        m_webcamSink = new QVideoSink();
+        m_player = new QMediaPlayer(this);
+        m_webcamSink = new QVideoSink(this);
         m_player->setVideoSink(m_webcamSink);
-
         connect(m_webcamSink, SIGNAL(videoFrameChanged(QVideoFrame)), this, SLOT(videoFrameChangeEvent(QVideoFrame)));
     }
 }
 
 void QWebcamSource::stopSignalTimer()
 {
-    if(m_signalTimer && m_signalTimer->isActive())
+    if(m_signalTimer)
         m_signalTimer->stop();
 }
 
 void QWebcamSource::startSignalTimer()
 {
-    if(m_signalTimer && !m_signalTimer->isActive())
+    if(m_signalTimer)
         m_signalTimer->start();
 }
 
@@ -130,22 +124,8 @@ QUrl QWebcamSource::source() const
 
 void QWebcamSource::setSource(const QUrl &source)
 {
-    if (m_source == source)
-        return;
-
     createSink();
-
-    if(m_player)
-    {
-        if(m_player->isPlaying())
-        {
-            m_player->stop();
-            m_player->setSource(source);
-            m_player->play();
-        }
-        else
-            m_player->setSource(source);
-    }
+    m_player->setSource(source);
 
     m_source = source;
     emit sourceChanged();
@@ -153,6 +133,17 @@ void QWebcamSource::setSource(const QUrl &source)
 
 void QWebcamSource::videoFrameChangeEvent(QVideoFrame frame)
 {
+    if(m_state == NoConnection)
+    {
+        QImage lastImage = m_frame.toImage().convertToFormat(QImage::Format_Grayscale16);
+        lastImage.fill(QColor(0,0,0));
+
+        QVideoFrame lastFrame(lastImage);
+        setFrame(lastFrame);
+
+        return;
+    }
+
     frame.setSubtitleText(QDateTime::currentDateTime().toString());
 
     if(frame.isValid())
@@ -164,15 +155,12 @@ void QWebcamSource::videoFrameChangeEvent(QVideoFrame frame)
     }
     else
     {
-        if(m_state == Connected)
-        {
-            QImage lastImage = m_frame.toImage().convertToFormat(QImage::Format_Grayscale16);
+        QImage lastImage = m_frame.toImage().convertToFormat(QImage::Format_Grayscale16);
 
-            QVideoFrame lastFrame(lastImage);
-            setFrame(lastFrame);
+        QVideoFrame lastFrame(lastImage);
+        setFrame(lastFrame);
 
-            setState(InvalidFrame);
-        }
+        setState(InvalidFrame);
     }
 }
 
@@ -232,6 +220,7 @@ void QWebcamSource::setConnectionRetries(quint64 connectionRetries)
 {
     if (m_connectionRetries == connectionRetries)
         return;
+
     m_connectionRetries = connectionRetries;
     emit connectionRetriesChanged();
 }
