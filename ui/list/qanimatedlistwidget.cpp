@@ -1,5 +1,4 @@
 #include "qanimatedlistwidget.h"
-#include "flo/settings.h"
 
 #include "ui/layouts/qflowlayout.h"
 
@@ -10,21 +9,18 @@ QAnimatedListWidget::QAnimatedListWidget(QWidget *parent) :
 {
     QFlowLayout *layout = new QFlowLayout(m_scrollAreaContents);
     layout->setSpacing(0);
+    layout->setSizeConstraint(QLayout::SetNoConstraint);
+    layout->setContentsMargins(0,0,0,0);
 
     m_scrollAreaContents = new QWidget(this);
     m_scrollAreaContents->setLayout(layout);
-    m_scrollAreaContents->setLayoutDirection(Qt::LayoutDirectionAuto);
-    m_scrollAreaContents->layout()->setContentsMargins(0,0,0,0);
-    m_scrollAreaContents->layout()->setSpacing(0);
-
-    //m_spacer = new QSpacerItem(0,0,QSizePolicy::Fixed,QSizePolicy::MinimumExpanding);
 
     m_emptyListItem = new QAnimatedEmptyListItem(this);
     m_emptyListItem->setFixedSize(size());
     m_emptyListItem->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
     m_scrollAreaContents->layout()->addWidget(m_emptyListItem);
-    m_scrollAreaContents->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum);
+    m_scrollAreaContents->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
     setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     setWidget(m_scrollAreaContents);
@@ -38,7 +34,6 @@ QAnimatedListWidget::QAnimatedListWidget(QWidget *parent) :
 
 void QAnimatedListWidget::addItem(QAnimatedListItem *item)
 {
-    // QFlowLayout *layout = qobject_cast<QFlowLayout*>(m_scrollAreaContents->layout());
     if(m_emptyListItem)
     {
         m_scrollAreaContents->layout()->removeWidget(m_emptyListItem);
@@ -55,127 +50,149 @@ void QAnimatedListWidget::addItem(QAnimatedListItem *item)
     {
         item->setSelected(false, false);
         item->setSelectable(false);
-
-        return;
     }
 
-    m_scrollAreaContents->layout()->addWidget(item);
-    item->setFixedWidth(viewport()->width());
-
-    auto children = m_scrollAreaContents->findChildren<QAnimatedListItem*>();
-
-    for(auto child : children)
-        child->setFixedWidth(viewport()->width());
-
-    connect(item, SIGNAL(animationIn_finished(QAnimatedListItem*)), this, SLOT(on_listItem_animationIn_finished(QAnimatedListItem*)));
     connect(item, SIGNAL(selected(QAnimatedListItem*)), this, SLOT(on_item_selected(QAnimatedListItem*)));
     connect(item, SIGNAL(deselected(QAnimatedListItem*)), this, SLOT(on_item_deselected(QAnimatedListItem*)));
     connect(item, SIGNAL(doubleClicked(QAnimatedListItem*)), this, SLOT(itemDoubleClickedEvent(QAnimatedListItem*)));
 
-    m_items.append(item);
-
-    item->setParent(m_scrollAreaContents);
-    item->animateIn();
-}
-
-void QAnimatedListWidget::addWidget(QWidget *widget)
-{
-    QAnimatedListItem *item = new QAnimatedListItem(this);
-    item->setWidget(widget);
-    m_items.append(item);
-
-    m_scrollAreaContents->layout()->removeItem(m_spacer);
+    item->setFixedWidth(viewport()->width() - (m_scrollAreaContents->layout()->contentsMargins().left() + m_scrollAreaContents->layout()->contentsMargins().right()));
     m_scrollAreaContents->layout()->addWidget(item);
-    m_scrollAreaContents->layout()->addItem(m_spacer);
+    item->show();
 
-    connect(item, SIGNAL(animationIn_finished(QAnimatedListItem*)), this, SLOT(on_listItem_animationIn_finished(QAnimatedListItem*)));
-    connect(item, SIGNAL(selected(QAnimatedListItem*)), this, SLOT(on_item_selected(QAnimatedListItem*)));
-    connect(item, SIGNAL(deselected(QAnimatedListItem*)), this, SLOT(on_item_deselected(QAnimatedListItem*)));
+    setAnimation(item);
+    item->animations()->start(QAbstractAnimation::KeepWhenStopped);
 
-    item->setPositionIn(item->pos());
-    item->setPositionOut(QPoint(width(),item->pos().y()));
-    item->setBlurIn(0);
-    item->setBlurOut(1);
-    item->setDuration(100);
-    item->animateIn();
+    m_items.append(item);
 }
 
 void QAnimatedListWidget::removeItem(QAnimatedListItem *item)
 {
-    if(m_items.contains(item))
+    if(m_items.contains(item) && isItemInViewport(item))
     {
+        m_clearAnimation = new QParallelAnimationGroup(this);
+
+        setAnimation(item, AnimationDirection::Backwards);
+
+        int index = m_items.indexOf(item);
+        int offset = item->height();
+
+        for(int i = index + 1; i < m_items.count(); i++)
+        {
+            if(!isItemInViewport(item))
+                break;
+
+            qDebug() << "Animating";
+
+            QPropertyAnimation *animation = new QPropertyAnimation(m_items[i], "geometry");
+
+            QRect geometryStart(
+                m_items[i]->x(),
+                m_items[i]->y(),
+                m_items[i]->width(),
+                m_items[i]->height()
+                );
+
+            QRect geometryEnd(
+                m_items[i]->x(),
+                m_items[i]->y() - offset,
+                m_items[i]->width(),
+                m_items[i]->height()
+                );
+
+            animation->setStartValue(geometryStart);
+            animation->setEndValue(geometryEnd);
+            animation->setDuration(m_animationDuration);
+
+            m_clearAnimation->addAnimation(animation);
+        }
+
+        m_clearAnimation->addAnimation(item->animations());
+
+        QEventLoop loop;
+
+        connect(m_clearAnimation, &QParallelAnimationGroup::finished, this, [&loop, this]() { loop.exit(); });
+        m_clearAnimation->start();
+        loop.exec();
+
+        delete m_clearAnimation;
+
+        m_items.takeAt(index);
         m_scrollAreaContents->layout()->removeWidget(item);
-
-        if(!isItemInViewport(item))
-            item->setDuration(1);
-
-        connect(item, SIGNAL(animationOut_finished(QAnimatedListItem*)), this, SLOT(on_listItem_animationOut_finished(QAnimatedListItem*)));
-        ++m_animatingItems;
-        item->animateOut();
+        delete item;
+    }
+    else if(m_items.contains(item))
+    {
+        m_items.takeAt(m_items.indexOf(item));
+        m_scrollAreaContents->layout()->removeWidget(item);
+        delete item;
     }
 }
 
-void QAnimatedListWidget::removeWidget(QWidget *widget)
+void QAnimatedListWidget::removeAt(int index)
 {
-    for(int i = 0; i < m_items.count(); i++)
-    {
-        if(m_items[i]->widget() == widget)
-        {
-            removeItem(m_items[i]);
-            break;
-        }
-    }
+    if(index < m_items.count())
+        removeItem(m_items[index]);
 }
 
 void QAnimatedListWidget::clear()
 {
-    for(int i = 0; i < m_items.count(); i++)
-    {
-        removeItem(m_items[i]);
-    }
+    if(m_items.isEmpty())
+        return;
 
     m_selectedItems.clear();
-    m_items.clear();
+
+    if(!m_scrollAreaContents->visibleRegion().isEmpty())
+    {
+        if(m_clearAnimation)
+            delete m_clearAnimation;
+
+        m_clearAnimation = new QParallelAnimationGroup(this);
+
+        for(auto item : m_items)
+        {
+            if(isItemInViewport(item))
+            {
+                setAnimation(item, AnimationDirection::Backwards);
+                m_clearAnimation->addAnimation(item->animations());
+            }
+        }
+
+        while(!m_items.isEmpty())
+        {
+            QAnimatedListItem *item = m_items.takeAt(0);
+            m_clearingItems.append(item);
+        }
+
+        connect(m_clearAnimation, SIGNAL(finished()), this, SLOT(onClearAnimationFinished()));
+        m_clearAnimation->start();
+    }
+    else
+    {
+        while(!m_items.isEmpty())
+        {
+            QAnimatedListItem *item = m_items.takeAt(0);
+            m_scrollAreaContents->layout()->removeWidget(item);
+            delete item;
+        }
+    }
 }
 
 void QAnimatedListWidget::setStyleSheet(QString styleSheet)
 {
     QScrollArea::setStyleSheet(styleSheet);
-    m_scrollAreaContents->setStyleSheet(styleSheet);
+    // m_scrollAreaContents->setStyleSheet(styleSheet);
 
-    for(int i = 0; i < m_items.count(); i++)
-    {
-        m_items[i]->setStyleSheet(styleSheet);
-        style()->polish(m_items[i]);
-    }
-}
-
-void QAnimatedListWidget::setAnimationSlide(QAnimatedListItem *item)
-{
-    qint32 ypos = ((0 + (item->height() * m_items.count())) + (m_scrollAreaContents->layout()->contentsMargins().top()));
-    ypos += m_scrollAreaContents->layout()->spacing() * m_items.count();
-
-    item->setPositionIn(QPoint(m_scrollAreaContents->layout()->contentsMargins().left(), ypos));
-    item->setPositionOut(QPoint(width(),ypos));
-    item->setOpacityIn(1);
-    item->setOpacityOut(0);
+    // for(int i = 0; i < m_items.count(); i++)
+    // {
+    //     m_items[i]->setStyleSheet(styleSheet);
+    //     style()->polish(m_items[i]);
+    // }
 }
 
 bool QAnimatedListWidget::isItemInViewport(QAnimatedListItem *item)
 {
-    bool startsInViewport = false;
-    bool endsInViewport = false;
-
-    if(item->y() >= verticalScrollBar()->value())
-    {
-        if(item->y()  <= (height() + verticalScrollBar()->value()))
-            startsInViewport = true;
-    }
-
-    if((item->y() + item->height()) <= (height() + verticalScrollBar()->value()))
-        endsInViewport = true;
-
-    return (startsInViewport | endsInViewport);
+    return !(item->visibleRegion().isEmpty());
 }
 
 void QAnimatedListWidget::setEmptyText(const QString &text)
@@ -201,11 +218,8 @@ void QAnimatedListWidget::setEmptyIcon(const QIcon &icon)
 
 void QAnimatedListWidget::on_listItem_animationOut_finished(QAnimatedListItem *item)
 {
-    m_items.removeOne(item);
-    item->deleteLater();
-
-    if(m_animatingItems > 0)
-        --m_animatingItems;
+    m_scrollAreaContents->layout()->removeWidget(item);
+    delete item;
 
     if(m_items.isEmpty())
     {
@@ -224,41 +238,6 @@ void QAnimatedListWidget::on_listItem_animationOut_finished(QAnimatedListItem *i
             m_scrollAreaContents->layout()->addWidget(m_emptyListItem);
         }
     }
-    else if(m_animatingItems <= 0)
-    {
-        foreach (QAnimatedListItem *item, m_items) {
-            setAnimationSlide(item);
-        }
-
-        if(m_animatingItems < 0)
-            m_animatingItems = 0;
-    }
-}
-
-void QAnimatedListWidget::on_listItem_animationIn_finished(QAnimatedListItem *item)
-{
-    item->setSelectable(true);
-
-    // int x = m_scrollAreaContents->contentsMargins().top();
-    // x += m_scrollAreaContents->contentsMargins().bottom();
-
-    // auto children = m_scrollAreaContents->findChildren<QAnimatedListItem*>();
-
-    // for(auto child : children)
-    //     x += child->height();
-
-    // x += (m_scrollAreaContents->layout()->spacing() * children.count());
-
-    // if(x < height())
-    // {
-    //     int difference = height() - x;
-
-    //     m_scrollAreaContents->layout()->removeItem(m_spacer);
-    //     delete m_spacer;
-
-    //     m_spacer = new QSpacerItem(0, difference,QSizePolicy::Fixed,QSizePolicy::Fixed);
-    //     m_scrollAreaContents->layout()->addItem(m_spacer);
-    // }
 }
 
 void QAnimatedListWidget::on_item_selected(QAnimatedListItem *item)
@@ -308,6 +287,12 @@ void QAnimatedListWidget::onVerticalScrollbarRangeChange(int min, int max)
 {
     Q_UNUSED(min)
 
+    if(!m_autoScroll)
+        return;
+
+    if(verticalScrollBar()->value() != min && verticalScrollBar()->value() != max)
+        return;
+
     int x = m_scrollAreaContents->contentsMargins().top();
     x += m_scrollAreaContents->contentsMargins().bottom();
 
@@ -324,17 +309,197 @@ void QAnimatedListWidget::onVerticalScrollbarRangeChange(int min, int max)
     }
 }
 
+void QAnimatedListWidget::setAnimation(QAnimatedListItem *item, AnimationDirection direction)
+{
+    item->initAnimations();
+
+    qint32 ypos = item->y(); // ((0 + (item->height() * m_items.count())) + );
+
+    if(direction == AnimationDirection::Forward)
+    {
+        ypos = (m_scrollAreaContents->layout()->contentsMargins().top());
+        ypos += m_scrollAreaContents->layout()->spacing() * m_items.count();
+
+        for(auto child : m_items)
+        ypos += child->height();
+    }
+
+    QPropertyAnimation *animation = nullptr;
+
+    QRect geometryStart;
+    QRect geometryEnd;
+
+    int xPadding = m_scrollAreaContents->layout()->contentsMargins().left() + m_scrollAreaContents->layout()->contentsMargins().right();
+
+    if((m_animationStyle & AnimationStyle::SlideRight) == AnimationStyle::SlideRight)
+    {
+        animation = new QPropertyAnimation(item, "geometry");
+
+        geometryStart = QRect(
+            width(),
+            ypos,
+            width() - xPadding,
+            item->height()
+            );
+
+        geometryEnd = QRect(
+            m_scrollAreaContents->layout()->contentsMargins().left(),
+            ypos,
+            width() - xPadding,
+            item->height()
+            );
+    }
+
+    else if((m_animationStyle & AnimationStyle::SlideLeft) == AnimationStyle::SlideLeft)
+    {
+        animation = new QPropertyAnimation(item, "geometry");
+
+        geometryStart = QRect(
+            width() * -1,
+            ypos,
+            width() - xPadding,
+            item->height()
+            );
+
+        geometryEnd = QRect(
+            m_scrollAreaContents->layout()->contentsMargins().left(),
+            ypos,
+            width() - xPadding,
+            item->height()
+            );
+    }
+
+    else if((m_animationStyle & AnimationStyle::SlideTop) == AnimationStyle::SlideTop)
+    {
+        animation = new QPropertyAnimation(item, "geometry");
+
+        geometryStart = QRect(
+            m_scrollAreaContents->layout()->contentsMargins().left(),
+            item->height() * -1,
+            width() - xPadding,
+            item->height()
+            );
+
+        geometryEnd = QRect(
+            m_scrollAreaContents->layout()->contentsMargins().left(),
+            ypos,
+            width() - xPadding,
+            item->height()
+            );
+    }
+
+    else if((m_animationStyle & AnimationStyle::SlideBottom) == AnimationStyle::SlideBottom)
+    {
+        animation = new QPropertyAnimation(item, "geometry");
+
+        geometryStart = QRect(
+            m_scrollAreaContents->layout()->contentsMargins().left(),
+            (viewport()->height() + verticalScrollBar()->value()),
+            width() - xPadding,
+            item->height()
+            );
+
+        geometryEnd = QRect(
+            m_scrollAreaContents->layout()->contentsMargins().left(),
+            ypos,
+            width() - xPadding,
+            item->height()
+            );
+
+        qDebug() << geometryEnd;
+    }
+
+    if((m_animationStyle & AnimationStyle::Opacity) == AnimationStyle::Opacity)
+    {
+        item->setGraphicsEffect(new QGraphicsOpacityEffect);
+
+        QPropertyAnimation *opacityAnimation = new QPropertyAnimation(item->graphicsEffect(), "opacity");
+        opacityAnimation->setDuration(m_animationDuration);
+
+        if(direction == AnimationDirection::Forward)
+        {
+            opacityAnimation->setStartValue(0);
+            opacityAnimation->setEndValue(1);
+        }
+        else
+        {
+            opacityAnimation->setStartValue(1);
+            opacityAnimation->setEndValue(0);
+        }
+
+        item->animations()->addAnimation(opacityAnimation);
+    }
+
+    if(animation)
+    {
+        if(direction == AnimationDirection::Forward)
+        {
+            animation->setStartValue(geometryStart);
+            animation->setEndValue(geometryEnd);
+        }
+        else
+        {
+            animation->setStartValue(geometryEnd);
+            animation->setEndValue(geometryStart);
+        }
+
+        animation->setDuration(m_animationDuration);
+        item->animations()->addAnimation(animation);
+    }
+}
+
 void QAnimatedListWidget::resizeEvent(QResizeEvent *event)
 {
-    if(m_emptyListItem != nullptr)
-        m_emptyListItem->setFixedSize(event->size());
+    QScrollArea::resizeEvent(event);
+    int xPadding = m_scrollAreaContents->layout()->contentsMargins().left() + m_scrollAreaContents->layout()->contentsMargins().right();
+    int yPadding = m_scrollAreaContents->layout()->contentsMargins().top() + m_scrollAreaContents->layout()->contentsMargins().bottom();
+
+    QSize size = event->size();
+    size.setHeight(size.height() - yPadding);
+    size.setWidth(size.width() - xPadding);
+
+    if(m_emptyListItem)
+        m_emptyListItem->setFixedSize(size);
 
     auto children = m_scrollAreaContents->findChildren<QAnimatedListItem*>();
 
     for(auto child : children)
-        child->setFixedWidth(viewport()->width());
+        child->setFixedWidth(viewport()->width() - xPadding);
+}
 
-    QScrollArea::resizeEvent(event);
+QWidget *QAnimatedListWidget::scrollAreaContents() const
+{
+    return m_scrollAreaContents;
+}
+
+int QAnimatedListWidget::animationDuration() const
+{
+    return m_animationDuration;
+}
+
+void QAnimatedListWidget::setAnimationDuration(int animationDuration)
+{
+    m_animationDuration = animationDuration;
+}
+
+void QAnimatedListWidget::onClearAnimationFinished()
+{
+    while(!m_clearingItems.isEmpty())
+    {
+        QAnimatedListItem *item = m_clearingItems.takeAt(0);
+        m_scrollAreaContents->layout()->removeWidget(item);
+        delete item;
+    }
+}
+
+bool QAnimatedListWidget::autoScroll() const
+{
+    return m_autoScroll;
+}
+
+void QAnimatedListWidget::setAutoScroll(bool autoScroll)
+{
+    m_autoScroll = autoScroll;
 }
 
 QAnimatedListWidget::SelectionMode QAnimatedListWidget::selectionMode() const

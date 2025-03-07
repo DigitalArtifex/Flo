@@ -3,98 +3,11 @@
 QAnimatedListItem::QAnimatedListItem(QWidget *parent)
     : QFrame{parent}
 {
-    m_animationFinal = new QWidgetAnimation(this, parent);
-    m_animationIn = new QWidgetAnimation(this, parent);
-    m_animationOut = new QWidgetAnimation(this, parent);
+    m_animations = new QParallelAnimationGroup(this);
 
-    connect(m_animationIn, SIGNAL(finished()), this, SLOT(on_animationIn_finished()));
-    connect(m_animationOut, SIGNAL(finished()), this, SLOT(on_animationOut_finished()));
+    connect(m_animations, SIGNAL(finished()), this, SLOT(onAnimationFinished()));
 
     this->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ListItem" ));
-}
-
-void QAnimatedListItem::animateIn()
-{
-    if(m_animationIn->hasAnimationType(QWidgetAnimation::Position))
-    {
-        m_animationIn->setStartPosition(m_positionOut);
-        m_animationIn->setEndPosition(m_positionIn);
-    }
-
-    if(m_animationIn->hasAnimationType(QWidgetAnimation::Opacity))
-    {
-        m_animationIn->setStartOpacity(m_opacityOut);
-        m_animationIn->setEndOpacity(m_opacityIn);
-    }
-
-    if(m_animationIn->hasAnimationType(QWidgetAnimation::Geometry))
-    {
-        m_animationIn->setStartGeometry(m_geometryOut);
-        m_animationIn->setEndGeometry(m_geometryIn);
-    }
-
-    if(m_animationIn->hasAnimationType(QWidgetAnimation::Blur))
-    {
-        m_animationIn->setStartBlur(m_blurOut);
-        m_animationIn->setEndBlur(m_blurIn);
-    }
-
-    if(m_animationIn->hasAnimationType(QWidgetAnimation::Height))
-    {
-        m_animationIn->setStartHeight(m_heightOut);
-        m_animationIn->setEndHeight(m_heightIn);
-    }
-
-    if(m_animationIn->hasAnimationType(QWidgetAnimation::Width))
-    {
-        m_animationIn->setStartWidth(m_widthOut);
-        m_animationIn->setEndWidth(m_widthIn);
-    }
-
-    m_animationIn->setDuration(m_duration);
-    m_animationIn->start();
-}
-
-void QAnimatedListItem::animateOut()
-{
-    if(m_animationOut->hasAnimationType(QWidgetAnimation::Position))
-    {
-        m_animationOut->setStartPosition(m_positionIn);
-        m_animationOut->setEndPosition(m_positionOut);
-    }
-
-    if(m_animationOut->hasAnimationType(QWidgetAnimation::Opacity))
-    {
-        m_animationOut->setStartOpacity(m_opacityIn);
-        m_animationOut->setEndOpacity(m_opacityOut);
-    }
-
-    if(m_animationOut->hasAnimationType(QWidgetAnimation::Geometry))
-    {
-        m_animationOut->setStartGeometry(m_geometryIn);
-        m_animationOut->setEndGeometry(m_geometryOut);
-    }
-
-    if(m_animationOut->hasAnimationType(QWidgetAnimation::Blur))
-    {
-        m_animationOut->setStartBlur(m_blurIn);
-        m_animationOut->setEndBlur(m_blurOut);
-    }
-
-    if(m_animationOut->hasAnimationType(QWidgetAnimation::Height))
-    {
-        m_animationOut->setStartHeight(m_heightIn);
-        m_animationOut->setEndHeight(m_heightOut);
-    }
-
-    if(m_animationOut->hasAnimationType(QWidgetAnimation::Width))
-    {
-        m_animationOut->setStartWidth(m_widthIn);
-        m_animationOut->setEndWidth(m_widthOut);
-    }
-
-    m_animationOut->setDuration(m_duration);
-    m_animationOut->start();
 }
 
 void QAnimatedListItem::setSelectable(bool selectable)
@@ -120,22 +33,6 @@ void QAnimatedListItem::setSelected(bool select, bool trigger)
             emit(deselected(this));
         }
     }
-}
-
-void QAnimatedListItem::setWidget(QWidget *widget)
-{
-    m_widget = widget;
-    setLayout(new QVBoxLayout(this));
-    setLayoutDirection(Qt::LayoutDirectionAuto);
-    layout()->setContentsMargins(0,4,0,4);
-    layout()->setSpacing(0);
-    setLayoutDirection(Qt::LayoutDirectionAuto);
-    layout()->addWidget(m_widget);
-}
-
-QWidget *QAnimatedListItem::widget()
-{
-    return m_widget;
 }
 
 void QAnimatedListItem::on_clickTimer_timeout()
@@ -165,7 +62,7 @@ void QAnimatedListItem::mousePressEvent(QMouseEvent *event)
 
         setProperty("pressed", true);
         m_pressed = true;
-        style()->polish(this);
+        //style()->polish(this);
     }
     else if(event->button() == Qt::RightButton)
     {
@@ -187,7 +84,7 @@ void QAnimatedListItem::mouseReleaseEvent(QMouseEvent *event)
     if(event->button() == Qt::LeftButton)
     {
         this->setProperty("pressed", false);
-        style()->polish(this);
+        //style()->polish(this);
 
         if(m_clickTimer)
         {
@@ -214,17 +111,14 @@ void QAnimatedListItem::mouseReleaseEvent(QMouseEvent *event)
                 m_contextMenu->popup(event->globalPosition().toPoint());
             }
         }
+
     }
 }
 
-void QAnimatedListItem::on_animationIn_finished()
+void QAnimatedListItem::onAnimationFinished()
 {
-    emit animationIn_finished(this);
-}
-
-void QAnimatedListItem::on_animationOut_finished()
-{
-    emit animationOut_finished(this);
+    setGraphicsEffect(nullptr);
+    emit animationFinished(this);
 }
 
 void QAnimatedListItem::setContextMenu(QMenu *menu)
@@ -232,99 +126,33 @@ void QAnimatedListItem::setContextMenu(QMenu *menu)
     m_contextMenu = menu;
 }
 
-qint32 QAnimatedListItem::widthOut() const
+QWidget *QAnimatedListItem::centralWidget() const
 {
-    return m_widthOut;
+    return m_centralWidget;
 }
 
-void QAnimatedListItem::setWidthOut(qint32 widthOut)
+void QAnimatedListItem::setCentralWidget(QWidget *centralWidget)
 {
-    m_widthOut = widthOut;
-    m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Width));
+    m_centralWidget = centralWidget;
+    m_centralWidget->setParent(this);
+    m_centralWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    setLayout(new QVBoxLayout(this));
+    layout()->setContentsMargins(0,0,0,0);
+    layout()->setSpacing(0);
+    layout()->addWidget(m_centralWidget);
 }
 
-qint32 QAnimatedListItem::widthIn() const
+void QAnimatedListItem::initAnimations()
 {
-    return m_widthIn;
+    if(m_animations)
+        delete m_animations;
+
+    m_animations = new QParallelAnimationGroup(this);
+    connect(m_animations, SIGNAL(finished()), this, SLOT(onAnimationFinished()));
 }
 
-void QAnimatedListItem::setWidthIn(qint32 widthIn)
+QParallelAnimationGroup *QAnimatedListItem::animations() const
 {
-    m_widthIn = widthIn;
-    m_animationIn->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Width));
-}
-
-qint32 QAnimatedListItem::heightOut() const
-{
-    return m_heightOut;
-}
-
-void QAnimatedListItem::setHeightOut(qint32 heightOut)
-{
-    m_heightOut = heightOut;
-    m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Height));
-}
-
-qint32 QAnimatedListItem::heightIn() const
-{
-    return m_heightIn;
-}
-
-void QAnimatedListItem::setHeightIn(qint32 heightIn)
-{
-    m_heightIn = heightIn;
-    m_animationIn->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Height));
-}
-
-void QAnimatedListItem::setDuration(qint32 duration)
-{
-    m_duration = duration;
-}
-
-void QAnimatedListItem::setOpacityOut(qreal opacityOut)
-{
-    m_opacityOut = opacityOut;
-    m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Opacity));
-}
-
-void QAnimatedListItem::setOpacityIn(qreal opacityIn)
-{
-    m_opacityIn = opacityIn;
-    m_animationIn->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Opacity));
-}
-
-void QAnimatedListItem::setBlurOut(qreal blurOut)
-{
-    m_blurOut = blurOut;
-    m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Blur));
-}
-
-void QAnimatedListItem::setBlurIn(qreal blurIn)
-{
-    m_blurIn = blurIn;
-    m_animationIn->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Blur));
-}
-
-void QAnimatedListItem::setPositionOut(QPoint positionOut)
-{
-    m_positionOut = positionOut;
-    m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Position));
-}
-
-void QAnimatedListItem::setPositionIn(QPoint positionIn)
-{
-    m_positionIn = positionIn;
-    m_animationIn->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Position));
-}
-
-void QAnimatedListItem::setGeometryOut(const QRect &geometryOut)
-{
-    m_geometryOut = geometryOut;
-    m_animationOut->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Geometry));
-}
-
-void QAnimatedListItem::setGeometryIn(const QRect &geometryIn)
-{
-    m_geometryIn = geometryIn;
-    m_animationIn->setAnimationType(QWidgetAnimation::AnimationType(m_animationIn->animationType() | QWidgetAnimation::Geometry));
+    return m_animations;
 }

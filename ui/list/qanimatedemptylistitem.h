@@ -1,15 +1,13 @@
 #ifndef QANIMATEDEMPTYLISTITEM_H
 #define QANIMATEDEMPTYLISTITEM_H
 
-#include <QWidget>
+#include <QFrame>
 #include <QLabel>
 #include <QGridLayout>
 #include <QSpacerItem>
 #include <QObject>
 
-#include "../qanimatedwidget.h"
-
-class QAnimatedEmptyListItem : public QAnimatedWidget
+class QAnimatedEmptyListItem : public QFrame
 {
     Q_OBJECT
 public:
