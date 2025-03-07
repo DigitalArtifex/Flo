@@ -45,26 +45,63 @@ Follow the build/installation instructions located at https://github.com/Digital
 This is a widgets library that can also be used in your version of QtCreator.
 
 ## QKlipper
-Follow the build/installation instructions located at https://github.com/DigitalArtifex/QKlipper
 
-This is the library needed to communicate with Moonraker/Klipper
+- Clone QKlipper
+
+```
+git clone https://github.com/DigitalArtifex/QKlipper.git
+```
+- Setup Build Directory
+
+```
+cd QKlipper/
+mkdir -p build/release
+cd build/release
+```
+- Run qt-cmake for the target version to configure the project
+
+```
+/opt/Qt/6.8.1/gcc_64/bin/qt-cmake -S ../../ -B ./
+```
+- Build
+
+```
+cmake --build ./
+```
+- Install
+
+```
+sudo cmake --install ./
+```
 
 ## Building/Running FLO
 
+- Clone Flo
+
+```
+git clone https://github.com/DigitalArtifex/Flo.git
+```
+
+- Setup Build Directory
+
+```
+cd Flo/
+mkdir -p build/release
+cd build/release
+```
+
+- Run qt-cmake for the target version to configure the project
+
+```
+/opt/Qt/6.8.1/gcc_64/bin/qt-cmake -S ../../ -B ./
+```
+
+- Build
+
+```
+cmake --build ./
+```
+
 It is important to note that FLO uses QtMultimedia to process webcam streams. While QtMultimedia defaults to FFMPEG, there are several known issues
 that can occur while using this backend. If you have any issues (i.e. system lockups, scan lines etc) it may be necessary to specify the native backend
-for your system. For example, on Linux the native backend is `gstreamer` and therefore would set the environment variable `QT_MEDIA_BACKEND=gstreamer`. 
-
-### Temporarily Set QT_MEDIA_BACKEND
-
-![alt text](https://github.com/DigitalArtifex/Flo/blob/main/data/screenshots/build_env.png)
-
-If you would like to temporarily set the backend for testing purposes, you can add it to Flo's Project settings under `Build Environment`
-
-### Permanently Set QT_MEDIA_BACKEND
-
-To make the environment variable permanent, we will need to add a line in `~/.profile`. Open a terminal and execute the following command
-
-```
-echo export QT_MEDIA_BACKEND=gstreamer >> ~/.profile
-```
+for your system. For example, on Linux the native backend is `gstreamer` and therefore would set the `Media Backend` option in System Settings to `GStreamer`
