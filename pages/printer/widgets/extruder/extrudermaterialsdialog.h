@@ -8,7 +8,7 @@
 #include <QGroupBox>
 #include <QDoubleSpinBox>
 
-#include <ui/common/dialog/dialog.h>
+#include <common/dialog/dialog.h>
 #include <ui/QIconButton/qiconbutton.h>
 
 class ExtruderMaterialsDialog : public Dialog

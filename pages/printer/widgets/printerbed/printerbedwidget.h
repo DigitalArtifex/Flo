@@ -12,14 +12,13 @@
 
 #include "printerbedinfodialog.h"
 #include "printerbedtoolsdialog.h"
+#include "ui/LineGraphWidget/linegraphwidget.h"
 #include <pages/printer/bedmesh/bedmeshwidget.h>
 
 #include <ui/QIconButton/qiconbutton.h>
 #include <QtDAWidgets/qthrobberwidget.h>
 
 #include <dialogs/PidDialog/piddialog.h>
-
-#include "bedtemperaturewidget.h"
 
 namespace Ui {
 class PrinterBedWidget;
@@ -46,6 +45,9 @@ public:
 
 public slots:
 
+signals:
+    void dialogRequested(QDialog *);
+
 protected slots:
     void onPrintbedCurrentTempChanged();
     void onPrintbedTargetTempChanged();
@@ -71,7 +73,12 @@ private slots:
 
     void onBedMeshDataChanged();
 
+    void onPidDialogFinished(int returnCode);
+    void onSettingsDialogFinished(int returnCode);
+
 private:
+    LineGraphWidget *m_temperatureGraph = nullptr;
+
     Ui::PrinterBedWidget *ui;
 
     QGaugeWidget *m_bedTemperatureBar = nullptr;
@@ -91,10 +98,12 @@ private:
 
     bool m_targetTempEdited = false;
     BedMeshData *m_bedMeshData = nullptr;
-    BedTemperatureWidget *m_bedTempChart = nullptr;
 
     QFrame *m_throbberFrame = nullptr;
     QThrobberWidget *m_throbber = nullptr;
+
+    PidDialog *m_pidDialog = nullptr;
+    PrinterBedInfoDialog *m_settingsDialog = nullptr;
 };
 
 #endif // PRINTERBEDWIDGET_H

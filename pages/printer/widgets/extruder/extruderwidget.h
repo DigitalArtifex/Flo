@@ -9,10 +9,11 @@
 #include <QtDAWidgets/qgaugewidget.h>
 #include <QKlipper/qklipper.h>
 
+#include "common/QAnimatedWidget/qanimatedwidget.h"
+
 #include "extruderinfodialog.h"
 #include "extrudermaterialsdialog.h"
 
-#include "extrudertemperaturewidget.h"
 #include <QtDAWidgets/qthrobberwidget.h>
 #include <dialogs/PidDialog/piddialog.h>
 #include <dialogs/PositionDialog/positiondialog.h>
@@ -35,6 +36,9 @@ public:
 
     void setupIcons();
 
+signals:
+    void dialogRequested(QDialog *);
+
 protected:
     virtual void changeEvent(QEvent *event) override;
 
@@ -48,6 +52,11 @@ private slots:
     void on_resetButton_clicked();
     void on_extrudeButton_clicked();
     void on_retractButton_clicked();
+
+    void onPidDialogFinished(int returnCode);
+    void onMaterialDialogFinished(int returnCode);
+    void onSettingsDialogFinished(int returnCode);
+    void onPreheatDialogFinished(int returnCode);
 
     void onExtruderCanExtrudeChanged();
     void onExtruderCurrentTempChanged();
@@ -74,7 +83,7 @@ private slots:
     void hideThrobber();
 
 private:
-    ExtruderTemperatureWidget *m_temperatureWidget = nullptr;
+    LineGraphWidget *m_temperatureGraph = nullptr;
 
     QGaugeWidget *m_temperatureProgressBar = nullptr;
     QGaugeWidget *m_powerProgressBar = nullptr;
@@ -98,6 +107,12 @@ private:
 
     QFrame *m_throbberFrame = nullptr;
     QThrobberWidget *m_throbber = nullptr;
+
+    PidDialog *m_pidDialog = nullptr;
+    PidDialog *m_preheatDialog = nullptr;
+    ExtruderMaterialsDialog *m_materialDialog = nullptr;
+    ExtruderInfoDialog *m_settingsDialog = nullptr;
+
 };
 
 #endif // EXTRUDERWIDGET_H

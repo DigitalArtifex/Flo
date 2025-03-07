@@ -1,14 +1,16 @@
 #ifndef EXTRUDERINFODIALOG_H
 #define EXTRUDERINFODIALOG_H
 
+#include <QKlipper/qklipper.h>
 #include <QObject>
 #include <QQmlEngine>
-#include <QWidget>
-#include <QTableWidget>
 #include <QResizeEvent>
+#include <QTableWidget>
+#include <QWidget>
+#include "ui/QIconButton/qiconbutton.h"
 
-#include <ui/common/dialog/dialog.h>
-#include <QKlipper/qklipper.h>
+#include <common/dialog/dialog.h>
+#include <ui/LineGraphWidget/linegraphwidget.h>
 
 class ExtruderInfoDialog : public Dialog
 {
@@ -73,6 +75,9 @@ class ExtruderInfoDialog : public Dialog
         QGridLayout *m_centralLayout = nullptr;
         QTableWidget *m_infoTable;
         QMap<QString, QTableWidgetItem*> m_itemMap;
+
+        QWidget *m_footerWidget = nullptr;
+        QIconButton *m_acceptButton = nullptr;
 };
 
 #endif // EXTRUDERINFODIALOG_H

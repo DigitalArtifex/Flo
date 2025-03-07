@@ -57,7 +57,7 @@ void ExtruderMaterialsDialog::setupUi()
     m_speedGroupBox->layout()->addWidget(m_speedUnitLabel);
 
     m_centralLayout->addWidget(m_speedGroupBox, 1, 0);
-
+    m_centralLayout->addItem(new QSpacerItem(0,0, QSizePolicy::Expanding, QSizePolicy::Expanding), 2, 0);
     connect(m_speedSpinBox, SIGNAL(valueChanged(double)), this, SLOT(setSpeed(qreal)));
 
     //setup footer
@@ -81,7 +81,7 @@ void ExtruderMaterialsDialog::setupUi()
     m_footerWidget->layout()->addWidget(m_extrudeButton);
 
     m_centralLayout->addItem(new QSpacerItem(QSizePolicy::Expanding, QSizePolicy::Expanding),2,0);
-    m_centralLayout->addWidget(m_footerWidget, 2, 0, 1, 1);
+    m_centralLayout->addWidget(m_footerWidget, 3, 0, 1, 1);
 
     connect(m_extrudeButton, SIGNAL(clicked()), this, SLOT(accept()));
 

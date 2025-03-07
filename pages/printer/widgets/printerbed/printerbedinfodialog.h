@@ -1,15 +1,16 @@
 #ifndef PRINTERBEDINFODIALOG_H
 #define PRINTERBEDINFODIALOG_H
 
+#include <QGridLayout>
+#include <QMap>
 #include <QObject>
 #include <QQmlEngine>
-#include <QWidget>
-#include <QMap>
-#include <QGridLayout>
-#include <QTableWidget>
 #include <QResizeEvent>
+#include <QTableWidget>
+#include <QWidget>
+#include "ui/QIconButton/qiconbutton.h"
 
-#include <ui/common/dialog/dialog.h>
+#include <common/dialog/dialog.h>
 
 #include <QKlipper/qklipper.h>
 
@@ -53,6 +54,9 @@ class PrinterBedInfoDialog : public Dialog
         QMap<QString, QTableWidgetItem*> m_itemMap;
 
         QKlipperPrintBed *m_printBed = nullptr;
+
+        QWidget *m_footerWidget = nullptr;
+        QIconButton *m_acceptButton = nullptr;
 };
 
 #endif // PRINTERBEDINFODIALOG_H

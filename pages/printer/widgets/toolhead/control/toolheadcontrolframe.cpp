@@ -105,92 +105,169 @@ void ToolHeadControlFrame::resizeEvent(QResizeEvent *event)
 void ToolHeadControlFrame::xUpClickEvent()
 {
     QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
+
     //Move toolhead if printer is online
-    if(printer->status() == QKlipperPrinter::Ready)
+    switch(printer->status())
     {
-        qDebug() << QString("Requesting X Axis movement of ") + QString::number(m_increment);
-        m_toolhead->moveX(m_increment);
-    }
-    else
-        qDebug() << QString("Cannot move toolhead. Printer offline.");
+    case QKlipperPrinter::Ready:
+        qDebug() << "Moving toolhead";
+        printer->toolhead()->moveX(m_increment);
+        break;
+    case QKlipperPrinter::Paused:
+    case QKlipperPrinter::Cancelled:
+    case QKlipperPrinter::Printing:
+        qDebug() << "Cannot move toolhead during print operation";
+        break;
+    case QKlipperPrinter::Error:
+    case QKlipperPrinter::Offline:
+    case QKlipperPrinter::Connecting:
+        qDebug() << "Cannot move toolhead. Printer offline.";
+        break;
+    };
 }
 
 void ToolHeadControlFrame::xDownClickEvent()
 {
     QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
+
     //Move toolhead if printer is online
-    if(printer->status() == QKlipperPrinter::Ready)
+    switch(printer->status())
     {
-        qDebug() << QString("Requesting X Axis movement of ") + QString::number(m_increment * -1);
-        m_toolhead->moveX(m_increment * -1);
-    }
-    else
-        qDebug() << QString("Cannot move toolhead. Printer offline.");
+    case QKlipperPrinter::Ready:
+        qDebug() << "Moving toolhead";
+        printer->toolhead()->moveX(m_increment * -1);
+        break;
+    case QKlipperPrinter::Paused:
+    case QKlipperPrinter::Cancelled:
+    case QKlipperPrinter::Printing:
+        qDebug() << "Cannot move toolhead during print operation";
+        break;
+    case QKlipperPrinter::Error:
+    case QKlipperPrinter::Offline:
+    case QKlipperPrinter::Connecting:
+        qDebug() << "Cannot move toolhead. Printer offline.";
+        break;
+    };
 }
 
 void ToolHeadControlFrame::yUpClickEvent()
 {
     QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
+
     //Move toolhead if printer is online
-    if(printer->status() == QKlipperPrinter::Ready)
+    switch(printer->status())
     {
-        qDebug() << QString("Requesting Y Axis movement of ") + QString::number(m_increment);
-        m_toolhead->moveY(m_increment);
-    }
-    else
-        qDebug() << QString("Cannot move toolhead. Printer offline.");
+    case QKlipperPrinter::Ready:
+        qDebug() << "Moving toolhead";
+        printer->toolhead()->moveY(m_increment);
+        break;
+    case QKlipperPrinter::Paused:
+    case QKlipperPrinter::Cancelled:
+    case QKlipperPrinter::Printing:
+        qDebug() << "Cannot move toolhead during print operation";
+        break;
+    case QKlipperPrinter::Error:
+    case QKlipperPrinter::Offline:
+    case QKlipperPrinter::Connecting:
+        qDebug() << "Cannot move toolhead. Printer offline.";
+        break;
+    };
 }
 
 void ToolHeadControlFrame::yDownClickEvent()
 {
     QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
+
     //Move toolhead if printer is online
-    if(printer->status() == QKlipperPrinter::Ready)
+    switch(printer->status())
     {
-        qDebug() << QString("Requesting Y Axis movement of ") + QString::number(m_increment * -1);
-        m_toolhead->moveY(m_increment * -1);
-    }
-    else
-        qDebug() << QString("Cannot move toolhead. Printer offline.");
+    case QKlipperPrinter::Ready:
+        qDebug() << "Moving toolhead";
+        printer->toolhead()->moveY(m_increment * -1);
+        break;
+    case QKlipperPrinter::Paused:
+    case QKlipperPrinter::Cancelled:
+    case QKlipperPrinter::Printing:
+        qDebug() << "Cannot move toolhead during print operation";
+        break;
+    case QKlipperPrinter::Error:
+    case QKlipperPrinter::Offline:
+    case QKlipperPrinter::Connecting:
+        qDebug() << "Cannot move toolhead. Printer offline.";
+        break;
+    };
 }
 
 void ToolHeadControlFrame::zUpClickEvent()
 {
     QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
+
     //Move toolhead if printer is online
-    if(printer->status() == QKlipperPrinter::Ready)
+    switch(printer->status())
     {
-        qDebug() << QString("Requesting Z Axis movement of ") + QString::number(m_increment);
-        m_toolhead->moveZ(m_increment);
-    }
-    else
-        qDebug() << QString("Cannot move toolhead. Printer offline.");
+    case QKlipperPrinter::Ready:
+        qDebug() << "Moving toolhead";
+        printer->toolhead()->moveZ(m_increment);
+        break;
+    case QKlipperPrinter::Paused:
+    case QKlipperPrinter::Cancelled:
+    case QKlipperPrinter::Printing:
+        qDebug() << "Cannot move toolhead during print operation";
+        break;
+    case QKlipperPrinter::Error:
+    case QKlipperPrinter::Offline:
+    case QKlipperPrinter::Connecting:
+        qDebug() << "Cannot move toolhead. Printer offline.";
+        break;
+    };
 }
 
 void ToolHeadControlFrame::zDownClickEvent()
 {
     QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
+
     //Move toolhead if printer is online
-    if(printer->status() == QKlipperPrinter::Ready)
+    switch(printer->status())
     {
-        qDebug() << QString("Requesting Z Axis movement of ") + QString::number(m_increment * -1);
-        m_toolhead->moveZ(m_increment * -1);
-    }
-    else
-        qDebug() << QString("Cannot move toolhead. Printer offline.");
+    case QKlipperPrinter::Ready:
+        qDebug() << "Moving toolhead";
+        printer->toolhead()->moveZ(m_increment * -1);
+        break;
+    case QKlipperPrinter::Paused:
+    case QKlipperPrinter::Cancelled:
+    case QKlipperPrinter::Printing:
+        qDebug() << "Cannot move toolhead during print operation";
+        break;
+    case QKlipperPrinter::Error:
+    case QKlipperPrinter::Offline:
+    case QKlipperPrinter::Connecting:
+        qDebug() << "Cannot move toolhead. Printer offline.";
+        break;
+    };
 }
 
 void ToolHeadControlFrame::homeClickEvent()
 {
     QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_toolhead->parent());
+
     //Move toolhead if printer is online
-    if(printer->status() == QKlipperPrinter::Ready)
+    switch(printer->status())
     {
-        qDebug() << QString("Homing toolhead");
-        m_toolhead->home();
-    }
-    else
-        qDebug() << QString("Cannot move toolhead. Printer offline.");
+    case QKlipperPrinter::Ready:
+        qDebug() << "Moving toolhead";
+        printer->toolhead()->home();
+        break;
+    case QKlipperPrinter::Paused:
+    case QKlipperPrinter::Cancelled:
+    case QKlipperPrinter::Printing:
+        qDebug() << "Cannot move toolhead during print operation";
+        break;
+    case QKlipperPrinter::Error:
+    case QKlipperPrinter::Offline:
+    case QKlipperPrinter::Connecting:
+        qDebug() << "Cannot move toolhead. Printer offline.";
+        break;
+    };
 }
 
 void ToolHeadControlFrame::toolheadUpdateEvent()

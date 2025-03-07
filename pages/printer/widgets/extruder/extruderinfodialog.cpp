@@ -1,4 +1,5 @@
 #include "extruderinfodialog.h"
+#include "flo/settings.h"
 
 ExtruderInfoDialog::ExtruderInfoDialog(QKlipperExtruder *extruder, QWidget *parent)
     : Dialog{parent}
@@ -202,7 +203,7 @@ void ExtruderInfoDialog::onPwmCycleChanged()
         addTableItem("onPwmCycleChanged");
 
     QString text = QString("PWM Cycle Time: %1").arg(
-        QVariant(m_extruder->pwmCycle()).toString()
+        QVariant(m_extruder->pwmCycleTime()).toString()
         );
 
     m_itemMap["onPwmCycleChanged"]->setText(text);
@@ -577,9 +578,27 @@ void ExtruderInfoDialog::setupUi()
 
     m_infoTable = new QTableWidget(m_centralWidget);
     m_infoTable->setColumnCount(1);
+    m_infoTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_centralLayout->addWidget(m_infoTable);
 
     m_infoTable->setColumnWidth(0, m_infoTable->viewport()->width());
+
+    //setup footer
+    m_footerWidget = new QWidget(this);
+    m_footerWidget->setLayout(new QHBoxLayout(m_footerWidget));
+    m_footerWidget->layout()->setContentsMargins(0,0,0,0);
+    m_centralLayout->addWidget(m_footerWidget, 1, 0);
+
+    //m_footerWidget->layout()->addItem(new QSpacerItem(0,0, QSizePolicy::Expanding, QSizePolicy::Fixed));
+
+    m_acceptButton = new QIconButton(m_footerWidget);
+    m_acceptButton->setText("Accept");
+    m_acceptButton->setFixedHeight(50);
+    m_acceptButton->setIcon(Settings::getThemeIcon("accept"));
+    m_acceptButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_footerWidget->layout()->addWidget(m_acceptButton);
+
+    connect(m_acceptButton, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
 void ExtruderInfoDialog::resizeEvent(QResizeEvent *event)

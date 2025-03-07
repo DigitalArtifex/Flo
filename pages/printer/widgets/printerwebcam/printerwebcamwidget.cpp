@@ -90,6 +90,36 @@ void PrinterWebcamWidget::setStyleSheet(const QString &styleSheet)
     QFrame::setStyleSheet(styleSheet);
 }
 
+void PrinterWebcamWidget::play()
+{
+    if(m_webcamFrame)
+        m_webcamFrame->play();
+
+    if(m_webcamFrame_1)
+        m_webcamFrame_1->play();
+
+    if(m_webcamFrame_2)
+        m_webcamFrame_2->play();
+
+    if(m_webcamFrame_3)
+        m_webcamFrame_3->play();
+}
+
+void PrinterWebcamWidget::stop()
+{
+    if(m_webcamFrame)
+        m_webcamFrame->stop();
+
+    if(m_webcamFrame_1)
+        m_webcamFrame_1->stop();
+
+    if(m_webcamFrame_2)
+        m_webcamFrame_2->stop();
+
+    if(m_webcamFrame_3)
+        m_webcamFrame_3->stop();
+}
+
 void PrinterWebcamWidget::setupUi()
 {
     m_layout = new QGridLayout(this);
@@ -302,12 +332,9 @@ void PrinterWebcamWidget::onSystemWebcamsChanged()
                 {
                     QString fps = QString::number(webcam.targetFps());
 
-                    if(m_webcamFrame->source() != url)
-                    {
-                        m_webcamFrame->stop();
-                        m_webcamFrame->setSource(url);
-                        m_webcamFrame->play();
-                    }
+                    //m_webcamFrame->stop();
+                    m_webcamFrame->setSource(url);
+                    m_webcamFrame->play();
 
                     QString name = webcam.name();
 
@@ -418,10 +445,11 @@ void PrinterWebcamWidget::onInstanceOnline(QKlipperInstance *instance)
     {
         m_thumbnailTimer = new QTimer(this);
         m_thumbnailTimer->setInterval(5000);
-        m_thumbnailTimer->start();
 
         connect(m_thumbnailTimer, SIGNAL(timeout()), this, SLOT(onWebcamThumbnailUpdate()));
     }
+
+    m_thumbnailTimer->start();
 }
 
 void PrinterWebcamWidget::onInstanceOffline(QKlipperInstance *instance)

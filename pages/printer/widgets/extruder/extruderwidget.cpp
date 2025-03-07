@@ -8,6 +8,7 @@ ExtruderWidget::ExtruderWidget(QKlipperExtruder *extruder, QWidget *parent) :
     ui(new Ui::ExtruderWidget)
 {
     ui->setupUi(this);
+
     m_temperatureProgressBar = new QGaugeWidget(this, QGaugeWidget::Temperature);
     m_temperatureProgressBar->setFixedSize(150,150);
     m_temperatureProgressBar->setIconSize(QSize(36,36));
@@ -20,9 +21,6 @@ ExtruderWidget::ExtruderWidget(QKlipperExtruder *extruder, QWidget *parent) :
     m_extruderFanProgressBar = new QGaugeWidget(this, QGaugeWidget::Percent);
     m_extruderFanProgressBar->setFontSize(9);
     ui->extruderFanLayout->addWidget(m_extruderFanProgressBar);
-
-    m_temperatureWidget = new ExtruderTemperatureWidget(extruder, ui->graphWidget);
-    ui->graphWidget->layout()->addWidget(m_temperatureWidget);
 
     ui->targetTempSpinBox->setAttribute(Qt::WA_InputMethodEnabled, true);
     ui->targetTempSpinBox->setInputMethodHints(inputMethodHints() | Qt::InputMethodHint::ImhDigitsOnly);
@@ -88,6 +86,19 @@ ExtruderWidget::ExtruderWidget(QKlipperExtruder *extruder, QWidget *parent) :
         connect(m_setOffsetButton, SIGNAL(clicked()), this, SLOT(onOffsetButtonClicked()));
     }
 
+    QDateTime currentTime = QDateTime::currentDateTime();
+
+    m_temperatureGraph = new LineGraphWidget(this);
+    m_temperatureGraph->data()->setGridMainColor("#666666");
+    m_temperatureGraph->data()->setGridSubColor("#444444");
+    m_temperatureGraph->data()->setAxisYMainColor("#ccccff");
+    m_temperatureGraph->data()->setAxisYSubColor("#eeeeff");
+    m_temperatureGraph->data()->setAxisXMainColor("#ccccff");
+    m_temperatureGraph->data()->setAxisXSubColor("#eeeeff");
+    m_temperatureGraph->data()->setDateMinimum(QDateTime::currentDateTime().addSecs(0).addSecs(currentTime.offsetFromUtc()));
+    m_temperatureGraph->data()->setDateMaximum(QDateTime::currentDateTime().addSecs(10).addSecs(currentTime.offsetFromUtc()));
+    ui->graphWidget->layout()->addWidget(m_temperatureGraph);
+
     setUiClasses();
     setupIcons();
     setExtruder(extruder);
@@ -124,8 +135,7 @@ void ExtruderWidget::setExtruder(QKlipperExtruder *extruder)
 
 void ExtruderWidget::setUiClasses()
 {
-    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "Widget"));
-    ui->statsWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "SubWidget"));
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget"));
     ui->graphWidget->setProperty("class", QStringList { "Widget", "PrinterWidget" });
     ui->fanWidget->setProperty("class", QStringList { "Widget", "PrinterWidget" });
     ui->powerWidget->setProperty("class", QStringList { "Widget", "PrinterWidget" });
@@ -337,6 +347,46 @@ void ExtruderWidget::on_retractButton_clicked()
     // m_extruder->extrude(amount * -1, rate);
 }
 
+void ExtruderWidget::onPidDialogFinished(int returnCode)
+{
+    qreal temp = m_pidDialog->target();
+    delete m_pidDialog;
+    m_pidDialog = nullptr;
+
+    if(returnCode == QDialog::Accepted)
+        m_extruder->calibratePid(temp);
+}
+
+void ExtruderWidget::onMaterialDialogFinished(int returnCode)
+{
+    qreal distance = m_materialDialog->distance();
+    qreal speed = m_materialDialog->speed();
+    ExtruderMaterialsDialog::MaterialDirection direction = m_materialDialog->materialDirection();
+    delete m_materialDialog;
+    m_materialDialog = nullptr;
+
+    if(returnCode == QDialog::Accepted && direction == ExtruderMaterialsDialog::MaterialExtrude)
+        m_extruder->extrude(distance, speed);
+    else if(returnCode == QDialog::Accepted && direction == ExtruderMaterialsDialog::MaterialRetract)
+        m_extruder->retract(distance, speed);
+}
+
+void ExtruderWidget::onSettingsDialogFinished(int returnCode)
+{
+    delete m_settingsDialog;
+    m_settingsDialog = nullptr;
+}
+
+void ExtruderWidget::onPreheatDialogFinished(int returnCode)
+{
+    qreal temp = m_preheatDialog->target();
+    delete m_preheatDialog;
+    m_preheatDialog = nullptr;
+
+    if(returnCode == QDialog::Accepted)
+        m_extruder->setTargetTemp(temp);
+}
+
 void ExtruderWidget::onExtruderCanExtrudeChanged()
 {
     m_materialButton->setEnabled(m_extruder->canExtrude());
@@ -346,6 +396,19 @@ void ExtruderWidget::onExtruderCanExtrudeChanged()
 void ExtruderWidget::onExtruderCurrentTempChanged()
 {
     m_temperatureProgressBar->setValue(m_extruder->currentTemp());
+
+    QDateTime currentTime = QDateTime::currentDateTime();
+    currentTime = currentTime.addSecs(currentTime.offsetFromUtc());
+
+    qreal timeNow = QDateTime::currentDateTime().addSecs(currentTime.offsetFromUtc()).addSecs(-30).toSecsSinceEpoch();
+    qreal timeDiff = m_temperatureGraph->dateMinimum().toSecsSinceEpoch() - timeNow;
+
+        m_temperatureGraph->setDateMinimum(QDateTime::currentDateTime().addSecs(-30).addSecs(currentTime.offsetFromUtc()));
+
+    m_temperatureGraph->data()->append(
+        "extruder",
+        QPointF(currentTime.toMSecsSinceEpoch(), m_extruder->currentTemp())
+    );
 }
 
 void ExtruderWidget::onExtruderTargetTempChanged()
@@ -467,79 +530,61 @@ void ExtruderWidget::updateSettingsButtons()
 
 void ExtruderWidget::onExtruderSettingsButtonClicked()
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->geometry();
+    if(m_settingsDialog)
+        delete m_settingsDialog;
 
-    ExtruderInfoDialog *extruderDialog = new ExtruderInfoDialog(m_extruder, this);
+    m_settingsDialog = new ExtruderInfoDialog(m_extruder, this);
+    emit dialogRequested(m_settingsDialog);
 
-    extruderDialog->setFixedSize(screenGeometry.width() * 0.75, screenGeometry.height() * 0.75);
-    extruderDialog->exec();
-
-    extruderDialog->deleteLater();
+    connect(m_settingsDialog, SIGNAL(finished(int)), this, SLOT(onSettingsDialogFinished(int)));
 }
 
 
 void ExtruderWidget::onMaterialsButtonClicked()
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->geometry();
+    if(m_materialDialog)
+        delete m_materialDialog;
 
-    ExtruderMaterialsDialog *materialDialog = new ExtruderMaterialsDialog(this);
+    m_materialDialog = new ExtruderMaterialsDialog(this);
+    m_materialDialog->setMaterialDirection(ExtruderMaterialsDialog::MaterialExtrude);
+    emit dialogRequested(m_materialDialog);
 
-    materialDialog->setMinimumWidth(screenGeometry.width() * 0.33);
-    materialDialog->setMaterialDirection(ExtruderMaterialsDialog::MaterialRetract);
-
-    if(materialDialog->exec() == Dialog::Accepted && m_extruder->canExtrude())
-        m_extruder->retract(materialDialog->distance(), materialDialog->speed());
-
-    materialDialog->deleteLater();
+    connect(m_materialDialog, SIGNAL(finished(int)), this, SLOT(onMaterialDialogFinished(int)));
 }
 
 void ExtruderWidget::onPidButtonClicked()
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->geometry();
+    if(m_pidDialog)
+        delete m_pidDialog;
 
-    PidDialog *pidDialog = new PidDialog(this);
+    m_pidDialog = new PidDialog(this);
+    emit dialogRequested(m_pidDialog);
 
-    pidDialog->setMinimumWidth(screenGeometry.width() * 0.33);
-
-    if(pidDialog->exec() == Dialog::Accepted && m_extruder && pidDialog->target() > 0)
-        m_extruder->calibratePid(pidDialog->target());
-
-    delete pidDialog;
+    connect(m_pidDialog, SIGNAL(finished(int)), this, SLOT(onPidDialogFinished(int)));
 }
 
 void ExtruderWidget::onPreheatButtonClicked()
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->geometry();
+    if(m_preheatDialog)
+        delete m_preheatDialog;
 
-    PidDialog *pidDialog = new PidDialog(this);
+    m_preheatDialog = new PidDialog(this);
+    emit dialogRequested(m_preheatDialog);
 
-    pidDialog->setMinimumWidth(screenGeometry.width() * 0.33);
-
-    if(pidDialog->exec() == Dialog::Accepted && m_extruder && pidDialog->target() > 0)
-        m_extruder->setTargetTemp(pidDialog->target());
-
-    delete pidDialog;
+    connect(m_preheatDialog, SIGNAL(finished(int)), this, SLOT(onPreheatDialogFinished(int)));
 }
 
 //need to move this to the toolhead since you cant edit the extruder offset via command
 void ExtruderWidget::onOffsetButtonClicked()
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->geometry();
+    if(m_materialDialog)
+        delete m_materialDialog;
 
-    ExtruderMaterialsDialog *materialDialog = new ExtruderMaterialsDialog(this);
+    m_materialDialog = new ExtruderMaterialsDialog(this);
+    m_materialDialog->setMaterialDirection(ExtruderMaterialsDialog::MaterialRetract);
+    emit dialogRequested(m_materialDialog);
 
-    materialDialog->setMinimumWidth(screenGeometry.width() * 0.33);
-    materialDialog->setMaterialDirection(ExtruderMaterialsDialog::MaterialExtrude);
-
-    if(materialDialog->exec() == Dialog::Accepted && m_extruder->canExtrude())
-        m_extruder->retract(materialDialog->distance(), materialDialog->speed());
-
-    materialDialog->deleteLater();
+    connect(m_materialDialog, SIGNAL(finished(int)), this, SLOT(onMaterialDialogFinished(int)));
 }
 
 void ExtruderWidget::showThrobber()

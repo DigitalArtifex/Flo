@@ -9,7 +9,6 @@
 #include <QLabel>
 #include <QMovie>
 #include <QMediaPlayer>
-#include <QVideoWidget>
 #include <QAudioOutput>
 #include <QPushButton>
 #include <QUrl>
@@ -21,7 +20,7 @@
 #include "empty/emptyprinterwebcamframe.h"
 
 #include <QKlipper/qklipper.h>
-#include "../../../../ui/QWebcamWidget/qwebcamwidget.h"
+#include "ui/QWebcamWidget/qwebcamwidget.h"
 
 class PrinterWebcamWidget : public QFrame
 {
@@ -38,6 +37,8 @@ public slots:
     void setAnimating(bool animating);
 
     void setStyleSheet(const QString &styleSheet);
+    void play();
+    void stop();
 
 signals:
     void animatingChanged(bool);

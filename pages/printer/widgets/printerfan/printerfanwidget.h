@@ -4,7 +4,7 @@
 #include <QFrame>
 #include <QObject>
 #include <QWidget>
-#include <ui/common/cardwidget/cardwidget.h>
+#include <common/CardWidget/cardwidget.h>
 #include <QKlipper/qklipper.h>
 
 #include "printerfanitem.h"

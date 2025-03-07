@@ -1,4 +1,5 @@
 #include "printerbedinfodialog.h"
+#include "flo/settings.h"
 
 PrinterBedInfoDialog::PrinterBedInfoDialog(QKlipperPrintBed *bed, QWidget *parent) :
     Dialog(parent)
@@ -355,6 +356,21 @@ void PrinterBedInfoDialog::setupUi()
     row++;
 
     m_itemMap.insert("tiltAdjustErrorItem", tiltAdjustErrorItem);
+
+    //setup footer
+    m_footerWidget = new QWidget(this);
+    m_footerWidget->setLayout(new QHBoxLayout(m_footerWidget));
+    m_footerWidget->layout()->setContentsMargins(0,0,0,0);
+    m_centralLayout->addWidget(m_footerWidget, 1, 0);
+
+    m_acceptButton = new QIconButton(m_footerWidget);
+    m_acceptButton->setText("Accept");
+    m_acceptButton->setFixedHeight(50);
+    m_acceptButton->setIcon(Settings::getThemeIcon("accept"));
+    m_acceptButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_footerWidget->layout()->addWidget(m_acceptButton);
+
+    connect(m_acceptButton, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
 void PrinterBedInfoDialog::onCurrentTempChanged()

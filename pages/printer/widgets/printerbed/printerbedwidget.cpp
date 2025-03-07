@@ -27,12 +27,8 @@ PrinterBedWidget::PrinterBedWidget(QKlipperPrintBed *printerBed, QWidget *parent
     m_bedPowerProgressBar->setIconSize(QSize(16,16));
     ui->powerLayout->addWidget(m_bedPowerProgressBar);
 
-    m_bedTempChart = new BedTemperatureWidget(printerBed, ui->infoWidget);
-    ui->infoWidget->layout()->addWidget(m_bedTempChart);
-
-    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget" << "PrinterWidget"));
-    ui->contentWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetContents"));
-    ui->bedInfoWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" << "PrinterSubWidget"));
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget"));
+    //ui->bedInfoWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget"));
     ui->powerWidget->setProperty("class", QStringList { "Widget" , "PrinterWidget" });
     ui->infoWidget->setProperty("class", QStringList { "Widget" , "PrinterWidget" });
     ui->targetTempWidget->setProperty("class", QStringList { "Widget" , "PrinterWidget" });
@@ -120,6 +116,19 @@ PrinterBedWidget::PrinterBedWidget(QKlipperPrintBed *printerBed, QWidget *parent
 
     if(printer)
         connect(printer->toolhead(), SIGNAL(isHomedChanged()), this, SLOT(onToolheadHomedChanged()));
+
+    QDateTime currentTime = QDateTime::currentDateTime();
+
+    m_temperatureGraph = new LineGraphWidget(this);
+    m_temperatureGraph->data()->setGridMainColor("#666666");
+    m_temperatureGraph->data()->setGridSubColor("#444444");
+    m_temperatureGraph->data()->setAxisYMainColor("#ccccff");
+    m_temperatureGraph->data()->setAxisYSubColor("#eeeeff");
+    m_temperatureGraph->data()->setAxisXMainColor("#ccccff");
+    m_temperatureGraph->data()->setAxisXSubColor("#eeeeff");
+    m_temperatureGraph->data()->setDateMinimum(QDateTime::currentDateTime().addSecs(0).addSecs(currentTime.offsetFromUtc()));
+    m_temperatureGraph->data()->setDateMaximum(QDateTime::currentDateTime().addSecs(10).addSecs(currentTime.offsetFromUtc()));
+    ui->infoWidget->layout()->addWidget(m_temperatureGraph);
 }
 
 PrinterBedWidget::~PrinterBedWidget()
@@ -133,6 +142,20 @@ PrinterBedWidget::~PrinterBedWidget()
 void PrinterBedWidget::onPrintbedCurrentTempChanged()
 {
     m_bedTemperatureBar->setValue(m_printerBed->currentTemp());
+
+    QDateTime currentTime = QDateTime::currentDateTime();
+    currentTime = currentTime.addSecs(currentTime.offsetFromUtc());
+
+    qreal timeNow = QDateTime::currentDateTime().addSecs(currentTime.offsetFromUtc()).addSecs(-30).toSecsSinceEpoch();
+    qreal timeDiff = m_temperatureGraph->dateMinimum().toSecsSinceEpoch() - timeNow;
+
+    if(timeDiff <= 0)
+        m_temperatureGraph->setDateMinimum(QDateTime::currentDateTime().addSecs(-30).addSecs(currentTime.offsetFromUtc()));
+
+    m_temperatureGraph->data()->append(
+        "bed",
+        QPointF(currentTime.toMSecsSinceEpoch(), m_printerBed->currentTemp())
+    );
 }
 
 void PrinterBedWidget::onPrintbedTargetTempChanged()
@@ -330,17 +353,10 @@ void PrinterBedWidget::on_targetTempSpinBox_valueChanged(double arg1)
 
 void PrinterBedWidget::onSettingsButtonClicked()
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->geometry();
+    m_settingsDialog = new PrinterBedInfoDialog(m_printerBed, this);
+    emit dialogRequested(m_settingsDialog);
 
-    PrinterBedInfoDialog *dialog = new PrinterBedInfoDialog(m_printerBed, this);
-    dialog->setWindowModality(Qt::WindowModal);
-
-    dialog->setFixedSize(screenGeometry.width() * 0.75, screenGeometry.height() * 0.75);
-
-    dialog->exec();
-
-    delete dialog;
+    connect(m_settingsDialog, SIGNAL(finished(int)), this, SLOT(onSettingsDialogFinished(int)));
 }
 
 
@@ -365,7 +381,6 @@ void PrinterBedWidget::onCalibrateBedMeshButtonClicked()
     }
 }
 
-
 void PrinterBedWidget::onCalibrateScrewsButtonClicked()
 {
     if(m_printerBed)
@@ -374,17 +389,10 @@ void PrinterBedWidget::onCalibrateScrewsButtonClicked()
 
 void PrinterBedWidget::onPidTuneButtonClicked()
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->geometry();
+    m_pidDialog = new PidDialog(this);
+    emit dialogRequested(m_pidDialog);
 
-    PidDialog *pidDialog = new PidDialog(this);
-
-    pidDialog->setMinimumWidth(screenGeometry.width() * 0.33);
-
-    if(pidDialog->exec() == Dialog::Accepted && m_printerBed && pidDialog->target() > 0)
-        m_printerBed->calibratePid(pidDialog->target());
-
-    delete pidDialog;
+    connect(m_pidDialog, SIGNAL(finished(int)), this, SLOT(onPidDialogFinished(int)));
 }
 
 void PrinterBedWidget::onBedMeshDataChanged()
@@ -399,3 +407,18 @@ void PrinterBedWidget::onBedMeshDataChanged()
         m_bedHealthProgressBar->setValue(health);
 }
 
+void PrinterBedWidget::onPidDialogFinished(int returnCode)
+{
+    qreal temp = m_pidDialog->target();
+    delete m_pidDialog;
+    m_pidDialog = nullptr;
+
+    if(returnCode == QDialog::Accepted)
+        m_printerBed->calibratePid(temp);
+}
+
+void PrinterBedWidget::onSettingsDialogFinished(int returnCode)
+{
+    delete m_settingsDialog;
+    m_settingsDialog = nullptr;
+}

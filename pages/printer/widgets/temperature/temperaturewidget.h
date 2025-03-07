@@ -7,8 +7,8 @@
 #include <QLabel>
 
 #include <QKlipper/qklipper.h>
-#include "ui/common/cardwidget/cardwidget.h"
-#include "temperaturechart.h"
+#include "common/CardWidget/cardwidget.h"
+#include "ui/LineGraphWidget/linegraphwidget.h"
 
 class PrinterTemperatureWidget : public CardWidget
 {
@@ -18,6 +18,12 @@ class PrinterTemperatureWidget : public CardWidget
 
     signals:
 
+    protected slots:
+        void onExtruderCurrentTemperatureChanged();
+        void onBedCurrentTemperatureChanged();
+        void onInstanceConnected(QKlipperInstance *instance);
+        void onInstanceDisconnected(QKlipperInstance *instance);
+
     protected:
         void setupUi();
 
@@ -26,7 +32,7 @@ class PrinterTemperatureWidget : public CardWidget
         QVBoxLayout *m_centralLayout = nullptr;
         QWidget *m_centralWidget = nullptr;
 
-        PrinterTemperatureChart *m_networkChart = nullptr;
+        LineGraphWidget *m_temperatureGraph = nullptr;
 };
 
 #endif // TEMPERATUREWIDGET_H

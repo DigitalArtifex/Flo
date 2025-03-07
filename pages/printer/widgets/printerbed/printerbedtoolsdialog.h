@@ -7,7 +7,7 @@
 #include <QGridLayout>
 #include <QScreen>
 
-#include <ui/common/dialog/dialog.h>
+#include <common/dialog/dialog.h>
 #include <dialogs/ProgressDialog/progressdialog.h>
 #include <ui/QIconButton/qiconbutton.h>
 
