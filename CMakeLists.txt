@@ -72,7 +72,7 @@ set(SOURCES
     pages/printer/settings/printersettingspage.cpp
     pages/printer/settings/services/printerservicesview.cpp
     pages/printer/settings/services/servicewidget/printerservicewidget.cpp
-    pages/printer/settings/system/drivewidget/printerdrivewidget.cpp
+    pages/printer/settings/system/mcuwidget/printermcuwidget.cpp
     pages/printer/settings/system/networkwidget/printernetworkwidget.cpp
     pages/printer/settings/system/printersystemview.cpp
     pages/printer/settings/system/systemwidget/printersystemwidget.cpp
@@ -145,6 +145,7 @@ set(SOURCES
     3rdparty/QtSheet/sheet.cpp
     pages/printer/updating/printerupdatingscreen.cpp
     ui/QNumberEdit/qnumberedit.cpp
+    ui/QAccentLabel/qaccentlabel.cpp
 )
 
 set(HEADERS
@@ -190,7 +191,7 @@ set(HEADERS
     pages/printer/settings/printersettingspage.h
     pages/printer/settings/services/printerservicesview.h
     pages/printer/settings/services/servicewidget/printerservicewidget.h
-    pages/printer/settings/system/drivewidget/printerdrivewidget.h
+    pages/printer/settings/system/mcuwidget/printermcuwidget.h
     pages/printer/settings/system/networkwidget/printernetworkwidget.h
     pages/printer/settings/system/printersystemview.h
     pages/printer/settings/system/systemwidget/printersystemwidget.h
@@ -264,6 +265,7 @@ set(HEADERS
     pages/printer/widgets/job/printjobwidget.h
     pages/printer/updating/printerupdatingscreen.h
     ui/QNumberEdit/qnumberedit.h
+    ui/QAccentLabel/qaccentlabel.h
 )
 
 set(FORMS
@@ -293,6 +295,7 @@ set(FORMS
     pages/printer/updating/printerupdatingscreen.ui
     pages/printer/widgets/toolhead/toolheadwidget.ui
     ui/QNumberEdit/qnumberedit.ui
+    ui/QAccentLabel/qaccentlabel.ui
 )
 
 set(QML

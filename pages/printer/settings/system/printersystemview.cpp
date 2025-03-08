@@ -11,7 +11,7 @@ PrinterSystemView::PrinterSystemView(QKlipperInstance *printer, QWidget *parent)
 PrinterSystemView::~PrinterSystemView()
 {
     if(m_layout)
-        m_layout->deleteLater();
+        delete m_layout;
 }
 
 void PrinterSystemView::setStyleSheet(const QString &styleSheet)
@@ -19,8 +19,8 @@ void PrinterSystemView::setStyleSheet(const QString &styleSheet)
     if(m_systemWidget)
         m_systemWidget->setStyleSheet(styleSheet);
 
-    if(m_driveWidget)
-        m_driveWidget->setStyleSheet(styleSheet);
+    // if(m_driveWidget)
+    //     m_driveWidget->setStyleSheet(styleSheet);
 
     if(m_networkWidget)
         m_networkWidget->setStyleSheet(styleSheet);
@@ -40,9 +40,9 @@ void PrinterSystemView::setupUi()
     m_networkWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
     m_layout->addWidget(m_networkWidget);
 
-    m_driveWidget = new PrinterDriveWidget(m_instance->printer(), this);
-    m_driveWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-    m_layout->addWidget(m_driveWidget);
+    // m_driveWidget = new PrinterMcuWidget(m_instance->printer(), this);
+    // m_driveWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    // m_layout->addWidget(m_driveWidget);
 
     //m_layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Preferred, QSizePolicy::Ignored));
 
