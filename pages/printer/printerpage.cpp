@@ -45,8 +45,8 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
 
     connect(m_printerBedWidget, SIGNAL(dialogRequested(QDialog*)), this, SLOT(onDialogRequested(QDialog*)));
 
-    m_temperatureWidget = new PrinterTemperatureWidget(m_instance, this);
-    ui->toolBox->addItem(m_temperatureWidget, "Thermals");
+    m_overviewWidget = new PrinterOverviewWidget(m_instance->printer(), this);
+    ui->toolBox->insertItem(0,m_overviewWidget, "Overview");
 
     setPrinter(instance->printer());
 
@@ -124,7 +124,7 @@ void PrinterPage::addExtruder(QKlipperExtruder *extruder, QString name)
     m_extruderMap[index]->setExtruder(extruder);
     connect(m_extruderMap[index], SIGNAL(dialogRequested(QDialog*)), this, SLOT(onDialogRequested(QDialog*)));
 
-    int stackIndex = 0;
+    int stackIndex = 1;
 
     if(index > 0)
         stackIndex = ui->toolBox->indexOf(m_extruderMap[m_extruderMap.count() - 1]) + 1;
@@ -147,7 +147,7 @@ void PrinterPage::setupIcons()
         );
 
     ui->toolBox->setItemIcon(
-        ui->toolBox->indexOf(m_temperatureWidget),
+        ui->toolBox->indexOf(m_overviewWidget),
         Settings::getThemeIcon(QString("temperature"))
         );
 
@@ -213,7 +213,7 @@ void PrinterPage::setupIcons()
     pixmap = Settings::getThemeIcon(QString("printer")).pixmap(28,28);
     ui->statusIconLabel->setPixmap(pixmap);
 
-    m_temperatureWidget->setIcon(Settings::getThemeIcon("chart"));
+    //m_overviewWidget->setIcon(Settings::getThemeIcon("chart"));
     ui->goBackButton->setIcon(Settings::getThemeIcon(QString("up-directory")));
 }
 
@@ -303,7 +303,7 @@ void PrinterPage::setPrintActionsEnabled(bool enabled)
 {
     if(m_chamberWidget)
         m_chamberWidget->setEnabled(enabled);
-    m_temperatureWidget->setEnabled(enabled);
+    m_overviewWidget->setEnabled(enabled);
     m_toolheadWidget->setEnabled(enabled);
 }
 

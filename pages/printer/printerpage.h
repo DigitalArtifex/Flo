@@ -31,6 +31,7 @@
 
 #include <QKlipper/qklipper.h>
 
+#include "pages/printer/widgets/overview/printeroverviewwidget.h"
 #include "widgets/extruder/extruderwidget.h"
 
 #include "filebrowser/filebrowser.h"
@@ -163,7 +164,7 @@ private:
 
     QGaugeWidget *m_printProgressBar = nullptr;
 
-    PrinterTemperatureWidget *m_temperatureWidget = nullptr;
+    PrinterOverviewWidget *m_overviewWidget = nullptr;
 
     PrintingPage *m_printingPage = nullptr;
     FileBrowser *m_fileBrowser = nullptr;
