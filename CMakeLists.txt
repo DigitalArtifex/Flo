@@ -72,7 +72,6 @@ set(SOURCES
     pages/printer/settings/printersettingspage.cpp
     pages/printer/settings/services/printerservicesview.cpp
     pages/printer/settings/services/servicewidget/printerservicewidget.cpp
-    pages/printer/settings/system/mcuwidget/printermcuwidget.cpp
     pages/printer/settings/system/networkwidget/printernetworkwidget.cpp
     pages/printer/settings/system/printersystemview.cpp
     pages/printer/settings/system/systemwidget/printersystemwidget.cpp
@@ -101,7 +100,6 @@ set(SOURCES
     pages/printer/widgets/printerfan/printerfanwidget.cpp
     pages/printer/widgets/printerwebcam/empty/emptyprinterwebcamframe.cpp
     pages/printer/widgets/printerwebcam/printerwebcamwidget.cpp
-    pages/printer/widgets/temperature/temperaturewidget.cpp
     pages/printer/widgets/toolhead/control/toolheadcontrolframe.cpp
     pages/settings/edit_printer/editprinterdialog.cpp
     pages/settings/edit_printer/qmoonrakervalidator.cpp
@@ -146,6 +144,7 @@ set(SOURCES
     pages/printer/updating/printerupdatingscreen.cpp
     ui/QNumberEdit/qnumberedit.cpp
     ui/QAccentLabel/qaccentlabel.cpp
+    pages/printer/widgets/overview/printeroverviewwidget.cpp
 )
 
 set(HEADERS
@@ -191,7 +190,6 @@ set(HEADERS
     pages/printer/settings/printersettingspage.h
     pages/printer/settings/services/printerservicesview.h
     pages/printer/settings/services/servicewidget/printerservicewidget.h
-    pages/printer/settings/system/mcuwidget/printermcuwidget.h
     pages/printer/settings/system/networkwidget/printernetworkwidget.h
     pages/printer/settings/system/printersystemview.h
     pages/printer/settings/system/systemwidget/printersystemwidget.h
@@ -220,7 +218,6 @@ set(HEADERS
     pages/printer/widgets/printerfan/printerfanwidget.h
     pages/printer/widgets/printerwebcam/empty/emptyprinterwebcamframe.h
     pages/printer/widgets/printerwebcam/printerwebcamwidget.h
-    pages/printer/widgets/temperature/temperaturewidget.h
     pages/printer/widgets/toolhead/control/toolheadcontrolframe.h
     pages/settings/edit_printer/editprinterdialog.h
     pages/settings/edit_printer/qmoonrakervalidator.h
@@ -266,6 +263,7 @@ set(HEADERS
     pages/printer/updating/printerupdatingscreen.h
     ui/QNumberEdit/qnumberedit.h
     ui/QAccentLabel/qaccentlabel.h
+    pages/printer/widgets/overview/printeroverviewwidget.h
 )
 
 set(FORMS
@@ -294,6 +292,7 @@ set(FORMS
     pages/printer/widgets/chamber/printerchamberwidget.ui
     pages/printer/updating/printerupdatingscreen.ui
     pages/printer/widgets/toolhead/toolheadwidget.ui
+    pages/printer/widgets/overview/printeroverviewwidget.ui
     ui/QNumberEdit/qnumberedit.ui
     ui/QAccentLabel/qaccentlabel.ui
 )
@@ -313,6 +312,8 @@ qt_add_executable(Flo
     ${SOURCES}
     ${RESOURCES}
     ${QML}
+    pages/printer/widgets/overview/printeroverviewheaterframe.h pages/printer/widgets/overview/printeroverviewheaterframe.cpp pages/printer/widgets/overview/printeroverviewheaterframe.ui
+
 )
 
 target_link_libraries(Flo
