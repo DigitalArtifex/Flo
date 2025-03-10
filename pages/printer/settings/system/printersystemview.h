@@ -4,7 +4,6 @@
 #include <QWidget>
 #include <QKlipper/qklipper.h>
 #include "systemwidget/printersystemwidget.h"
-#include "mcuwidget/printermcuwidget.h"
 #include "networkwidget/printernetworkwidget.h"
 
 class PrinterSystemView : public QWidget
@@ -29,7 +28,6 @@ private:
 
     QHBoxLayout *m_layout = nullptr;
 
-    PrinterMcuWidget *m_driveWidget = nullptr;
     PrinterNetworkWidget *m_networkWidget = nullptr;
     PrinterSystemWidget *m_systemWidget = nullptr;
 };
