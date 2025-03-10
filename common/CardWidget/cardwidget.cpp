@@ -33,7 +33,7 @@ CardWidget::CardWidget(CardType type, QWidget *parent)
 
     m_layout->addWidget(m_contentWidget);
 
-    setLayout(m_layout);
+    QFrame::setLayout(m_layout);
 
     if(m_cardType == CardType::Widget)
     {
@@ -47,6 +47,11 @@ CardWidget::CardWidget(CardType type, QWidget *parent)
     }
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+}
+
+CardWidget::CardWidget(QWidget *parent)
+{
+
 }
 
 CardWidget::~CardWidget()
@@ -96,6 +101,40 @@ void CardWidget::setupActionBar()
         if(m_footerWidget)
             m_layout->addWidget(m_footerWidget);
     }
+}
+
+void CardWidget::changeEvent(QEvent *event)
+{
+    if(event->type() == QEvent::WindowTitleChange)
+        m_titleLabel->setText(windowTitle());
+    else if(event->type() == QEvent::WindowIconChange)
+        setIcon(windowIcon());
+}
+
+QVBoxLayout *CardWidget::layout() const
+{
+    return m_contentLayout;
+}
+
+void CardWidget::setLayout(QVBoxLayout *layout)
+{
+    if (m_contentLayout == layout)
+        return;
+
+    if(m_contentLayout)
+        m_layout->removeItem(m_contentLayout);
+
+    m_contentLayout = layout;
+
+    if(m_footerWidget)
+        m_layout->removeWidget(m_footerWidget);
+
+    m_layout->addLayout(m_contentLayout);
+
+    if(m_footerWidget)
+        m_layout->addWidget(m_footerWidget);
+
+    emit layoutChanged();
 }
 
 CardWidget::CardFlags CardWidget::cardFlags() const
