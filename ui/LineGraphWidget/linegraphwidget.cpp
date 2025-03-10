@@ -1,7 +1,7 @@
 #include "linegraphwidget.h"
 
 LineGraphWidget::LineGraphWidget(QWidget *parent)
-    : QWidget{parent}
+    : QFrame{parent}
 {
     m_data = new LineGraphData(this);
     setupViewer();

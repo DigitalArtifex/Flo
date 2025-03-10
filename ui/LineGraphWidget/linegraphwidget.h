@@ -23,7 +23,7 @@
 #define LINEGRAPHWIDGET_H
 
 #include <QObject>
-#include <QWidget>
+#include <QFrame>
 #include <QGridLayout>
 #include <Q3DScene>
 #include <QtGui/qguiapplication.h>
@@ -39,7 +39,7 @@
 
 #include "linegraphdata.h"
 
-class LineGraphWidget : public QWidget
+class LineGraphWidget : public QFrame
 {
     Q_OBJECT
 public:
