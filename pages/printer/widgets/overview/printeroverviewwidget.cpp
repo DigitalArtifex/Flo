@@ -39,11 +39,24 @@ PrinterOverviewWidget::PrinterOverviewWidget(QKlipperPrinter *printer, QWidget *
     ui->powerGraph->data()->setDateMinimum(QDateTime::currentDateTime().addSecs(0).addSecs(currentTime.offsetFromUtc()));
     ui->powerGraph->data()->setDateMaximum(QDateTime::currentDateTime().addSecs(10).addSecs(currentTime.offsetFromUtc()));
 
-    ui->temperatureGraphCard->setProperty("class", property("class").toStringList() += "Widget");
+    ui->heatersPanel->setTitle("Heaters");
+    ui->heatersPanel->setCentralWidget(ui->heaterPanelContentWidget);
+    ui->heatersPanel->setContentsMargins(0,0,0,0);
+
+    ui->powerGraphCard->setTitle("Power");
+    ui->powerGraphCard->setCentralWidget(ui->powerGraphContentWidget);
+    ui->powerGraphCard->setContentsMargins(0,0,0,0);
+
+    ui->temperatureGraphCard->setTitle("Thermals");
+    ui->temperatureGraphCard->setCentralWidget(ui->temperatureGraphContentWidget);
+    ui->temperatureGraphCard->setContentsMargins(0,0,0,0);
+    //ui->temperatureGraphCard->setProperty("class", property("class").toStringList() += "Widget");
     ui->powerGraphCard->setProperty("class", property("class").toStringList() += "Widget");
     ui->overviewPanel->setProperty("class", property("class").toStringList() += "Widget");
     ui->heatersPanel->setProperty("class", property("class").toStringList() += "Widget");
     setProperty("class", property("class").toStringList() += "SubWidget");
+
+    setIcons();
 
     style()->polish(this);
 }
@@ -64,14 +77,8 @@ void PrinterOverviewWidget::onUpdateTimerTimeout()
         qreal timeNow = QDateTime::currentDateTime().addSecs(currentTime.offsetFromUtc()).addSecs(-30).toSecsSinceEpoch();
         qreal timeDiff = ui->powerGraph->dateMinimum().toSecsSinceEpoch() - timeNow;
 
-        ui->powerGraph->setDateMinimum(QDateTime::currentDateTime().addSecs(-30).addSecs(currentTime.offsetFromUtc()));
-
-        ui->powerGraph->data()->append("power", QPointF(currentTime.toMSecsSinceEpoch(), m_printer->watts()));
-        ui->currentPowerGauge->setMaximum(m_printer->maxWatts());
-        ui->currentPowerGauge->setValue(m_printer->watts());
-        ui->currentWattsLabel->setText(QString("<h3>%1w</h3>").arg(QString::number(m_printer->watts(), 'f', 2)));
-
-        ui->temperatureGraph->setDateMinimum(QDateTime::currentDateTime().addSecs(-30).addSecs(currentTime.offsetFromUtc()));
+        ui->powerGraph->setDateMinimum(QDateTime::currentDateTime().addSecs(-120).addSecs(currentTime.offsetFromUtc()));
+        ui->temperatureGraph->setDateMinimum(QDateTime::currentDateTime().addSecs(-120).addSecs(currentTime.offsetFromUtc()));
 
         for(QKlipperExtruder *extruder : m_printer->toolhead()->extruderMap())
         {
@@ -87,6 +94,11 @@ void PrinterOverviewWidget::onUpdateTimerTimeout()
             ui->temperatureGraph->data()->append(heater->name(), QPointF(currentTime.toMSecsSinceEpoch(), heater->currentTemp()));
             ui->powerGraph->data()->append(heater->name(), QPointF(currentTime.toMSecsSinceEpoch(), heater->watts()));
         }
+
+        ui->powerGraph->data()->append("power", QPointF(currentTime.toMSecsSinceEpoch(), m_printer->watts()));
+        ui->currentPowerGauge->setMaximum(m_printer->maxWatts());
+        ui->currentPowerGauge->setValue(m_printer->watts());
+        ui->currentWattsLabel->setText(QString("<h3>%1w</h3>").arg(QString::number(m_printer->watts(), 'f', 2)));
 
         calculateTotalWatts();
     }
@@ -137,6 +149,10 @@ void PrinterOverviewWidget::onPrinterDisconnected(QKlipperInstance *instance)
     }
 }
 
+// CalculateTotalWatts does 2 things:
+// 1) buffers data points for 1 minute, then adds the average to the log
+// 2) calculates the average peak and total Kwh for the log period
+// -- log period is set to Month_Year, allowing a monthly average
 void PrinterOverviewWidget::calculateTotalWatts()
 {
     QDateTime currentTime = QDateTime::currentDateTime();
@@ -180,7 +196,7 @@ void PrinterOverviewWidget::calculateTotalWatts()
         return;
     }
 
-    //Wait until we have 10 minutes of data before adding it to the data log
+    //Wait until we have 1 minute of data before adding it to the data log
     if(m_lastSave != QDateTime::fromSecsSinceEpoch(0))
     {
         //save the average of the last 10 minutes
@@ -292,4 +308,32 @@ void PrinterOverviewWidget::clearHeaterLabels()
 
         delete frame;
     }
+}
+
+void PrinterOverviewWidget::setIcons()
+{
+    ui->heatersPanel->setIcon(
+        Settings::getThemeIcon(
+            "preheat",
+            QColor::fromString(Settings::get("theme/icon-color").toString())
+            )
+        );
+    ui->powerGraphCard->setIcon(
+        Settings::getThemeIcon(
+            "voltage",
+            QColor::fromString(Settings::get("theme/icon-color").toString())
+            )
+        );
+    ui->temperatureGraphCard->setIcon(
+        Settings::getThemeIcon(
+            "temperature",
+            QColor::fromString(Settings::get("theme/icon-color").toString())
+            )
+        );
+}
+
+void PrinterOverviewWidget::changeEvent(QEvent *event)
+{
+    if(event->type() == QEvent::StyleChange)
+        setIcons();
 }

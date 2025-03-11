@@ -25,6 +25,10 @@ protected slots:
     void onPrinterDisconnected(QKlipperInstance *instance);
     void calculateTotalWatts();
     void clearHeaterLabels();
+    void setIcons();
+
+protected:
+    virtual void changeEvent(QEvent *event) override;
 
 private:
     Ui::PrinterOverviewWidget *ui;

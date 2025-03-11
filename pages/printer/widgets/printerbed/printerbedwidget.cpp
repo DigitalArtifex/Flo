@@ -265,53 +265,64 @@ void PrinterBedWidget::setupIcons()
     pixmap = Settings::getThemeIcon("temperature").pixmap(18,18);
     ui->targetTemperatureIconLabel->setPixmap(pixmap);
 
-    m_pidButton->setIcon(Settings::getThemeIcon("sine"));
+    m_pidButton->setIcon(
+        Settings::getThemeIcon(
+            "sine",
+            QColor(Settings::get("theme/accent-color").toString())
+            )
+        );
 
     m_calibrateMeshButton->setIcon(
         Settings::getThemeIcon(
             "mesh-calibrate",
-            QColor(Settings::get("theme/icon-color-alt").toString())
+            QColor(Settings::get("theme/accent-color4").toString())
             )
         );
 
     m_calibrateScrewsButton->setIcon(
         Settings::getThemeIcon(
             "adjustment-screws-calibrate",
-            QColor(Settings::get("theme/icon-color-alt").toString())
+            QColor(Settings::get("theme/accent-color3").toString())
             )
         );
 
     m_meshViewerButton->setIcon(
         Settings::getThemeIcon(
             "mesh-viewer",
-            QColor(Settings::get("theme/icon-color").toString())
+            QColor(Settings::get("theme/accent-color2").toString())
             )
         );
 
     m_bedInfoButton->setIcon(
         Settings::getThemeIcon(
             "mesh-info",
-            QColor(Settings::get("theme/icon-color-alt1").toString())
+            QColor(Settings::get("theme/accent-color5").toString())
             )
         );
 
     m_bedTemperatureBar->setIcon(
         Settings::getThemeIcon(
-            "temperature"
+            "temperature",
+            QColor(Settings::get("theme/accent-color").toString())
             )
         );
+
+    // QPen bedTempProgressPen;
+    // bedTempProgressPen.setColor(QColor(Settings::get("theme/accent-color").toString()));
+    // bedTempProgressPen.setWidth(8);
+    // m_bedTemperatureBar->setProgressBarFillPen(bedTempProgressPen);
 
     m_bedPowerProgressBar->setIcon(
         Settings::getThemeIcon(
             "power-device",
-            QColor(Settings::get("theme/icon-color-alt").toString())
+            QColor(Settings::get("theme/accent-color2").toString())
             )
         );
 
     m_bedHealthProgressBar->setIcon(
         Settings::getThemeIcon(
             "health",
-            QColor(Settings::get("theme/icon-color-alt1").toString())
+            QColor(Settings::get("theme/accent-color3").toString())
             )
         );
 }

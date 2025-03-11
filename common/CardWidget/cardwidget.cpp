@@ -4,54 +4,14 @@ CardWidget::CardWidget(CardType type, QWidget *parent)
     : QFrame{parent}
 {
     m_cardType = type;
-
-    m_layout = new QVBoxLayout(this);
-    m_layout->setContentsMargins(0,0,0,0);
-    m_layout->setSpacing(0);
-
-    m_titleBarWidget = new QWidget(this);
-    m_titleBarLayout = new QHBoxLayout(m_titleBarWidget);
-    m_titleBarWidget->setLayout(m_titleBarLayout);
-    m_titleBarWidget->setFixedHeight(40);
-
-    m_iconLabel = new QLabel(m_titleBarWidget);
-    m_iconLabel->setFixedSize(24,24);
-    m_titleBarLayout->addWidget(m_iconLabel);
-
-    m_titleLabel = new QLabel(m_titleBarWidget);
-    m_titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_titleBarLayout->addWidget(m_titleLabel);
-
-    m_layout->addWidget(m_titleBarWidget);
-
-    m_contentWidget = new QWidget(m_titleBarWidget);
-    m_contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
-    m_contentLayout = new QVBoxLayout(m_contentWidget);
-    m_contentLayout->setContentsMargins(0, 0, 0, 0);
-    m_contentWidget->setLayout(m_contentLayout);
-
-    m_layout->addWidget(m_contentWidget);
-
-    QFrame::setLayout(m_layout);
-
-    if(m_cardType == CardType::Widget)
-    {
-        setProperty("class", "Widget");
-        m_titleBarWidget->setProperty("class", "WidgetTitleBar");
-    }
-    else
-    {
-        setProperty("class", "SubWidget");
-        m_titleBarWidget->setProperty("class", "SubWidgetTitleBar");
-    }
-
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    setupUi();
 }
 
 CardWidget::CardWidget(QWidget *parent)
+    : QFrame{parent}
 {
-
+    m_cardType = CardType::Widget;
+    setupUi();
 }
 
 CardWidget::~CardWidget()
@@ -111,12 +71,24 @@ void CardWidget::changeEvent(QEvent *event)
         setIcon(windowIcon());
 }
 
-QVBoxLayout *CardWidget::layout() const
+QLayout *CardWidget::layout() const
 {
     return m_contentLayout;
 }
 
-void CardWidget::setLayout(QVBoxLayout *layout)
+void CardWidget::setContentsMargins(int left, int top, int right, int bottom)
+{
+    if(m_contentLayout)
+        m_contentLayout->setContentsMargins(left, top, right, bottom);
+}
+
+void CardWidget::setContentsMargins(const QMargins &margins)
+{
+    if(m_contentLayout)
+        m_contentLayout->setContentsMargins(margins);
+}
+
+void CardWidget::setLayout(QLayout *layout)
 {
     if (m_contentLayout == layout)
         return;
@@ -134,7 +106,55 @@ void CardWidget::setLayout(QVBoxLayout *layout)
     if(m_footerWidget)
         m_layout->addWidget(m_footerWidget);
 
+    // m_layout = layout;
+
     emit layoutChanged();
+}
+
+void CardWidget::setupUi()
+{
+    m_layout = new QVBoxLayout(this);
+    m_layout->setContentsMargins(0,0,0,0);
+    m_layout->setSpacing(0);
+
+    m_titleBarWidget = new QWidget(this);
+    m_titleBarLayout = new QHBoxLayout(m_titleBarWidget);
+    m_titleBarWidget->setLayout(m_titleBarLayout);
+    m_titleBarWidget->setFixedHeight(40);
+
+    m_iconLabel = new QLabel(m_titleBarWidget);
+    m_iconLabel->setFixedSize(24,24);
+    m_titleBarLayout->addWidget(m_iconLabel);
+
+    m_titleLabel = new QLabel(m_titleBarWidget);
+    m_titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_titleBarLayout->addWidget(m_titleLabel);
+
+    m_layout->addWidget(m_titleBarWidget);
+
+    m_contentWidget = new QWidget(m_titleBarWidget);
+    m_contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+    m_contentLayout = (QLayout*)new QVBoxLayout(m_contentWidget);
+    m_contentLayout->setContentsMargins(0, 0, 0, 0);
+    m_contentWidget->setLayout(m_contentLayout);
+
+    m_layout->addWidget(m_contentWidget);
+
+    QFrame::setLayout(m_layout);
+
+    if(m_cardType == CardType::Widget)
+    {
+        setProperty("class", "Widget");
+        m_titleBarWidget->setProperty("class", "WidgetTitleBar");
+    }
+    else
+    {
+        setProperty("class", "SubWidget");
+        m_titleBarWidget->setProperty("class", "SubWidgetTitleBar");
+    }
+
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 }
 
 CardWidget::CardFlags CardWidget::cardFlags() const

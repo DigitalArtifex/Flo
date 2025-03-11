@@ -145,6 +145,7 @@ set(SOURCES
     ui/QNumberEdit/qnumberedit.cpp
     ui/QAccentLabel/qaccentlabel.cpp
     pages/printer/widgets/overview/printeroverviewwidget.cpp
+    pages/printer/widgets/overview/printeroverviewheaterframe.cpp
 )
 
 set(HEADERS
@@ -264,6 +265,7 @@ set(HEADERS
     ui/QNumberEdit/qnumberedit.h
     ui/QAccentLabel/qaccentlabel.h
     pages/printer/widgets/overview/printeroverviewwidget.h
+    pages/printer/widgets/overview/printeroverviewheaterframe.h
 )
 
 set(FORMS
@@ -295,6 +297,7 @@ set(FORMS
     pages/printer/widgets/overview/printeroverviewwidget.ui
     ui/QNumberEdit/qnumberedit.ui
     ui/QAccentLabel/qaccentlabel.ui
+    pages/printer/widgets/overview/printeroverviewheaterframe.ui
 )
 
 set(QML
@@ -312,8 +315,6 @@ qt_add_executable(Flo
     ${SOURCES}
     ${RESOURCES}
     ${QML}
-    pages/printer/widgets/overview/printeroverviewheaterframe.h pages/printer/widgets/overview/printeroverviewheaterframe.cpp pages/printer/widgets/overview/printeroverviewheaterframe.ui
-
 )
 
 target_link_libraries(Flo

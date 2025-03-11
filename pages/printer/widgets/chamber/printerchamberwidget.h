@@ -23,8 +23,9 @@
 #define PRINTERCHAMBERWIDGET_H
 
 #include <QFrame>
+#include <QKlipper/QKlipperInstance/qklipperinstance.h>
 #include <QtDAWidgets/qgaugewidget.h>
-#include "pages/printer/widgets/temperature/temperaturewidget.h"
+#include "ui/LineGraphWidget/linegraphwidget.h"
 
 namespace Ui {
 class PrinterChamberWidget;
@@ -40,14 +41,16 @@ public:
 
 protected slots:
     void setIcons();
+    void onChamberCurrentTemperatureChanged();
 
 protected:
     virtual void changeEvent(QEvent *event) override;
 
 private:
+    QKlipperChamber *m_chamber = nullptr;
     Ui::PrinterChamberWidget *ui;
 
-    PrinterTemperatureWidget *m_chamberTemperatureWidget = nullptr;
+    LineGraphWidget *m_chamberTemperatureWidget = nullptr;
     QGaugeWidget *m_chamberTemperatureBar = nullptr;
 };
 

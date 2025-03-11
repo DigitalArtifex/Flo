@@ -147,8 +147,21 @@ void PrinterPage::setupIcons()
         );
 
     ui->toolBox->setItemIcon(
+        ui->toolBox->indexOf(m_printerBedWidget),
+        Settings::getThemeIcon(QString("bed"))
+        );
+
+    for(ExtruderWidget *widget : m_extruderMap)
+    {
+        ui->toolBox->setItemIcon(
+            ui->toolBox->indexOf(widget),
+            Settings::getThemeIcon(QString("extruder"))
+            );
+    }
+
+    ui->toolBox->setItemIcon(
         ui->toolBox->indexOf(m_overviewWidget),
-        Settings::getThemeIcon(QString("temperature"))
+        Settings::getThemeIcon(QString("overview"))
         );
 
     if(m_chamberWidget)
@@ -186,25 +199,25 @@ void PrinterPage::setupIcons()
     ui->browserButton->setIcon(
         Settings::getThemeIcon(
             "browser",
-            QColor::fromString(Settings::get("theme/icon-color").toString())
+            QColor::fromString(Settings::get("theme/accent-color").toString())
             )
         );
 
     ui->browserButton->setIconSize(QSize(50,50));
 
-    ui->terminalButton->setIcon(Settings::getThemeIcon("console", QColor::fromString(Settings::get("theme/icon-color-alt1").toString())));
+    ui->terminalButton->setIcon(Settings::getThemeIcon("console", QColor::fromString(Settings::get("theme/accent-color2").toString())));
     ui->terminalButton->setIconSize(QSize(50,50));
 
     ui->gcodeButton->setIcon(
         Settings::getThemeIcon(
             "gcode",
-            QColor::fromString(Settings::get("theme/icon-color-alt").toString())
+            QColor::fromString(Settings::get("theme/accent-color3").toString())
             )
         );
 
     ui->gcodeButton->setIconSize(QSize(50,50));
 
-    ui->settingsButton->setIcon(Settings::getThemeIcon("printer-settings", QColor::fromString(Settings::get("theme/icon-color-alt2").toString())));
+    ui->settingsButton->setIcon(Settings::getThemeIcon("printer-settings", QColor::fromString(Settings::get("theme/accent-color4").toString())));
     ui->settingsButton->setIconSize(QSize(50,50));
 
     pixmap = Settings::getThemeIcon(QString("webcam")).pixmap(28,28);

@@ -41,7 +41,6 @@
 
 #include "widgets/printerbed/printerbedwidget.h"
 #include "widgets/printerwebcam/printerwebcamwidget.h"
-#include "widgets/temperature/temperaturewidget.h"
 #include "widgets/toolhead/toolheadwidget.h"
 #include "../../ui/layouts/qflowlayout.h"
 
@@ -61,8 +60,6 @@
 
 #include "dialogs/InputShaper/inputshaperwizard.h"
 #include "dialogs/ZOffsetWizard/zoffsetwizard.h"
-
-#include "widgets/temperature/temperaturewidget.h"
 
 #include "widgets/chamber/printerchamberwidget.h"
 #include "3rdparty/QtSheet/sheet.h"

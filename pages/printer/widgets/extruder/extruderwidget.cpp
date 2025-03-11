@@ -161,54 +161,59 @@ void ExtruderWidget::setupIcons()
     pixmap = Settings::getThemeIcon("smooth-time").pixmap(18,18);
     ui->smoothTimeIcon->setPixmap(pixmap);
 
-    m_pidTuneButton->setIcon(Settings::getThemeIcon("sine"));
+    m_pidTuneButton->setIcon(
+        Settings::getThemeIcon(
+            "sine",
+            QColor::fromString(Settings::get("theme/accent-color").toString())
+            )
+        );
 
     m_materialButton->setIcon(
         Settings::getThemeIcon(
             "material-retract",
-            QColor::fromString(Settings::get("theme/icon-color-alt").toString())
+            QColor::fromString(Settings::get("theme/accent-color3").toString())
             )
         );
 
     m_preheatButton->setIcon(
         Settings::getThemeIcon(
             "preheat",
-            QColor::fromString(Settings::get("theme/icon-color").toString())
+            QColor::fromString(Settings::get("theme/accent-color2").toString())
             )
         );
 
     m_setOffsetButton->setIcon(
         Settings::getThemeIcon(
             "material-extrude",
-            QColor::fromString(Settings::get("theme/icon-color-alt").toString())
+            QColor::fromString(Settings::get("theme/accent-color4").toString())
             )
         );
 
     m_settingsButton->setIcon(
         Settings::getThemeIcon(
             "extruder-settings",
-            QColor::fromString(Settings::get("theme/icon-color-alt1").toString())
+            QColor::fromString(Settings::get("theme/accent-color5").toString())
             )
         );
 
     m_extruderFanProgressBar->setIcon(
         Settings::getThemeIcon(
             "fan",
-            QColor(Settings::get("theme/icon-color-alt").toString())
+            QColor(Settings::get("theme/accent-color2").toString())
             )
         );
 
     m_powerProgressBar->setIcon(
         Settings::getThemeIcon(
             "power-device",
-            QColor(Settings::get("theme/icon-color-alt").toString())
+            QColor(Settings::get("theme/accent-color3").toString())
             )
         );
 
     m_temperatureProgressBar->setIcon(
         Settings::getThemeIcon(
             "temperature",
-            QColor(Settings::get("theme/icon-color").toString())
+            QColor(Settings::get("theme/accent-color").toString())
             )
         );
 

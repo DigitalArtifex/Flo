@@ -47,7 +47,10 @@ public:
 
     QWidget *centralWidget() const;
 
-    QVBoxLayout *layout() const;
+    QLayout *layout() const;
+
+    void setContentsMargins(int left, int top, int right, int bottom);
+    void setContentsMargins(const QMargins &margins);
 
 public slots:
     void setIcon(const QIcon &icon);
@@ -57,7 +60,8 @@ public slots:
     void setCardType(CardType newCardType);
     void setTitle(const QString &newTitle);
 
-    void setLayout(QVBoxLayout *layout);
+    void setLayout(QLayout *layout);
+    void setupUi();
 
 signals:
 
@@ -72,7 +76,7 @@ protected:
 
 private:
     QVBoxLayout *m_layout = nullptr;
-    QVBoxLayout *m_contentLayout = nullptr;
+    QLayout *m_contentLayout = nullptr;
     QHBoxLayout *m_actionBarLayout = nullptr;
     QHBoxLayout *m_footerLayout = nullptr;
     QHBoxLayout *m_titleBarLayout = nullptr;
@@ -92,8 +96,9 @@ private:
 
     CardFlags m_cardFlags;
     CardType m_cardType;
+
     Q_PROPERTY(CardFlags cardFlags READ cardFlags WRITE setCardFlags NOTIFY cardFlagsChanged FINAL)
-    Q_PROPERTY(QVBoxLayout *layout READ layout WRITE setLayout NOTIFY layoutChanged FINAL)
+    Q_PROPERTY(QLayout *layout READ layout WRITE setLayout NOTIFY layoutChanged FINAL)
 };
 
 Q_DECLARE_ENUM_FLAGS(CardWidget::CardFlags)
