@@ -1,10 +1,9 @@
 :root
 {
-    --accent-color: #8a4d8a;
+    --accent-color: #800080;
     --accent-color2: #e1b07e;
     --accent-color3: #4daa57;
-    --accent-color4: #6646db;
-    --accent-color5: #bd823e;
+    --accent-color4: #1a8fe3;
     --adjustment-screw-background-color: #002d44;
     --adjustment-screw-high-color: #8b5504;
     --adjustment-screw-low-color: #044a8b;
@@ -50,6 +49,9 @@
     --highlight-string: #446699;
     --highlight-type: #006699;
     --icon-color: #006699;
+    --icon-color-alt: #C38D00;
+    --icon-color-alt1: #C36900;
+    --icon-color-alt2: #008B3C;
     --icon-disabled-color: #696699;
     --icon-error-color: #F23200;
     --icon-selected-color: #F1F1F1;

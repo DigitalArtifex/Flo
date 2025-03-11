@@ -54,6 +54,10 @@
             "name": "save"
         },
         {
+            "icon": "icons8-copy-64.png",
+            "name": "copy"
+        },
+        {
             "icon": "icons8-multiply-64.png",
             "name": "multiply"
         },
@@ -444,6 +448,14 @@
 		{
 			"name": "question",
 			"icon": "icons8-question-64.png"
+		},
+		{
+			"name": "bed",
+			"icon": "bed.png"
+		},
+		{
+			"name": "overview",
+			"icon": "icons8-gauge-64.png"
 		}
     ]
 }
