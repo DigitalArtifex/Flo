@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     showMaximized();
     //setFixedSize(screenGeometry.size());
-    setFixedSize(QSize(1920,1080));
+    //setFixedSize(QSize(1920,1080));
 
     m_initTimer = new QTimer(this);
     m_initTimer->setInterval(50);
