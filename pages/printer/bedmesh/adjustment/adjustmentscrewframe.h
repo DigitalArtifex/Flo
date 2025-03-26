@@ -37,24 +37,25 @@ class AdjustmentScrewFrame : public CardWidget
     Q_OBJECT
 
 public:
-    explicit AdjustmentScrewFrame(QKlipperPrintBed *bed, QWidget *parent = nullptr);
+    AdjustmentScrewFrame(QKlipperPrintBed *bed, QWidget *parent = nullptr);
+    AdjustmentScrewFrame(QWidget *parent = nullptr);
     ~AdjustmentScrewFrame();
 
-    void showLoadingScreen();
-    void hideLoadingScreen();
-
 public slots:
-    void setStyleSheet(const QString &styleSheet);
-    void setupIcons();
+
+    void setPrinterBed(QKlipperPrintBed *printerBed);
 
 signals:
 
+protected:
+    virtual void changeEvent(QEvent *event) override;
+
 private slots:
+    void setupUi();
+    void setIcons();
     void on_recalibrateButton_clicked();
     void on_loadingAnimation_finished();
 
-    void onPrinterBedCalibrating();
-    void onPrinterBedCalibratingFinished();
     void onAdjustmentScrewsChanged();
 
     void onToolheadHoming();

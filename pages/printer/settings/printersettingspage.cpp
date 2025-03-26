@@ -64,8 +64,7 @@ void PrinterSettingsPage::onWizardRequested(QWizard *wizard)
 
 void PrinterSettingsPage::setIcons()
 {
-    ui->restartFirmwareButton->setIcon(Settings::getThemeIcon("firmware"));
-    ui->restartButton->setIcon(Settings::getThemeIcon("restart"));
+    ui->machinePowerButton->setIcon(Settings::getThemeIcon("power"));
 }
 
 void PrinterSettingsPage::changeEvent(QEvent *event)
@@ -74,12 +73,31 @@ void PrinterSettingsPage::changeEvent(QEvent *event)
         setIcons();
 }
 
-void PrinterSettingsPage::on_restartButton_clicked()
+void PrinterSettingsPage::on_machinePowerButton_clicked()
 {
-    m_instance->system()->restart();
+    m_powerOptionsDialog = new MachinePowerDialog(this);
+    emit dialogRequested(m_powerOptionsDialog);
+    connect(m_powerOptionsDialog, SIGNAL(finished(int)), this, SLOT(onPowerOptionsDialogFinished(int)));
 }
 
-void PrinterSettingsPage::on_restartFirmwareButton_clicked()
+void PrinterSettingsPage::onPowerOptionsDialogFinished(int code)
 {
-    m_instance->console()->restartFirmware();
+    switch(code)
+    {
+    case MachinePowerDialog::FirmwareRestart:
+        m_instance->console()->restartFirmware();
+        break;
+    case MachinePowerDialog::KlipperRestart:
+        m_instance->console()->restartKlipper();
+        break;
+    case MachinePowerDialog::Shutdown:
+        m_instance->system()->shutdown();
+        break;
+    case MachinePowerDialog::Restart:
+        m_instance->system()->restart();
+        break;
+    }
+
+    delete m_powerOptionsDialog;
+    m_powerOptionsDialog = nullptr;
 }

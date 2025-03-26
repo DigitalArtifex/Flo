@@ -5,31 +5,15 @@
 AdjustmentScrewFrame::AdjustmentScrewFrame(QKlipperPrintBed *bed, QWidget *parent)
     : CardWidget(CardType::Widget, parent)
 {
-    m_printerBed = bed;
+    setupUi();
+    setPrinterBed(bed);
+}
 
-    connect(m_printerBed, SIGNAL(adjustmentScrewsCalibrating()), this, SLOT(onPrinterBedCalibrating()));
-    connect(m_printerBed, SIGNAL(adjustmentScrewsCalibratingFinished()), this, SLOT(onPrinterBedCalibratingFinished()));
-    connect(m_printerBed, SIGNAL(adjustmentScrewsChanged()), this, SLOT(onAdjustmentScrewsChanged()));
-    connect(m_printerBed, SIGNAL(hasAdjustmentScrewResultChanged()), this, SLOT(onAdjustmentScrewsChanged()));
-
-    QKlipperPrinter *printer = qobject_cast<QKlipperPrinter*>(m_printerBed->parent());
-
-    if(printer)
-    {
-        connect(printer->toolhead(), SIGNAL(homing()), this, SLOT(onToolheadHoming()));
-        connect(printer->toolhead(), SIGNAL(homingFinished()), this, SLOT(onToolheadHomed()));
-    }
-
-    m_emptyAdjustmentScrewFrame = new AdjustmentScrewEmptyFrame(m_printerBed, m_dataFrame);
-    m_dataFrame = new QFrame(this);
-    m_dataLayout = new QGridLayout(m_dataFrame);
-    m_dataFrame->setLayout(m_dataLayout);
-
-    setCentralWidget(m_dataFrame);
-
-    m_dataFrame->layout()->addWidget(m_emptyAdjustmentScrewFrame);
-    setTitle("Adjustment Screws");
-    setupIcons();
+AdjustmentScrewFrame::AdjustmentScrewFrame(QWidget *parent)
+    : CardWidget(CardType::Widget, parent)
+{
+    setupUi();
+    onAdjustmentScrewsChanged();
 }
 
 AdjustmentScrewFrame::~AdjustmentScrewFrame()
@@ -60,78 +44,7 @@ AdjustmentScrewFrame::~AdjustmentScrewFrame()
     // }
 }
 
-void AdjustmentScrewFrame::showLoadingScreen()
-{
-    if(m_loadingGif)
-    {
-         m_loadingGif->deleteLater();
-        m_loadingGif = nullptr;
-    }
-
-    if(m_loadingLabel)
-    {
-         m_loadingLabel->deleteLater();
-        m_loadingLabel = nullptr;
-    }
-
-    if(m_loadingFrameLayout)
-    {
-         m_loadingFrameLayout->deleteLater();
-        m_loadingFrameLayout = nullptr;
-    }
-
-    if(m_loadingFrame)
-    {
-         m_loadingFrame->deleteLater();
-        m_loadingFrame = nullptr;
-    }
-
-    m_loadingFrameLayout = new QHBoxLayout(m_loadingFrame);
-    m_loadingFrame = new QFrame(this);
-    m_loadingFrame->setLayout(m_loadingFrameLayout);
-    m_loadingFrame->setMinimumWidth(this->width());
-    m_loadingFrame->setMinimumHeight(this->height());
-    m_loadingFrame->show();
-    m_loadingFrame->raise();
-
-    m_loadingFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "LoadingOverlayFrame"));
-
-    m_loadingGif = new QMovie(":/images/loading.gif");
-
-    m_loadingLabel = new QLabel(m_loadingFrame);
-    m_loadingLabel->setFixedSize(100,100);
-    m_loadingLabel->setScaledContents(true);
-    m_loadingLabel->setMovie(m_loadingGif);
-    m_loadingFrameLayout->addWidget(m_loadingLabel);
-
-    m_loadingGif->start();
-    on_loadingAnimation_finished();
-    this->style()->polish(m_loadingFrame);
-}
-
-void AdjustmentScrewFrame::hideLoadingScreen()
-{
-}
-
-void AdjustmentScrewFrame::setStyleSheet(const QString &styleSheet)
-{
-    setupIcons();
-
-    if(m_emptyAdjustmentScrewFrame)
-        m_emptyAdjustmentScrewFrame->setStyleSheet(styleSheet);
-
-    QList<AdjustmentScrewItemFrame*> frames = m_dataFrame->findChildren<AdjustmentScrewItemFrame*>();
-
-    foreach(AdjustmentScrewItemFrame *frame, frames)
-    {
-        if(frame)
-            frame->setStyleSheet(styleSheet);
-    }
-
-    QFrame::setStyleSheet(styleSheet);
-}
-
-void AdjustmentScrewFrame::setupIcons()
+void AdjustmentScrewFrame::setIcons()
 {
     setIcon(Settings::getThemeIcon("adjustment-screw"));
 }
@@ -173,17 +86,57 @@ void AdjustmentScrewFrame::clearLayout()
     }
 }
 
+void AdjustmentScrewFrame::setPrinterBed(QKlipperPrintBed *printerBed)
+{
+    if(m_printerBed == printerBed)
+        return;
+
+    if(m_printerBed)
+    {
+        disconnect(m_printerBed, SIGNAL(adjustmentScrewsCalibrating()), this, SLOT(onPrinterBedCalibrating()));
+        disconnect(m_printerBed, SIGNAL(adjustmentScrewsCalibratingFinished()), this, SLOT(onPrinterBedCalibratingFinished()));
+        disconnect(m_printerBed, SIGNAL(adjustmentScrewsChanged()), this, SLOT(onAdjustmentScrewsChanged()));
+        disconnect(m_printerBed, SIGNAL(hasAdjustmentScrewResultChanged()), this, SLOT(onAdjustmentScrewsChanged()));
+    }
+
+    m_printerBed = printerBed;
+
+    connect(m_printerBed, SIGNAL(adjustmentScrewsCalibrating()), this, SLOT(onPrinterBedCalibrating()));
+    connect(m_printerBed, SIGNAL(adjustmentScrewsCalibratingFinished()), this, SLOT(onPrinterBedCalibratingFinished()));
+    connect(m_printerBed, SIGNAL(adjustmentScrewsChanged()), this, SLOT(onAdjustmentScrewsChanged()));
+    connect(m_printerBed, SIGNAL(hasAdjustmentScrewResultChanged()), this, SLOT(onAdjustmentScrewsChanged()));
+
+    onAdjustmentScrewsChanged();
+}
+
+void AdjustmentScrewFrame::changeEvent(QEvent *event)
+{
+    if(event->type() == QEvent::StyleChange)
+        setIcons();
+}
+
+void AdjustmentScrewFrame::setupUi()
+{
+    m_dataFrame = new QFrame(this);
+    m_dataLayout = new QGridLayout(m_dataFrame);
+    m_dataFrame->setLayout(m_dataLayout);
+
+    setCentralWidget(m_dataFrame);
+
+    setTitle("Adjustment Screws");
+    setIcons();
+}
+
 void AdjustmentScrewFrame::on_recalibrateButton_clicked()
 {
     clearLayout();
-    showLoadingScreen();
 
     //ui->recalibrateButton->setEnabled(false);
 
     if(!m_emptyAdjustmentScrewFrame)
     {
         QGridLayout *layout = (QGridLayout*)m_dataFrame->layout();
-        m_emptyAdjustmentScrewFrame = new AdjustmentScrewEmptyFrame(m_printerBed, m_dataFrame);
+        m_emptyAdjustmentScrewFrame = new AdjustmentScrewEmptyFrame(m_dataFrame);
 
         layout->addWidget(m_emptyAdjustmentScrewFrame, 0, 0, 1, layout->columnCount());
     }
@@ -191,28 +144,18 @@ void AdjustmentScrewFrame::on_recalibrateButton_clicked()
     m_printerBed->calibrateAdjustmentScrews();
 }
 
-void AdjustmentScrewFrame::onPrinterBedCalibrating()
-{
-    showLoadingScreen();
-}
-
-void AdjustmentScrewFrame::onPrinterBedCalibratingFinished()
-{
-    hideLoadingScreen();
-}
-
 void AdjustmentScrewFrame::onAdjustmentScrewsChanged()
 {
     QGridLayout *layout = (QGridLayout*)m_dataFrame->layout();
-    QMap<QString, QKlipperAdjustmentScrew*> adjustmentScrews = m_printerBed->adjustmentScrews();
-    QStringList keys = adjustmentScrews.keys();
-    bool colToggle = false;
-    int row = 0;
 
     clearLayout();
 
-    if(m_printerBed->hasAdjustmentScrewResult())
+    if(m_printerBed && m_printerBed->hasAdjustmentScrewResult())
     {
+        QMap<QString, QKlipperAdjustmentScrew*> adjustmentScrews = m_printerBed->adjustmentScrews();
+        QStringList keys = adjustmentScrews.keys();
+        bool colToggle = false;
+        int row = 0;
 
         if(m_emptyAdjustmentScrewFrame)
         {
@@ -224,7 +167,7 @@ void AdjustmentScrewFrame::onAdjustmentScrewsChanged()
         foreach(QString key, keys)
         {
             //Create the frame and set the data
-            AdjustmentScrewItemFrame *frame = new AdjustmentScrewItemFrame(m_dataFrame);
+            AdjustmentScrewItemFrame *frame = new AdjustmentScrewItemFrame(adjustmentScrews[key], m_dataFrame);
             frame->setAdjustmentScrew(adjustmentScrews[key]);
 
             //Add it to the layout
@@ -239,20 +182,15 @@ void AdjustmentScrewFrame::onAdjustmentScrewsChanged()
 
             colToggle = !colToggle;
         }
-
-        // ui->recalibrateButton->setHidden(false);
-        // ui->recalibrateButton->setEnabled(true);
     }
 
     else
     {
         if(!m_emptyAdjustmentScrewFrame)
         {
-            m_emptyAdjustmentScrewFrame = new AdjustmentScrewEmptyFrame(m_printerBed, m_dataFrame);
+            m_emptyAdjustmentScrewFrame = new AdjustmentScrewEmptyFrame(m_dataFrame);
             layout->addWidget(m_emptyAdjustmentScrewFrame);
         }
-
-        // ui->recalibrateButton->setHidden(true);
     }
 }
 

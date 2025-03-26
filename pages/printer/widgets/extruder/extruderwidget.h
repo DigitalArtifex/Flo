@@ -32,8 +32,8 @@
 
 #include "common/QAnimatedWidget/qanimatedwidget.h"
 
-#include "extruderinfodialog.h"
 #include "extrudermaterialsdialog.h"
+#include "ui/LineGraphWidget/linegraphwidget.h"
 
 #include <QtDAWidgets/qthrobberwidget.h>
 #include <dialogs/PidDialog/piddialog.h>
@@ -55,7 +55,7 @@ public:
 
     void setUiClasses();
 
-    void setupIcons();
+    void setIcons();
 
 signals:
     void dialogRequested(QDialog *);
@@ -64,9 +64,7 @@ protected:
     virtual void changeEvent(QEvent *event) override;
 
 private slots:
-    void on_extrsuionFactorSlider_valueChanged(int value);
-    void on_extrusionFactorSpinBox_valueChanged(double value);
-    void on_targetTempSpinBox_valueChanged(double arg1);
+    void on_targetTemperatureSpinBox_valueChanged(double arg1);
     void on_pressureAdvanceSpinBox_valueChanged(double arg1);
     void on_smoothTimeSpinBox_valueChanged(double arg1);
     void on_applyButton_clicked();
@@ -76,17 +74,17 @@ private slots:
 
     void onPidDialogFinished(int returnCode);
     void onMaterialDialogFinished(int returnCode);
-    void onSettingsDialogFinished(int returnCode);
     void onPreheatDialogFinished(int returnCode);
 
     void onExtruderCanExtrudeChanged();
     void onExtruderCurrentTempChanged();
     void onExtruderTargetTempChanged();
+    void onExtruderGearRatioChanged();
+    void onExtruderNozzleDiameterChanged();
     void onExtruderMaxTempChanged();
     void onExtruderMinTempChanged();
     void onExtruderPressureAdvanceChanged();
     void onExtruderSmoothTimeChanged();
-    void onExtruderExtrusionFactorChanged();
     void onExtruderFanSpeedChanged();
     void onExtruderPowerChanged();
     void onExtruderFanChanged();
@@ -94,7 +92,6 @@ private slots:
     void updateUiValues();
     void updateSettingsButtons();
 
-    void onExtruderSettingsButtonClicked();
     void onMaterialsButtonClicked();
     void onPidButtonClicked();
     void onPreheatButtonClicked();
@@ -106,25 +103,14 @@ private slots:
 private:
     LineGraphWidget *m_temperatureGraph = nullptr;
 
-    QGaugeWidget *m_temperatureProgressBar = nullptr;
-    QGaugeWidget *m_powerProgressBar = nullptr;
-    QGaugeWidget *m_extruderFanProgressBar = nullptr;
-
     QKlipperExtruder *m_extruder;
     Ui::ExtruderWidget *ui;
 
     bool m_updating = false;
-    bool m_targetTempEdited = false;
+    bool m_targetTemperatureEdited = false;
     bool m_pressureAdvanceEdited = false;
     bool m_smoothTimeEdited = false;
     bool m_extrusionFactorEdited = false;
-
-    QIconButton *m_pidTuneButton = nullptr;
-    QIconButton *m_setOffsetButton = nullptr;
-    QIconButton *m_pressureAdvanceButton = nullptr;
-    QIconButton *m_preheatButton = nullptr;
-    QIconButton *m_materialButton = nullptr;
-    QIconButton *m_settingsButton = nullptr;
 
     QFrame *m_throbberFrame = nullptr;
     QThrobberWidget *m_throbber = nullptr;
@@ -132,8 +118,6 @@ private:
     PidDialog *m_pidDialog = nullptr;
     PidDialog *m_preheatDialog = nullptr;
     ExtruderMaterialsDialog *m_materialDialog = nullptr;
-    ExtruderInfoDialog *m_settingsDialog = nullptr;
-
 };
 
 #endif // EXTRUDERWIDGET_H

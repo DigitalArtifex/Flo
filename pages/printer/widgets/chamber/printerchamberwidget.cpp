@@ -30,7 +30,7 @@ PrinterChamberWidget::PrinterChamberWidget(QKlipperInstance *instance, QWidget *
     m_chamberTemperatureWidget->data()->setDateMaximum(QDateTime::currentDateTime().addSecs(10).addSecs(currentTime.offsetFromUtc()));
 
     m_chamber = instance->printer()->chamber();
-    connect(m_chamber, SIGNAL(currentTemperatureChanged()), this, SLOT(onChamberCurrentTemperatureChanged()));
+    connect(m_chamber, SIGNAL(temperatureeratureChanged()), this, SLOT(onChamberCurrentTemperatureChanged()));
 }
 
 PrinterChamberWidget::~PrinterChamberWidget()
@@ -48,7 +48,7 @@ void PrinterChamberWidget::setIcons()
 
 void PrinterChamberWidget::onChamberCurrentTemperatureChanged()
 {
-    m_chamberTemperatureBar->setValue(m_chamber->currentTemperature());
+    m_chamberTemperatureBar->setValue(m_chamber->temperatureerature());
 
     QDateTime currentTime = QDateTime::currentDateTime();
     currentTime = currentTime.addSecs(currentTime.offsetFromUtc());
@@ -60,7 +60,7 @@ void PrinterChamberWidget::onChamberCurrentTemperatureChanged()
 
     m_chamberTemperatureWidget->data()->append(
         "extruder",
-        QPointF(currentTime.toMSecsSinceEpoch(), m_chamber->currentTemperature())
+        QPointF(currentTime.toMSecsSinceEpoch(), m_chamber->temperatureerature())
         );
 }
 

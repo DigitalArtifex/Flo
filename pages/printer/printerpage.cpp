@@ -66,10 +66,10 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
     m_statusOverlayFrame->lower();
     m_statusOverlayFrame->setVisible(false);
 
-    m_toolheadWidget = new ToolheadWidget(instance, this);
-    ui->toolBox->addItem(m_toolheadWidget, Settings::getThemeIcon("control"), "Toolhead");
+    // m_toolheadWidget = new ToolheadWidget(instance, this);
+    // ui->toolBox->addItem(m_toolheadWidget, Settings::getThemeIcon("control"), "Toolhead");
 
-    connect(m_toolheadWidget, SIGNAL(wizardRequested(QWizard*)), this, SLOT(onWizardRequested(QWizard*)));
+    // connect(m_toolheadWidget, SIGNAL(wizardRequested(QWizard*)), this, SLOT(onWizardRequested(QWizard*)));
 
     m_printingPage = new PrintingPage(instance->printer(), ui->stackWidget);
     ui->stackWidget->addWidget(m_printingPage);
@@ -95,12 +95,27 @@ PrinterPage::PrinterPage(QKlipperInstance *instance, QWidget *parent) :
     m_updatingScreen = new PrinterUpdatingScreen(m_instance->system()->updateManager(), this);
     ui->stackWidget->addWidget(m_updatingScreen);
 
+    m_toolheadControlFrame = new ToolHeadControlFrame(instance->printer()->toolhead(), ui->controlContents);
+    ui->controlContents->layout()->addWidget(m_toolheadControlFrame);
+
+    ui->toolheadControlFrame->setCentralWidget(ui->toolheadContentWidget);
+    ui->toolheadControlFrame->setTitle("Toolhead Control");
+    ui->toolheadContentWidget->setProperty("class", QStringList {"SubWidget"});
+
+    ui->positionCard->setCentralWidget(ui->positionContentsWidget);
+    ui->positionCard->setTitle("Absolute Position");
+
     connect(m_printer, SIGNAL(hasChamberChanged()), this, SLOT(onPrinterHasChamberChanged()));
     connect(m_instance, SIGNAL(connected(QKlipperInstance *)), this, SLOT(onInstanceConnected(QKlipperInstance*)));
     connect(m_instance, SIGNAL(disconnected(QKlipperInstance*)), this, SLOT(onInstanceDisconnected(QKlipperInstance*)));
     connect(m_instance->system(), SIGNAL(powerDevicesChanged()), this, SLOT(onPrinterPowerDevicesChanged()));
     connect(m_instance->system(), SIGNAL(ledStripsChanged()), this, SLOT(onPrinterLedStripsChanged()));
     connect(m_instance->system(), SIGNAL(sensorsChanged()), this, SLOT(onPrinterSensorListChanged()));
+    connect(m_printer->toolhead(), SIGNAL(destinationChanged()), this, SLOT(onToolHeadDestinationChanged()));
+
+    QRegularExpression distanceExpression("\\d+\\.\\d+\\s*", QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionValidator *distanceValidator = new QRegularExpressionValidator(distanceExpression);
+    ui->posIncrementSelect->setValidator(distanceValidator);
 }
 
 PrinterPage::~PrinterPage()
@@ -136,15 +151,15 @@ void PrinterPage::addExtruder(QKlipperExtruder *extruder, QString name)
         ui->toolBox->setCurrentIndex(0);
 }
 
-void PrinterPage::setupIcons()
+void PrinterPage::setIcons()
 {
     QPixmap pixmap = Settings::getThemeIcon(QString("printer")).pixmap(28,28);
     ui->statusIconLabel->setPixmap(pixmap);
 
-    ui->toolBox->setItemIcon(
-        ui->toolBox->indexOf(m_toolheadWidget),
-        Settings::getThemeIcon(QString("toolhead"))
-        );
+    // ui->toolBox->setItemIcon(
+    //     ui->toolBox->indexOf(m_toolheadWidget),
+    //     Settings::getThemeIcon(QString("toolhead"))
+    //     );
 
     ui->toolBox->setItemIcon(
         ui->toolBox->indexOf(m_printerBedWidget),
@@ -210,8 +225,20 @@ void PrinterPage::setupIcons()
 
     ui->gcodeButton->setIcon(
         Settings::getThemeIcon(
-            "gcode",
+            "tools",
             QColor::fromString(Settings::get("theme/accent-color3").toString())
+            )
+        );
+
+    ui->toolheadControlFrame->setIcon(
+        Settings::getThemeIcon(
+            "toolhead"
+            )
+        );
+
+    ui->positionCard->setIcon(
+        Settings::getThemeIcon(
+            "location"
             )
         );
 
@@ -317,13 +344,18 @@ void PrinterPage::setPrintActionsEnabled(bool enabled)
     if(m_chamberWidget)
         m_chamberWidget->setEnabled(enabled);
     m_overviewWidget->setEnabled(enabled);
-    m_toolheadWidget->setEnabled(enabled);
+    // m_toolheadWidget->setEnabled(enabled);
 }
 
 void PrinterPage::changeEvent(QEvent *event)
 {
     if(event->type() == QEvent::StyleChange)
-        setupIcons();
+    {
+        ui->xDestinationLabel->setAccentColor(Settings::get("theme/accent-color").toString());
+        ui->yDestinationLabel->setAccentColor(Settings::get("theme/accent-color2").toString());
+        ui->zDestinationLabel->setAccentColor(Settings::get("theme/accent-color3").toString());
+        setIcons();
+    }
 
     QWidget::changeEvent(event);
 }
@@ -372,118 +404,118 @@ void PrinterPage::deleteWebcamWidget()
 
 void PrinterPage::onPrinterStatusChanged()
 {
-    QString status;
-    QPixmap pixmap;
+    // QString status;
+    // QPixmap pixmap;
 
-    pixmap = Settings::getThemeIcon(QString("printer")).pixmap(28,28);
-    ui->statusIconLabel->setPixmap(pixmap);
+    // pixmap = Settings::getThemeIcon(QString("printer")).pixmap(28,28);
+    // ui->statusIconLabel->setPixmap(pixmap);
 
-    m_statusOverlayFrame->raise();
-    m_statusOverlayFrame->setVisible(true);
-    m_statusOverlayFrame->setGeometry(0, 0, ui->printerStatusContents->width(), ui->printerStatusContents->height());
+    // m_statusOverlayFrame->raise();
+    // m_statusOverlayFrame->setVisible(true);
+    // m_statusOverlayFrame->setGeometry(0, 0, ui->printerStatusContents->width(), ui->printerStatusContents->height());
 
-    switch(m_printer->status())
-    {
-    case QKlipperPrinter::Ready:
+    // switch(m_printer->status())
+    // {
+    // case QKlipperPrinter::Ready:
 
-        if(ui->stackWidget->currentWidget() == m_printingPage)
-            ui->stackWidget->setCurrentIndex(0);
+    //     if(ui->stackWidget->currentWidget() == m_printingPage)
+    //         ui->stackWidget->setCurrentIndex(0);
 
-        status = QString("Ready");
-        break;
+    //     status = QString("Ready");
+    //     break;
 
-    case QKlipperPrinter::Error:
+    // case QKlipperPrinter::Error:
 
-        if(ui->stackWidget->currentWidget() == m_printingPage)
-            ui->stackWidget->setCurrentIndex(0);
+    //     if(ui->stackWidget->currentWidget() == m_printingPage)
+    //         ui->stackWidget->setCurrentIndex(0);
 
-        status = QString("Error");
+    //     status = QString("Error");
 
-        if(m_printer->statusMessage().contains("\n"))
-        {
-            QStringList split = m_printer->statusMessage().split(QString("\n"), Qt::SkipEmptyParts);
-            status = split.last();
-        }
+    //     if(m_printer->statusMessage().contains("\n"))
+    //     {
+    //         QStringList split = m_printer->statusMessage().split(QString("\n"), Qt::SkipEmptyParts);
+    //         status = split.last();
+    //     }
 
-        setPrintActionsEnabled(false);
-        break;
+    //     setPrintActionsEnabled(false);
+    //     break;
 
-    case QKlipperPrinter::Cancelled:
+    // case QKlipperPrinter::Cancelled:
 
-        if(ui->stackWidget->currentWidget() == m_printingPage)
-            ui->stackWidget->setCurrentIndex(0);
+    //     if(ui->stackWidget->currentWidget() == m_printingPage)
+    //         ui->stackWidget->setCurrentIndex(0);
 
-        status = QString("Cancelled");
+    //     status = QString("Cancelled");
 
-        setPrintActionsEnabled(true);
-        break;
+    //     setPrintActionsEnabled(true);
+    //     break;
 
-    case QKlipperPrinter::Printing:
-        status = QString("Printing");
+    // case QKlipperPrinter::Printing:
+    //     status = QString("Printing");
 
-        if(ui->stackWidget->currentWidget() != m_printingPage)
-            ui->stackWidget->setCurrentWidget(m_printingPage);
+    //     if(ui->stackWidget->currentWidget() != m_printingPage)
+    //         ui->stackWidget->setCurrentWidget(m_printingPage);
 
-        break;
+    //     break;
 
-    case QKlipperPrinter::Paused:
-        status = QString("Paused");
+    // case QKlipperPrinter::Paused:
+    //     status = QString("Paused");
 
-        if(ui->stackWidget->currentWidget() != m_printingPage)
-            ui->stackWidget->setCurrentWidget(m_printingPage);
+    //     if(ui->stackWidget->currentWidget() != m_printingPage)
+    //         ui->stackWidget->setCurrentWidget(m_printingPage);
 
-        break;
+    //     break;
 
-    case QKlipperPrinter::Offline:
+    // case QKlipperPrinter::Offline:
 
-        if(ui->stackWidget->currentWidget() == m_printingPage)
-            ui->stackWidget->setCurrentIndex(0);
+    //     if(ui->stackWidget->currentWidget() == m_printingPage)
+    //         ui->stackWidget->setCurrentIndex(0);
 
-        //m_webcamWidget->stop();
+    //     //m_webcamWidget->stop();
 
-        setPrintActionsEnabled(false);
-        break;
+    //     setPrintActionsEnabled(false);
+    //     break;
 
-    default:
+    // default:
 
-        if(ui->stackWidget->currentWidget() == m_printingPage)
-            ui->stackWidget->setCurrentIndex(0);
-        break;
-    }
+    //     if(ui->stackWidget->currentWidget() == m_printingPage)
+    //         ui->stackWidget->setCurrentIndex(0);
+    //     break;
+    // }
 
-    m_toolheadWidget->setEnabled(true);
+    // m_toolheadWidget->setEnabled(true);
     //ui->restartButton->setEnabled(true);
 }
 
 void PrinterPage::onPrinterStatusMessageChanged()
 {
-    QStringList splitMessage = m_printer->statusMessage().split('\n', Qt::SkipEmptyParts);
+    // QStringList splitMessage = m_printer->statusMessage().split('\n', Qt::SkipEmptyParts);
 
-    if(splitMessage.count() == 1)
-    {
-        m_statusLabel->setText(splitMessage.at(0));
+    // if(splitMessage.count() == 1)
+    // {
+    //     m_statusLabel->setText(splitMessage.at(0));
 
-        ui->printerStatusTitleLabel->setText(QString("Printer Status"));
-    }
-    else if(splitMessage.count() == 2)
-    {
-        QString status = splitMessage.takeFirst();
-        QString message = splitMessage.join(' ');
-        message = QString("<h4>%1</h4>\n\n<p>%2</p>").arg(status, message);
+    //     ui->printerStatusTitleLabel->setText(QString("Printer Status"));
+    // }
+    // else if(splitMessage.count() == 2)
+    // {
+    //     QString status = splitMessage.takeFirst();
+    //     QString message = splitMessage.join(' ');
+    //     message = QString("<h4>%1</h4>\n\n<p>%2</p>").arg(status, message);
 
-        ui->printerStatusTitleLabel->setText(QString("Printer Status"));
-        m_statusLabel->setText(message);
-    }
-    else if(splitMessage.count() >= 3)
-    {
-        QString title = splitMessage.takeLast();
-        QString status = splitMessage.takeFirst();
-        QString message = splitMessage.join(' ');
-        message = QString("<h4>%1</h4>\n\n<p>%2</p>").arg(status, message);
+    //     ui->printerStatusTitleLabel->setText(QString("Printer Status"));
+    //     m_statusLabel->setText(message);
+    // }
+    // else if(splitMessage.count() >= 3)
+    // {
+    //     QString title = splitMessage.takeLast();
+    //     QString status = splitMessage.takeFirst();
+    //     QString message = splitMessage.join(' ');
+    //     message = QString("<h4>%1</h4>\n\n<p>%2</p>").arg(status, message);
 
-        ui->printerStatusTitleLabel->setText(QString("Printer Status (%1)").arg(title));
-        m_statusLabel->setText(message);
-    }
+    //     ui->printerStatusTitleLabel->setText(QString("Printer Status (%1)").arg(title));
+    //     m_statusLabel->setText(message);
+    // }
 }
 
 void PrinterPage::onPrinterEndingTimeChanged()
@@ -611,12 +643,9 @@ void PrinterPage::on_goBackButton_clicked()
 
 void PrinterPage::on_gcodeButton_clicked()
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->geometry();
-
-    GCodeMacroDialog *dialog = new GCodeMacroDialog(m_instance->server(), this);
-    dialog->resize(screenGeometry.width() * 0.75, screenGeometry.height() * 0.75);
-    dialog->exec();
+    m_toolsDialog = new PrinterToolsDialog(this);
+    onDialogRequested(m_toolsDialog);
+    connect(m_toolsDialog, SIGNAL(finished(int)), this, SLOT(onToolsDialogFinished(int)));
 }
 
 void PrinterPage::on_restartButton_clicked()
@@ -650,7 +679,7 @@ void PrinterPage::onDialogRequested(QDialog *dialog)
     m_requestedDialog = dialog;
 
     m_dialogSheet = new Sheet(m_requestedDialog, qobject_cast<QWidget*>(parent()));
-    m_dialogSheet->setWidth(width() / 2);
+    m_dialogSheet->setWidth(width() / 3);
     m_dialogSheet->showSheet(this);
     connect(dialog, SIGNAL(finished(int)), this, SLOT(onDialogFinished(int)));
 }
@@ -684,4 +713,130 @@ void PrinterPage::onWizardFinished(int returnCode)
 
     disconnect(m_requestedWizard, SIGNAL(finished(int)), this, SLOT(onWizardFinished(int)));
     m_requestedWizard = nullptr;
+}
+
+void PrinterPage::onToolsDialogFinished(int code)
+{
+    switch(code)
+    {
+    case PrinterToolsDialog::InputShaper:
+        m_inputShaperWizard = new InputShaperWizard(m_instance, this);
+        onWizardRequested(m_inputShaperWizard);
+        connect(m_inputShaperWizard, SIGNAL(finished(int)), this, SLOT(onInputShaperWizardFinished(int)));
+        break;
+    case PrinterToolsDialog::ZOffset:
+        m_zOffsetWizard = new ZOffsetWizard(m_instance, this);
+        onWizardRequested(m_zOffsetWizard);
+        connect(m_zOffsetWizard, SIGNAL(finished(int)), this, SLOT(onZOffsetWizardFinished(int)));
+        break;
+    }
+
+    delete m_toolsDialog;
+    m_toolsDialog = nullptr;
+}
+
+void PrinterPage::onInputShaperWizardFinished(int code)
+{
+    Q_UNUSED(code)
+    if(m_inputShaperWizard)
+    {
+        delete m_inputShaperWizard;
+        m_inputShaperWizard = nullptr;
+    }
+}
+
+void PrinterPage::onZOffsetWizardFinished(int code)
+{
+    Q_UNUSED(code)
+    if(m_zOffsetWizard)
+    {
+        delete m_zOffsetWizard;
+        m_zOffsetWizard = nullptr;
+    }
+}
+
+void PrinterPage::on_xDestinationSpinBox_valueChanged(double arg1)
+{
+    if(ui->xDestinationSpinBox->hasFocus() && arg1 != m_printer->toolhead()->position().x())
+        xPosEditing = true;
+
+    ui->applyDestinationButton->setEnabled((zPosEditing || xPosEditing || yPosEditing));
+    ui->resetDestinationButton->setEnabled((zPosEditing || xPosEditing || yPosEditing));
+}
+
+void PrinterPage::on_yDestinationSpinBox_valueChanged(double arg1)
+{
+    if(ui->yDestinationSpinBox->hasFocus() && arg1 != m_printer->toolhead()->position().y())
+        yPosEditing = true;
+
+    ui->applyDestinationButton->setEnabled((zPosEditing || xPosEditing || yPosEditing));
+    ui->resetDestinationButton->setEnabled((zPosEditing || xPosEditing || yPosEditing));
+}
+
+void PrinterPage::on_zDestinationSpinBox_valueChanged(double arg1)
+{
+    if(ui->zDestinationSpinBox->hasFocus() && arg1 != m_printer->toolhead()->position().z())
+        zPosEditing = true;
+
+    ui->applyDestinationButton->setEnabled((zPosEditing || xPosEditing || yPosEditing));
+    ui->resetDestinationButton->setEnabled((zPosEditing || xPosEditing || yPosEditing));
+}
+
+void PrinterPage::on_resetDestinationButton_clicked()
+{
+    ui->xDestinationSpinBox->setValue((m_printer->toolhead()->destination().x()));
+    ui->yDestinationSpinBox->setValue((m_printer->toolhead()->destination().y()));
+    ui->zDestinationSpinBox->setValue((m_printer->toolhead()->destination().z()));
+    xPosEditing = false;
+    yPosEditing = false;
+    zPosEditing = false;
+}
+
+void PrinterPage::on_applyDestinationButton_clicked()
+{
+    QKlipperPosition position;
+    position["x"] = (ui->xDestinationSpinBox->value());
+    position["y"] = (ui->yDestinationSpinBox->value());
+    position["z"] = (ui->zDestinationSpinBox->value());
+
+    switch(m_printer->status())
+    {
+    case QKlipperPrinter::Ready:
+        qDebug() << "Moving toolhead";
+        m_printer->toolhead()->setPosition(position);
+        break;
+    case QKlipperPrinter::Paused:
+    case QKlipperPrinter::Cancelled:
+    case QKlipperPrinter::Printing:
+        qDebug() << "Cannot move toolhead during print operation";
+        break;
+    case QKlipperPrinter::Error:
+    case QKlipperPrinter::Offline:
+    case QKlipperPrinter::Connecting:
+        qDebug() << "Cannot move toolhead. Printer offline.";
+        break;
+    };
+
+    on_resetDestinationButton_clicked();
+}
+
+void PrinterPage::onToolHeadDestinationChanged()
+{
+    // set maximums
+    ui->xDestinationSpinBox->setMaximum(m_printer->toolhead()->maxPosition().x());
+    ui->yDestinationSpinBox->setMaximum(m_printer->toolhead()->maxPosition().y());
+    ui->zDestinationSpinBox->setMaximum(m_printer->toolhead()->maxPosition().y());
+
+    if(!xPosEditing)
+        ui->xDestinationSpinBox->setValue((m_printer->toolhead()->destination().x()));
+
+    if(!yPosEditing)
+        ui->yDestinationSpinBox->setValue((m_printer->toolhead()->destination().y()));
+
+    if(!zPosEditing)
+        ui->zDestinationSpinBox->setValue((m_printer->toolhead()->destination().z()));
+
+    // ui->xPosLabel->setText(QString("<i>%1</i>").arg(m_printer->toolhead()->position().x(), 0, 'f', 2));
+    // ui->yPosLabel->setText(QString("<i>%1</i>").arg(m_printer->toolhead()->position().y(), 0, 'f', 2));
+    // ui->zPosLabel->setText(QString("<i>%1</i>").arg(m_printer->toolhead()->position().z(), 0, 'f', 2));
 }

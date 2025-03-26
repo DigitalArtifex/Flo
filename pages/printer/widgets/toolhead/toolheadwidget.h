@@ -48,6 +48,8 @@ private slots:
     void onToolheadPositionChanged();
     void onToolHeadDestinationChanged();
     void onToolHeadIsHomedChanged();
+    void onToolHeadCurrentExtruderChanged();
+    void onExtruderCurrentTempChanged();
 
     void onZOffsetWizardFinished(int returnCode);
     void onInputShaperWizardFinished(int returnCode);
@@ -82,6 +84,7 @@ private:
     Ui::ToolheadWidget *ui;
 
     ToolHeadControlFrame *m_toolheadControlFrame = nullptr;
+    QKlipperExtruder *m_extruder = nullptr;
 };
 
 #endif // TOOLHEADWIDGET_H

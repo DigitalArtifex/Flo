@@ -436,3 +436,15 @@ void EditPrinterDialog::on_EditPrinterDialog_windowTitleChanged(const QString &t
 {
     ui->windowTitleLabel->setText(QString("<h2>%1</h2>").arg(title));
 }
+
+void EditPrinterDialog::changeEvent(QEvent *event)
+{
+    if(event->type() == QEvent::StyleChange)
+        setIcons();
+}
+
+void EditPrinterDialog::setIcons()
+{
+    ui->printerBrowseFilesButton->setIcon(Settings::getThemeIcon("opened-folder"));
+    ui->colorPickerButton->setIcon(Settings::getThemeIcon("color"));
+}

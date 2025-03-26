@@ -31,6 +31,7 @@
 
 #include <QKlipper/qklipper.h>
 
+#include "dialogs/PrinterToolsDialog/printertoolsdialog.h"
 #include "pages/printer/widgets/overview/printeroverviewwidget.h"
 #include "widgets/extruder/extruderwidget.h"
 
@@ -97,7 +98,7 @@ protected:
     virtual void showEvent(QShowEvent *event) override;
 
     void setupAnimations();
-    void setupIcons();
+    void setIcons();
 
 private slots:
     void onOverviewButtonClicked();
@@ -142,6 +143,21 @@ private slots:
     void onDialogFinished(int returnCode);
     void onWizardRequested(QWizard *wizard);
     void onWizardFinished(int returnCode);
+
+    void onToolsDialogFinished(int code);
+    void onInputShaperWizardFinished(int code);
+    void onZOffsetWizardFinished(int code);
+
+    void on_xDestinationSpinBox_valueChanged(double arg1);
+
+    void on_yDestinationSpinBox_valueChanged(double arg1);
+
+    void on_zDestinationSpinBox_valueChanged(double arg1);
+
+    void on_resetDestinationButton_clicked();
+
+    void on_applyDestinationButton_clicked();
+    void onToolHeadDestinationChanged();
 
 private:
     //Used by dialogRequested
@@ -190,6 +206,19 @@ private:
     PrinterFanWidget *m_printerFanWidget = nullptr;
 
     Sheet *m_dialogSheet = nullptr;
+
+    PrinterToolsDialog *m_toolsDialog = nullptr;
+    InputShaperWizard *m_inputShaperWizard = nullptr;
+    ZOffsetWizard *m_zOffsetWizard = nullptr;
+
+    ToolHeadControlFrame *m_toolheadControlFrame = nullptr;
+
+    bool xPosEditing = false;
+    bool yPosEditing = false;
+    bool zPosEditing = false;
+
+    QRegularExpression m_number_expression = QRegularExpression("\\d+");
+
 };
 
 #endif // PRINTERPAGE_H

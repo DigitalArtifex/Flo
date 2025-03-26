@@ -16,6 +16,7 @@ PrinterOverviewWidget::PrinterOverviewWidget(QKlipperPrinter *printer, QWidget *
     {
         connect(instance, SIGNAL(connected(QKlipperInstance*)), this, SLOT(onPrinterConnected(QKlipperInstance*)));
         connect(instance, SIGNAL(disconnected(QKlipperInstance*)), this, SLOT(onPrinterDisconnected(QKlipperInstance*)));
+        connect(instance->printer(), SIGNAL(statusMessageChanged()), this, SLOT(onPrinterStatusChanged()));
     }
 
     QDateTime currentTime = QDateTime::currentDateTime();
@@ -47,6 +48,8 @@ PrinterOverviewWidget::PrinterOverviewWidget(QKlipperPrinter *printer, QWidget *
     ui->powerGraphCard->setCentralWidget(ui->powerGraphContentWidget);
     ui->powerGraphCard->setContentsMargins(0,0,0,0);
 
+    ui->statusCard->setCentralWidget(ui->statusContentsWidget);
+
     ui->temperatureGraphCard->setTitle("Thermals");
     ui->temperatureGraphCard->setCentralWidget(ui->temperatureGraphContentWidget);
     ui->temperatureGraphCard->setContentsMargins(0,0,0,0);
@@ -66,6 +69,41 @@ PrinterOverviewWidget::~PrinterOverviewWidget()
     delete ui;
 }
 
+void PrinterOverviewWidget::onPrinterStatusChanged()
+{
+    if(m_printer->status() == QKlipperPrinter::Error)
+        ui->restartFirmwareButton->show();
+    else
+        ui->restartFirmwareButton->hide();
+
+    QStringList splitMessage = m_printer->statusMessage().split('\n', Qt::SkipEmptyParts);
+
+    if(splitMessage.count() == 1)
+    {
+        ui->statusMessageLabel->setText(splitMessage.at(0));
+        ui->statusCard->setTitle(QString("Printer Status"));
+    }
+    else if(splitMessage.count() == 2)
+    {
+        QString status = splitMessage.takeFirst();
+        QString message = splitMessage.join(' ');
+        message = QString("<h4>%1</h4>\n\n<p>%2</p>").arg(status, message);
+
+        ui->statusCard->setTitle(QString("Printer Status"));
+        ui->statusMessageLabel->setText(message);
+    }
+    else if(splitMessage.count() >= 3)
+    {
+        QString title = splitMessage.takeLast();
+        QString status = splitMessage.takeFirst();
+        QString message = splitMessage.join(' ');
+        message = QString("<h4>%1</h4>\n\n<p>%2</p>").arg(status, message);
+
+        ui->statusCard->setTitle(QString("Printer Status (%1)").arg(title));
+        ui->statusMessageLabel->setText(message);
+    }
+}
+
 void PrinterOverviewWidget::onUpdateTimerTimeout()
 {
     if(m_printer)
@@ -82,21 +120,21 @@ void PrinterOverviewWidget::onUpdateTimerTimeout()
 
         for(QKlipperExtruder *extruder : m_printer->toolhead()->extruderMap())
         {
-            ui->temperatureGraph->data()->append(extruder->name(), QPointF(currentTime.toMSecsSinceEpoch(), extruder->currentTemp()));
+            ui->temperatureGraph->data()->append(extruder->name(), QPointF(currentTime.toMSecsSinceEpoch(), extruder->temperature()));
             ui->powerGraph->data()->append(extruder->name(), QPointF(currentTime.toMSecsSinceEpoch(), extruder->watts()));
         }
 
-        ui->temperatureGraph->data()->append("bed", QPointF(currentTime.toMSecsSinceEpoch(), m_printer->bed()->currentTemp()));
+        ui->temperatureGraph->data()->append("bed", QPointF(currentTime.toMSecsSinceEpoch(), m_printer->bed()->temperature()));
         ui->powerGraph->data()->append("bed", QPointF(currentTime.toMSecsSinceEpoch(), m_printer->bed()->watts()));
 
         for(QKlipperHeater *heater : m_printer->heaters())
         {
-            ui->temperatureGraph->data()->append(heater->name(), QPointF(currentTime.toMSecsSinceEpoch(), heater->currentTemp()));
+            ui->temperatureGraph->data()->append(heater->name(), QPointF(currentTime.toMSecsSinceEpoch(), heater->temperature()));
             ui->powerGraph->data()->append(heater->name(), QPointF(currentTime.toMSecsSinceEpoch(), heater->watts()));
         }
 
         ui->powerGraph->data()->append("power", QPointF(currentTime.toMSecsSinceEpoch(), m_printer->watts()));
-        ui->currentPowerGauge->setMaximum(m_printer->maxWatts());
+        ui->currentPowerGauge->setMaximum(m_printer->maximumWatts());
         ui->currentPowerGauge->setValue(m_printer->watts());
         ui->currentWattsLabel->setText(QString("<h3>%1w</h3>").arg(QString::number(m_printer->watts(), 'f', 2)));
 
@@ -278,18 +316,11 @@ void PrinterOverviewWidget::calculateTotalWatts()
 
     wattsFile.close();
 
-    //average the last set of entries
-    if(hourlyAverages.count() > 0)
-        hourlyAverages[hourlyAverages.count() - 1] /= hourlyEntries;
-
-    averageWatts /= entries;
-
-    qDebug() << "Total watt hours" << totalWatts;
-
-    totalWatts /= 1000;
-
     if(entries > 0)
     {
+        averageWatts /= entries;
+        totalWatts /= 1000;
+
         ui->averageWattsLabel->setText(QString("<h3>%1w</h3>").arg(QString::number(averageWatts, 'f', 2)));
         ui->totalWattsLabel->setText(QString("<h3>%1 Kwh</h3>").arg(QString::number(totalWatts, 'f', 2)));
     }
@@ -330,10 +361,26 @@ void PrinterOverviewWidget::setIcons()
             QColor::fromString(Settings::get("theme/icon-color").toString())
             )
         );
+    ui->statusCard->setIcon(
+        Settings::getThemeIcon(
+            "printer",
+            QColor::fromString(Settings::get("theme/icon-color").toString())
+            )
+        );
 }
 
 void PrinterOverviewWidget::changeEvent(QEvent *event)
 {
     if(event->type() == QEvent::StyleChange)
         setIcons();
+
+    QFrame::changeEvent(event);
+}
+
+void PrinterOverviewWidget::on_restartFirmwareButton_clicked()
+{
+    QKlipperInstance *instance = qobject_cast<QKlipperInstance*>(m_printer->parent());
+
+    if(instance)
+        instance->system()->restart();
 }

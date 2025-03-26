@@ -71,6 +71,9 @@ void QIconButton::paintEvent(QPaintEvent *event)
 {
     //QFrame::paintEvent(event);
 
+    if(visibleRegion().isNull())
+        return;
+
     QPixmap pixmap;
 
     QSize size = m_iconSize;

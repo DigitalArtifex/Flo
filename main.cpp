@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
     {
         QProcess* proc = new QProcess();
         proc->start(QCoreApplication::applicationFilePath(), QCoreApplication::arguments());
+        retcode = 0; //reset it for the return
     }
 
     return retcode;

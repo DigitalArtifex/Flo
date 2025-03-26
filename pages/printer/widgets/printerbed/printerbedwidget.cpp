@@ -11,96 +11,37 @@ PrinterBedWidget::PrinterBedWidget(QKlipperPrintBed *printerBed, QWidget *parent
 
     setPrinterBed(printerBed);
 
-    m_bedTemperatureBar = new QGaugeWidget(this, QGaugeWidget::Temperature);
-    m_bedTemperatureBar->setMaximum(150);
-    m_bedTemperatureBar->setIconSize(QSize(36,36));
-    m_bedTemperatureBar->setFixedSize(150,150);
-    ui->bedLayout->addWidget(m_bedTemperatureBar);
+    ui->temperatureGauge->setMaximum(150);
+    ui->temperatureGauge->setIconSize(QSize(36,36));
+    ui->temperatureGauge->setFixedSize(150,150);
 
-    m_bedHealthProgressBar = new QGaugeWidget(ui->healthWidget, QGaugeWidget::Percent);
-    m_bedHealthProgressBar->setFontSize(9);
-    m_bedHealthProgressBar->setIconSize(QSize(16,16));
-    ui->healthWidget->layout()->addWidget(m_bedHealthProgressBar);
+    ui->healthGauge->setFontSize(9);
+    ui->healthGauge->setIconSize(QSize(16,16));
 
-    m_bedPowerProgressBar = new QGaugeWidget(ui->powerWidget, QGaugeWidget::Percent);
-    m_bedPowerProgressBar->setFontSize(9);
-    m_bedPowerProgressBar->setIconSize(QSize(16,16));
-    ui->powerLayout->addWidget(m_bedPowerProgressBar);
+    ui->powerGauge->setFontSize(9);
+    ui->powerGauge->setIconSize(QSize(16,16));
 
     setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget"));
-    //ui->bedInfoWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget"));
-    ui->powerWidget->setProperty("class", QStringList { "Widget" , "PrinterWidget" });
-    ui->infoWidget->setProperty("class", QStringList { "Widget" , "PrinterWidget" });
-    ui->targetTempWidget->setProperty("class", QStringList { "Widget" , "PrinterWidget" });
-    ui->healthWidget->setProperty("class", QStringList { "Widget" , "PrinterWidget" });
+    ui->toolsFrame->setProperty("class", QStringList { "Widget" , "PrinterWidget" });
 
-    QGridLayout *buttonLayout = qobject_cast<QGridLayout*>(ui->buttonWidget->layout());
+    QStringList buttonClass { "Button", "PrinterActionButton" };
 
-    if(buttonLayout)
-    {
-        QStringList buttonClass { "Button", "PrinterActionButton" };
+    ui->pidButton->setIconSize(QSize(36,36));
+    ui->pidButton->setText("PID Tune");
 
-        m_pidButton = new QIconButton(this);
-        m_pidButton->setIcon(Settings::getThemeIcon("sine"));
-        m_pidButton->setIconSize(QSize(36,36));
-        m_pidButton->setFixedSize(QSize(100,100));
-        m_pidButton->setText("PID Tune");
-        m_pidButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
-        m_pidButton->setIconAlignment(Qt::AlignCenter);
-        m_pidButton->setProperty("class", buttonClass);
-        m_pidButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        buttonLayout->addWidget(m_pidButton, 0, 0, 1, 1, Qt::AlignTop);
+    ui->meshViewerButton->setIconSize(QSize(36,36));
+    ui->meshViewerButton->setText("Mesh Viewer");
 
-        m_meshViewerButton = new QIconButton(this);
-        m_meshViewerButton->setIcon(Settings::getThemeIcon("mesh-viewer"));
-        m_meshViewerButton->setIconSize(QSize(36,36));
-        m_meshViewerButton->setFixedSize(QSize(100,100));
-        m_meshViewerButton->setText("Mesh Viewer");
-        m_meshViewerButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
-        m_meshViewerButton->setIconAlignment(Qt::AlignCenter);
-        m_meshViewerButton->setProperty("class", buttonClass);
-        m_meshViewerButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        buttonLayout->addWidget(m_meshViewerButton, 0, 1, 1, 1, Qt::AlignTop);
+    ui->calibrateScrewsButton->setIconSize(QSize(36,36));
+    ui->calibrateScrewsButton->setText("Bed Screws");
 
-        m_calibrateScrewsButton = new QIconButton(this);
-        m_calibrateScrewsButton->setIcon(Settings::getThemeIcon("adjustment-screws-calibrate"));
-        m_calibrateScrewsButton->setIconSize(QSize(36,36));
-        m_calibrateScrewsButton->setFixedSize(QSize(100,100));
-        m_calibrateScrewsButton->setText("Bed Screws");
-        m_calibrateScrewsButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
-        m_calibrateScrewsButton->setIconAlignment(Qt::AlignCenter);
-        m_calibrateScrewsButton->setProperty("class", buttonClass);
-        m_calibrateScrewsButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        buttonLayout->addWidget(m_calibrateScrewsButton, 1, 0, 1, 1, Qt::AlignTop);
+    ui->calibrateMeshButton->setIconSize(QSize(36,36));
+    ui->calibrateMeshButton->setText("Scan Mesh");
 
-        m_calibrateMeshButton = new QIconButton(this);
-        m_calibrateMeshButton->setIcon(Settings::getThemeIcon("mesh-calibrate"));
-        m_calibrateMeshButton->setIconSize(QSize(36,36));
-        m_calibrateMeshButton->setFixedSize(QSize(100,100));
-        m_calibrateMeshButton->setText("Scan Mesh");
-        m_calibrateMeshButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
-        m_calibrateMeshButton->setIconAlignment(Qt::AlignCenter);
-        m_calibrateMeshButton->setProperty("class", buttonClass);
-        m_calibrateMeshButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        buttonLayout->addWidget(m_calibrateMeshButton, 1, 1, 1, 1, Qt::AlignTop);
-
-        m_bedInfoButton = new QIconButton(this);
-        m_bedInfoButton->setIcon(Settings::getThemeIcon("mesh-info"));
-        m_bedInfoButton->setIconSize(QSize(36,36));
-        m_bedInfoButton->setFixedSize(QSize(100,206));
-        m_bedInfoButton->setText("Information");
-        m_bedInfoButton->setTextAlignment(Qt::AlignBottom | Qt::AlignHCenter);
-        m_bedInfoButton->setIconAlignment(Qt::AlignCenter);
-        m_bedInfoButton->setProperty("class", buttonClass);
-        buttonLayout->addWidget(m_bedInfoButton, 0, 2, 2, 1, Qt::AlignTop);
-        buttonLayout->addItem(new QSpacerItem(QSizePolicy::Expanding, QSizePolicy::Expanding), 2, 0, 1, 1);
-
-        connect(m_calibrateMeshButton, SIGNAL(clicked()), this, SLOT(onCalibrateBedMeshButtonClicked()));
-        connect(m_calibrateScrewsButton, SIGNAL(clicked()), this, SLOT(onCalibrateScrewsButtonClicked()));
-        connect(m_meshViewerButton, SIGNAL(clicked()), this, SLOT(onViewBedMeshButtonClicked()));
-        connect(m_bedInfoButton, SIGNAL(clicked()), this, SLOT(onSettingsButtonClicked()));
-        connect(m_pidButton, SIGNAL(clicked()), this, SLOT(onPidTuneButtonClicked()));
-    }
+    connect(ui->calibrateMeshButton, SIGNAL(clicked()), this, SLOT(onCalibrateBedMeshButtonClicked()));
+    connect(ui->calibrateScrewsButton, SIGNAL(clicked()), this, SLOT(onCalibrateScrewsButtonClicked()));
+    connect(ui->meshViewerButton, SIGNAL(clicked()), this, SLOT(onViewBedMeshButtonClicked()));
+    connect(ui->pidButton, SIGNAL(clicked()), this, SLOT(onPidTuneButtonClicked()));
 
     setupIcons();
 
@@ -108,7 +49,7 @@ PrinterBedWidget::PrinterBedWidget(QKlipperPrintBed *printerBed, QWidget *parent
     onBedMeshDataChanged();
     connect(m_bedMeshData, SIGNAL(dataChanged()), this, SLOT(onBedMeshDataChanged()));
 
-    ui->targetTempSpinBox->setInputMethodHints(inputMethodHints() | Qt::InputMethodHint::ImhDigitsOnly);
+    ui->targetTemperatureSpinBox->setInputMethodHints(inputMethodHints() | Qt::InputMethodHint::ImhDigitsOnly);
 
     onToolheadHomedChanged();
 
@@ -128,12 +69,24 @@ PrinterBedWidget::PrinterBedWidget(QKlipperPrintBed *printerBed, QWidget *parent
     m_temperatureGraph->data()->setAxisXSubColor("#eeeeff");
     m_temperatureGraph->data()->setDateMinimum(QDateTime::currentDateTime().addSecs(0).addSecs(currentTime.offsetFromUtc()));
     m_temperatureGraph->data()->setDateMaximum(QDateTime::currentDateTime().addSecs(10).addSecs(currentTime.offsetFromUtc()));
-    ui->infoWidget->layout()->addWidget(m_temperatureGraph);
+    ui->temperatureContentsWidget->layout()->addWidget(m_temperatureGraph);
+
+    ui->temperatureCard->setTitle("Thermals");
+    ui->temperatureCard->setCentralWidget(ui->temperatureContentsWidget);
+
+    ui->settingsCard->setTitle("Settings");
+    ui->settingsCard->setCentralWidget(ui->settingsContentsWidget);
+
+    ui->statusCard->setTitle("Status");
+    ui->statusCard->setCentralWidget(ui->statusContentsWidget);
+
+    ui->adjustmentScrewFrame->setPrinterBed(printerBed);
+    ui->meshHealthFrame->setMeshData(m_bedMeshData);
 }
 
 PrinterBedWidget::~PrinterBedWidget()
 {
-    // m_bedTemperatureBar->deleteLater();
+    // ui->temperatureGauge->deleteLater();
     // m_adjustmentScrewFrame->deleteLater();
     // m_bedMeshFrame->deleteLater();
     delete ui;
@@ -141,7 +94,7 @@ PrinterBedWidget::~PrinterBedWidget()
 
 void PrinterBedWidget::onPrintbedCurrentTempChanged()
 {
-    m_bedTemperatureBar->setValue(m_printerBed->currentTemp());
+    ui->temperatureGauge->setValue(m_printerBed->temperature());
 
     QDateTime currentTime = QDateTime::currentDateTime();
     currentTime = currentTime.addSecs(currentTime.offsetFromUtc());
@@ -154,20 +107,20 @@ void PrinterBedWidget::onPrintbedCurrentTempChanged()
 
     m_temperatureGraph->data()->append(
         "bed",
-        QPointF(currentTime.toMSecsSinceEpoch(), m_printerBed->currentTemp())
+        QPointF(currentTime.toMSecsSinceEpoch(), m_printerBed->temperature())
     );
 }
 
 void PrinterBedWidget::onPrintbedTargetTempChanged()
 {
 
-    if(!m_targetTempEdited)
-        ui->targetTempSpinBox->setValue(m_printerBed->targetTemp());
+    if(!m_targetTemperatureEdited)
+        ui->targetTemperatureSpinBox->setValue(m_printerBed->targetTemperature());
 }
 
 void PrinterBedWidget::onPrintbedPowerChanged()
 {
-    m_bedPowerProgressBar->setValue((m_printerBed->power() * 100));
+    ui->powerGauge->setValue((m_printerBed->power() * 100));
 }
 
 void PrinterBedWidget::onToolheadHomedChanged()
@@ -177,8 +130,8 @@ void PrinterBedWidget::onToolheadHomedChanged()
     if(!printer) //invalid cast
         return;
 
-    m_calibrateMeshButton->setEnabled(printer->toolhead()->isHomed());
-    m_calibrateScrewsButton->setEnabled(printer->toolhead()->isHomed());
+    ui->calibrateMeshButton->setEnabled(printer->toolhead()->isHomed());
+    ui->calibrateScrewsButton->setEnabled(printer->toolhead()->isHomed());
     //m_homeButton->setEnabled(!printer->toolhead()->isHomed());
 }
 
@@ -186,9 +139,9 @@ void PrinterBedWidget::showThrobber()
 {
     if(!m_throbberFrame)
     {
-        m_throbberFrame = new QFrame(ui->contentWidget);
+        m_throbberFrame = new QFrame(this);
         QVBoxLayout *layout = new QVBoxLayout(m_throbberFrame);
-        m_throbberFrame->setFixedSize(ui->contentWidget->width(), ui->contentWidget->height());
+        m_throbberFrame->setFixedSize(width(), height());
         m_throbberFrame->setLayout(layout);
         m_throbberFrame->setProperty("class", "PopupOverlay");
         m_throbberFrame->setStyleSheet(Settings::currentTheme());
@@ -231,8 +184,8 @@ void PrinterBedWidget::setPrinterBed(QKlipperPrintBed *printerBed)
 {
     if(m_printerBed)
     {
-        disconnect(m_printerBed, SIGNAL(currentTempChanged()), this, SLOT(onPrintbedCurrentTempChanged()));
-        disconnect(m_printerBed, SIGNAL(targetTempChanged()), this, SLOT(onPrintbedTargetTempChanged()));
+        disconnect(m_printerBed, SIGNAL(temperatureChanged()), this, SLOT(onPrintbedCurrentTempChanged()));
+        disconnect(m_printerBed, SIGNAL(targetTemperatureChanged()), this, SLOT(onPrintbedTargetTempChanged()));
         disconnect(m_printerBed, SIGNAL(powerChanged()), this, SLOT(onPrintbedPowerChanged()));
         disconnect(m_printerBed, SIGNAL(bedMeshCalibrating()), this, SLOT(showThrobber()));
         disconnect(m_printerBed, SIGNAL(adjustmentScrewsCalibrating()), this, SLOT(showThrobber()));
@@ -242,8 +195,8 @@ void PrinterBedWidget::setPrinterBed(QKlipperPrintBed *printerBed)
 
     m_printerBed = printerBed;
 
-    connect(m_printerBed, SIGNAL(currentTempChanged()), this, SLOT(onPrintbedCurrentTempChanged()));
-    connect(m_printerBed, SIGNAL(targetTempChanged()), this, SLOT(onPrintbedTargetTempChanged()));
+    connect(m_printerBed, SIGNAL(temperatureChanged()), this, SLOT(onPrintbedCurrentTempChanged()));
+    connect(m_printerBed, SIGNAL(targetTemperatureChanged()), this, SLOT(onPrintbedTargetTempChanged()));
     connect(m_printerBed, SIGNAL(powerChanged()), this, SLOT(onPrintbedPowerChanged()));
     connect(m_printerBed, SIGNAL(bedMeshCalibrating()), this, SLOT(showThrobber()));
     connect(m_printerBed, SIGNAL(adjustmentScrewsCalibrating()), this, SLOT(showThrobber()));
@@ -263,66 +216,72 @@ void PrinterBedWidget::setupIcons()
     QPixmap pixmap = Settings::getThemeIcon("settings").pixmap(18,18);
 
     pixmap = Settings::getThemeIcon("temperature").pixmap(18,18);
-    ui->targetTemperatureIconLabel->setPixmap(pixmap);
+    ui->targetTemperatureeratureIconLabel->setPixmap(pixmap);
 
-    m_pidButton->setIcon(
+    ui->pidButton->setIcon(
         Settings::getThemeIcon(
             "sine",
             QColor(Settings::get("theme/accent-color").toString())
             )
         );
 
-    m_calibrateMeshButton->setIcon(
+    ui->calibrateMeshButton->setIcon(
         Settings::getThemeIcon(
             "mesh-calibrate",
             QColor(Settings::get("theme/accent-color4").toString())
             )
         );
 
-    m_calibrateScrewsButton->setIcon(
+    ui->calibrateScrewsButton->setIcon(
         Settings::getThemeIcon(
             "adjustment-screws-calibrate",
             QColor(Settings::get("theme/accent-color3").toString())
             )
         );
 
-    m_meshViewerButton->setIcon(
+    ui->meshViewerButton->setIcon(
         Settings::getThemeIcon(
             "mesh-viewer",
             QColor(Settings::get("theme/accent-color2").toString())
             )
         );
 
-    m_bedInfoButton->setIcon(
-        Settings::getThemeIcon(
-            "mesh-info",
-            QColor(Settings::get("theme/accent-color5").toString())
-            )
-        );
-
-    m_bedTemperatureBar->setIcon(
+    ui->temperatureGauge->setIcon(
         Settings::getThemeIcon(
             "temperature",
             QColor(Settings::get("theme/accent-color").toString())
             )
         );
 
-    // QPen bedTempProgressPen;
-    // bedTempProgressPen.setColor(QColor(Settings::get("theme/accent-color").toString()));
-    // bedTempProgressPen.setWidth(8);
-    // m_bedTemperatureBar->setProgressBarFillPen(bedTempProgressPen);
-
-    m_bedPowerProgressBar->setIcon(
+    ui->powerGauge->setIcon(
         Settings::getThemeIcon(
             "power-device",
             QColor(Settings::get("theme/accent-color2").toString())
             )
         );
 
-    m_bedHealthProgressBar->setIcon(
+    ui->healthGauge->setIcon(
         Settings::getThemeIcon(
             "health",
             QColor(Settings::get("theme/accent-color3").toString())
+            )
+        );
+
+    ui->settingsCard->setIcon(
+        Settings::getThemeIcon(
+            "settings"
+            )
+        );
+
+    ui->temperatureCard->setIcon(
+        Settings::getThemeIcon(
+            "temperature"
+            )
+        );
+
+    ui->statusCard->setIcon(
+        Settings::getThemeIcon(
+            "bed"
             )
         );
 }
@@ -336,60 +295,42 @@ void PrinterBedWidget::setStyleSheet(const QString &styleSheet)
 
 QIconButton *PrinterBedWidget::bedMeshViewerButton()
 {
-    return m_meshViewerButton;
+    return ui->meshViewerButton;
 }
 
 void PrinterBedWidget::on_applyButton_clicked()
 {
-    m_printerBed->setTargetTemp(ui->targetTempSpinBox->value());
-    m_targetTempEdited = false;
+    m_printerBed->setTargetTemperature(ui->targetTemperatureSpinBox->value());
+    m_targetTemperatureEdited = false;
 }
 
 void PrinterBedWidget::on_resetButton_clicked()
 {
-    ui->targetTempSpinBox->setValue(m_printerBed->targetTemp());
-    m_targetTempEdited = false;
+    ui->targetTemperatureSpinBox->setValue(m_printerBed->targetTemperature());
+    m_targetTemperatureEdited = false;
 }
 
 
-void PrinterBedWidget::on_targetTempSpinBox_valueChanged(double arg1)
+void PrinterBedWidget::on_targetTemperatureSpinBox_valueChanged(double arg1)
 {
-    bool changed = (arg1 != m_printerBed->targetTemp());
+    bool changed = (arg1 != m_printerBed->targetTemperature());
 
-    m_targetTempEdited = changed;
+    m_targetTemperatureEdited = changed;
     ui->resetButton->setEnabled(changed);
     ui->applyButton->setEnabled(changed);
 }
 
 
-void PrinterBedWidget::onSettingsButtonClicked()
-{
-    m_settingsDialog = new PrinterBedInfoDialog(m_printerBed, this);
-    emit dialogRequested(m_settingsDialog);
-
-    connect(m_settingsDialog, SIGNAL(finished(int)), this, SLOT(onSettingsDialogFinished(int)));
-}
-
-
 void PrinterBedWidget::onViewBedMeshButtonClicked()
 {
-    // QScreen *screen = QGuiApplication::primaryScreen();
-    // QRect screenGeometry = screen->geometry();
-    // BedMeshWidget *bedMeshWidget = new BedMeshWidget(m_printerBed, this);
 
-    // bedMeshWidget->setFixedSize(screenGeometry.width() * 0.75, screenGeometry.height() * 0.75);
-    // bedMeshWidget->exec();
-
-    // delete bedMeshWidget;
 }
 
 
 void PrinterBedWidget::onCalibrateBedMeshButtonClicked()
 {
     if(m_printerBed)
-    {
         m_printerBed->calibrateBedMesh();
-    }
 }
 
 void PrinterBedWidget::onCalibrateScrewsButtonClicked()
@@ -414,8 +355,8 @@ void PrinterBedWidget::onBedMeshDataChanged()
     if(variance == 0 && m_bedMeshData->maximum() == 0 && m_bedMeshData->minimum() == 0)
         health = 0; //no result yet
 
-    if(m_bedHealthProgressBar)
-        m_bedHealthProgressBar->setValue(health);
+    if(ui->healthGauge)
+        ui->healthGauge->setValue(health);
 }
 
 void PrinterBedWidget::onPidDialogFinished(int returnCode)
@@ -426,10 +367,4 @@ void PrinterBedWidget::onPidDialogFinished(int returnCode)
 
     if(returnCode == QDialog::Accepted)
         m_printerBed->calibratePid(temp);
-}
-
-void PrinterBedWidget::onSettingsDialogFinished(int returnCode)
-{
-    delete m_settingsDialog;
-    m_settingsDialog = nullptr;
 }

@@ -20,6 +20,7 @@ public:
     ~PrinterOverviewWidget();
 
 protected slots:
+    void onPrinterStatusChanged();
     void onUpdateTimerTimeout();
     void onPrinterConnected(QKlipperInstance *instance);
     void onPrinterDisconnected(QKlipperInstance *instance);
@@ -29,6 +30,9 @@ protected slots:
 
 protected:
     virtual void changeEvent(QEvent *event) override;
+
+private slots:
+    void on_restartFirmwareButton_clicked();
 
 private:
     Ui::PrinterOverviewWidget *ui;

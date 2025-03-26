@@ -24,6 +24,7 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS
     MultimediaWidgets
     VirtualKeyboard
     WebSockets
+    Charts
 )
 
 qt_standard_project_setup()
@@ -90,10 +91,8 @@ set(SOURCES
     pages/printer/widgets/powerdevices/powerdeviceview.cpp
     pages/printer/widgets/sensors/sensorcard.cpp
     pages/printer/widgets/sensors/sensorview.cpp
-    pages/printer/widgets/extruder/extruderinfodialog.cpp
     pages/printer/widgets/extruder/extrudermaterialsdialog.cpp
     pages/printer/widgets/extruder/extruderwidget.cpp
-    pages/printer/widgets/printerbed/printerbedinfodialog.cpp
     pages/printer/widgets/printerbed/printerbedtoolsdialog.cpp
     pages/printer/widgets/printerbed/printerbedwidget.cpp
     pages/printer/widgets/printerfan/printerfanitem.cpp
@@ -144,6 +143,8 @@ set(SOURCES
     pages/printer/updating/printerupdatingscreen.cpp
     ui/QNumberEdit/qnumberedit.cpp
     ui/QAccentLabel/qaccentlabel.cpp
+    ui/LocationIndicator/locationindicator.cpp
+    ui/LocationIndicator/locationindicatorprivate.cpp
     pages/printer/widgets/overview/printeroverviewwidget.cpp
     pages/printer/widgets/overview/printeroverviewheaterframe.cpp
 )
@@ -209,10 +210,8 @@ set(HEADERS
     pages/printer/widgets/powerdevices/powerdeviceview.h
     pages/printer/widgets/ledstrips/ledstripcard.h
     pages/printer/widgets/ledstrips/ledstripview.h
-    pages/printer/widgets/extruder/extruderinfodialog.h
     pages/printer/widgets/extruder/extrudermaterialsdialog.h
     pages/printer/widgets/extruder/extruderwidget.h
-    pages/printer/widgets/printerbed/printerbedinfodialog.h
     pages/printer/widgets/printerbed/printerbedtoolsdialog.h
     pages/printer/widgets/printerbed/printerbedwidget.h
     pages/printer/widgets/printerfan/printerfanitem.h
@@ -264,6 +263,8 @@ set(HEADERS
     pages/printer/updating/printerupdatingscreen.h
     ui/QNumberEdit/qnumberedit.h
     ui/QAccentLabel/qaccentlabel.h
+    ui/LocationIndicator/locationindicator.h
+    ui/LocationIndicator/locationindicatorprivate.h
     pages/printer/widgets/overview/printeroverviewwidget.h
     pages/printer/widgets/overview/printeroverviewheaterframe.h
 )
@@ -294,7 +295,6 @@ set(FORMS
     pages/printer/widgets/chamber/printerchamberwidget.ui
     pages/printer/updating/printerupdatingscreen.ui
     pages/printer/widgets/toolhead/toolheadwidget.ui
-    pages/printer/widgets/overview/printeroverviewwidget.ui
     ui/QNumberEdit/qnumberedit.ui
     ui/QAccentLabel/qaccentlabel.ui
     pages/printer/widgets/overview/printeroverviewheaterframe.ui
@@ -310,11 +310,43 @@ set(RESOURCES)
 qt_add_resources(RESOURCES Resources.qrc )
 
 qt_add_executable(Flo
-    ${FORMS}
+    #${FORMS}
     ${HEADERS}
     ${SOURCES}
     ${RESOURCES}
     ${QML}
+    dialogs/PrinterToolsDialog/printertoolsdialog.h dialogs/PrinterToolsDialog/printertoolsdialog.cpp dialogs/PrinterToolsDialog/printertoolsdialog.ui
+    dialogs/MachinePowerDialog/machinepowerdialog.h dialogs/MachinePowerDialog/machinepowerdialog.cpp dialogs/MachinePowerDialog/machinepowerdialog.ui
+
+    pages/printer/widgets/overview/printeroverviewwidget.ui
+    dialogs/InputShaper/inputshaperwizard.ui
+    dialogs/ZOffsetWizard/zoffsetwizard.ui
+    mainwindow.ui
+    pages/dashboard/dashboardpage.ui
+    pages/dashboard/widgets/printer/printerwidget.ui
+    pages/dashboard/widgets/system/systemwidget.ui
+    pages/loading/loadingpage.ui
+    pages/printer/bedmesh/probed/empty/probedmeshemptyframe.ui
+    pages/printer/bedmesh/probed/item/probedmeshitemframe.ui
+    pages/printer/filebrowser/editor/fileeditor.ui
+    pages/printer/offline/printerofflinescreen.ui
+    pages/printer/printerpage.ui
+    pages/printer/settings/printersettingspage.ui
+    pages/printer/widgets/extruder/extruderwidget.ui
+    pages/printer/widgets/printerbed/printerbedwidget.ui
+    pages/settings/edit_printer/editprinterdialog.ui
+    pages/settings/printerlistitem.ui
+    pages/settings/printerlistwidget.ui
+    pages/settings/settingspage.ui
+    pages/settings/system/systemsettingspage.ui
+    pages/settings/theme/themesettingspage.ui
+    ui/MenuButton/menubutton.ui
+    pages/printer/widgets/chamber/printerchamberwidget.ui
+    pages/printer/updating/printerupdatingscreen.ui
+    pages/printer/widgets/toolhead/toolheadwidget.ui
+    ui/QNumberEdit/qnumberedit.ui
+    ui/QAccentLabel/qaccentlabel.ui
+    pages/printer/widgets/overview/printeroverviewheaterframe.ui
 )
 
 target_link_libraries(Flo
@@ -332,6 +364,7 @@ target_link_libraries(Flo
         Qt6::Multimedia
         Qt6::MultimediaWidgets
         Qt6::VirtualKeyboard
+        Qt6::Charts
         -L${CMAKE_PREFIX_PATH}/lib -lQt6DAWidgets
         -lQt6Klipper
         -lquazip1-qt6

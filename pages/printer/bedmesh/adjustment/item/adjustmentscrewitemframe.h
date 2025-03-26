@@ -34,7 +34,7 @@ class AdjustmentScrewItemFrame : public QFrame
     Q_OBJECT
 
 public:
-    explicit AdjustmentScrewItemFrame(QWidget *parent = nullptr);
+    explicit AdjustmentScrewItemFrame(QKlipperAdjustmentScrew *screw, QWidget *parent = nullptr);
     ~AdjustmentScrewItemFrame();
 
     QKlipperAdjustmentScrew *adjustmentScrew() const;
@@ -42,7 +42,9 @@ public:
 
 public slots:
     void setupIcons();
-    void setStyleSheet(const QString &styleSheet);
+
+protected:
+    virtual void changeEvent(QEvent *event) override;
 
 protected slots:
     void onAdjustmentScrewAmountChanged();

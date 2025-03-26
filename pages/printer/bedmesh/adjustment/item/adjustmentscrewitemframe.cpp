@@ -2,12 +2,13 @@
 
 #include "flo/settings.h"
 
-AdjustmentScrewItemFrame::AdjustmentScrewItemFrame(QWidget *parent)
+AdjustmentScrewItemFrame::AdjustmentScrewItemFrame(QKlipperAdjustmentScrew *screw, QWidget *parent)
     : QFrame(parent)
 {
-    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "AdjustmentScrewItem"));
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget"));
 
     m_iconLabel = new QLabel(this);
+    m_iconLabel->setFixedSize(32,32);
     m_screwNameLabel = new QLabel(this);
     m_adjustmentLabel = new QLabel(this);
 
@@ -17,6 +18,8 @@ AdjustmentScrewItemFrame::AdjustmentScrewItemFrame(QWidget *parent)
     m_layout->addWidget(m_screwNameLabel);
 
     setLayout(m_layout);
+    setAdjustmentScrew(screw);
+    setupIcons();
 }
 
 AdjustmentScrewItemFrame::~AdjustmentScrewItemFrame()
@@ -56,11 +59,12 @@ void AdjustmentScrewItemFrame::setupIcons()
     m_iconLabel->setPixmap(pixmap);
 }
 
-void AdjustmentScrewItemFrame::setStyleSheet(const QString &styleSheet)
+void AdjustmentScrewItemFrame::changeEvent(QEvent *event)
 {
-    setupIcons();
+    if(event->type() == QEvent::StyleChange)
+        setupIcons();
 
-    QFrame::setStyleSheet(styleSheet);
+    QFrame::changeEvent(event);
 }
 
 void AdjustmentScrewItemFrame::onAdjustmentScrewAmountChanged()

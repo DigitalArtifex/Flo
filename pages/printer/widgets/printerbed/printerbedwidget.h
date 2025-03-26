@@ -10,7 +10,6 @@
 #include <QKlipper/qklipper.h>
 #include "../../bedmesh/health/bedmeshhealthcard.h"
 
-#include "printerbedinfodialog.h"
 #include "printerbedtoolsdialog.h"
 #include "ui/LineGraphWidget/linegraphwidget.h"
 #include <pages/printer/bedmesh/bedmeshwidget.h>
@@ -60,9 +59,7 @@ protected slots:
 private slots:
     void on_applyButton_clicked();
     void on_resetButton_clicked();
-    void on_targetTempSpinBox_valueChanged(double arg1);
-
-    void onSettingsButtonClicked();
+    void on_targetTemperatureSpinBox_valueChanged(double arg1);
 
     void onViewBedMeshButtonClicked();
 
@@ -74,36 +71,21 @@ private slots:
     void onBedMeshDataChanged();
 
     void onPidDialogFinished(int returnCode);
-    void onSettingsDialogFinished(int returnCode);
 
 private:
     LineGraphWidget *m_temperatureGraph = nullptr;
 
     Ui::PrinterBedWidget *ui;
 
-    QGaugeWidget *m_bedTemperatureBar = nullptr;
-    QGaugeWidget *m_bedPowerProgressBar = nullptr;
-    QGaugeWidget *m_bedHealthProgressBar = nullptr;
     QKlipperPrintBed *m_printerBed = nullptr;
 
-    ProbedMeshFrame *m_bedMeshFrame = nullptr;
-
-    QSpacerItem *m_adjustmentScrewSpacer = nullptr;
-
-    QIconButton *m_pidButton = nullptr;
-    QIconButton *m_calibrateMeshButton = nullptr;
-    QIconButton *m_calibrateScrewsButton = nullptr;
-    QIconButton *m_meshViewerButton = nullptr;
-    QIconButton *m_bedInfoButton = nullptr;
-
-    bool m_targetTempEdited = false;
+    bool m_targetTemperatureEdited = false;
     BedMeshData *m_bedMeshData = nullptr;
 
     QFrame *m_throbberFrame = nullptr;
     QThrobberWidget *m_throbber = nullptr;
 
     PidDialog *m_pidDialog = nullptr;
-    PrinterBedInfoDialog *m_settingsDialog = nullptr;
 };
 
 #endif // PRINTERBEDWIDGET_H

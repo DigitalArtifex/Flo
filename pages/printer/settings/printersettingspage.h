@@ -35,6 +35,7 @@
 #include "users/printerusersview.h"
 #include "system/printersystemview.h"
 #include "ui/QIconButton/qiconbutton.h"
+#include "dialogs/MachinePowerDialog/machinepowerdialog.h"
 
 namespace Ui {
 class PrinterSettingsPage;
@@ -59,8 +60,9 @@ protected:
     virtual void changeEvent(QEvent *event) override;
 
 private slots:
-    void on_restartButton_clicked();
-    void on_restartFirmwareButton_clicked();
+    void on_machinePowerButton_clicked();
+
+    void onPowerOptionsDialogFinished(int code);
 
 private:
     Ui::PrinterSettingsPage *ui;
@@ -73,6 +75,8 @@ private:
     PrinterServicesView *m_servicesView = nullptr;
     PrinterUsersView *m_usersView = nullptr;
     PrinterSystemView *m_systemView = nullptr;
+
+    MachinePowerDialog *m_powerOptionsDialog = nullptr;
 
     QIconButton *m_closeButton = nullptr;
 };

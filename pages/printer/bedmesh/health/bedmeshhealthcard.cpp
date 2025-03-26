@@ -3,20 +3,22 @@
 BedMeshHealthCard::BedMeshHealthCard(BedMeshData *data, QWidget *parent)
     : CardWidget(CardType::Widget, parent)
 {
-    m_meshData = data;
     setupUi();
     setupIcons();
-
-    onBedMeshUpdated();
-
-    connect(m_meshData, SIGNAL(dataChanged()), this, SLOT(onBedMeshUpdated()));
+    setMeshData(data);
 }
 
-void BedMeshHealthCard::setStyleSheet(const QString &stylesheet)
+BedMeshHealthCard::BedMeshHealthCard(QWidget *parent)
+    : CardWidget(CardType::Widget, parent)
 {
+    setupUi();
     setupIcons();
+}
 
-    CardWidget::setStyleSheet(stylesheet);
+void BedMeshHealthCard::changeEvent(QEvent *event)
+{
+    if(event->type() == QEvent::StyleChange)
+        setupIcons();
 }
 
 void BedMeshHealthCard::setupUi()
@@ -60,6 +62,9 @@ void BedMeshHealthCard::setupIcons()
 
 void BedMeshHealthCard::onBedMeshUpdated()
 {
+    if(!m_meshData)
+        return;
+
     m_minLabel->setText(QString("Minimum: %1mm").arg(QString::number(m_meshData->minimum(), 'f', 2)));
     m_maxLabel->setText(QString("Maximum: %1mm").arg(QString::number(m_meshData->maximum(), 'f', 2)));
 
@@ -77,4 +82,21 @@ void BedMeshHealthCard::onBedMeshUpdated()
         m_statusIconLabel->setPixmap(Settings::getThemeIcon("mesh-acceptable").pixmap(100,100));
     else
         m_statusIconLabel->setPixmap(Settings::getThemeIcon("mesh-error").pixmap(100,100));
+}
+
+void BedMeshHealthCard::setMeshData(BedMeshData *meshData)
+{
+    if(m_meshData == meshData)
+        return;
+
+    if(m_meshData)
+        disconnect(m_meshData, SIGNAL(dataChanged()), this, SLOT(onBedMeshUpdated()));
+
+    m_meshData = meshData;
+    setupUi();
+    setupIcons();
+
+    onBedMeshUpdated();
+
+    connect(m_meshData, SIGNAL(dataChanged()), this, SLOT(onBedMeshUpdated()));
 }

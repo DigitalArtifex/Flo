@@ -71,33 +71,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Machine Power</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QIconButton" name="restartButton">
-        <property name="minimumSize">
-         <size>
-          <width>200</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Restart Klipper</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QIconButton" name="restartFirmwareButton">
-        <property name="minimumSize">
-         <size>
-          <width>200</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Restart Firmware</string>
+         <string>Power Options</string>
         </property>
        </widget>
       </item>

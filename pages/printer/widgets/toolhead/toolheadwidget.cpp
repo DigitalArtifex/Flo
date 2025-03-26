@@ -11,6 +11,7 @@ ToolheadWidget::ToolheadWidget(QKlipperInstance *instance, QWidget *parent)
 
     m_instance = instance;
     m_printer = instance->printer();
+    m_extruder = m_printer->toolhead()->currentExtruder();
 
     QRegularExpression distanceExpression("\\d+\\.\\d+\\s*", QRegularExpression::CaseInsensitiveOption);
     QRegularExpressionValidator *distanceValidator = new QRegularExpressionValidator(distanceExpression);
@@ -19,21 +20,27 @@ ToolheadWidget::ToolheadWidget(QKlipperInstance *instance, QWidget *parent)
     m_toolheadControlFrame = new ToolHeadControlFrame(instance->printer()->toolhead(), ui->controlContents);
     ui->controlContents->layout()->addWidget(m_toolheadControlFrame);
 
-    ui->toolheadWidget->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget" ));
-    ui->currentPositionFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget"));
-    ui->toolheadControlFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget"));
-
-    ui->positionTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar"));
-    ui->positionTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
-
-    ui->controlTitleBar->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "WidgetTitleBar"));
-    ui->controlTitleBar->setProperty("page", QVariant::fromValue<QStringList>( QStringList() << "PrinterOverview"));
+    //ui->currentPositionFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "Widget"));
+    setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget"));
 
     connect(m_printer->toolhead(), SIGNAL(positionChanged()), this, SLOT(onToolheadPositionChanged()));
     connect(m_printer->toolhead(), SIGNAL(destinationChanged()), this, SLOT(onToolHeadDestinationChanged()));
     connect(m_printer->toolhead(), SIGNAL(isHomedChanged()), this, SLOT(onToolHeadIsHomedChanged()));
+    connect(m_printer->toolhead(), SIGNAL(currentExtruderNameChanged()), this, SLOT(onToolHeadCurrentExtruderChanged()));
 
     onToolHeadIsHomedChanged();
+    onToolHeadCurrentExtruderChanged();
+    onExtruderCurrentTempChanged();
+
+    ui->toolheadControlFrame->setCentralWidget(ui->toolheadContentWidget);
+    ui->extruderFrame->setCentralWidget(ui->extruderContentFrame);
+    ui->targetPositionFrame->setCentralWidget(ui->currentPositionContentWidget);
+
+    ui->toolheadControlFrame->setTitle("Control");
+    ui->targetPositionFrame->setTitle("Target Position");
+    ui->extruderFrame->setTitle("Toolhead Status");
+
+    ui->locationFrame->setProperty("class", QStringList {"SubWidget"});
 }
 
 ToolheadWidget::~ToolheadWidget()
@@ -43,29 +50,9 @@ ToolheadWidget::~ToolheadWidget()
 
 void ToolheadWidget::setIcons()
 {
-    QPixmap pixmap = Settings::getThemeIcon(QString("location")).pixmap(18,18);
-    ui->positionIconLabel->setPixmap(pixmap);
-
-    pixmap = Settings::getThemeIcon(QString("control")).pixmap(18,18);
-    ui->controlIconLabel->setPixmap(pixmap);
-
-    ui->inputShaperButton->setIcon(
-        Settings::getThemeIcon(
-            "input-shaper",
-            QColor::fromString(Settings::get("theme/icon-color-alt").toString())
-            )
-        );
-
-    ui->inputShaperButton->setIconSize(QSize(50,50));
-
-    ui->zOffsetWizardButton->setIcon(
-        Settings::getThemeIcon(
-            "zoffset",
-            QColor::fromString(Settings::get("theme/icon-color-alt1").toString())
-            )
-        );
-
-    ui->zOffsetWizardButton->setIconSize(QSize(50,50));
+    ui->targetPositionFrame->setIcon(Settings::getThemeIcon(QString("location")));
+    ui->toolheadControlFrame->setIcon(Settings::getThemeIcon(QString("control")));
+    ui->extruderFrame->setIcon(Settings::getThemeIcon(QString("location")));
 }
 
 void ToolheadWidget::changeEvent(QEvent *event)
@@ -108,7 +95,9 @@ void ToolheadWidget::on_posIncrementSelect_currentTextChanged(const QString &arg
 void ToolheadWidget::on_xDestinationSpinBox_valueChanged(double arg1)
 {
     if(ui->xDestinationSpinBox->hasFocus() && arg1 != m_printer->toolhead()->position().x())
+    {
         xPosEditing = true;
+    }
 }
 
 void ToolheadWidget::on_yDestinationSpinBox_valueChanged(double arg1)
@@ -128,6 +117,9 @@ void ToolheadWidget::on_positionResetButton_clicked()
     ui->xDestinationSpinBox->setValue((m_printer->toolhead()->destination().x()));
     ui->yDestinationSpinBox->setValue((m_printer->toolhead()->destination().y()));
     ui->zDestinationSpinBox->setValue((m_printer->toolhead()->destination().z()));
+    xPosEditing = false;
+    yPosEditing = false;
+    zPosEditing = false;
 }
 
 void ToolheadWidget::on_positionApplyButton_clicked()
@@ -154,17 +146,38 @@ void ToolheadWidget::on_positionApplyButton_clicked()
         qDebug() << "Cannot move toolhead. Printer offline.";
         break;
     };
+
+    on_positionResetButton_clicked();
 }
 
 void ToolheadWidget::onToolheadPositionChanged()
 {
-    ui->xDestinationSpinBox->setPrefix(QString("X: "));
-    ui->yDestinationSpinBox->setPrefix(QString("Y: "));
-    ui->zDestinationSpinBox->setPrefix(QString("Z: "));
+    ui->locationFrame->setX(m_printer->toolhead()->position().x());
+    ui->locationFrame->setY(m_printer->toolhead()->position().y());
+    ui->locationFrame->setXMaximum(m_printer->toolhead()->maxPosition().x());
+    ui->locationFrame->setYMaximum(m_printer->toolhead()->maxPosition().y());
 
-    ui->xDestinationSpinBox->setSuffix(QString("mm <i>(%1)</i>").arg(m_printer->toolhead()->position().x(), 0, 'f', 2));
-    ui->yDestinationSpinBox->setSuffix(QString("mm <i>(%1)</i>").arg(m_printer->toolhead()->position().y(), 0, 'f', 2));
-    ui->zDestinationSpinBox->setSuffix(QString("mm <i>(%1)</i>").arg(m_printer->toolhead()->position().z(), 0, 'f', 2));
+    if(!xPosEditing)
+    {
+        ui->xDestinationSpinBox->setValue((m_printer->toolhead()->destination().x()));
+        xPosEditing = false;
+    }
+
+    if(!yPosEditing)
+    {
+        ui->yDestinationSpinBox->setValue((m_printer->toolhead()->destination().y()));
+        yPosEditing = false;
+    }
+
+    if(!zPosEditing)
+    {
+        ui->zDestinationSpinBox->setValue((m_printer->toolhead()->destination().z()));
+        zPosEditing = false;
+    }
+
+    ui->xPosLabel->setText(QString("<i>%1</i>").arg(m_printer->toolhead()->position().x(), 0, 'f', 2));
+    ui->yPosLabel->setText(QString("<i>%1</i>").arg(m_printer->toolhead()->position().y(), 0, 'f', 2));
+    ui->zPosLabel->setText(QString("<i>%1</i>").arg(m_printer->toolhead()->position().z(), 0, 'f', 2));
 }
 
 void ToolheadWidget::onToolHeadDestinationChanged()
@@ -186,6 +199,18 @@ void ToolheadWidget::onToolHeadIsHomedChanged()
     ui->zDestinationSpinBox->setEnabled(m_printer->toolhead()->isHomed());
     ui->positionApplyButton->setEnabled(m_printer->toolhead()->isHomed());
     ui->positionResetButton->setEnabled(m_printer->toolhead()->isHomed());
+}
+
+void ToolheadWidget::onToolHeadCurrentExtruderChanged()
+{
+    ui->currentExtruderLabel->setText(QString("<h3>Current Extruder</h3> %1").arg(m_printer->toolhead()->currentExtruderName()));
+    ui->extruderCountLabel->setText(QString("<h3>Extruder Count</h3> %1").arg(m_printer->toolhead()->extruderMap().count()));
+}
+
+void ToolheadWidget::onExtruderCurrentTempChanged()
+{
+    if(!m_extruder)
+        return;
 }
 
 void ToolheadWidget::onZOffsetWizardFinished(int returnCode)

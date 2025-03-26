@@ -17,7 +17,7 @@ PrintingPage::PrintingPage(QKlipperPrinter *printer, QWidget *parent)
     connect(m_printer, SIGNAL(printJobChanged()), this, SLOT(onPrintJobChanged()));
     connect(m_printer, SIGNAL(printEndingChanged()), this, SLOT(onPrinterETAChanged()));
     connect(m_printer, SIGNAL(gcodeMoveChanged()), this, SLOT(onPrinterGCodeMoveChanged()));
-    connect(m_printer->bed(), SIGNAL(targetTempChanged()), this, SLOT(onBedTargetTemperatureChanged()));
+    connect(m_printer->bed(), SIGNAL(targetTemperatureChanged()), this, SLOT(onBedTargetTemperatureChanged()));
     connect(m_printer->toolhead(), SIGNAL(currentExtruderNameChanged()), this, SLOT(onToolheadCurrentExtruderChanged()));
     connect(m_printer, SIGNAL(statusChanged()), this, SLOT(onPrinterStatusChanged()));
     connect(m_printer, SIGNAL(printSpeedChanged()), this, SLOT(onPrinterPrintSpeedChanged()));
@@ -383,7 +383,7 @@ void PrintingPage::onExtruderTargetTemperatureChanged()
         return;
 
     if(m_extruderTargetTempLabel)
-        m_extruderTargetTempLabel->setText(QString("Extruder Temperature: %1°C").arg(QString::number(m_printer->toolhead()->currentExtruder()->targetTemp())));
+        m_extruderTargetTempLabel->setText(QString("Extruder Temperature: %1°C").arg(QString::number(m_printer->toolhead()->currentExtruder()->targetTemperature())));
 }
 
 void PrintingPage::onExtruderExtrusionSpeedChanged()
@@ -398,7 +398,7 @@ void PrintingPage::onExtruderExtrusionSpeedChanged()
 void PrintingPage::onBedTargetTemperatureChanged()
 {
     if(m_bedTargetTempLabel)
-        m_bedTargetTempLabel->setText(QString("Printbed Temperature: %1°C").arg(QString::number(m_printer->bed()->targetTemp())));
+        m_bedTargetTempLabel->setText(QString("Printbed Temperature: %1°C").arg(QString::number(m_printer->bed()->targetTemperature())));
 }
 
 void PrintingPage::onToolheadCurrentExtruderChanged()
@@ -408,13 +408,13 @@ void PrintingPage::onToolheadCurrentExtruderChanged()
 
     if(m_currentExtruder)
     {
-        disconnect(m_currentExtruder, SIGNAL(targetTempChanged()), this, SLOT(onExtruderTargetTemperatureChanged()));
+        disconnect(m_currentExtruder, SIGNAL(targetTemperatureChanged()), this, SLOT(onExtruderTargetTemperatureChanged()));
         disconnect(m_currentExtruder, SIGNAL(extrusionFactorChanged()), this, SLOT(onExtruderExtrusionSpeedChanged()));
     }
 
     m_currentExtruder = m_printer->toolhead()->currentExtruder();
 
-    connect(m_currentExtruder, SIGNAL(targetTempChanged()), this, SLOT(onExtruderTargetTemperatureChanged()));
+    connect(m_currentExtruder, SIGNAL(targetTemperatureChanged()), this, SLOT(onExtruderTargetTemperatureChanged()));
     connect(m_currentExtruder, SIGNAL(extrusionFactorChanged()), this, SLOT(onExtruderExtrusionSpeedChanged()));
 }
 

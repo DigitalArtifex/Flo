@@ -76,6 +76,10 @@ private slots:
 
     void on_EditPrinterDialog_windowTitleChanged(const QString &title);
 
+protected:
+    virtual void changeEvent(QEvent *event) override;
+    void setIcons();
+
 private:
     Ui::EditPrinterDialog *ui;
 

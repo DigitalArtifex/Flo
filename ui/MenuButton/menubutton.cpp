@@ -74,6 +74,9 @@ void MenuButton::mouseReleaseEvent(QMouseEvent *event)
 
 void MenuButton::paintEvent(QPaintEvent *event)
 {
+    if(visibleRegion().isNull())
+        return;
+
     QFrame::paintEvent(event);
     QPixmap pixmap;
 

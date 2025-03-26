@@ -37,10 +37,13 @@ class BedMeshHealthCard : public CardWidget
         Q_OBJECT
     public:
         BedMeshHealthCard(BedMeshData *data, QWidget *parent = nullptr);
+        BedMeshHealthCard(QWidget *parent = nullptr);
 
-        virtual void setStyleSheet(const QString &stylesheet);
+    public slots:
+        void setMeshData(BedMeshData *meshData);
 
     protected:
+        virtual void changeEvent(QEvent *event) override;
         void setupUi();
         void setupIcons();
 
