@@ -15,7 +15,8 @@
         },
         {
             "icon": "icons8-print.gif",
-            "name": "printing"
+            "name": "printing",
+            "attributes": "no-recolor, animated"
         },
         {
             "icon": "icons8-edit-64.png",
@@ -456,6 +457,42 @@
 		{
 			"name": "overview",
 			"icon": "icons8-gauge-64.png"
+		},
+		{
+			"name": "color",
+			"icon": "icons8-color-64.png"
+		},
+		{
+			"name": "opened-folder",
+			"icon": "icons8-opened-folder-64.png"
+		},
+		{
+			"name": "tools",
+			"icon": "icons8-tools-64.png"
+		},
+		{
+			"name": "i3-printer",
+			"icon": "icons8-cnc-machine-96.png"
+		},
+		{
+			"name": "cantilever-printer",
+			"icon": "icons8-cantilever-96.png"
+		},
+		{
+			"name": "counter-clockwise",
+			"icon": "icons8-rotate-left-64.png"
+		},
+		{
+			"name": "clockwise",
+			"icon": "icons8-rotate-right-64.png"
+		},
+		{
+			"name": "reel",
+			"icon": "icons8-film-reel-64.png"
+		},
+		{
+			"name": "details",
+			"icon": "icons8-details-64.png"
 		}
     ]
 }
