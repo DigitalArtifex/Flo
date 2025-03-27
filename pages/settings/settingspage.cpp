@@ -347,7 +347,7 @@ void SettingsPage::onDialogRequested(QDialog *dialog)
     m_requestedDialog = dialog;
 
     m_dialogSheet = new Sheet(m_requestedDialog, this);
-    m_dialogSheet->setWidth(width() / 2);
+    m_dialogSheet->setWidth(width() / 3);
     m_dialogSheet->showSheet(this);
     connect(dialog, SIGNAL(finished(int)), this, SLOT(onDialogFinished(int)));
 }
