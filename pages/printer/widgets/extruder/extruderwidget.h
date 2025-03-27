@@ -92,13 +92,12 @@ private slots:
     void updateUiValues();
     void updateSettingsButtons();
 
-    void onMaterialsButtonClicked();
-    void onPidButtonClicked();
-    void onPreheatButtonClicked();
-    void onOffsetButtonClicked();
-
     void showThrobber();
     void hideThrobber();
+
+    void on_pidButton_clicked();
+
+    void on_preheatButton_clicked();
 
 private:
     LineGraphWidget *m_temperatureGraph = nullptr;

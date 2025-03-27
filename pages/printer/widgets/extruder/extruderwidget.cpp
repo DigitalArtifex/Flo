@@ -250,7 +250,6 @@ void ExtruderWidget::on_applyButton_clicked()
     //updateUiValues();
 }
 
-
 void ExtruderWidget::on_resetButton_clicked()
 {
     ui->resetButton->setEnabled(false);
@@ -264,22 +263,28 @@ void ExtruderWidget::on_resetButton_clicked()
     updateUiValues();
 }
 
-
 void ExtruderWidget::on_extrudeButton_clicked()
 {
-    // qreal amount = ui->materialLengthSpinBox->value();
-    // qreal rate = ui->materialFeedRateSpinBox->value();
+    if(m_materialDialog)
+        delete m_materialDialog;
 
-    // m_extruder->extrude(amount, rate);
+    m_materialDialog = new ExtruderMaterialsDialog(this);
+    m_materialDialog->setMaterialDirection(ExtruderMaterialsDialog::MaterialExtrude);
+    emit dialogRequested(m_materialDialog);
+
+    connect(m_materialDialog, SIGNAL(finished(int)), this, SLOT(onMaterialDialogFinished(int)));
 }
-
 
 void ExtruderWidget::on_retractButton_clicked()
 {
-    // qreal amount = ui->materialLengthSpinBox->value();
-    // qreal rate = ui->materialFeedRateSpinBox->value();
+    if(m_materialDialog)
+        delete m_materialDialog;
 
-    // m_extruder->extrude(amount * -1, rate);
+    m_materialDialog = new ExtruderMaterialsDialog(this);
+    m_materialDialog->setMaterialDirection(ExtruderMaterialsDialog::MaterialRetract);
+    emit dialogRequested(m_materialDialog);
+
+    connect(m_materialDialog, SIGNAL(finished(int)), this, SLOT(onMaterialDialogFinished(int)));
 }
 
 void ExtruderWidget::onPidDialogFinished(int returnCode)
@@ -457,53 +462,6 @@ void ExtruderWidget::updateSettingsButtons()
     ui->resetButton->setEnabled(changed);
 }
 
-void ExtruderWidget::onMaterialsButtonClicked()
-{
-    if(m_materialDialog)
-        delete m_materialDialog;
-
-    m_materialDialog = new ExtruderMaterialsDialog(this);
-    m_materialDialog->setMaterialDirection(ExtruderMaterialsDialog::MaterialExtrude);
-    emit dialogRequested(m_materialDialog);
-
-    connect(m_materialDialog, SIGNAL(finished(int)), this, SLOT(onMaterialDialogFinished(int)));
-}
-
-void ExtruderWidget::onPidButtonClicked()
-{
-    if(m_pidDialog)
-        delete m_pidDialog;
-
-    m_pidDialog = new PidDialog(this);
-    emit dialogRequested(m_pidDialog);
-
-    connect(m_pidDialog, SIGNAL(finished(int)), this, SLOT(onPidDialogFinished(int)));
-}
-
-void ExtruderWidget::onPreheatButtonClicked()
-{
-    if(m_preheatDialog)
-        delete m_preheatDialog;
-
-    m_preheatDialog = new PidDialog(this);
-    emit dialogRequested(m_preheatDialog);
-
-    connect(m_preheatDialog, SIGNAL(finished(int)), this, SLOT(onPreheatDialogFinished(int)));
-}
-
-//need to move this to the toolhead since you cant edit the extruder offset via command
-void ExtruderWidget::onOffsetButtonClicked()
-{
-    if(m_materialDialog)
-        delete m_materialDialog;
-
-    m_materialDialog = new ExtruderMaterialsDialog(this);
-    m_materialDialog->setMaterialDirection(ExtruderMaterialsDialog::MaterialRetract);
-    emit dialogRequested(m_materialDialog);
-
-    connect(m_materialDialog, SIGNAL(finished(int)), this, SLOT(onMaterialDialogFinished(int)));
-}
-
 void ExtruderWidget::showThrobber()
 {
     if(!m_throbberFrame)
@@ -540,3 +498,24 @@ void ExtruderWidget::hideThrobber()
     }
 }
 
+void ExtruderWidget::on_pidButton_clicked()
+{
+    if(m_pidDialog)
+        delete m_pidDialog;
+
+    m_pidDialog = new PidDialog(this);
+    emit dialogRequested(m_pidDialog);
+
+    connect(m_pidDialog, SIGNAL(finished(int)), this, SLOT(onPidDialogFinished(int)));
+}
+
+void ExtruderWidget::on_preheatButton_clicked()
+{
+    if(m_preheatDialog)
+        delete m_preheatDialog;
+
+    m_preheatDialog = new PidDialog(this);
+    emit dialogRequested(m_preheatDialog);
+
+    connect(m_preheatDialog, SIGNAL(finished(int)), this, SLOT(onPreheatDialogFinished(int)));
+}
