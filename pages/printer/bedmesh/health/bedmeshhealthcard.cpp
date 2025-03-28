@@ -71,7 +71,7 @@ void BedMeshHealthCard::onBedMeshUpdated()
     qreal variance = m_meshData->maximum() - m_meshData->minimum();
     m_varianceLabel->setText(QString("Variance: %1mm").arg(QString::number(variance, 'f', 2)));
 
-    qreal health = (1 - (variance / 0.3000)) * 100;
+    qreal health = (1 - (variance / 0.5000)) * 100;
 
     if(variance == 0 && m_meshData->maximum() == 0 && m_meshData->minimum() == 0)
         health = 0; //no result yet

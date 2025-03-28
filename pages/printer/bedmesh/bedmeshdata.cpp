@@ -46,7 +46,7 @@ void BedMeshData::onBedMeshMatrixChanged()
                     setMaximum(matrix[row][col].z());
                     setMinimum(matrix[row][col].z());
                 }
-                else if(matrix[row][col].z() > m_minimum)
+                else if(matrix[row][col].z() > m_maximum)
                     setMaximum(matrix[row][col].z());
                 else if(matrix[row][col].z() < m_minimum)
                     setMinimum(matrix[row][col].z());
