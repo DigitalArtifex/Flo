@@ -83,8 +83,8 @@ set(SOURCES
     pages/printer/settings/users/printerusercard.cpp
     pages/printer/settings/users/printerusersview.cpp
     pages/printer/terminal/printerterminal.cpp
-    pages/printer/terminal/printerterminalitem.cpp
-    pages/printer/terminal/printerterminalwidget.cpp
+
+
     pages/printer/widgets/ledstrips/ledstripcard.cpp
     pages/printer/widgets/ledstrips/ledstripview.cpp
     pages/printer/widgets/powerdevices/powerdevicecard.cpp
@@ -202,8 +202,8 @@ set(HEADERS
     pages/printer/settings/users/printerusercard.h
     pages/printer/settings/users/printerusersview.h
     pages/printer/terminal/printerterminal.h
-    pages/printer/terminal/printerterminalitem.h
-    pages/printer/terminal/printerterminalwidget.h
+
+
     pages/printer/widgets/sensors/sensorcard.h
     pages/printer/widgets/sensors/sensorview.h
     pages/printer/widgets/powerdevices/powerdevicecard.h
@@ -347,6 +347,7 @@ qt_add_executable(Flo
     ui/QNumberEdit/qnumberedit.ui
     ui/QAccentLabel/qaccentlabel.ui
     pages/printer/widgets/overview/printeroverviewheaterframe.ui
+    pages/printer/terminal/printerterminaledit.cpp pages/printer/terminal/printerterminaledit.h
 )
 
 target_link_libraries(Flo

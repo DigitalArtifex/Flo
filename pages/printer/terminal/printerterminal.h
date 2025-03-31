@@ -32,7 +32,7 @@
 #include <QKlipper/qklipper.h>
 #include "3rdparty/QSourceHighlite/qsourcehighliter.h"
 #include "common/Page/page.h"
-#include "printerterminalwidget.h"
+#include "printerterminaledit.h"
 #include <qquickview.h>
 #include <qquickwidget.h>
 
@@ -47,32 +47,30 @@ public:
     ~PrinterTerminal();
 
 protected slots:
-    void on_console_message(QKlipperMessage *message);
-
-    void on_commandEdit_returnPressed();
-    void on_commandEdit_textChanged();
-    void on_commandSendButton_clicked();
-
     void onConsoleGcodeResponse(QString &message);
+    void onKlipperSocketMessageReceived(QString message);
+    void onKlipperSocketDisconnected();
+    void onKlipperSocketError(QAbstractSocket::SocketError error);
+    void sendCommand(QString commandString);
+    void displayHelp(QString command = "");
+    void updateAutocomplete();
 
 protected:
-    virtual void setupUi();
-    virtual void sendCommand();
-    virtual void showEvent(QShowEvent *event);
+    void setupUi();
+    virtual void showEvent(QShowEvent *event) override;
+    bool connectToKlipper();
+    void disconnectFromKlipper();
+
 
 private:
+    QWebSocket *m_klipperSocket = nullptr;
     QGridLayout *m_layout = nullptr;
-    PrinterTerminalWidget *m_terminal = nullptr;
-
-    QFrame *m_commandFrame = nullptr;
-    QHBoxLayout *m_commandLayout = nullptr;
-    QTextEdit *m_commandEdit = nullptr;
-    QPushButton *m_commandSendButton = nullptr;
+    PrinterTerminalEdit *m_terminal = nullptr;
 
     QKlipperInstance *m_instance = nullptr;
     QRegularExpression m_gcodeExpression;
+    QStringList m_macros;
 
-    QSourceHighlite::QSourceHighliter *m_highlighter = nullptr;
     QWidget *m_viewerWidget = nullptr;
     QQuickView *m_viewer = nullptr;
 

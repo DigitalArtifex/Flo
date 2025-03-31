@@ -13,8 +13,10 @@ PrinterTerminal::PrinterTerminal(QKlipperInstance *instance, QWidget *parent) :
 
     setWindowTitle(QString("%1 Terminal").arg(instance->name()));
 
-    connect(m_instance->console(), SIGNAL(messageSent(QKlipperMessage*)), this, SLOT(on_console_message(QKlipperMessage*)));
+    //connect(m_instance->console(), SIGNAL(messageSent(QKlipperMessage*)), this, SLOT(on_console_message(QKlipperMessage*)));
     connect(m_instance->console(), SIGNAL(gcodeResponse(QString&)), this, SLOT(onConsoleGcodeResponse(QString&)));
+
+    connect(m_instance->server(), SIGNAL(gcodeMacrosChanged()), this, SLOT(updateAutocomplete()));
 }
 
 PrinterTerminal::~PrinterTerminal()
@@ -22,47 +24,74 @@ PrinterTerminal::~PrinterTerminal()
     //m_layout->deleteLater();
 }
 
-void PrinterTerminal::on_console_message(QKlipperMessage *message)
-{
-    if(m_terminal && message->origin() == QKlipperMessage::User)
-        m_terminal->addMessage(message);
-}
-
-void PrinterTerminal::on_commandEdit_returnPressed()
-{
-    sendCommand();
-}
-
-void PrinterTerminal::on_commandEdit_textChanged()
-{
-    QString text = m_commandEdit->toPlainText();
-
-    //emulate return pressed from line edit
-    if(text.contains(QString("\n")))
-    {
-        text.remove("\n");
-        text.remove("\r");
-
-        m_commandEdit->setText(text);
-        m_commandSendButton->setEnabled(false);
-
-        sendCommand();
-    }
-
-    if(text.isEmpty() && m_commandSendButton->isEnabled())
-        m_commandSendButton->setEnabled(false);
-    else if(!text.isEmpty() && !m_commandSendButton->isEnabled())
-        m_commandSendButton->setEnabled(true);
-}
-
-void PrinterTerminal::on_commandSendButton_clicked()
-{
-    sendCommand();
-}
-
 void PrinterTerminal::onConsoleGcodeResponse(QString &message)
 {
-    m_terminal->addGcodeResponse(message);
+    QString formattedMessage;
+    QString messageColor;
+
+    if(message.startsWith("//"))
+        messageColor = Settings::get("theme/highlight-comment").toString();
+
+    else if(message.startsWith("!!"))
+        messageColor = Settings::get("theme/highlight-string").toString();
+
+    message.remove(0,2);
+
+    while(message.startsWith(" "))
+        message.removeAt(0);
+
+    formattedMessage =
+        QString("<font color=%1><i>%2</i></font>").arg
+        (
+            messageColor,
+            message
+        );
+
+    m_terminal->addMessage(message);
+}
+
+void PrinterTerminal::onKlipperSocketMessageReceived(QString message)
+{
+    QJsonParseError documentError;
+    QJsonDocument document = QJsonDocument::fromJson(message.toLatin1(), &documentError);
+
+    if(documentError.error != QJsonParseError::NoError)
+    {
+        m_terminal->addMessage(message);
+        return;
+    }
+
+    QJsonObject rootObject = document.object();
+    if(rootObject.contains("error"))
+    {
+        QJsonObject errorObject = rootObject["error"].toObject();
+        QString error =
+            QString("<font color=%1><b>%2:</b> <i>%3</i></font>").arg
+            (
+                Settings::get("theme/highlight-string").toString(),
+                errorObject["error"].toString(),
+                errorObject["message"].toString()
+            );
+
+        m_terminal->addMessage(error);
+    }
+    else
+    {
+        //m_terminal->addMessage(message.toLatin1());
+    }
+}
+
+void PrinterTerminal::onKlipperSocketDisconnected()
+{
+    delete m_klipperSocket;
+    m_klipperSocket = nullptr;
+}
+
+void PrinterTerminal::onKlipperSocketError(QAbstractSocket::SocketError error)
+{
+    qDebug() << "Klipper Socket Error" << error;
+    delete m_klipperSocket;
+    m_klipperSocket = nullptr;
 }
 
 void PrinterTerminal::setupUi()
@@ -94,47 +123,17 @@ void PrinterTerminal::setupUi()
 
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
-    m_terminal = new PrinterTerminalWidget(this);
+    m_terminal = new PrinterTerminalEdit(this);
     m_terminal->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    connect(m_terminal, SIGNAL(commandEntered(QString)), this, SLOT(sendCommand(QString)));
     m_layout->addWidget(m_terminal, 2,0,1,1);
-
-    m_commandLayout = new QHBoxLayout(this);
-    m_commandLayout->setContentsMargins(4,4,0,2);
-    m_commandLayout->setSpacing(0);
-    m_commandFrame = new QFrame(this);
-    m_commandFrame->setLayout(m_commandLayout);
-    m_commandFrame->setFixedHeight(45);
-    m_commandFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_commandFrame->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "SubWidget"));
-    m_layout->addWidget(m_commandFrame, 3,0,1,1);
-
-    m_commandEdit = new QTextEdit();
-    m_commandEdit->setFixedHeight(35);
-    m_commandEdit->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleCommandEdit"));
-
-    m_commandLayout->addWidget(m_commandEdit);
-    connect(m_commandEdit, SIGNAL(textChanged()), this, SLOT(on_commandEdit_textChanged()));
-
-    m_commandSendButton = new QPushButton(this);
-    m_commandSendButton->setText(QString("Send"));
-    m_commandSendButton->setEnabled(false);
-    m_commandSendButton->setFixedHeight(30);
-    m_commandSendButton->setProperty("class", QVariant::fromValue<QStringList>( QStringList() << "ConsoleCommandButton"));
-    m_commandLayout->addWidget(m_commandSendButton);
-    connect(m_commandSendButton, SIGNAL(clicked(bool)), this, SLOT(on_commandSendButton_clicked()));
-
-    m_highlighter = new QSourceHighliter(m_commandEdit->document());
-    m_highlighter->setCurrentLanguage(QSourceHighliter::CodeGCode);
-    m_highlighter->setTheme(QSourceHighliter::System);
 
     setLayout(m_layout);
 }
 
-void PrinterTerminal::sendCommand()
+void PrinterTerminal::sendCommand(QString commandString)
 {
-    QString commandString = m_commandEdit->toPlainText();
-    m_commandEdit->clear();
-
     QRegularExpressionMatchIterator match = m_gcodeExpression.globalMatch(commandString);
 
     QStringList segmentedCommand = commandString.split(QString(" "), Qt::SkipEmptyParts);
@@ -144,10 +143,17 @@ void PrinterTerminal::sendCommand()
 
     QStringList macros;
     for(auto macro : m_instance->server()->gcodeMacros())
-        macros.append(macro.macro);
+        macros.append(macro.macro.toUpper());
 
     //Check if its a gcode
-    if(match.hasNext())
+
+    if(segmentedCommand[0].toLower() == "help")
+    {
+        segmentedCommand.remove(0);
+        displayHelp(segmentedCommand.join(" "));
+        return;
+    }
+    else if(match.hasNext() || macros.contains(commandString.toUpper()))
         m_instance->console()->printerGcodeScript(commandString, nullptr, QKlipperMessage::User);
 
     //Check if its a klipper command instead
@@ -184,26 +190,26 @@ void PrinterTerminal::sendCommand()
         }
 
         if(valid)
-            m_instance->console()->printerGcodeScript(commandString, nullptr, QKlipperMessage::User);
+        {
+            QKlipperMessage *message = new QKlipperMessage(this);
+            message->setMethod("gcode/script");
+            message->setOrigin(QKlipperMessage::User);
+            message->setParam("script", commandString);
+
+            segmentedCommand.removeAt(0);
+
+            if(connectToKlipper())
+            {
+                m_klipperSocket->sendTextMessage(message->toRpc());
+            }
+        }
         else
         {
             QString message = QString("Missing parameters: ") + missingParameters.join(QString(", "));
             message += QString("\n\n") + QString("Help: ") + command->help() + QString("\n");
 
-            m_terminal->addErrorMessage(command->command(), message);
+            m_terminal->addMessage(message);
         }
-    }
-    else if(segmentedCommand[0][0] == '$' || macros.contains(segmentedCommand[0].toUpper()))
-    {
-        QKlipperMessage *message = new QKlipperMessage(this);
-
-        message->setMethod("printer.gcode.script");
-        message->setParam("script", commandString.right(0));
-        message->setOrigin(QKlipperMessage::User);
-
-        segmentedCommand.removeAt(0);
-
-        m_instance->console()->sendWebSocketMessage(message);
     }
     else
     {
@@ -220,19 +226,229 @@ void PrinterTerminal::sendCommand()
                 QString key = param.left('=');
                 QString value = param.right('=');
 
-                message->params().insert(key, value);
+                message->setParam(key, value);
             }
             else
-                message->params().insert(param, QVariant());
+                message->setParam(param, QVariant());
         }
 
-        m_instance->console()->sendWebSocketMessage(message);
+        if(connectToKlipper())
+            m_klipperSocket->sendTextMessage(message->toRpc());
     }
+}
+
+void PrinterTerminal::displayHelp(QString command)
+{
+    if(command.length() > 0)
+    {
+        QStringList segmentedCommand = command.split(' ');
+
+        for(QString segment : segmentedCommand)
+        {
+            if(QKlipperCommand::isKlipperCommand(segment.toUpper()))
+                m_terminal->addMessage(QKlipperCommand::command(segment.toUpper()).help());
+        }
+    }
+    else if(command.toUpper() == "MACROS")
+    {
+        int cols = 3;
+        int col = 0;
+        QString buffer = "<table>";
+
+        for(auto macro : m_instance->server()->gcodeMacros())
+        {
+            if(col == 0)
+            {
+                buffer += "<tr>";
+            }
+
+            if(col < cols)
+            {
+                if(!m_macros.contains(command))
+                {
+                    buffer += QString("<td>%1</td>").arg(macro.macro);
+                    col++;
+                }
+            }
+            else
+            {
+                col = 0;
+                buffer += "</tr>";
+            }
+        }
+
+        buffer += "</table>";
+        m_terminal->addMessage(buffer);
+    }
+    else
+    {
+        int cols = 3;
+        int col = 0;
+        QString buffer = "<table>";
+
+        for(QString klipperCommand : QKlipperCommand::commands())
+        {
+            if(col == 0)
+            {
+                buffer += "<tr>";
+            }
+
+            if(col < cols)
+            {
+                if(!m_macros.contains(command))
+                {
+                    buffer += QString("<td>%1</td>").arg(klipperCommand);
+                    col++;
+                }
+            }
+            else
+            {
+                col = 0;
+                buffer += "</tr>";
+            }
+        }
+
+        buffer += "</table>";
+        m_terminal->addMessage(buffer);
+    }
+}
+
+void PrinterTerminal::updateAutocomplete()
+{
+    QStringList dictionary;
+    QMultiMap<QString,QString> parameterDictionary;
+
+    m_macros.clear();
+
+    for(QKlipperCommand command : QKlipperCommand::commands())
+    {
+        if(command.command().isEmpty())
+            continue;
+
+        if(!dictionary.contains(command.command()))
+        {
+            dictionary.append(command.command());
+            parameterDictionary.insert("HELP", command.command());
+        }
+
+        for(QString parameter : command.parameters())
+            parameterDictionary.insert(command.command(), parameter.toUpper());
+
+    }
+
+    for(QKlipperGCodeMacro macro : m_instance->server()->gcodeMacros())
+    {
+        if(!dictionary.contains(macro.macro))
+            dictionary.append(macro.macro);
+
+        if(!m_macros.contains(macro.macro))
+            m_macros.append(macro.macro);
+    }
+
+    m_terminal->setCommandDictionary(dictionary);
+    m_terminal->setParameterDictionary(parameterDictionary);
 }
 
 void PrinterTerminal::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
+    m_terminal->setHost(m_instance->server()->address());
 
-    m_commandEdit->setFocus();
+    if(m_instance->server()->accessDetails().isLoggedIn())
+        m_terminal->setUser(m_instance->server()->accessDetails().user().username());
+}
+
+bool PrinterTerminal::connectToKlipper()
+{
+    if(!m_klipperSocket)
+    {
+        m_klipperSocket = new QWebSocket(
+            m_instance->server()->bridgeAddress(),
+            QWebSocketProtocol::VersionLatest,
+            this
+            );
+    }
+
+    if(m_klipperSocket->state() == QAbstractSocket::ConnectedState)
+        return true;
+
+    QEventLoop loop;
+    bool errorOccurred = false;
+    QAbstractSocket::SocketError socketError;
+
+    QMetaObject::Connection establishedConnection = QObject::connect(m_klipperSocket, SIGNAL(connected()), &loop, SLOT(quit()));
+
+    QMetaObject::Connection disconnectConnection =  QObject::connect
+        (
+            m_klipperSocket,
+            &QWebSocket::disconnected,
+            this,
+            [&errorOccurred, &loop]() {
+                errorOccurred = true;
+                loop.quit();
+            }
+            );
+
+    QMetaObject::Connection errorConnection = QObject::connect
+        (
+            m_klipperSocket,
+            &QWebSocket::errorOccurred,
+            this,
+            [&socketError, &errorOccurred, &loop](QAbstractSocket::SocketError error) {
+                errorOccurred = true;
+                socketError = error;
+                loop.quit();
+            }
+            );
+
+    //QObject::connect(m_klipperSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(rpcUpdateSocketDataReceived(QString)));
+
+    //Timeout for websocket -_-
+    QTimer *timeout = new QTimer(this);
+    timeout->setInterval(10000);
+    timeout->setSingleShot(true);
+
+    auto timeoutLambda = [&socketError, &errorOccurred, &loop]() {
+        errorOccurred = true;
+        socketError = QAbstractSocket::SocketTimeoutError;
+        loop.quit();
+    };
+
+    QObject::connect
+        (
+            timeout,
+            &QTimer::timeout,
+            this,
+            timeoutLambda
+            );
+
+    qDebug() << "Connecting to " << m_instance->server()->bridgeAddress();
+    m_klipperSocket->open(m_instance->server()->bridgeAddress());
+    timeout->start();
+    loop.exec();
+    timeout->stop();
+
+    timeout->deleteLater();
+
+    m_klipperSocket->disconnect(establishedConnection);
+    m_klipperSocket->disconnect(disconnectConnection);
+    m_klipperSocket->disconnect(errorConnection);
+
+    connect(m_klipperSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(onKlipperSocketMessageReceived(QString)));
+    connect(m_klipperSocket, SIGNAL(disconnected()), this, SLOT(onKlipperSocketDisconnected()));
+    connect(m_klipperSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onKlipperSocketError(QAbstractSocket::SocketError)));
+
+    if(errorOccurred)
+        qDebug() << "Connection Failed";
+    else
+        qDebug() << "Connected";
+
+    return !errorOccurred;
+}
+
+void PrinterTerminal::disconnectFromKlipper()
+{
+    m_klipperSocket->close();
+    delete m_klipperSocket;
+    m_klipperSocket = nullptr;
 }
