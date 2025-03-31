@@ -141,6 +141,8 @@ void PrinterTerminalEdit::keyPressEvent(QKeyEvent *event)
             {
                 if(!m_autoCompleteNoParameterToken)
                     textCursor().insertText("=");
+                else
+                    block = false;
             }
             else if(m_parameterDictionary.contains(m_autoCompleteList[m_autoCompleteIndex]))
             {
@@ -213,7 +215,7 @@ void PrinterTerminalEdit::keyPressEvent(QKeyEvent *event)
 
         cursor.setPosition(m_inputPos);
         cursor.select(QTextCursor::SelectionType::WordUnderCursor);
-        QString commandWord = cursor.selectedText();
+        QString commandWord = cursor.selectedText().toUpper();
 
         cursor.setPosition(cursorPostion);
         cursor.select(QTextCursor::SelectionType::WordUnderCursor);
@@ -223,6 +225,7 @@ void PrinterTerminalEdit::keyPressEvent(QKeyEvent *event)
         {
             m_autoComplete = true;
             m_autoCompleteInput = selectedWord;
+            selectedWord = selectedWord.toUpper();
 
             if(commandWord == selectedWord)
                 m_autoCompleteList = m_commandDictionary.filter(QRegularExpression(QString("^") + commandWord));
@@ -232,7 +235,7 @@ void PrinterTerminalEdit::keyPressEvent(QKeyEvent *event)
                     m_autoCompleteNoParameterToken = true;
 
                 m_parameterAutoComplete = true;
-                m_autoCompleteList = m_parameterDictionary.values(commandWord).filter(QRegularExpression(selectedWord.toUpper()));
+                m_autoCompleteList = m_parameterDictionary.values(commandWord).filter(QRegularExpression(QString("^") + selectedWord));
             }
 
             m_autoCompleteList.sort(Qt::CaseInsensitive);
